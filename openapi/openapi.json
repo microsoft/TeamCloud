@@ -4017,10 +4017,8 @@
           },
           "type": {
             "enum": [
-              "Custom",
-              "AzureResource",
               "Environment",
-              "GitRepository"
+              "Repository"
             ],
             "type": "string"
           },
@@ -4263,12 +4261,11 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2
+              "Custom",
+              "Create",
+              "Delete"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "typeName": {
             "type": "string",
@@ -4448,9 +4445,6 @@
         "additionalProperties": false
       },
       "ComponentTaskTemplate": {
-        "required": [
-          "type"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4471,12 +4465,11 @@
           },
           "type": {
             "enum": [
-              0,
-              1,
-              2
+              "Custom",
+              "Create",
+              "Delete"
             ],
-            "type": "integer",
-            "format": "int32"
+            "type": "string"
           },
           "typeName": {
             "type": "string",
@@ -4576,15 +4569,16 @@
           },
           "type": {
             "enum": [
-              "Custom",
-              "AzureResource",
               "Environment",
-              "GitRepository"
+              "Repository"
             ],
             "type": "string"
           },
           "folder": {
             "type": "string",
+            "nullable": true
+          },
+          "configuration": {
             "nullable": true
           },
           "id": {
@@ -4646,7 +4640,8 @@
           "id",
           "isDefault",
           "organization",
-          "slug"
+          "slug",
+          "type"
         ],
         "type": "object",
         "properties": {
@@ -4662,7 +4657,7 @@
           "isDefault": {
             "type": "boolean"
           },
-          "adapter": {
+          "type": {
             "enum": [
               "AzureResourceManager",
               "AzureDevOps",
@@ -4681,6 +4676,12 @@
               "format": "uuid"
             },
             "nullable": true
+          },
+          "authorizable": {
+            "type": "boolean"
+          },
+          "authorized": {
+            "type": "boolean"
           },
           "authorizeUrl": {
             "type": "string",
@@ -4720,11 +4721,20 @@
       },
       "DeploymentScopeDefinition": {
         "required": [
-          "displayName"
+          "displayName",
+          "type"
         ],
         "type": "object",
         "properties": {
           "displayName": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "AzureResourceManager",
+              "AzureDevOps",
+              "GitHub"
+            ],
             "type": "string"
           },
           "slug": {

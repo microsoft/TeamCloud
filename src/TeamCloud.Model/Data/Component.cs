@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
 using System;
+using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Data
 {
     [SoftDelete(60 * 60 * 24)] // 24 hours
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
+    public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext, IDeploymentScopeContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
     {
         /// <summary>
         /// Gets or sets a browsable link pointing to the component resource.

@@ -9,22 +9,58 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Azure.Cosmos.Table;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization
 {
     public abstract class AuthorizationEntity : ITableEntity
     {
+        public static string GetEntityId(DeploymentScope deploymentScope)
+        {
+            var entityId = Guid.Empty;
+
+            if (deploymentScope != null)
+            {
+                var result = Merge(Guid.Parse(deploymentScope.Organization), Guid.Parse(deploymentScope.Id));
+
+                entityId = new Guid(result.ToArray());
+            }
+
+            return entityId.ToString();
+
+            static IEnumerable<byte> Merge(Guid guid1, Guid guid2)
+            {
+                var buffer1 = guid1.ToByteArray();
+                var buffer2 = guid2.ToByteArray();
+
+                for (int i = 0; i < buffer1.Length; i++)
+                    yield return (byte)(buffer1[i] ^ buffer2[i]);
+            }
+        }
+
         internal AuthorizationEntity()
         { }
 
         private static bool IsEdmType(Type type)
             => Enum.GetNames(typeof(EdmType)).Contains(type.Name, StringComparer.OrdinalIgnoreCase) || type.IsEnum;
 
-        private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> EntityPropertiesCache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
+        private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> ResolvePropertiesCache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
 
-        private IEnumerable<PropertyInfo> EntityProperties => EntityPropertiesCache.GetOrAdd(GetType(), (type) => type
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && IsEdmType(pi.PropertyType) && (pi.CanWrite || pi.GetSetMethod(true) != null)));
+        private static IEnumerable<PropertyInfo> ResolveProperties(Type type)
+        {
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
+
+            var properties = type.BaseType == typeof(object)
+                ? Enumerable.Empty<PropertyInfo>()
+                : ResolveProperties(type.BaseType);
+
+            return properties.Union(ResolvePropertiesCache.GetOrAdd(type, (type) => type
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && IsEdmType(pi.PropertyType) && (pi.CanWrite || pi.GetSetMethod(true) != null))));
+        }
+
+        private IEnumerable<PropertyInfo> EntityProperties => ResolveProperties(this.GetType());
 
         public ITableEntity Entity => this;
 

@@ -116,13 +116,8 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<DeploymentScope>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                if (expand)
-                {
-                    return await ExpandAsync(response.Resource)
-                        .ConfigureAwait(false);
-                }
-
-                return response.Resource;
+                return await ExpandAsync(response.Resource, expand)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -280,7 +275,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var queryResult in queryResponse)
-                    yield return queryResult;
+                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
             }
         }
 

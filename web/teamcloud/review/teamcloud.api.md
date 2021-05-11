@@ -113,7 +113,7 @@ export interface ComponentTask {
     // (undocumented)
     started?: Date | null;
     // (undocumented)
-    type?: Enum3;
+    type?: ComponentTaskType;
     // (undocumented)
     typeName?: string | null;
 }
@@ -172,12 +172,19 @@ export interface ComponentTaskTemplate {
     // (undocumented)
     inputJsonSchema?: string | null;
     // (undocumented)
-    type: Enum3;
+    type?: ComponentTaskTemplateType;
     readonly typeName?: string | null;
 }
 
+// @public
+export type ComponentTaskTemplateType = string;
+
+// @public
+export type ComponentTaskType = string;
+
 // @public (undocumented)
 export interface ComponentTemplate {
+    configuration?: any | null;
     // (undocumented)
     description?: string | null;
     // (undocumented)
@@ -248,7 +255,9 @@ export type ComponentType = string;
 // @public (undocumented)
 export interface DeploymentScope {
     // (undocumented)
-    adapter?: DeploymentScopeAdapter;
+    authorizable?: boolean;
+    // (undocumented)
+    authorized?: boolean;
     // (undocumented)
     authorizeUrl?: string | null;
     // (undocumented)
@@ -265,10 +274,9 @@ export interface DeploymentScope {
     slug: string;
     // (undocumented)
     subscriptionIds?: string[] | null;
+    // (undocumented)
+    type: DeploymentScopeType;
 }
-
-// @public
-export type DeploymentScopeAdapter = string;
 
 // @public (undocumented)
 export interface DeploymentScopeDataResult {
@@ -293,7 +301,12 @@ export interface DeploymentScopeDefinition {
     readonly slug?: string | null;
     // (undocumented)
     subscriptionIds?: string[] | null;
+    // (undocumented)
+    type: DeploymentScopeDefinitionType;
 }
+
+// @public
+export type DeploymentScopeDefinitionType = string;
 
 // @public (undocumented)
 export interface DeploymentScopeListDataResult {
@@ -307,7 +320,7 @@ export interface DeploymentScopeListDataResult {
 }
 
 // @public
-export type Enum3 = number;
+export type DeploymentScopeType = string;
 
 // @public (undocumented)
 export interface ErrorResult {
@@ -348,31 +361,43 @@ export const enum KnownComponentTaskResourceState {
 }
 
 // @public
-export const enum KnownComponentTemplateType {
+export const enum KnownComponentTaskTemplateType {
     // (undocumented)
-    AzureResource = "AzureResource",
+    Create = "Create",
     // (undocumented)
     Custom = "Custom",
     // (undocumented)
+    Delete = "Delete"
+}
+
+// @public
+export const enum KnownComponentTaskType {
+    // (undocumented)
+    Create = "Create",
+    // (undocumented)
+    Custom = "Custom",
+    // (undocumented)
+    Delete = "Delete"
+}
+
+// @public
+export const enum KnownComponentTemplateType {
+    // (undocumented)
     Environment = "Environment",
     // (undocumented)
-    GitRepository = "GitRepository"
+    Repository = "Repository"
 }
 
 // @public
 export const enum KnownComponentType {
     // (undocumented)
-    AzureResource = "AzureResource",
-    // (undocumented)
-    Custom = "Custom",
-    // (undocumented)
     Environment = "Environment",
     // (undocumented)
-    GitRepository = "GitRepository"
+    Repository = "Repository"
 }
 
 // @public
-export const enum KnownDeploymentScopeAdapter {
+export const enum KnownDeploymentScopeDefinitionType {
     // (undocumented)
     AzureDevOps = "AzureDevOps",
     // (undocumented)
@@ -382,13 +407,13 @@ export const enum KnownDeploymentScopeAdapter {
 }
 
 // @public
-export const enum KnownEnum3 {
+export const enum KnownDeploymentScopeType {
     // (undocumented)
-    One = 1,
+    AzureDevOps = "AzureDevOps",
     // (undocumented)
-    Two = 2,
+    AzureResourceManager = "AzureResourceManager",
     // (undocumented)
-    Zero = 0
+    GitHub = "GitHub"
 }
 
 // @public

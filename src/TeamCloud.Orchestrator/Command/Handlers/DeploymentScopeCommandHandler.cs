@@ -14,6 +14,7 @@ using TeamCloud.Adapters.Authorization;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Handlers;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.API;
 
@@ -131,20 +132,20 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                 commandResult.Result = command.Payload;
 
                 var adapter = adapters
-                    .FirstOrDefault(a => a.CanHandle(command.Payload));
+                    .FirstOrDefault(a => a.Supports(command.Payload));
 
                 if (adapter is null)
                 {
                     throw new NullReferenceException($"Could not find adapter for {command.Payload}");
                 }
-                else if (adapter.CanHandle(command.Payload) && adapter is IAdapterAuthorizable adapterAuthorize)
+                else if (adapter.Supports(command.Payload) && adapter is IAdapterAuthorize adapterAuthorize)
                 {
-                    var authorizationSession = await authorizationSessionClient
-                        .SetAsync(adapterAuthorize.CreateAuthorizationSession(command.Payload))
+                    await adapterAuthorize
+                        .CreateSessionAsync(command.Payload)
                         .ConfigureAwait(false);
 
                     commandResult.Result.AuthorizeUrl = await FunctionsEnvironment
-                        .GetFunctionUrlAsync(nameof(AuthorizationTrigger.Authorize), functionsHost, replaceToken: (token) => AuthorizationTrigger.ResolveTokenValue(token, authorizationSession))
+                        .GetFunctionUrlAsync(nameof(AuthorizationTrigger.Authorize), functionsHost, replaceToken: (token) => AuthorizationTrigger.ResolveTokenValue(token, command.Payload))
                         .ConfigureAwait(false);
 
                     commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;

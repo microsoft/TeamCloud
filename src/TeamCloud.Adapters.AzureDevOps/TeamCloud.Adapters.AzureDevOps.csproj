@@ -19,6 +19,7 @@
     <PackageReference Include="FluentValidation" Version="9.2.2" />
     <PackageReference Include="Flurl.Http" Version="2.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.TeamFoundationServer.Client" Version="16.184.0-preview" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
   </ItemGroup>
 
@@ -29,6 +30,10 @@
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
     <ProjectReference Include="..\TeamCloud.Orchestration\TeamCloud.Orchestration.csproj" />
     <ProjectReference Include="..\TeamCloud.Templates\TeamCloud.Templates.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Handlers\" />
   </ItemGroup>
 
 </Project>

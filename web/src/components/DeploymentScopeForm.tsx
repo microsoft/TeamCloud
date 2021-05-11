@@ -22,6 +22,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     const { data: managementGroups } = useAzureManagementGroups();
 
     const [scopeName, setScopeName] = useState<string>();
+    const [scopeType, setScopeType] = useState<string>();
     const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
     const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IComboBoxOption[]>();
     const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
@@ -32,6 +33,14 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     const { onScopeChange } = props;
 
     const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
+
+    const _scopeTypeOptions = () => [
+        { key: 'AzureResourceManager', text: 'Azure Resource Manager', default: true },
+        { key: 'AzureDevOps', text: 'Azure DevOps' },
+        { key: 'GitHub', text: 'GitHub'}
+    ];
+
+    const _scopeTypeOptionsDefault = () => _scopeTypeOptions().find(o => o.default !== undefined && o.default);
 
     useEffect(() => {
         if (subscriptions && scopeSubscriptionOptions === undefined) {
@@ -47,11 +56,11 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
         }
     }, [managementGroups, scopeManagementGroupOptions]);
 
-
     useEffect(() => {
         if (onScopeChange !== undefined) {
             const scopeDef = {
                 displayName: scopeName,
+                type: scopeType,
                 managementGroupId: scopeManagementGroup,
                 subscriptionIds: scopeSubscriptions,
                 // isDefault: true
@@ -60,7 +69,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
             onScopeChange(scopeDef);
         }
         // }, [onScopeChange, scopeName, scopeSubscriptions]);
-    }, [onScopeChange, scopeName, scopeManagementGroup, scopeSubscriptions]);
+    }, [onScopeChange, scopeName, scopeType, scopeManagementGroup, scopeSubscriptions]);
 
 
     const _submitForm = () => {
@@ -70,6 +79,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
             const scopeDef = {
                 displayName: scopeName,
+                type: scopeType,
                 managementGroupId: scopeManagementGroup,
                 subscriptionIds: scopeSubscriptions,
                 // isDefault: true
@@ -121,6 +131,15 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     disabled={!formEnabled}
                     value={scopeName}
                     onChange={(_ev, val) => setScopeName(val)} />
+            </Stack.Item>
+            <Stack.Item>
+                <ComboBox
+                    required
+                    label='Type'
+                    disabled={!formEnabled}
+                    selectedKey={scopeType || _scopeTypeOptionsDefault()?.key}
+                    options={_scopeTypeOptions()}
+                    onChange={(_ev, val) => setScopeType(val ? val.key as string : undefined)} />
             </Stack.Item>
             <Stack.Item>
                 <ComboBox

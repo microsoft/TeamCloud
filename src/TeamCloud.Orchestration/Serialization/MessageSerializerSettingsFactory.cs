@@ -17,6 +17,6 @@ namespace TeamCloud.Orchestration.Serialization
         // for our command handling, we override the default behavior and return our
         // TeamCloud default serializer settings.
 
-        public JsonSerializerSettings CreateJsonSerializerSettings() => TeamCloudSerializerSettings.Create();
+        public JsonSerializerSettings CreateJsonSerializerSettings() => new TeamCloudSerializerSettings();
     }
 }

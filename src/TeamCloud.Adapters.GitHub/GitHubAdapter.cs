@@ -16,28 +16,40 @@ using TeamCloud.Templates;
 
 namespace TeamCloud.Adapters.GitHub
 {
-    public sealed class GitHubAdapter : Adapter, IAdapterAuthorizable<DeploymentScope>
+    public sealed class GitHubAdapter : Adapter, IAdapterAuthorize
     {
-        public GitHubAdapter(IAuthorizationSessionClient sessionClient, IAuthorizationTokenClient tokenClient)
-            : base(sessionClient, tokenClient)
+        public GitHubAdapter(IServiceProvider serviceProvider, IAuthorizationSessionClient sessionClient, IAuthorizationTokenClient tokenClient)
+            : base(serviceProvider, sessionClient, tokenClient)
         { }
 
-        public bool CanHandle(DeploymentScope containerDocument)
-            => containerDocument != null && containerDocument.Type == DeploymentScopeType.GitHub;
+        public override bool Supports(DeploymentScope deploymentScope)
+            => deploymentScope != null && deploymentScope.Type == DeploymentScopeType.GitHub;
 
-        public AuthorizationSession CreateAuthorizationSession(DeploymentScope containerDocument)
+        public override async Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
         {
-            if (!CanHandle(containerDocument))
-                throw new ArgumentException("Argument value can not be handled", nameof(containerDocument));
+            if (deploymentScope is null)
+                throw new ArgumentNullException(nameof(deploymentScope));
 
-            return new GitHubAuthorizationSession()
-            {
-                TeamCloudOrganization = containerDocument.Organization,
-                TeamCloudDeploymentScope = containerDocument.Id
-            };
+            var token = await TokenClient
+                .GetAsync<GitHubToken>(deploymentScope)
+                .ConfigureAwait(false);
+
+            return !(token is null);
         }
 
-        public Task<IActionResult> HandleAuthorizeAsync(HttpRequestMessage requestMessage, AuthorizationSession authorizationSession, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        Task IAdapterAuthorize.CreateSessionAsync(DeploymentScope deploymentScope)
+        {
+            if (!Supports(deploymentScope))
+                throw new ArgumentException("Argument value can not be handled", nameof(deploymentScope));
+
+            return SessionClient.SetAsync<GitHubSession>(new GitHubSession()
+            {
+                TeamCloudOrganization = deploymentScope.Organization,
+                TeamCloudDeploymentScope = deploymentScope.Id
+            });
+        }
+
+        Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
         {
             return Task.FromResult<IActionResult>(new ContentResult
             {
@@ -49,7 +61,7 @@ namespace TeamCloud.Adapters.GitHub
             });
         }
 
-        public Task<IActionResult> HandleCallbackAsync(HttpRequestMessage requestMessage, AuthorizationSession authorizationSession, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
         {
             return Task.FromResult<IActionResult>(new ContentResult
             {

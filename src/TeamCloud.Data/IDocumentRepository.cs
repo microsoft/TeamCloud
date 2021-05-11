@@ -22,6 +22,6 @@ namespace TeamCloud.Data
 
         Task<T> RemoveAsync(T document);
 
-        Task<T> ExpandAsync(T document);
+        Task<T> ExpandAsync(T document, bool includeOptional = false);
     }
 }

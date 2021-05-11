@@ -12,6 +12,8 @@ using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Handlers;
+
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;

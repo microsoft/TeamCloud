@@ -1228,8 +1228,8 @@
                 },
                 {
                   "kind": "Reference",
-                  "text": "Enum3",
-                  "canonicalReference": "teamcloud!Enum3:type"
+                  "text": "ComponentTaskType",
+                  "canonicalReference": "teamcloud!ComponentTaskType:type"
                 },
                 {
                   "kind": "Content",
@@ -1786,12 +1786,12 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "type: "
+                  "text": "type?: "
                 },
                 {
                   "kind": "Reference",
-                  "text": "Enum3",
-                  "canonicalReference": "teamcloud!Enum3:type"
+                  "text": "ComponentTaskTemplateType",
+                  "canonicalReference": "teamcloud!ComponentTaskTemplateType:type"
                 },
                 {
                   "kind": "Content",
@@ -1834,6 +1834,56 @@
           "extendsTokenRanges": []
         },
         {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ComponentTaskTemplateType:type",
+          "docComment": "/**\n * Defines values for ComponentTaskTemplateType. \\ {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ComponentTaskTemplateType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ComponentTaskTemplateType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ComponentTaskType:type",
+          "docComment": "/**\n * Defines values for ComponentTaskType. \\ {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ComponentTaskType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ComponentTaskType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
           "kind": "Interface",
           "canonicalReference": "teamcloud!ComponentTemplate:interface",
           "docComment": "",
@@ -1846,6 +1896,31 @@
           "releaseTag": "Public",
           "name": "ComponentTemplate",
           "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTemplate#configuration:member",
+              "docComment": "/**\n * Any object\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "configuration?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "configuration",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTemplate#description:member",
@@ -2519,7 +2594,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTemplateType:type",
-          "docComment": "/**\n * Defines values for ComponentTemplateType. \\ {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **AzureResource** \\ **Environment** \\ **GitRepository**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTemplateType. \\ {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2544,7 +2619,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentType:type",
-          "docComment": "/**\n * Defines values for ComponentType. \\ {@link KnownComponentType} can be used interchangeably with ComponentType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **AzureResource** \\ **Environment** \\ **GitRepository**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentType. \\ {@link KnownComponentType} can be used interchangeably with ComponentType, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2581,17 +2656,16 @@
           "members": [
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!DeploymentScope#adapter:member",
+              "canonicalReference": "teamcloud!DeploymentScope#authorizable:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "adapter?: "
+                  "text": "authorizable?: "
                 },
                 {
-                  "kind": "Reference",
-                  "text": "DeploymentScopeAdapter",
-                  "canonicalReference": "teamcloud!DeploymentScopeAdapter:type"
+                  "kind": "Content",
+                  "text": "boolean"
                 },
                 {
                   "kind": "Content",
@@ -2599,7 +2673,32 @@
                 }
               ],
               "releaseTag": "Public",
-              "name": "adapter",
+              "name": "authorizable",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#authorized:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "authorized?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "authorized",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -2804,34 +2903,35 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#type:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "type: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScopeType",
+                  "canonicalReference": "teamcloud!DeploymentScopeType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "type",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []
-        },
-        {
-          "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!DeploymentScopeAdapter:type",
-          "docComment": "/**\n * Defines values for DeploymentScopeAdapter. \\ {@link KnownDeploymentScopeAdapter} can be used interchangeably with DeploymentScopeAdapter, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare type DeploymentScopeAdapter = "
-            },
-            {
-              "kind": "Content",
-              "text": "string"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "DeploymentScopeAdapter",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 2
-          }
         },
         {
           "kind": "Interface",
@@ -3087,9 +3187,60 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeDefinition#type:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "type: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScopeDefinitionType",
+                  "canonicalReference": "teamcloud!DeploymentScopeDefinitionType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "type",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!DeploymentScopeDefinitionType:type",
+          "docComment": "/**\n * Defines values for DeploymentScopeDefinitionType. \\ {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type DeploymentScopeDefinitionType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "DeploymentScopeDefinitionType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",
@@ -3214,16 +3365,16 @@
         },
         {
           "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!Enum3:type",
-          "docComment": "/**\n * Defines values for Enum3. \\ {@link KnownEnum3} can be used interchangeably with Enum3, this enum contains the known values that the service supports. ### Know values supported by the service **0** \\ **1** \\ **2**\n */\n",
+          "canonicalReference": "teamcloud!DeploymentScopeType:type",
+          "docComment": "/**\n * Defines values for DeploymentScopeType. \\ {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare type Enum3 = "
+              "text": "export declare type DeploymentScopeType = "
             },
             {
               "kind": "Content",
-              "text": "number"
+              "text": "string"
             },
             {
               "kind": "Content",
@@ -3231,7 +3382,7 @@
             }
           ],
           "releaseTag": "Public",
-          "name": "Enum3",
+          "name": "DeploymentScopeType",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -3575,33 +3726,33 @@
         },
         {
           "kind": "Enum",
-          "canonicalReference": "teamcloud!KnownComponentTemplateType:enum",
-          "docComment": "/**\n * Known values of {@link ComponentTemplateType} that the service accepts.\n */\n",
+          "canonicalReference": "teamcloud!KnownComponentTaskTemplateType:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTaskTemplateType} that the service accepts.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownComponentTemplateType "
+              "text": "export declare const enum KnownComponentTaskTemplateType "
             }
           ],
           "releaseTag": "Public",
-          "name": "KnownComponentTemplateType",
+          "name": "KnownComponentTaskTemplateType",
           "members": [
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTemplateType.AzureResource:member",
+              "canonicalReference": "teamcloud!KnownComponentTaskTemplateType.Create:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "AzureResource = "
+                  "text": "Create = "
                 },
                 {
                   "kind": "Content",
-                  "text": "\"AzureResource\""
+                  "text": "\"Create\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "AzureResource",
+              "name": "Create",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3609,7 +3760,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTemplateType.Custom:member",
+              "canonicalReference": "teamcloud!KnownComponentTaskTemplateType.Custom:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -3628,6 +3779,120 @@
                 "endIndex": 2
               }
             },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskTemplateType.Delete:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Delete = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Delete\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Delete",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentTaskType:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTaskType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentTaskType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentTaskType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskType.Create:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Create = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Create\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Create",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskType.Custom:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Custom = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Custom\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Custom",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskType.Delete:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Delete = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Delete\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Delete",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownComponentTemplateType:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTemplateType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownComponentTemplateType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownComponentTemplateType",
+          "members": [
             {
               "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentTemplateType.Environment:member",
@@ -3651,20 +3916,20 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTemplateType.GitRepository:member",
+              "canonicalReference": "teamcloud!KnownComponentTemplateType.Repository:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "GitRepository = "
+                  "text": "Repository = "
                 },
                 {
                   "kind": "Content",
-                  "text": "\"GitRepository\""
+                  "text": "\"Repository\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "GitRepository",
+              "name": "Repository",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3685,48 +3950,6 @@
           "releaseTag": "Public",
           "name": "KnownComponentType",
           "members": [
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentType.AzureResource:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "AzureResource = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"AzureResource\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "AzureResource",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentType.Custom:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Custom = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"Custom\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Custom",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
             {
               "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentType.Environment:member",
@@ -3750,20 +3973,20 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentType.GitRepository:member",
+              "canonicalReference": "teamcloud!KnownComponentType.Repository:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "GitRepository = "
+                  "text": "Repository = "
                 },
                 {
                   "kind": "Content",
-                  "text": "\"GitRepository\""
+                  "text": "\"Repository\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "GitRepository",
+              "name": "Repository",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3773,20 +3996,20 @@
         },
         {
           "kind": "Enum",
-          "canonicalReference": "teamcloud!KnownDeploymentScopeAdapter:enum",
-          "docComment": "/**\n * Known values of {@link DeploymentScopeAdapter} that the service accepts.\n */\n",
+          "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType:enum",
+          "docComment": "/**\n * Known values of {@link DeploymentScopeDefinitionType} that the service accepts.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownDeploymentScopeAdapter "
+              "text": "export declare const enum KnownDeploymentScopeDefinitionType "
             }
           ],
           "releaseTag": "Public",
-          "name": "KnownDeploymentScopeAdapter",
+          "name": "KnownDeploymentScopeDefinitionType",
           "members": [
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownDeploymentScopeAdapter.AzureDevOps:member",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType.AzureDevOps:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -3807,7 +4030,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownDeploymentScopeAdapter.AzureResourceManager:member",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType.AzureResourceManager:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -3828,7 +4051,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownDeploymentScopeAdapter.GitHub:member",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType.GitHub:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -3851,33 +4074,33 @@
         },
         {
           "kind": "Enum",
-          "canonicalReference": "teamcloud!KnownEnum3:enum",
-          "docComment": "/**\n * Known values of {@link Enum3} that the service accepts.\n */\n",
+          "canonicalReference": "teamcloud!KnownDeploymentScopeType:enum",
+          "docComment": "/**\n * Known values of {@link DeploymentScopeType} that the service accepts.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownEnum3 "
+              "text": "export declare const enum KnownDeploymentScopeType "
             }
           ],
           "releaseTag": "Public",
-          "name": "KnownEnum3",
+          "name": "KnownDeploymentScopeType",
           "members": [
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownEnum3.One:member",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeType.AzureDevOps:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "One = "
+                  "text": "AzureDevOps = "
                 },
                 {
                   "kind": "Content",
-                  "text": "1"
+                  "text": "\"AzureDevOps\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "One",
+              "name": "AzureDevOps",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3885,20 +4108,20 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownEnum3.Two:member",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeType.AzureResourceManager:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "Two = "
+                  "text": "AzureResourceManager = "
                 },
                 {
                   "kind": "Content",
-                  "text": "2"
+                  "text": "\"AzureResourceManager\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "Two",
+              "name": "AzureResourceManager",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3906,20 +4129,20 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownEnum3.Zero:member",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeType.GitHub:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "Zero = "
+                  "text": "GitHub = "
                 },
                 {
                   "kind": "Content",
-                  "text": "0"
+                  "text": "\"GitHub\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "Zero",
+              "name": "GitHub",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

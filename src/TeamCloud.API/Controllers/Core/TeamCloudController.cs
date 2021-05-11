@@ -43,8 +43,8 @@ namespace TeamCloud.API.Controllers.Core
         public UserService UserService
             => GetService<UserService>();
 
-        public Orchestrator Orchestrator
-            => GetService<Orchestrator>();
+        public OrchestratorService Orchestrator
+            => GetService<OrchestratorService>();
 
         protected ILogger Log { get; }
 

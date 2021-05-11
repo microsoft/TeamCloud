@@ -162,11 +162,11 @@ namespace TeamCloud.API
         public static bool IsUserIdentifier(this string identifier)
             => !string.IsNullOrWhiteSpace(identifier);
 
-        public static Task<IActionResult> InvokeAndReturnActionResultAsync<TData>(this Orchestrator orchestrator, ICommand<TData> command, HttpRequest httpRequest)
+        public static Task<IActionResult> InvokeAndReturnActionResultAsync<TData>(this OrchestratorService orchestrator, ICommand<TData> command, HttpRequest httpRequest)
             where TData : class, new()
             => InvokeAndReturnActionResultAsync(orchestrator, command, new HttpMethod(httpRequest?.Method ?? throw new ArgumentNullException(nameof(httpRequest))));
 
-        public static async Task<IActionResult> InvokeAndReturnActionResultAsync<TData>(this Orchestrator orchestrator, ICommand<TData> command, HttpMethod httpMethod)
+        public static async Task<IActionResult> InvokeAndReturnActionResultAsync<TData>(this OrchestratorService orchestrator, ICommand<TData> command, HttpMethod httpMethod)
             where TData : class, new()
         {
             if (orchestrator is null)

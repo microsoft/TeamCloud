@@ -7,8 +7,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Adapters.Utilities;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization
 {
@@ -17,16 +17,12 @@ namespace TeamCloud.Adapters.Authorization
         public const string TableName = "AuthorizationToken";
 
         private readonly IAuthorizationTokenOptions options;
-        private readonly IAuthorizationEntityResolver resolver;
-        private readonly IMemoryCache cache;
 
         private readonly AsyncLazy<CloudTable> tableInstance;
 
-        public AuthorizationTokenClient(IAuthorizationTokenOptions options, IAuthorizationEntityResolver resolver, IMemoryCache cache)
+        public AuthorizationTokenClient(IAuthorizationTokenOptions options)
         {
             this.options = options ?? AuthorizationTokenOptions.Default;
-            this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
-            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
             tableInstance = new AsyncLazy<CloudTable>(async () =>
             {
@@ -43,58 +39,60 @@ namespace TeamCloud.Adapters.Authorization
             });
         }
 
-        public async Task<AuthorizationToken> GetAsync(string authId)
+        private async Task<CloudTable> GetTableAsync()
         {
-            if (string.IsNullOrWhiteSpace(authId))
-                throw new ArgumentException($"'{nameof(authId)}' cannot be null or whitespace.", nameof(authId));
+            try
+            {
+                return await tableInstance.Value
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                tableInstance.Reset();
 
-            var table = await tableInstance.Value
+                throw;
+            }
+        }
+        public async Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope) where TAuthorizationToken : AuthorizationToken
+        {
+            if (deploymentScope is null)
+                throw new ArgumentNullException(nameof(deploymentScope));
+
+            var table = await GetTableAsync()
                 .ConfigureAwait(false);
 
-            var partitionKey = await cache.GetOrCreateAsync($"{authId}@{this.GetType().FullName}", async cacheEntry =>
-            {
-                cacheEntry.SetSlidingExpiration(AuthorizationSession.DefaultTTL);
+            var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
+            var partitionKey = string.Join(",", typeof(TAuthorizationToken).AssemblyQualifiedName.Split(',').Take(2));
 
-                var query = new TableQuery()
-                    .Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, authId))
-                    .Select(new string[] { "PartitionKey" });
+            var response = await table
+                .ExecuteAsync(TableOperation.Retrieve<TAuthorizationToken>(partitionKey, rowKey))
+                .ConfigureAwait(false);
 
-                var response = await table
-                    .ExecuteQuerySegmentedAsync(query, null)
-                    .ConfigureAwait(false);
+            var token = response.Result as TAuthorizationToken;
 
-                return response.Results.SingleOrDefault()?.PartitionKey;
+            if (token?.Active ?? true)
+                return token;
 
-            }).ConfigureAwait(false);
-
-
-            if (!string.IsNullOrEmpty(partitionKey))
-            {
-                var response = await table
-                    .ExecuteAsync(TableOperation.Retrieve(partitionKey, authId, resolver.Resolve))
-                    .ConfigureAwait(false);
-
-                var authorizationToken = response.Result as AuthorizationToken;
-
-                return authorizationToken;
-            }
+            await table
+                .ExecuteAsync(TableOperation.Delete(token))
+                .ConfigureAwait(false);
 
             return null;
         }
 
-        public async Task<AuthorizationToken> SetAsync(AuthorizationToken authorizationToken)
+        public async Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken) where TAuthorizationToken : AuthorizationToken
         {
             if (authorizationToken is null)
                 throw new ArgumentNullException(nameof(authorizationToken));
 
-            var table = await tableInstance.Value
+            var table = await GetTableAsync()
                 .ConfigureAwait(false);
 
             var response = await table
                 .ExecuteAsync(TableOperation.InsertOrReplace(authorizationToken))
                 .ConfigureAwait(false);
 
-            return response.Result as AuthorizationToken;
+            return response.Result as TAuthorizationToken;
         }
     }
 }

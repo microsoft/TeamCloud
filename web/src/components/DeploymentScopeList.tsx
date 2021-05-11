@@ -22,10 +22,11 @@ export const DeploymentScopeList: React.FC = () => {
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 200, fieldName: 'displayName' },
         { key: 'type', name: 'Type', minWidth: 200, fieldName: 'type' },
+        { key: 'authorized', name: 'Authorized', minWidth: 100, onRender: (s: DeploymentScope) => <Checkbox checked={s.authorized} disabled /> },
         { key: 'isDefault', name: 'Default', minWidth: 100, onRender: (s: DeploymentScope) => <Checkbox checked={s.isDefault} disabled /> },
         { key: 'subscriptionIds', name: 'Subscriptions', minWidth: 280, fieldName: 'subscriptionIds' },
         { key: 'managementGroupId', name: 'Management Group', minWidth: 240, onRender: (s: DeploymentScope) => s.managementGroupId?.split('/')[s.managementGroupId?.split('/').length - 1] },
-        { key: 'authorize', name: '', minWidth: 100, onRender: (s: DeploymentScope) => <DefaultButton text='authorize' iconProps={{ iconName: 'Permissions' }} onClick={ () => _onItemAuthorize(s) } /> }
+        { key: 'authorize', name: '', minWidth: 100, onRender: (s: DeploymentScope) => s.authorizable === true ? <DefaultButton text='authorize' iconProps={{ iconName: 'Permissions' }} onClick={ () => _onItemAuthorize(s) } /> : <></> }
     ];
 
     const _onItemAuthorize = async (scope: DeploymentScope): Promise<void> => {

@@ -2489,10 +2489,8 @@ components:
           nullable: true
         type:
           enum:
-            - Custom
-            - AzureResource
             - Environment
-            - GitRepository
+            - Repository
           type: string
         resourceId:
           type: string
@@ -2670,11 +2668,10 @@ components:
           nullable: true
         type:
           enum:
-            - 0
-            - 1
-            - 2
-          type: integer
-          format: int32
+            - Custom
+            - Create
+            - Delete
+          type: string
         typeName:
           type: string
           nullable: true
@@ -2806,8 +2803,6 @@ components:
           nullable: true
       additionalProperties: false
     ComponentTaskTemplate:
-      required:
-        - type
       type: object
       properties:
         id:
@@ -2824,11 +2819,10 @@ components:
           nullable: true
         type:
           enum:
-            - 0
-            - 1
-            - 2
-          type: integer
-          format: int32
+            - Custom
+            - Create
+            - Delete
+          type: string
         typeName:
           type: string
           nullable: true
@@ -2899,13 +2893,13 @@ components:
           $ref: '#/components/schemas/ComponentTaskRunner'
         type:
           enum:
-            - Custom
-            - AzureResource
             - Environment
-            - GitRepository
+            - Repository
           type: string
         folder:
           type: string
+          nullable: true
+        configuration:
           nullable: true
         id:
           type: string
@@ -2951,6 +2945,7 @@ components:
         - isDefault
         - organization
         - slug
+        - type
       type: object
       properties:
         organization:
@@ -2961,7 +2956,7 @@ components:
           type: string
         isDefault:
           type: boolean
-        adapter:
+        type:
           enum:
             - AzureResourceManager
             - AzureDevOps
@@ -2976,6 +2971,10 @@ components:
             type: string
             format: uuid
           nullable: true
+        authorizable:
+          type: boolean
+        authorized:
+          type: boolean
         authorizeUrl:
           type: string
           nullable: true
@@ -3004,9 +3003,16 @@ components:
     DeploymentScopeDefinition:
       required:
         - displayName
+        - type
       type: object
       properties:
         displayName:
+          type: string
+        type:
+          enum:
+            - AzureResourceManager
+            - AzureDevOps
+            - GitHub
           type: string
         slug:
           type: string

@@ -3,8 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Schema;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +10,12 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using TeamCloud.Git.Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
+using YamlDotNet.Serialization;
 
 namespace TeamCloud.Git
 {
@@ -141,143 +143,6 @@ namespace TeamCloud.Git
             return new Guid(hasher.ComputeHash(buffer));
         }
 
-        internal static JSchema ToSchema(this IEnumerable<YamlParameter<dynamic>> parameters)
-        {
-            if (parameters is null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            if (parameters.Any())
-            {
-                var schema = new JSchema
-                {
-                    Type = JSchemaType.Object
-                };
-
-                foreach (var parameter in parameters)
-                {
-                    var parameterSchema = new JSchema
-                    {
-                        Type = parameter.Type,
-                        Default = TypedValue(parameter.Type, parameter.Value ?? parameter.Default),
-                        ReadOnly = parameter.Readonly,
-                        Description = parameter.Name
-                    };
-
-                    parameter.Allowed?.ForEach(a => parameterSchema.Enum.Add(TypedValue(parameter.Type, a)));
-
-                    schema.Properties.Add(parameter.Id, parameterSchema);
-                }
-
-                parameters
-                    .Where(p => p.Required)
-                    .ToList()
-                    .ForEach(p => schema.Required.Add(p.Id));
-
-                return schema;
-            }
-
-            return null;
-        }
-
-        private static dynamic TypedValue(JSchemaType schemaType, dynamic value) => schemaType switch
-        {
-            // JSchemaType.None => value,
-            // JSchemaType.String => value,
-            JSchemaType.Number => double.TryParse(value, out double result) ? result : 0,
-            JSchemaType.Integer => int.TryParse(value, out int result) ? result : 0,
-            JSchemaType.Boolean => bool.TryParse(value, out bool result) ? result : false,
-            _ => value
-        };
-
-
-        internal static ComponentTaskTemplate ToTemplate(this ComponentTaskYaml yaml)
-        {
-            if (yaml is null)
-                throw new ArgumentNullException(nameof(yaml));
-
-            return new ComponentTaskTemplate
-            {
-                Id = yaml.Id,
-                DisplayName = yaml.Name,
-                Description = yaml.Description,
-                Type = yaml.Type,
-                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None)
-            };
-        }
-
-        internal static ComponentTemplate ToTemplate(this ComponentYaml yaml, ProjectTemplate projectTemplate, string folder)
-        {
-            if (yaml is null)
-                throw new ArgumentNullException(nameof(yaml));
-
-            if (projectTemplate is null)
-                throw new ArgumentNullException(nameof(projectTemplate));
-
-            if (folder is null)
-                throw new ArgumentNullException(nameof(folder));
-
-            var name = !string.IsNullOrEmpty(yaml?.Name) ? yaml.Name : folder;
-
-            return new ComponentTemplate
-            {
-                Id = folder.ToGuid().ToString(),
-                Organization = projectTemplate.Organization,
-                ParentId = projectTemplate.Id,
-                DisplayName = name,
-                Description = yaml.Description,
-                Repository = projectTemplate.Repository,
-                Type = yaml.Type,
-                Folder = folder,
-                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None),
-                Tasks = yaml.Tasks?.Select(t => t.ToTemplate()).ToList(),
-                TaskRunner = new ComponentTaskRunner()
-                {
-                    Id = yaml.TaskRunner?.Id,
-                    With = yaml.TaskRunner?.With ?? new Dictionary<string, string>()
-                },
-                Permissions = yaml.Permissions?
-                    .Where(p => Enum.TryParse(typeof(ProjectUserRole), p.Role, true, out _))
-                    .GroupBy(p => (ProjectUserRole)Enum.Parse(typeof(ProjectUserRole), p.Role, true))
-                    .ToDictionary(g => g.Key, g => g.Select(p => p.Permission))
-            };
-        }
-
-        internal static ProjectTemplate ToTemplate(this ProjectYaml yaml, RepositoryReference repo)
-        {
-            if (yaml is null)
-                throw new ArgumentNullException(nameof(yaml));
-
-            if (repo is null)
-                throw new ArgumentNullException(nameof(repo));
-
-            return new ProjectTemplate
-            {
-                Id = repo.Url.ToGuid().ToString(),
-                Repository = repo,
-                DisplayName = yaml.Name,
-                Description = yaml.Description,
-                Components = yaml.Components,
-                InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None)
-            };
-        }
-
-        internal static ProjectTemplate UpdateFromYaml(this ProjectTemplate template, ProjectYaml yaml)
-        {
-            if (template is null)
-                throw new ArgumentNullException(nameof(template));
-
-            if (yaml is null)
-                throw new ArgumentNullException(nameof(yaml));
-
-            template.Name = yaml.Name;
-            template.Description = yaml.Description;
-            template.Components = yaml.Components;
-            template.InputJsonSchema = yaml.Parameters?.ToSchema().ToString(Formatting.None);
-
-            template.DisplayName ??= template.Name;
-
-            return template;
-        }
 
         internal static string ToString(this JSchema schema, Formatting formatting)
         {
@@ -289,6 +154,47 @@ namespace TeamCloud.Git
             schema.WriteTo(jw);
 
             return sb.ToString();
+        }
+
+        internal static string ToJson(this IDeserializer deserializer, string yaml)
+        {
+            if (deserializer is null)
+                throw new ArgumentNullException(nameof(deserializer));
+
+            if (string.IsNullOrWhiteSpace(yaml))
+                throw new ArgumentException($"'{nameof(yaml)}' cannot be null or whitespace.", nameof(yaml));
+
+            var data = deserializer.Deserialize(new StringReader(yaml));
+
+            return TeamCloudSerialize.SerializeObject(data, new TeamCloudSerializerSettings()
+            {
+                // ensure we disable the type name handling to get clean json
+                TypeNameHandling = TypeNameHandling.None
+            });
+        }
+
+        internal static void SetProperty(this JObject json, string propertyName, object propertyValue)
+        {
+            propertyName = TeamCloudNamingStrategy.Default.GetPropertyName(propertyName, false);
+
+            if (propertyValue is null)
+            {
+                json.Property(propertyName, StringComparison.OrdinalIgnoreCase)?.Remove();
+            }
+            else
+            {
+                if (!(propertyValue is JToken propertyToken))
+                {
+                    propertyToken = (propertyValue.GetType().IsValueType || propertyValue.GetType() == typeof(string))
+                      ? new JValue(propertyValue)
+                      : (JToken)JObject.FromObject(propertyValue);
+                }
+
+                if (json.TryGetValue(propertyName, StringComparison.OrdinalIgnoreCase, out var value))
+                    value.Replace(propertyToken);
+                else
+                    json.Add(propertyName, propertyToken);
+            }
         }
     }
 }

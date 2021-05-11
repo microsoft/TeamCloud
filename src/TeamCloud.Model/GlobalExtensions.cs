@@ -52,7 +52,7 @@ namespace TeamCloud.Model
         {
             Id = containerDocument.Id,
             Type = containerDocument.GetType().Name.ToLowerInvariant(),
-            Organization = (containerDocument as IOrganizationContext)?.Organization,
+            Organization = (containerDocument as IProjectContext)?.Organization,
             Project = (containerDocument as IProjectContext)?.ProjectId,
             Component = (containerDocument as IComponentContext)?.ComponentId,
             ETag = containerDocument.ETag,

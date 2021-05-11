@@ -21,9 +21,6 @@ namespace TeamCloud.Adapters
                 throw new ArgumentNullException(nameof(services));
 
             services
-                .TryAddSingleton<IAuthorizationEntityResolver, AuthorizationEntityResolver>();
-
-            services
                 .TryAddTransient(provider => AuthorizationSessionOptions.Default);
 
             services

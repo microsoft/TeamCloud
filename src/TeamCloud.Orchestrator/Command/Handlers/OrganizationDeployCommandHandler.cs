@@ -16,6 +16,8 @@ using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Command.Activities.Organizations;
+using TeamCloud.Model.Handlers;
+
 using TeamCloud.Orchestrator.Command.Entities;
 using TeamCloud.Serialization;
 

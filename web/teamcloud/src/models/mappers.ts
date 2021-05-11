@@ -494,7 +494,7 @@ export const ComponentTask: coreHttp.CompositeMapper = {
       type: {
         serializedName: "type",
         type: {
-          name: "Number"
+          name: "String"
         }
       },
       typeName: {
@@ -759,6 +759,13 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      configuration: {
+        serializedName: "configuration",
+        nullable: true,
+        type: {
+          name: "any"
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -944,9 +951,8 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
       },
       type: {
         serializedName: "type",
-        required: true,
         type: {
-          name: "Number"
+          name: "String"
         }
       },
       typeName: {
@@ -1097,8 +1103,9 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           name: "Boolean"
         }
       },
-      adapter: {
-        serializedName: "adapter",
+      type: {
+        serializedName: "type",
+        required: true,
         type: {
           name: "String"
         }
@@ -1120,6 +1127,18 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
               name: "Uuid"
             }
           }
+        }
+      },
+      authorizable: {
+        serializedName: "authorizable",
+        type: {
+          name: "Boolean"
+        }
+      },
+      authorized: {
+        serializedName: "authorized",
+        type: {
+          name: "Boolean"
         }
       },
       authorizeUrl: {
@@ -1147,6 +1166,13 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
     modelProperties: {
       displayName: {
         serializedName: "displayName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      type: {
+        serializedName: "type",
         required: true,
         type: {
           name: "String"

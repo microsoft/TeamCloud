@@ -482,7 +482,7 @@ export var ComponentTask = {
             type: {
                 serializedName: "type",
                 type: {
-                    name: "Number"
+                    name: "String"
                 }
             },
             typeName: {
@@ -743,6 +743,13 @@ export var ComponentTemplate = {
                     name: "String"
                 }
             },
+            configuration: {
+                serializedName: "configuration",
+                nullable: true,
+                type: {
+                    name: "any"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -925,9 +932,8 @@ export var ComponentTaskTemplate = {
             },
             type: {
                 serializedName: "type",
-                required: true,
                 type: {
-                    name: "Number"
+                    name: "String"
                 }
             },
             typeName: {
@@ -1074,8 +1080,9 @@ export var DeploymentScope = {
                     name: "Boolean"
                 }
             },
-            adapter: {
-                serializedName: "adapter",
+            type: {
+                serializedName: "type",
+                required: true,
                 type: {
                     name: "String"
                 }
@@ -1097,6 +1104,18 @@ export var DeploymentScope = {
                             name: "Uuid"
                         }
                     }
+                }
+            },
+            authorizable: {
+                serializedName: "authorizable",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            authorized: {
+                serializedName: "authorized",
+                type: {
+                    name: "Boolean"
                 }
             },
             authorizeUrl: {
@@ -1123,6 +1142,13 @@ export var DeploymentScopeDefinition = {
         modelProperties: {
             displayName: {
                 serializedName: "displayName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            type: {
+                serializedName: "type",
                 required: true,
                 type: {
                     name: "String"

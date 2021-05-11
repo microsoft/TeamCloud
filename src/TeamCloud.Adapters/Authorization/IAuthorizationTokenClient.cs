@@ -4,25 +4,16 @@
  */
 
 using System.Threading.Tasks;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization
 {
     public interface IAuthorizationTokenClient
     {
-        Task<AuthorizationToken> GetAsync(string authId);
+        Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
+            where TAuthorizationToken : AuthorizationToken;
 
-        public async Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(string authId)
-            where TAuthorizationToken : AuthorizationToken
-        {
-            return (await GetAsync(authId).ConfigureAwait(false)) as TAuthorizationToken;
-        }
-
-        Task<AuthorizationToken> SetAsync(AuthorizationToken authorizationToken);
-
-        public async Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken)
-            where TAuthorizationToken : AuthorizationToken
-        {
-            return (await SetAsync((AuthorizationToken)authorizationToken).ConfigureAwait(false)) as TAuthorizationToken;
-        }
+        Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken)
+            where TAuthorizationToken : AuthorizationToken;
     }
 }

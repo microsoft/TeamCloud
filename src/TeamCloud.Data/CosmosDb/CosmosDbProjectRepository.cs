@@ -128,13 +128,8 @@ namespace TeamCloud.Data.CosmosDb
             await PopulateUsersAsync(project)
                 .ConfigureAwait(false);
 
-            if (expand)
-            {
-                project = await ExpandAsync(project)
-                    .ConfigureAwait(false);
-            }
-
-            return project;
+            return await ExpandAsync(project, expand)
+                .ConfigureAwait(false);
         }
 
         public async Task<bool> NameExistsAsync(string organization, string name)

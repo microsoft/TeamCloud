@@ -106,13 +106,8 @@ namespace TeamCloud.Data.CosmosDb
                 }
             }
 
-            if (expand)
-            {
-                organization = await ExpandAsync(organization)
-                    .ConfigureAwait(false);
-            }
-
-            return organization;
+            return await ExpandAsync(organization, expand)
+                .ConfigureAwait(false);
         }
 
         public override async IAsyncEnumerable<Organization> ListAsync(string tenant)
@@ -132,7 +127,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var queryResult in queryResponse)
-                    yield return queryResult;
+                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
             }
         }
 

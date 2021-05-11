@@ -1,19 +1,17 @@
-﻿/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Orchestrator.Command
+namespace TeamCloud.Model.Handlers
 {
     public abstract class CommandHandler : ICommandHandler
     {
+        public const string ProcessorQueue = "command-processor";
+        public const string MonitorQueue = "command-monitor";
+
         public CommandHandler(bool orchestration = false)
         {
             Orchestration = orchestration;

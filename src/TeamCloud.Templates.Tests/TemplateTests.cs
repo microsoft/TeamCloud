@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -66,6 +67,7 @@ namespace TeamCloud.Templates.Tests
             {
                 Assert.Contains(item.Id.ToString(), template);
                 Assert.Contains(item.Price.ToString("c"), template);
+                Assert.Contains(item.Price.ToString("c", CultureInfo.GetCultureInfo("de-de")), template);
             }
         }
 

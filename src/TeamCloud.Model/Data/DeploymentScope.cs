@@ -35,11 +35,16 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public bool IsDefault { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
         public DeploymentScopeType Type { get; set; }
 
         public string ManagementGroupId { get; set; }
 
         public List<Guid> SubscriptionIds { get; set; }
+
+        public bool Authorizable { get; set; }
+
+        public bool Authorized { get; set; }
 
         [DatabaseIgnore]
         public string AuthorizeUrl { get; set; }

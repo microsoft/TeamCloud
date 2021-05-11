@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using System;
 using TeamCloud.Adapters.Authorization;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.AzureDevOps
 {
-    public sealed class AzureDevOpsSession : AuthorizationSession<AzureDevOpsAdapter>
+    public sealed class AzureDevOpsSession : AuthorizationSession
     {
         public static readonly string[] Scopes = new string[]
         {
@@ -52,12 +52,11 @@ namespace TeamCloud.Adapters.AzureDevOps
             "vso.work_full"
         };
 
-        public AzureDevOpsSession(Guid? authId = null) : base(authId)
+        public AzureDevOpsSession() : this(null)
         { }
 
-        public string TeamCloudOrganization { get; set; }
-
-        public string TeamCloudDeploymentScope { get; set; }
+        public AzureDevOpsSession(DeploymentScope deploymentScope) : base(GetEntityId(deploymentScope))
+        { }
 
         public string Organization { get; internal set; }
 

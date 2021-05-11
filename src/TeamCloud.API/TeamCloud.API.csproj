@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Adapters.AzureDevOps\TeamCloud.Adapters.AzureDevOps.csproj" />
+    <ProjectReference Include="..\TeamCloud.Adapters.AzureResourceManager\TeamCloud.Adapters.AzureResourceManager.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters.GitHub\TeamCloud.Adapters.GitHub.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters\TeamCloud.Adapters.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />

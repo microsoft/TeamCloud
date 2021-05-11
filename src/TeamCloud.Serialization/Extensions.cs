@@ -55,7 +55,7 @@ namespace TeamCloud.Serialization
             {
                 throw new ArgumentNullException(nameof(contractResolver));
             }
-
+            
             jsonSerializer.ContractResolver = contractResolver;
 
             return jsonSerializer;

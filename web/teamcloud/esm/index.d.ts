@@ -61,7 +61,7 @@ export declare interface ComponentTask {
     componentId: string;
     projectId: string;
     requestedBy?: string | null;
-    type?: Enum3;
+    type?: ComponentTaskType;
     typeName?: string | null;
     created?: Date;
     started?: Date | null;
@@ -120,10 +120,32 @@ export declare interface ComponentTaskTemplate {
     displayName?: string | null;
     description?: string | null;
     inputJsonSchema?: string | null;
-    type: Enum3;
+    type?: ComponentTaskTemplateType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly typeName?: string | null;
 }
+
+/**
+ * Defines values for ComponentTaskTemplateType. \
+ * {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Custom** \
+ * **Create** \
+ * **Delete**
+ */
+export declare type ComponentTaskTemplateType = string;
+
+/**
+ * Defines values for ComponentTaskType. \
+ * {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Custom** \
+ * **Create** \
+ * **Delete**
+ */
+export declare type ComponentTaskType = string;
 
 export declare interface ComponentTemplate {
     organization: string;
@@ -137,6 +159,8 @@ export declare interface ComponentTemplate {
     taskRunner?: ComponentTaskRunner;
     type: ComponentTemplateType;
     folder?: string | null;
+    /** Any object */
+    configuration?: any | null;
     id: string;
 }
 
@@ -167,10 +191,8 @@ export declare interface ComponentTemplatePermissions {
  * {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
- * **Custom** \
- * **AzureResource** \
  * **Environment** \
- * **GitRepository**
+ * **Repository**
  */
 export declare type ComponentTemplateType = string;
 
@@ -179,10 +201,8 @@ export declare type ComponentTemplateType = string;
  * {@link KnownComponentType} can be used interchangeably with ComponentType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
- * **Custom** \
- * **AzureResource** \
  * **Environment** \
- * **GitRepository**
+ * **Repository**
  */
 export declare type ComponentType = string;
 
@@ -191,23 +211,14 @@ export declare interface DeploymentScope {
     displayName: string;
     slug: string;
     isDefault: boolean;
-    adapter?: DeploymentScopeAdapter;
+    type: DeploymentScopeType;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
+    authorizable?: boolean;
+    authorized?: boolean;
     authorizeUrl?: string | null;
     id: string;
 }
-
-/**
- * Defines values for DeploymentScopeAdapter. \
- * {@link KnownDeploymentScopeAdapter} can be used interchangeably with DeploymentScopeAdapter,
- *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
- * **AzureResourceManager** \
- * **AzureDevOps** \
- * **GitHub**
- */
-export declare type DeploymentScopeAdapter = string;
 
 export declare interface DeploymentScopeDataResult {
     code?: number;
@@ -218,12 +229,24 @@ export declare interface DeploymentScopeDataResult {
 
 export declare interface DeploymentScopeDefinition {
     displayName: string;
+    type: DeploymentScopeDefinitionType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly slug?: string | null;
     isDefault?: boolean;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
 }
+
+/**
+ * Defines values for DeploymentScopeDefinitionType. \
+ * {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeDefinitionType = string;
 
 export declare interface DeploymentScopeListDataResult {
     code?: number;
@@ -234,15 +257,15 @@ export declare interface DeploymentScopeListDataResult {
 }
 
 /**
- * Defines values for Enum3. \
- * {@link KnownEnum3} can be used interchangeably with Enum3,
+ * Defines values for DeploymentScopeType. \
+ * {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
- * **0** \
- * **1** \
- * **2**
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
  */
-export declare type Enum3 = number;
+export declare type DeploymentScopeType = string;
 
 export declare interface ErrorResult {
     code?: number;
@@ -268,34 +291,44 @@ export declare const enum KnownComponentTaskResourceState {
     Failed = "Failed"
 }
 
+/** Known values of {@link ComponentTaskTemplateType} that the service accepts. */
+export declare const enum KnownComponentTaskTemplateType {
+    Custom = "Custom",
+    Create = "Create",
+    Delete = "Delete"
+}
+
+/** Known values of {@link ComponentTaskType} that the service accepts. */
+export declare const enum KnownComponentTaskType {
+    Custom = "Custom",
+    Create = "Create",
+    Delete = "Delete"
+}
+
 /** Known values of {@link ComponentTemplateType} that the service accepts. */
 export declare const enum KnownComponentTemplateType {
-    Custom = "Custom",
-    AzureResource = "AzureResource",
     Environment = "Environment",
-    GitRepository = "GitRepository"
+    Repository = "Repository"
 }
 
 /** Known values of {@link ComponentType} that the service accepts. */
 export declare const enum KnownComponentType {
-    Custom = "Custom",
-    AzureResource = "AzureResource",
     Environment = "Environment",
-    GitRepository = "GitRepository"
+    Repository = "Repository"
 }
 
-/** Known values of {@link DeploymentScopeAdapter} that the service accepts. */
-export declare const enum KnownDeploymentScopeAdapter {
+/** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
+export declare const enum KnownDeploymentScopeDefinitionType {
     AzureResourceManager = "AzureResourceManager",
     AzureDevOps = "AzureDevOps",
     GitHub = "GitHub"
 }
 
-/** Known values of {@link Enum3} that the service accepts. */
-export declare const enum KnownEnum3 {
-    Zero = 0,
-    One = 1,
-    Two = 2
+/** Known values of {@link DeploymentScopeType} that the service accepts. */
+export declare const enum KnownDeploymentScopeType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
 }
 
 /** Known values of {@link OrganizationResourceState} that the service accepts. */

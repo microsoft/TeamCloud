@@ -10,7 +10,7 @@ namespace TeamCloud.Data
 {
     public interface IDocumentExpanderProvider
     {
-        IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document);
+        IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document, bool includeOptional);
     }
 
 }

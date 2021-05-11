@@ -16,7 +16,6 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
-using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
@@ -101,6 +100,7 @@ namespace TeamCloud.API.Controllers
            {
                Id = Guid.NewGuid().ToString(),
                Organization = context.Organization.Id,
+               Type = deploymentScopeDefinition.Type,
                DisplayName = deploymentScopeDefinition.DisplayName,
                ManagementGroupId = deploymentScopeDefinition.ManagementGroupId,
                SubscriptionIds = deploymentScopeDefinition.SubscriptionIds,

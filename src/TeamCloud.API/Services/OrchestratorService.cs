@@ -9,17 +9,16 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API.Services
 {
-    public class Orchestrator
+    public sealed class OrchestratorService
     {
         private readonly IOrchestratorOptions options;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public Orchestrator(IOrchestratorOptions options, IHttpContextAccessor httpContextAccessor)
+        public OrchestratorService(IOrchestratorOptions options, IHttpContextAccessor httpContextAccessor)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));

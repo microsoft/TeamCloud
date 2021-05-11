@@ -6,5 +6,5 @@ ClassType:
 - User:			{{ user.name }} ({{ user.id }})
 - Items:
 {% for item in items %}
-				{{ item.id }} -> ${{ item.price | format: "c" }}
+				{{ item.id }} -> ${{ item.price | format: "c" }} / ${{ item.price | format: "c", "de-de" }}
 {% endfor %}

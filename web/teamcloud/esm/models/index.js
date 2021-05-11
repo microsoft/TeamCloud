@@ -8,10 +8,8 @@
 /** Known values of {@link ComponentType} that the service accepts. */
 export var KnownComponentType;
 (function (KnownComponentType) {
-    KnownComponentType["Custom"] = "Custom";
-    KnownComponentType["AzureResource"] = "AzureResource";
     KnownComponentType["Environment"] = "Environment";
-    KnownComponentType["GitRepository"] = "GitRepository";
+    KnownComponentType["Repository"] = "Repository";
 })(KnownComponentType || (KnownComponentType = {}));
 /** Known values of {@link ComponentResourceState} that the service accepts. */
 export var KnownComponentResourceState;
@@ -34,13 +32,13 @@ export var KnownResultErrorCode;
     KnownResultErrorCode["Unauthorized"] = "Unauthorized";
     KnownResultErrorCode["Forbidden"] = "Forbidden";
 })(KnownResultErrorCode || (KnownResultErrorCode = {}));
-/** Known values of {@link Enum3} that the service accepts. */
-export var KnownEnum3;
-(function (KnownEnum3) {
-    KnownEnum3[KnownEnum3["Zero"] = 0] = "Zero";
-    KnownEnum3[KnownEnum3["One"] = 1] = "One";
-    KnownEnum3[KnownEnum3["Two"] = 2] = "Two";
-})(KnownEnum3 || (KnownEnum3 = {}));
+/** Known values of {@link ComponentTaskType} that the service accepts. */
+export var KnownComponentTaskType;
+(function (KnownComponentTaskType) {
+    KnownComponentTaskType["Custom"] = "Custom";
+    KnownComponentTaskType["Create"] = "Create";
+    KnownComponentTaskType["Delete"] = "Delete";
+})(KnownComponentTaskType || (KnownComponentTaskType = {}));
 /** Known values of {@link ComponentTaskResourceState} that the service accepts. */
 export var KnownComponentTaskResourceState;
 (function (KnownComponentTaskResourceState) {
@@ -65,21 +63,33 @@ export var KnownRepositoryReferenceType;
     KnownRepositoryReferenceType["Branch"] = "Branch";
     KnownRepositoryReferenceType["Hash"] = "Hash";
 })(KnownRepositoryReferenceType || (KnownRepositoryReferenceType = {}));
+/** Known values of {@link ComponentTaskTemplateType} that the service accepts. */
+export var KnownComponentTaskTemplateType;
+(function (KnownComponentTaskTemplateType) {
+    KnownComponentTaskTemplateType["Custom"] = "Custom";
+    KnownComponentTaskTemplateType["Create"] = "Create";
+    KnownComponentTaskTemplateType["Delete"] = "Delete";
+})(KnownComponentTaskTemplateType || (KnownComponentTaskTemplateType = {}));
 /** Known values of {@link ComponentTemplateType} that the service accepts. */
 export var KnownComponentTemplateType;
 (function (KnownComponentTemplateType) {
-    KnownComponentTemplateType["Custom"] = "Custom";
-    KnownComponentTemplateType["AzureResource"] = "AzureResource";
     KnownComponentTemplateType["Environment"] = "Environment";
-    KnownComponentTemplateType["GitRepository"] = "GitRepository";
+    KnownComponentTemplateType["Repository"] = "Repository";
 })(KnownComponentTemplateType || (KnownComponentTemplateType = {}));
-/** Known values of {@link DeploymentScopeAdapter} that the service accepts. */
-export var KnownDeploymentScopeAdapter;
-(function (KnownDeploymentScopeAdapter) {
-    KnownDeploymentScopeAdapter["AzureResourceManager"] = "AzureResourceManager";
-    KnownDeploymentScopeAdapter["AzureDevOps"] = "AzureDevOps";
-    KnownDeploymentScopeAdapter["GitHub"] = "GitHub";
-})(KnownDeploymentScopeAdapter || (KnownDeploymentScopeAdapter = {}));
+/** Known values of {@link DeploymentScopeType} that the service accepts. */
+export var KnownDeploymentScopeType;
+(function (KnownDeploymentScopeType) {
+    KnownDeploymentScopeType["AzureResourceManager"] = "AzureResourceManager";
+    KnownDeploymentScopeType["AzureDevOps"] = "AzureDevOps";
+    KnownDeploymentScopeType["GitHub"] = "GitHub";
+})(KnownDeploymentScopeType || (KnownDeploymentScopeType = {}));
+/** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
+export var KnownDeploymentScopeDefinitionType;
+(function (KnownDeploymentScopeDefinitionType) {
+    KnownDeploymentScopeDefinitionType["AzureResourceManager"] = "AzureResourceManager";
+    KnownDeploymentScopeDefinitionType["AzureDevOps"] = "AzureDevOps";
+    KnownDeploymentScopeDefinitionType["GitHub"] = "GitHub";
+})(KnownDeploymentScopeDefinitionType || (KnownDeploymentScopeDefinitionType = {}));
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export var KnownOrganizationResourceState;
 (function (KnownOrganizationResourceState) {

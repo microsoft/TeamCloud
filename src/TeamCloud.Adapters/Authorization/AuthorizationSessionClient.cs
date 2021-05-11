@@ -6,10 +6,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Adapters.Utilities;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization
 {
@@ -19,15 +18,11 @@ namespace TeamCloud.Adapters.Authorization
         public const string TableName = "AuthorizationSession";
 
         private readonly IAuthorizationSessionOptions options;
-        private readonly IAuthorizationEntityResolver resolver;
-        private readonly IMemoryCache cache;
         private readonly AsyncLazy<CloudTable> tableInstance;
 
-        public AuthorizationSessionClient(IAuthorizationSessionOptions options, IAuthorizationEntityResolver resolver, IMemoryCache cache, IDataProtectionProvider dataProtectionProvider)
+        public AuthorizationSessionClient(IAuthorizationSessionOptions options)
         {
             this.options = options ?? AuthorizationSessionOptions.Default;
-            this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
-            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
             tableInstance = new AsyncLazy<CloudTable>(async () =>
             {
@@ -44,48 +39,36 @@ namespace TeamCloud.Adapters.Authorization
             });
         }
 
-        public async Task<AuthorizationSession> GetAsync(string authId)
+        public async Task<TAuthorizationSession> GetAsync<TAuthorizationSession>(DeploymentScope deploymentScope)
+            where TAuthorizationSession : AuthorizationSession
         {
-            if (string.IsNullOrWhiteSpace(authId))
-                throw new ArgumentException($"'{nameof(authId)}' cannot be null or whitespace.", nameof(authId));
+            if (deploymentScope is null)
+                throw new ArgumentNullException(nameof(deploymentScope));
 
             var table = await tableInstance.Value
                 .ConfigureAwait(false);
 
-            var partitionKey = await cache.GetOrCreateAsync($"{authId}@{this.GetType().FullName}", async cacheEntry =>
-            {
-                cacheEntry.SetSlidingExpiration(AuthorizationSession.DefaultTTL);
+            var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
+            var partitionKey = string.Join(",", typeof(TAuthorizationSession).AssemblyQualifiedName.Split(',').Take(2));
 
-                var query = new TableQuery()
-                    .Where(TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, authId))
-                    .Select(new string[] { "PartitionKey" });
+            var response = await table
+                .ExecuteAsync(TableOperation.Retrieve<TAuthorizationSession>(partitionKey, rowKey))
+                .ConfigureAwait(false);
 
-                var response = await table
-                    .ExecuteQuerySegmentedAsync(query, null)
-                    .ConfigureAwait(false);
+            var session = response.Result as TAuthorizationSession;
 
-                return response.Results
-                    .SingleOrDefault(r => Type.GetType(r.PartitionKey, false) != null)?
-                    .PartitionKey;
+            if (session?.Active ?? false)
+                return session;
 
-            }).ConfigureAwait(false);
-
-
-            if (!string.IsNullOrEmpty(partitionKey))
-            {
-                var response = await table
-                    .ExecuteAsync(TableOperation.Retrieve(partitionKey, authId, resolver.Resolve))
-                    .ConfigureAwait(false);
-
-                var authorizationSession = response.Result as AuthorizationSession;
-
-                return (authorizationSession?.Active ?? false) ? authorizationSession : null;
-            }
+            await table
+                .ExecuteAsync(TableOperation.Delete(session))
+                .ConfigureAwait(false);
 
             return null;
         }
 
-        public async Task<AuthorizationSession> SetAsync(AuthorizationSession authorizationSession)
+        public async Task<TAuthorizationSession> SetAsync<TAuthorizationSession>(TAuthorizationSession authorizationSession)
+            where TAuthorizationSession : AuthorizationSession
         {
             if (authorizationSession is null)
                 throw new ArgumentNullException(nameof(authorizationSession));
@@ -97,7 +80,7 @@ namespace TeamCloud.Adapters.Authorization
                 .ExecuteAsync(TableOperation.InsertOrReplace(authorizationSession))
                 .ConfigureAwait(false);
 
-            return response.Result as AuthorizationSession;
+            return response.Result as TAuthorizationSession;
         }
     }
 }

@@ -7,10 +7,11 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json;
 using TeamCloud.Adapters.Authorization;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.AzureDevOps
 {
-    public sealed class AzureDevOpsToken : AuthorizationToken<AzureDevOpsAdapter>
+    public sealed class AzureDevOpsToken : AuthorizationToken
     {
         private static string FormatOrganizationUrl(string organization)
         {
@@ -40,7 +41,10 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
         }
 
-        public AzureDevOpsToken(Guid? authId = null) : base(authId)
+        public AzureDevOpsToken() : this(null)
+        { }
+
+        public AzureDevOpsToken(DeploymentScope deployementScope) : base(GetEntityId(deployementScope))
         { }
 
         private string organization;

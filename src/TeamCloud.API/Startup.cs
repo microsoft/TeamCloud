@@ -29,6 +29,7 @@ using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using TeamCloud.Adapters;
 using TeamCloud.Adapters.AzureDevOps;
+using TeamCloud.Adapters.AzureResourceManager;
 using TeamCloud.Adapters.GitHub;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
@@ -154,18 +155,6 @@ namespace TeamCloud.API
             }
 
             services
-                .AddTeamCloudAdapterFramework()
-                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
-                .AddTeamCloudAdapter<GitHubAdapter>();
-
-            services
-                .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
-                .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
-                .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
-                .AddSingleton<IDocumentExpander, ComponentExpander>()
-                .AddSingleton<IDocumentExpander, UserExpander>();
-
-            services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
@@ -177,7 +166,7 @@ namespace TeamCloud.API
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
                 .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
-                .AddSingleton<Orchestrator>()
+                .AddSingleton<OrchestratorService>()
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
                 .AddScoped<EnsureTeamCloudModelMiddleware>();
@@ -186,6 +175,20 @@ namespace TeamCloud.API
                 .AddSingleton<RecyclableMemoryStreamManager>()
                 .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
                 .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
+
+            services
+                .AddTeamCloudAdapterFramework()
+                .AddTeamCloudAdapter<AzureResourceManagerAdapter>()
+                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
+                .AddTeamCloudAdapter<GitHubAdapter>();
+
+            services
+                .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
+                .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
+                .AddSingleton<IDocumentExpander, DeploymentScopeExpander>()
+                .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
+                .AddSingleton<IDocumentExpander, ComponentExpander>()
+                .AddSingleton<IDocumentExpander, UserExpander>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);

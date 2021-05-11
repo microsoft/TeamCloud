@@ -3,35 +3,19 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using TeamCloud.Model.Data.Core;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Handlers;
 
 namespace TeamCloud.Adapters
 {
     public interface IAdapter
     {
-        public bool CanHandle(IContainerDocument containerDocument)
-        {
-            if (containerDocument is null)
-                throw new ArgumentNullException(nameof(containerDocument));
+        IEnumerable<ICommandHandler> GetCommandHandlers();
 
-            var type = typeof(IAdapter<>)
-                .MakeGenericType(containerDocument.GetType());
+        bool Supports(DeploymentScope deploymentScope);
 
-            if (type?.IsAssignableFrom(this.GetType()) ?? false)
-            {
-                return (bool)type
-                    .GetMethod(nameof(CanHandle), new Type[] { containerDocument.GetType() })
-                    .Invoke(this, new[] { containerDocument });
-            }
-
-            return false;
-        }
-    }
-
-    public interface IAdapter<TContext> : IAdapter
-        where TContext : class, IContainerDocument, new()
-    {
-        bool CanHandle(TContext containerDocument);
+        Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
     }
 }
