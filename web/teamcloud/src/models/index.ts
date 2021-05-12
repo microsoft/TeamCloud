@@ -446,6 +446,8 @@ export interface Schedule {
   utcMinute?: number;
   creator?: string | null;
   created?: Date;
+  lastUpdatedBy?: string | null;
+  lastUpdated?: Date;
   lastRun?: Date | null;
   componentTasks?: ComponentTaskReference[] | null;
   id: string;
@@ -1575,6 +1577,24 @@ export type TeamCloudCreateScheduleResponse = ScheduleDataResult & {
 
 /** Contains response data for the getSchedule operation. */
 export type TeamCloudGetScheduleResponse = ScheduleDataResult & {
+  /** The underlying HTTP response. */
+  _response: coreHttp.HttpResponse & {
+    /** The response body as text (string format) */
+    bodyAsText: string;
+
+    /** The response body as parsed JSON or XML */
+    parsedBody: ScheduleDataResult;
+  };
+};
+
+/** Optional parameters. */
+export interface TeamCloudUpdateScheduleOptionalParams
+  extends coreHttp.OperationOptions {
+  body?: Schedule;
+}
+
+/** Contains response data for the updateSchedule operation. */
+export type TeamCloudUpdateScheduleResponse = ScheduleDataResult & {
   /** The underlying HTTP response. */
   _response: coreHttp.HttpResponse & {
     /** The response body as text (string format) */

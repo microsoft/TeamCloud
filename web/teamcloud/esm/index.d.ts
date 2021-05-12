@@ -670,6 +670,8 @@ export declare interface Schedule {
     utcMinute?: number;
     creator?: string | null;
     created?: Date;
+    lastUpdatedBy?: string | null;
+    lastUpdated?: Date;
     lastRun?: Date | null;
     componentTasks?: ComponentTaskReference[] | null;
     id: string;
@@ -1146,6 +1148,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
+    /**
+     * Updates a Project Schedule.
+     * @param scheduleId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    updateSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateScheduleOptionalParams): Promise<TeamCloudUpdateScheduleResponse>;
     /**
      * Runs a Project Schedule.
      * @param scheduleId
@@ -1953,6 +1963,22 @@ export declare type TeamCloudUpdateProjectUserResponse = UserDataResult & {
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
         parsedBody: UserDataResult;
+    };
+};
+
+/** Optional parameters. */
+export declare interface TeamCloudUpdateScheduleOptionalParams extends coreHttp.OperationOptions {
+    body?: Schedule;
+}
+
+/** Contains response data for the updateSchedule operation. */
+export declare type TeamCloudUpdateScheduleResponse = ScheduleDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduleDataResult;
     };
 };
 

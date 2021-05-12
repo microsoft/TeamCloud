@@ -792,6 +792,22 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest(operationArguments, getScheduleOperationSpec);
     };
     /**
+     * Updates a Project Schedule.
+     * @param scheduleId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.updateSchedule = function (scheduleId, organizationId, projectId, options) {
+        var operationArguments = {
+            scheduleId: scheduleId,
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, updateScheduleOperationSpec);
+    };
+    /**
      * Runs a Project Schedule.
      * @param scheduleId
      * @param organizationId
@@ -2181,6 +2197,36 @@ var getScheduleOperationSpec = {
         Parameters.scheduleId
     ],
     headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var updateScheduleOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}",
+    httpMethod: "PUT",
+    responses: {
+        201: {
+            bodyMapper: Mappers.ScheduleDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        409: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    requestBody: Parameters.body14,
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId,
+        Parameters.scheduleId
+    ],
+    headerParameters: [Parameters.accept, Parameters.contentType],
+    mediaType: "json",
     serializer: serializer
 };
 var runScheduleOperationSpec = {

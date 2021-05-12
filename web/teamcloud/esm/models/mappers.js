@@ -2381,6 +2381,19 @@ export var Schedule = {
                     name: "DateTime"
                 }
             },
+            lastUpdatedBy: {
+                serializedName: "lastUpdatedBy",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            lastUpdated: {
+                serializedName: "lastUpdated",
+                type: {
+                    name: "DateTime"
+                }
+            },
             lastRun: {
                 serializedName: "lastRun",
                 nullable: true,

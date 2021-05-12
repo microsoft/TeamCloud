@@ -2339,6 +2339,62 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+    put:
+      tags:
+        - Schedule
+      summary: Updates a Project Schedule.
+      operationId: UpdateSchedule
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '201':
+          description: The updated Project Schedule.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Schedule id provided in the could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run':
     post:
       tags:
@@ -3729,6 +3785,12 @@ components:
           type: string
           nullable: true
         created:
+          type: string
+          format: date-time
+        lastUpdatedBy:
+          type: string
+          nullable: true
+        lastUpdated:
           type: string
           format: date-time
         lastRun:

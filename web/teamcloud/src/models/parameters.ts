@@ -24,7 +24,8 @@ import {
   ProjectIdentity as ProjectIdentityMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
   ProjectTemplate as ProjectTemplateMapper,
-  ScheduleDefinition as ScheduleDefinitionMapper
+  ScheduleDefinition as ScheduleDefinitionMapper,
+  Schedule as ScheduleMapper
 } from "../models/mappers";
 
 export const accept: OperationParameter = {
@@ -246,6 +247,11 @@ export const scheduleId: OperationURLParameter = {
       name: "String"
     }
   }
+};
+
+export const body14: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: ScheduleMapper
 };
 
 export const trackingId: OperationURLParameter = {

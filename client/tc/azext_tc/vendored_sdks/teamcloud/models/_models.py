@@ -1760,6 +1760,10 @@ class Schedule(msrest.serialization.Model):
     :type creator: str
     :param created:
     :type created: ~datetime.datetime
+    :param last_updated_by:
+    :type last_updated_by: str
+    :param last_updated:
+    :type last_updated: ~datetime.datetime
     :param last_run:
     :type last_run: ~datetime.datetime
     :param component_tasks:
@@ -1784,6 +1788,8 @@ class Schedule(msrest.serialization.Model):
         'utc_minute': {'key': 'utcMinute', 'type': 'int'},
         'creator': {'key': 'creator', 'type': 'str'},
         'created': {'key': 'created', 'type': 'iso-8601'},
+        'last_updated_by': {'key': 'lastUpdatedBy', 'type': 'str'},
+        'last_updated': {'key': 'lastUpdated', 'type': 'iso-8601'},
         'last_run': {'key': 'lastRun', 'type': 'iso-8601'},
         'component_tasks': {'key': 'componentTasks', 'type': '[ComponentTaskReference]'},
         'id': {'key': 'id', 'type': 'str'},
@@ -1803,6 +1809,8 @@ class Schedule(msrest.serialization.Model):
         self.utc_minute = kwargs.get('utc_minute', None)
         self.creator = kwargs.get('creator', None)
         self.created = kwargs.get('created', None)
+        self.last_updated_by = kwargs.get('last_updated_by', None)
+        self.last_updated = kwargs.get('last_updated', None)
         self.last_run = kwargs.get('last_run', None)
         self.component_tasks = kwargs.get('component_tasks', None)
         self.id = kwargs['id']
