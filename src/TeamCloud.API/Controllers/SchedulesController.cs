@@ -185,6 +185,119 @@ namespace TeamCloud.API.Controllers
         }));
 
 
+        [HttpPut("{scheduleId}")]
+        [Authorize(Policy = AuthPolicies.ProjectScheduleOwner)]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateSchedule", Summary = "Updates a Project Schedule.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "The updated Project Schedule.", typeof(DataResult<Schedule>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Schedule id provided in the could not be found.", typeof(ErrorResult))]
+        [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
+        public Task<IActionResult> Put([FromRoute] string scheduleId, [FromBody] Schedule updatedSchedule) => ExecuteAsync(new Func<User, Organization, Project, Schedule, Task<IActionResult>>(async (user, organization, project, schedule) =>
+        {
+            if (updatedSchedule is null)
+                return ErrorResult
+                    .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+            if (!updatedSchedule.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
+
+
+            if (!schedule.Id.Equals(updatedSchedule.Id, StringComparison.Ordinal))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"Schedule's id does match the identifier provided in the path." })
+                    .ToActionResult();
+
+
+            var componentIds = updatedSchedule.ComponentTasks
+                .Select(ct => ct.ComponentId)
+                .Distinct();
+
+            var components = await componentRepository
+                .ListAsync(project.Id, componentIds)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+
+            if (!user.IsAdmin(project.Id))
+            {
+                var notAllowedComponents = components
+                    .Where(c => c.Creator != user.Id);
+
+                if (notAllowedComponents.Any())
+                    return ErrorResult
+                        .BadRequest($"You are not authorized to schedule tasks on the following components: {string.Join(", ", notAllowedComponents.Select(c => c.Id))}.", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+            }
+
+
+            var notFoundComponentIds = componentIds
+                .Where(cid => !components.Any(c => c.Id == cid));
+
+            if (notFoundComponentIds.Any())
+                return ErrorResult
+                    .BadRequest($"The following components could not be found on this project: {string.Join(", ", notFoundComponentIds)}.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+
+            var componentTemplateIds = components
+                .Select(c => c.TemplateId)
+                .Distinct();
+
+            var componentTemplates = await componentTemplateRepository
+                .ListAsync(organization.Id, project.Id, componentTemplateIds)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var notFoundComponentTemplateIds = componentTemplateIds
+                .Where(ctid => !componentTemplates.Any(ct => ct.Id == ctid));
+
+            if (notFoundComponentTemplateIds.Any())
+                return ErrorResult
+                    .BadRequest($"The following component templates could not be found: {string.Join(", ", notFoundComponentTemplateIds)}.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+
+            var notFoundComponentTaskTemplateIds = updatedSchedule.ComponentTasks
+                .Where(ctr => !componentTemplates.First(ct => ct.Id == components.First(c => c.Id == ctr.ComponentId).TemplateId).Tasks.Any(t => t.Id == ctr.ComponentTaskTemplateId));
+
+            if (notFoundComponentTaskTemplateIds.Any())
+                return ErrorResult
+                    .BadRequest($"The following tasks could not be found on the specified components: {string.Join(", ", notFoundComponentTaskTemplateIds.Select(ctr => ctr.ComponentTaskTemplateId))}.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+
+            if (updatedSchedule.Creator != schedule.Creator)
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "creator", Message = $"The Schedule's creator field cannot be changed." })
+                    .ToActionResult();
+
+            if (updatedSchedule.Created != schedule.Created)
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "created", Message = $"The Schedule's created field cannot be changed." })
+                    .ToActionResult();
+
+            if (updatedSchedule.LastRun != schedule.LastRun)
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "lastRun", Message = $"The Schedule's lastRun field cannot be changed." })
+                    .ToActionResult();
+
+
+            updatedSchedule.LastUpdatedBy = user.Id;
+            updatedSchedule.LastUpdated = DateTime.UtcNow;
+
+
+            var command = new ScheduleUpdateCommand(user, updatedSchedule);
+
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync(command, Request)
+                .ConfigureAwait(false);
+        }));
+
 
         [HttpPost("{scheduleId}/run")]
         [Authorize(Policy = AuthPolicies.ProjectScheduleOwner)]
