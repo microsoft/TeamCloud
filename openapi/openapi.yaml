@@ -2367,7 +2367,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Schedule'
       responses:
-        '201':
+        '200':
           description: The updated Project Schedule.
           content:
             application/json:

@@ -2786,7 +2786,7 @@ const updateScheduleOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}",
   httpMethod: "PUT",
   responses: {
-    201: {
+    200: {
       bodyMapper: Mappers.ScheduleDataResult
     },
     400: {

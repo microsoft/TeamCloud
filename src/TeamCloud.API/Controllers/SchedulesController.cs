@@ -189,7 +189,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = AuthPolicies.ProjectScheduleOwner)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateSchedule", Summary = "Updates a Project Schedule.")]
-        [SwaggerResponse(StatusCodes.Status201Created, "The updated Project Schedule.", typeof(DataResult<Schedule>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "The updated Project Schedule.", typeof(DataResult<Schedule>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Schedule id provided in the could not be found.", typeof(ErrorResult))]
@@ -276,20 +276,11 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "creator", Message = $"The Schedule's creator field cannot be changed." })
                     .ToActionResult();
 
-            if (updatedSchedule.Created != schedule.Created)
-                return ErrorResult
-                    .BadRequest(new ValidationError { Field = "created", Message = $"The Schedule's created field cannot be changed." })
-                    .ToActionResult();
-
-            if (updatedSchedule.LastRun != schedule.LastRun)
-                return ErrorResult
-                    .BadRequest(new ValidationError { Field = "lastRun", Message = $"The Schedule's lastRun field cannot be changed." })
-                    .ToActionResult();
-
-
             updatedSchedule.LastUpdatedBy = user.Id;
             updatedSchedule.LastUpdated = DateTime.UtcNow;
 
+            updatedSchedule.Created = schedule.Created;
+            updatedSchedule.LastRun = schedule.LastRun;
 
             var command = new ScheduleUpdateCommand(user, updatedSchedule);
 
