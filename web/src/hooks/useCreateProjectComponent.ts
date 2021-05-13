@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from 'react-query'
 import { useHistory, useParams } from 'react-router-dom';
-import { ComponentDefinition } from 'teamcloud';
+import { ComponentDefinition, ErrorResult } from 'teamcloud';
 import { api } from '../API';
 import { useOrg, useProject, useProjectComponents } from '.';
 
@@ -22,7 +22,13 @@ export const useCreateProjectComponent = () => {
     return useMutation(async (componentDef: ComponentDefinition) => {
         if (!project) throw Error('No project')
 
-        const { data } = await api.createComponent(project.organization, project.id, { body: componentDef });
+        const { data, code, _response } = await api.createComponent(project.organization, project.id, { body: componentDef });
+
+        if (code && code >= 400) {
+            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
+            throw error;
+        }
+
         return data;
     }, {
         onSuccess: data => {
