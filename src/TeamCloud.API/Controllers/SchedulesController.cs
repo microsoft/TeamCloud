@@ -294,7 +294,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = AuthPolicies.ProjectScheduleOwner)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "RunSchedule", Summary = "Runs a Project Schedule.")]
-        [SwaggerResponse(StatusCodes.Status201Created, "The created Project Schedule.", typeof(DataResult<Schedule>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "The Project Schedule run.", typeof(DataResult<Schedule>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
@@ -363,8 +363,6 @@ namespace TeamCloud.API.Controllers
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         }));
-
-        // TODO: Update (PUT)
 
         // TODO: Delete (DELETE)
     }

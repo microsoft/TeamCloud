@@ -3942,12 +3942,12 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [201, 400, 401, 403, 404]:
+        if response.status_code not in [200, 400, 401, 403, 404]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
         deserialized = None
-        if response.status_code == 201:
+        if response.status_code == 200:
             deserialized = self._deserialize('ScheduleDataResult', pipeline_response)
 
         if response.status_code == 400:

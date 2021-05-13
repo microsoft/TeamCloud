@@ -5,8 +5,8 @@ import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
-import { CalloutLabel, ComponentTaskConsole } from '.';
-import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask, useProjectSchedules } from '../hooks';
+import { ComponentTaskConsole } from '.';
+import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
 
 export interface IComponentTaskListProps { }
 
@@ -23,7 +23,6 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     const { data: templates } = useProjectComponentTemplates();
     const { data: componentTask } = useProjectComponentTask();
     const { data: componentTasks } = useProjectComponentTasks();
-    const { data: schedules } = useProjectSchedules();
 
 
     useEffect(() => {

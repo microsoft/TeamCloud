@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState } from 'react';
-import { Image, MessageBar, MessageBarType, PrimaryButton, Stack, Text } from '@fluentui/react';
+import React from 'react';
+import { MessageBar, MessageBarType, Stack, Text } from '@fluentui/react';
 import { ErrorResult } from 'teamcloud';
 
 export interface IErrorBarProps {

@@ -3912,8 +3912,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "The created Project Schedule.",
+          "200": {
+            "description": "The Project Schedule run.",
             "content": {
               "application/json": {
                 "schema": {

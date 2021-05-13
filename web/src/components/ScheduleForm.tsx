@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { DefaultButton, Dropdown, DropdownMenuItemType, IDropdownOption, PrimaryButton, Stack, Checkbox, Toggle, IComboBoxOption, ComboBox, IComboBox, Text, Label } from '@fluentui/react';
-import { Component, ComponentTaskTemplate, ComponentTemplate, ErrorResult, ScheduleDefinition } from 'teamcloud';
+import { Component, ComponentTaskTemplate, ComponentTemplate, ScheduleDefinition } from 'teamcloud';
 import { useOrg, useProject, useProjectComponentTemplates, useProjectComponents, useProjectMembers, useUser, useCreateProjectSchedule, useProjectSchedule, useUpdateProjectSchedule } from '../hooks';
 import { DaysOfWeek, DaysOfWeekNames, ProjectMember, shiftToLocal, shiftToUtc } from '../model';
 import { ContentSeparator } from '.';
@@ -189,9 +189,6 @@ export const ScheduleForm: React.FC = () => {
             setComponentTasks([...componentTasks, data]);
         else if (!option.selected && !!item)
             setComponentTasks(componentTasks.filter(ct => !!ct.taskTemplate.id && !(ct.component.id === data.component.id && ct.taskTemplate.id === data.taskTemplate.id)));
-
-        // console.log(option.selected)
-        // setComponentTasks([...componentTasks, option.data])
     };
 
     const _updateDaysOfWeek = (dayIndex: number, checked?: boolean) => {

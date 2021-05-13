@@ -24,10 +24,7 @@ export const useUpdateProjectSchedule = () => {
 
         const { data, code, _response } = await api.updateSchedule(schedule.id, project.organization, project.id, { body: schedule });
 
-        console.log(`code: ${code}`);
-
         if (code && code >= 400) {
-            console.log(`code2: ${code}`);
             const error = JSON.parse(_response.bodyAsText) as ErrorResult;
             throw error;
         }

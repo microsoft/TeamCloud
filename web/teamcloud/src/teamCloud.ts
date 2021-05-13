@@ -2817,7 +2817,7 @@ const runScheduleOperationSpec: coreHttp.OperationSpec = {
     "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run",
   httpMethod: "POST",
   responses: {
-    201: {
+    200: {
       bodyMapper: Mappers.ScheduleDataResult
     },
     400: {
