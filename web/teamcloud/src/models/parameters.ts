@@ -23,7 +23,8 @@ import {
   ProjectIdentityDefinition as ProjectIdentityDefinitionMapper,
   ProjectIdentity as ProjectIdentityMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
-  ProjectTemplate as ProjectTemplateMapper
+  ProjectTemplate as ProjectTemplateMapper,
+  ScheduleDefinition as ScheduleDefinitionMapper
 } from "../models/mappers";
 
 export const accept: OperationParameter = {
@@ -99,17 +100,6 @@ export const body: OperationParameter = {
   mapper: ComponentDefinitionMapper
 };
 
-export const id: OperationURLParameter = {
-  parameterPath: "id",
-  mapper: {
-    serializedName: "id",
-    required: true,
-    type: {
-      name: "String"
-    }
-  }
-};
-
 export const componentId: OperationURLParameter = {
   parameterPath: "componentId",
   mapper: {
@@ -126,9 +116,31 @@ export const body1: OperationParameter = {
   mapper: ComponentTaskDefinitionMapper
 };
 
+export const id: OperationURLParameter = {
+  parameterPath: "id",
+  mapper: {
+    serializedName: "id",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const body2: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: DeploymentScopeDefinitionMapper
+};
+
+export const deploymentScopeId: OperationURLParameter = {
+  parameterPath: "deploymentScopeId",
+  mapper: {
+    serializedName: "deploymentScopeId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
 };
 
 export const body3: OperationParameter = {
@@ -241,6 +253,22 @@ export const projectTemplateId: OperationURLParameter = {
 export const body12: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectTemplateMapper
+};
+
+export const body13: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: ScheduleDefinitionMapper
+};
+
+export const scheduleId: OperationURLParameter = {
+  parameterPath: "scheduleId",
+  mapper: {
+    serializedName: "scheduleId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
 };
 
 export const trackingId: OperationURLParameter = {

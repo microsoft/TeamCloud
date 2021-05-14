@@ -36,5 +36,8 @@ namespace TeamCloud.API.Auth
 
         public static string ComponentWritePolicy
             => $"Component_ReadWrite";
+
+        public static string ScheduleWritePolicy
+            => $"Schedule_ReadWrite";
     }
 }

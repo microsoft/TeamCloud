@@ -12,9 +12,15 @@ namespace TeamCloud.Adapters
 {
     public interface IAdapter
     {
-        IEnumerable<ICommandHandler> GetCommandHandlers();
+        DeploymentScopeType Type { get; }
 
-        bool Supports(DeploymentScope deploymentScope);
+        string DisplayName { get; }
+
+        Task<string> GetInputDataSchemaAsync();
+
+        Task<string> GetInputFormSchemaAsync();
+
+        IEnumerable<ICommandHandler> GetCommandHandlers();
 
         Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
     }

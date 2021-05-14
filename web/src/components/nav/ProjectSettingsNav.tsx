@@ -20,6 +20,13 @@ export const ProjectSettingsNav: React.FC<IProjectSettingsNavProps> = (props) =>
                 url: '',
                 onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings`),
                 iconProps: { iconName: 'Settings' }
+            },
+            {
+                key: 'schedules',
+                name: 'Schedules',
+                url: '',
+                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules`),
+                iconProps: { iconName: 'ScheduleEventAction' }
             }
         ] : []
     }];

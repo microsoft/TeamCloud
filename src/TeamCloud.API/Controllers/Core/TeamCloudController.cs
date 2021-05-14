@@ -37,6 +37,8 @@ namespace TeamCloud.API.Controllers.Core
 
         public string ComponentId => RouteData.ValueOrDefault(nameof(ComponentId));
 
+        public string ScheduleId => RouteData.ValueOrDefault(nameof(ScheduleId));
+
         protected T GetService<T>()
             => (T)HttpContext.RequestServices.GetService(typeof(T));
 
@@ -211,6 +213,23 @@ namespace TeamCloud.API.Controllers.Core
                     if (projectComponentContext.Component is null)
                         return ErrorResult
                             .NotFound($"A Component with id '{ComponentId}' was not found.")
+                            .ToActionResult();
+                }
+
+                if (context is TeamCloudScheduleContext scheduleContext)
+                {
+                    if (string.IsNullOrEmpty(ScheduleId))
+                        return ErrorResult
+                            .BadRequest($"Schedule id provided in the url path is invalid.", ResultErrorCode.ValidationError)
+                            .ToActionResult();
+
+                    scheduleContext.Schedule = await GetService<IScheduleRepository>()
+                        .GetAsync(scheduleContext.Project.Id, ScheduleId)
+                        .ConfigureAwait(false);
+
+                    if (scheduleContext.Schedule is null)
+                        return ErrorResult
+                            .NotFound($"A Schedule with id '{ScheduleId}' was not found.")
                             .ToActionResult();
                 }
 

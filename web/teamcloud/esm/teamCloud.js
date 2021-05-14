@@ -51,14 +51,14 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Gets a Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getComponent = function (id, organizationId, projectId, options) {
+    TeamCloud.prototype.getComponent = function (componentId, organizationId, projectId, options) {
         var operationArguments = {
-            id: id,
+            componentId: componentId,
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
@@ -67,14 +67,14 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Deletes an existing Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.deleteComponent = function (id, organizationId, projectId, options) {
+    TeamCloud.prototype.deleteComponent = function (componentId, organizationId, projectId, options) {
         var operationArguments = {
-            id: id,
+            componentId: componentId,
             organizationId: organizationId,
             projectId: projectId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
@@ -187,13 +187,13 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Gets a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getDeploymentScope = function (id, organizationId, options) {
+    TeamCloud.prototype.getDeploymentScope = function (deploymentScopeId, organizationId, options) {
         var operationArguments = {
-            id: id,
+            deploymentScopeId: deploymentScopeId,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
@@ -201,13 +201,13 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Updates an existing Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.updateDeploymentScope = function (id, organizationId, options) {
+    TeamCloud.prototype.updateDeploymentScope = function (deploymentScopeId, organizationId, options) {
         var operationArguments = {
-            id: id,
+            deploymentScopeId: deploymentScopeId,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
@@ -215,27 +215,39 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Deletes a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.deleteDeploymentScope = function (id, organizationId, options) {
+    TeamCloud.prototype.deleteDeploymentScope = function (deploymentScopeId, organizationId, options) {
         var operationArguments = {
-            id: id,
+            deploymentScopeId: deploymentScopeId,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
         return this.sendOperationRequest(operationArguments, deleteDeploymentScopeOperationSpec);
     };
     /**
-     * Authorize an existing Deployment Scope.
-     * @param id
+     * Gets all Deployment Scope type information.
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.authorizeDeploymentScope = function (id, organizationId, options) {
+    TeamCloud.prototype.getDeploymentScopeTypeInformation = function (organizationId, options) {
         var operationArguments = {
-            id: id,
+            organizationId: organizationId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getDeploymentScopeTypeInformationOperationSpec);
+    };
+    /**
+     * Authorize an existing Deployment Scope.
+     * @param deploymentScopeId
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.authorizeDeploymentScope = function (deploymentScopeId, organizationId, options) {
+        var operationArguments = {
+            deploymentScopeId: deploymentScopeId,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
@@ -762,6 +774,66 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest(operationArguments, updateProjectUserMeOperationSpec);
     };
     /**
+     * Gets all Schedule.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getSchedules = function (organizationId, projectId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getSchedulesOperationSpec);
+    };
+    /**
+     * Creates a new Project Schedule.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.createSchedule = function (organizationId, projectId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, createScheduleOperationSpec);
+    };
+    /**
+     * Gets the Schedule.
+     * @param scheduleId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getSchedule = function (scheduleId, organizationId, projectId, options) {
+        var operationArguments = {
+            scheduleId: scheduleId,
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getScheduleOperationSpec);
+    };
+    /**
+     * Runs a Project Schedule.
+     * @param scheduleId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.runSchedule = function (scheduleId, organizationId, projectId, options) {
+        var operationArguments = {
+            scheduleId: scheduleId,
+            organizationId: organizationId,
+            projectId: projectId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, runScheduleOperationSpec);
+    };
+    /**
      * Gets the status of a long-running operation.
      * @param trackingId
      * @param organizationId
@@ -880,7 +952,7 @@ var createComponentOperationSpec = {
     serializer: serializer
 };
 var getComponentOperationSpec = {
-    path: "/orgs/{organizationId}/projects/{projectId}/components/{id}",
+    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}",
     httpMethod: "GET",
     responses: {
         200: {
@@ -899,13 +971,13 @@ var getComponentOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.id
+        Parameters.componentId
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var deleteComponentOperationSpec = {
-    path: "/orgs/{organizationId}/projects/{projectId}/components/{id}",
+    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}",
     httpMethod: "DELETE",
     responses: {
         202: {
@@ -927,7 +999,7 @@ var deleteComponentOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.id
+        Parameters.componentId
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer
@@ -1010,8 +1082,8 @@ var getComponentTaskOperationSpec = {
         Parameters.$host,
         Parameters.organizationId,
         Parameters.projectId,
-        Parameters.id,
-        Parameters.componentId
+        Parameters.componentId,
+        Parameters.id
     ],
     headerParameters: [Parameters.accept],
     serializer: serializer
@@ -1105,7 +1177,7 @@ var createDeploymentScopeOperationSpec = {
     serializer: serializer
 };
 var getDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{id}",
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
     httpMethod: "GET",
     responses: {
         200: {
@@ -1120,12 +1192,16 @@ var getDeploymentScopeOperationSpec = {
             bodyMapper: Mappers.ErrorResult
         }
     },
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var updateDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{id}",
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
     httpMethod: "PUT",
     responses: {
         200: {
@@ -1141,13 +1217,17 @@ var updateDeploymentScopeOperationSpec = {
         }
     },
     requestBody: Parameters.body3,
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
     headerParameters: [Parameters.accept, Parameters.contentType],
     mediaType: "json",
     serializer: serializer
 };
 var deleteDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{id}",
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
     httpMethod: "DELETE",
     responses: {
         204: {
@@ -1162,12 +1242,33 @@ var deleteDeploymentScopeOperationSpec = {
             bodyMapper: Mappers.ErrorResult
         }
     },
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var getDeploymentScopeTypeInformationOperationSpec = {
+    path: "/orgs/{organizationId}/scopes/types",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeploymentScopeTypeInformationListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {}
+    },
+    urlParameters: [Parameters.$host, Parameters.organizationId],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var authorizeDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{id}/authorize",
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize",
     httpMethod: "PUT",
     responses: {
         200: {
@@ -1183,7 +1284,11 @@ var authorizeDeploymentScopeOperationSpec = {
         }
     },
     requestBody: Parameters.body3,
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
     headerParameters: [Parameters.accept, Parameters.contentType1],
     mediaType: "json",
     serializer: serializer
@@ -2082,6 +2187,106 @@ var updateProjectUserMeOperationSpec = {
     ],
     headerParameters: [Parameters.accept, Parameters.contentType],
     mediaType: "json",
+    serializer: serializer
+};
+var getSchedulesOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ScheduleListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {}
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var createScheduleOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules",
+    httpMethod: "POST",
+    responses: {
+        201: {
+            bodyMapper: Mappers.ScheduleDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        409: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    requestBody: Parameters.body13,
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId
+    ],
+    headerParameters: [Parameters.accept, Parameters.contentType],
+    mediaType: "json",
+    serializer: serializer
+};
+var getScheduleOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ScheduleDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId,
+        Parameters.scheduleId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var runScheduleOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run",
+    httpMethod: "POST",
+    responses: {
+        201: {
+            bodyMapper: Mappers.ScheduleDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId,
+        Parameters.scheduleId
+    ],
+    headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var getStatusOperationSpec = {

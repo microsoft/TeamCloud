@@ -63,5 +63,20 @@ namespace TeamCloud.Data.CosmosDb
             await foreach (var componentTemplate in repositoryService.GetComponentTemplatesAsync(projectTemplate))
                 yield return componentTemplate;
         }
+
+
+        public async IAsyncEnumerable<ComponentTemplate> ListAsync(string organization, string projectId, IEnumerable<string> identifiers)
+        {
+            var templateId = await GetTemplateIdAsync(organization, projectId)
+                .ConfigureAwait(false);
+
+            var projectTemplate = await projectTemplateRepository
+                .GetAsync(organization, templateId)
+                .ConfigureAwait(false);
+
+            await foreach (var componentTemplate in repositoryService.GetComponentTemplatesAsync(projectTemplate))
+                if (identifiers.Any(i => i == componentTemplate.Id))
+                    yield return componentTemplate;
+        }
     }
 }

@@ -48,4 +48,9 @@ namespace TeamCloud.API.Controllers.Core
     {
         public Component Component { get; set; }
     }
+
+    public class TeamCloudScheduleContext : TeamCloudProjectContext
+    {
+        public Schedule Schedule { get; internal set; }
+    }
 }

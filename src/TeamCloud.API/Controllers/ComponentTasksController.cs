@@ -89,7 +89,7 @@ namespace TeamCloud.API.Controllers
 
         [HttpPost]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
-        [Consumes("application/json")]
+        [Consumes("application/json")] // TODO: should this be only allowed by AuthPolicies.ProjectComponentOwner
         [SwaggerOperation(OperationId = "CreateComponentTask", Summary = "Creates a new Project Component Task.")]
         [SwaggerResponse(StatusCodes.Status201Created, "The created Project Component Task.", typeof(DataResult<ComponentTask>))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts creating the new Project Component. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]

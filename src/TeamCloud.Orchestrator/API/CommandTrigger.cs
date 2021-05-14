@@ -249,7 +249,7 @@ namespace TeamCloud.Orchestrator.API
             if (deploymentScope != null)
             {
                 commandHandler = adapters
-                    .SingleOrDefault(adapter => adapter.Supports(deploymentScope))?
+                    .SingleOrDefault(adapter => adapter.Type == deploymentScope.Type)?
                     .GetCommandHandlers()
                     .SingleOrDefault(handler => handler.CanHandle(command)) ?? commandHandler;
             }

@@ -22,8 +22,9 @@ namespace TeamCloud.Adapters.GitHub
             : base(serviceProvider, sessionClient, tokenClient)
         { }
 
-        public override bool Supports(DeploymentScope deploymentScope)
-            => deploymentScope != null && deploymentScope.Type == DeploymentScopeType.GitHub;
+        public override DeploymentScopeType Type => DeploymentScopeType.GitHub;
+
+        public override string DisplayName => base.DisplayName.Replace(" ", "");
 
         public override async Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
         {
@@ -39,7 +40,10 @@ namespace TeamCloud.Adapters.GitHub
 
         Task IAdapterAuthorize.CreateSessionAsync(DeploymentScope deploymentScope)
         {
-            if (!Supports(deploymentScope))
+            if (deploymentScope is null)
+                throw new ArgumentNullException(nameof(deploymentScope));
+
+            if (deploymentScope.Type != Type)
                 throw new ArgumentException("Argument value can not be handled", nameof(deploymentScope));
 
             return SessionClient.SetAsync<GitHubSession>(new GitHubSession()

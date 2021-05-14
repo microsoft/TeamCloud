@@ -4,8 +4,13 @@
 import React, { useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, IComboBox, IComboBoxOption, Label, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { DeploymentScopeDefinition } from 'teamcloud';
+import { FuiForm } from '@rjsf/fluent-ui'
 import { useHistory, useParams } from 'react-router-dom';
 import { useAzureManagementGroups, useAzureSubscriptions } from '../hooks';
+import { useDeploymentScopeTypeInformation } from '../hooks/useDeploymentScopeTypeInformation';
+import { ContentSeparator } from '.';
+import { TeamCloudFieldTemplate } from './form/TeamCloudFieldTemplate';
+import { TeamCloudForm } from './form/TeamCloudForm';
 
 export interface IDeploymentScopeFormProps {
     embedded?: boolean,
@@ -20,9 +25,16 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const { data: subscriptions } = useAzureSubscriptions();
     const { data: managementGroups } = useAzureManagementGroups();
+    const { data: scopeTypeInformation } = useDeploymentScopeTypeInformation();
 
     const [scopeName, setScopeName] = useState<string>();
+
     const [scopeType, setScopeType] = useState<string>();
+    const [scopeTypeOptions, setScopeTypeOptions] = useState<IComboBoxOption[]>();
+
+    const [scopeTypeSchema, setScopeTypeSchema] = useState<string>();
+    const [scopeTypeForm, setScopeTypeForm] = useState<string>();
+
     const [scopeManagementGroup, setScopeManagementGroup] = useState<string>();
     const [scopeManagementGroupOptions, setScopeManagementGroupOptions] = useState<IComboBoxOption[]>();
     const [scopeSubscriptions, setScopeSubscriptions] = useState<string[]>();
@@ -32,15 +44,11 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const { onScopeChange } = props;
 
-    const _scopeComplete = () => scopeName && (scopeManagementGroup || scopeSubscriptions);
+    const _scopeComplete = () => scopeName && scopeType && (scopeManagementGroup || scopeSubscriptions);
 
-    const _scopeTypeOptions = () => [
-        { key: 'AzureResourceManager', text: 'Azure Resource Manager', default: true },
-        { key: 'AzureDevOps', text: 'Azure DevOps' },
-        { key: 'GitHub', text: 'GitHub'}
-    ];
+    // const _scopeTypeOptions = () => scopeTypeInformation?.map(info => ({ key: info.type?.toString(), text: info.displayName })) as IComboBoxOption[];
 
-    const _scopeTypeOptionsDefault = () => _scopeTypeOptions().find(o => o.default !== undefined && o.default);
+    // const _scopeTypeOptionsDefault = () => _scopeTypeOptions();
 
     useEffect(() => {
         if (subscriptions && scopeSubscriptionOptions === undefined) {
@@ -57,6 +65,27 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
     }, [managementGroups, scopeManagementGroupOptions]);
 
     useEffect(() => {
+        if (scopeTypeOptions === undefined) {
+            // console.log('+ scopeTypeOptions')
+            var options =scopeTypeInformation?.map(info => ({ key: info.type?.toString(), text: info.displayName })) as IComboBoxOption[];
+            setScopeType(options?.find(option => option !== undefined)?.key as string);
+            setScopeTypeOptions(options);
+        }
+    }, [scopeType, scopeTypeOptions, scopeTypeInformation])
+
+    useEffect(() => {
+        if (scopeType && scopeTypeInformation) {
+            var scopeTypeInfo = scopeTypeInformation?.find(info => info && info.type === scopeType)
+            console.log("ScopeTypeInfo = " + JSON.stringify(scopeTypeInfo));
+            setScopeTypeSchema(scopeTypeInfo?.inputDataSchema || undefined);
+            setScopeTypeForm(scopeTypeInfo?.inputDataForm || undefined);
+        } else {
+            setScopeTypeSchema(undefined);
+            setScopeTypeForm(undefined);
+        }
+    }, [scopeType, scopeTypeInformation]);
+
+    useEffect(() => {
         if (onScopeChange !== undefined) {
             const scopeDef = {
                 displayName: scopeName,
@@ -65,11 +94,11 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                 subscriptionIds: scopeSubscriptions,
                 // isDefault: true
             } as DeploymentScopeDefinition;
-            // console.log(`onScopeChange ${templateDef}`);
+            // console.log(`onScopeChange ${scopeDef}`);
             onScopeChange(scopeDef);
         }
         // }, [onScopeChange, scopeName, scopeSubscriptions]);
-    }, [onScopeChange, scopeName, scopeType, scopeManagementGroup, scopeSubscriptions]);
+    }, [onScopeChange, scopeName, scopeType, scopeTypeSchema, scopeManagementGroup, scopeSubscriptions]);
 
 
     const _submitForm = () => {
@@ -137,8 +166,8 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     required
                     label='Type'
                     disabled={!formEnabled}
-                    selectedKey={scopeType || _scopeTypeOptionsDefault()?.key}
-                    options={_scopeTypeOptions()}
+                    selectedKey={scopeType}
+                    options={scopeTypeOptions}
                     onChange={(_ev, val) => setScopeType(val ? val.key as string : undefined)} />
             </Stack.Item>
             <Stack.Item>
@@ -166,12 +195,24 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     options={scopeSubscriptionOptions}
                     onChange={_onScopeSubscriptionsChange} />
             </Stack.Item>
-            {!(props.embedded ?? false) && (
-                <Stack.Item styles={{ root: { paddingTop: '24px' } }}>
-                    <PrimaryButton text='Create scope' disabled={!formEnabled || !_scopeComplete()} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
-                    <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
-                </Stack.Item>
-            )}
+            <Stack.Item>
+                <ContentSeparator />
+                <FuiForm
+                    disabled={!formEnabled}
+                    onSubmit={_submitForm}
+                    FieldTemplate={TeamCloudFieldTemplate}
+                    widgets={TeamCloudForm.Widgets}
+                    fields={TeamCloudForm.Fields}
+                    schema={scopeTypeSchema ? JSON.parse(scopeTypeSchema) : {}}
+                    uiSchema={scopeTypeForm ? JSON.parse(scopeTypeForm) : {}}>
+                    <ContentSeparator />
+                    <div style={{ paddingTop: '24px' }}>
+                        <PrimaryButton text='Create scope' disabled={!formEnabled || !_scopeComplete()} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
+                        <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
+                    </div>
+                </FuiForm>
+            </Stack.Item>   
+
         </Stack>
     );
 }

@@ -28,7 +28,14 @@ namespace TeamCloud.Data.Expanders
                 throw new ArgumentNullException(nameof(document));
 
             var adapter = adapters
-                .FirstOrDefault(a => a.Supports(document));
+                .FirstOrDefault(a => a.Type == document.Type);
+
+            if (adapter is null)
+                return document;
+
+            document.InputDataSchema = await adapter
+                .GetInputDataSchemaAsync()
+                .ConfigureAwait(false);
 
             if (adapter is IAdapterAuthorize adapterAuthorize)
             {

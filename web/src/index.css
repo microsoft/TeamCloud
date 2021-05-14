@@ -32,6 +32,12 @@ pre.failure {
   color: rgb(249, 117, 131);
 }
 
+.component-task-icon {
+  /* margin-bottom: -2px; */
+  font-size: 16px;
+  color: #0078d4;
+}
+
 .component-type-icon {
   font-size: 18px;
 }

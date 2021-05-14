@@ -14,7 +14,7 @@ export const useProjectComponentTemplates = () => {
 
     return useQuery(['org', project?.organization, 'project', project?.id, 'componenttemplate'], async () => {
         const { data } = await api.getComponentTemplates(project!.organization, project!.id);
-        return data;;
+        return data;
     }, {
         enabled: isAuthenticated && !!project?.id
     });

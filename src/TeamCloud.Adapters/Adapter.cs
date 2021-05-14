@@ -7,8 +7,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Handlers;
@@ -17,6 +21,12 @@ namespace TeamCloud.Adapters
 {
     public abstract class Adapter : IAdapter
     {
+        private static readonly JSchema inputDataSchemaEmpty = new JSchema() { Type = JSchemaType.Object };
+        private static readonly JObject inputDataFormEmpty = new JObject();
+
+        private static string PrettyPrintDeploymentScopeType(DeploymentScopeType type)
+            => Regex.Replace(Enum.GetName(typeof(DeploymentScopeType), type), @"\B[A-Z]", " $0");
+
         private readonly static ConcurrentDictionary<Type, Type[]> CommandHandlerTypes = new ConcurrentDictionary<Type, Type[]>();
 
         private readonly IServiceProvider serviceProvider;
@@ -30,11 +40,22 @@ namespace TeamCloud.Adapters
             this.tokenClient = tokenClient ?? throw new ArgumentNullException(nameof(tokenClient));
         }
 
+        public abstract DeploymentScopeType Type { get; }
+
+        public virtual string DisplayName
+            => PrettyPrintDeploymentScopeType(Type);
+
         protected IAuthorizationSessionClient SessionClient
             => sessionClient;
 
         protected IAuthorizationTokenClient TokenClient
             => tokenClient;
+
+        public virtual Task<string> GetInputDataSchemaAsync()
+            => Task.FromResult(inputDataSchemaEmpty.ToString(Formatting.None));
+
+        public virtual Task<string> GetInputFormSchemaAsync()
+            => Task.FromResult(inputDataFormEmpty.ToString(Formatting.None));
 
         public virtual IEnumerable<ICommandHandler> GetCommandHandlers()
         {
@@ -48,7 +69,5 @@ namespace TeamCloud.Adapters
         }
 
         public abstract Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
-
-        public abstract bool Supports(DeploymentScope deploymentScope);
     }
 }

@@ -39,8 +39,9 @@ namespace TeamCloud.Adapters.AzureDevOps
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
         }
 
-        public override bool Supports(DeploymentScope deploymentScope)
-            => deploymentScope != null && deploymentScope.Type == DeploymentScopeType.AzureDevOps;
+        public override DeploymentScopeType Type => DeploymentScopeType.AzureDevOps;
+
+        public override string DisplayName => "Azure DevOps";
 
         public override async Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
         {
@@ -59,7 +60,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            if (!Supports(deploymentScope))
+            if (deploymentScope.Type != Type)
                 throw new ArgumentException("Argument value can not be handled", nameof(deploymentScope));
 
             return SessionClient.SetAsync(new AzureDevOpsSession(deploymentScope));

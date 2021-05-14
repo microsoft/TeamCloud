@@ -17,8 +17,14 @@ namespace TeamCloud.Serialization
         public static string SerializeObject(object value, TeamCloudSerializerSettings serializerSettings = null)
             => JsonConvert.SerializeObject(value, serializerSettings ?? TeamCloudSerializerSettings.Default);
 
+        public static string SerializeObject(object value, JsonConverter converter, params JsonConverter[] additionalConverters)
+            => JsonConvert.SerializeObject(value, GetTeamCloudSerializerSettingsWithConverters(converter, additionalConverters));
+
         public static string SerializeObject(object value, Formatting formatting, TeamCloudSerializerSettings serializerSettings = null)
             => JsonConvert.SerializeObject(value, formatting, serializerSettings ?? TeamCloudSerializerSettings.Default);
+
+        public static string SerializeObject(object value, Formatting formatting, JsonConverter converter, params JsonConverter[] additionalConverters)
+            => JsonConvert.SerializeObject(value, formatting, GetTeamCloudSerializerSettingsWithConverters(converter, additionalConverters));
 
         public static object DeserializeObject(string value, TeamCloudSerializerSettings serializerSettings = null)
             => JsonConvert.DeserializeObject(value, serializerSettings ?? TeamCloudSerializerSettings.Default);

@@ -68,7 +68,7 @@ namespace TeamCloud.Orchestrator.API
 
             var adapter = adapters
                 .OfType<IAdapterAuthorize>()
-                .FirstOrDefault(a => a.Supports(deploymentScope));
+                .FirstOrDefault(a => a.Type == deploymentScope.Type);
 
             if (adapter is null)
                 return new NotFoundResult();

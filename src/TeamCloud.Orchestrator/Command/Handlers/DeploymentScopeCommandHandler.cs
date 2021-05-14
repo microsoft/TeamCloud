@@ -132,13 +132,13 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                 commandResult.Result = command.Payload;
 
                 var adapter = adapters
-                    .FirstOrDefault(a => a.Supports(command.Payload));
+                    .FirstOrDefault(a => a.Type == command.Payload.Type);
 
                 if (adapter is null)
                 {
                     throw new NullReferenceException($"Could not find adapter for {command.Payload}");
                 }
-                else if (adapter.Supports(command.Payload) && adapter is IAdapterAuthorize adapterAuthorize)
+                else if (adapter is IAdapterAuthorize adapterAuthorize)
                 {
                     await adapterAuthorize
                         .CreateSessionAsync(command.Payload)

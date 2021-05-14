@@ -22,6 +22,8 @@ export declare const DeploymentScopeListDataResult: coreHttp.CompositeMapper;
 export declare const DeploymentScope: coreHttp.CompositeMapper;
 export declare const DeploymentScopeDefinition: coreHttp.CompositeMapper;
 export declare const DeploymentScopeDataResult: coreHttp.CompositeMapper;
+export declare const DeploymentScopeTypeInformationListDataResult: coreHttp.CompositeMapper;
+export declare const DeploymentScopeTypeInformation: coreHttp.CompositeMapper;
 export declare const OrganizationListDataResult: coreHttp.CompositeMapper;
 export declare const Organization: coreHttp.CompositeMapper;
 export declare const OrganizationDefinition: coreHttp.CompositeMapper;
@@ -45,4 +47,9 @@ export declare const ProjectTemplate: coreHttp.CompositeMapper;
 export declare const ProjectTemplateDefinition: coreHttp.CompositeMapper;
 export declare const RepositoryDefinition: coreHttp.CompositeMapper;
 export declare const ProjectTemplateDataResult: coreHttp.CompositeMapper;
+export declare const ScheduleListDataResult: coreHttp.CompositeMapper;
+export declare const Schedule: coreHttp.CompositeMapper;
+export declare const ComponentTaskReference: coreHttp.CompositeMapper;
+export declare const ScheduleDefinition: coreHttp.CompositeMapper;
+export declare const ScheduleDataResult: coreHttp.CompositeMapper;
 //# sourceMappingURL=mappers.d.ts.map

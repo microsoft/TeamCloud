@@ -479,6 +479,13 @@ export var ComponentTask = {
                     name: "String"
                 }
             },
+            scheduleId: {
+                serializedName: "scheduleId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             type: {
                 serializedName: "type",
                 type: {
@@ -1087,6 +1094,20 @@ export var DeploymentScope = {
                     name: "String"
                 }
             },
+            inputDataSchema: {
+                serializedName: "inputDataSchema",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputData: {
+                serializedName: "inputData",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             managementGroupId: {
                 serializedName: "managementGroupId",
                 nullable: true,
@@ -1217,6 +1238,83 @@ export var DeploymentScopeDataResult = {
             },
             location: {
                 serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var DeploymentScopeTypeInformationListDataResult = {
+    type: {
+        name: "Composite",
+        className: "DeploymentScopeTypeInformationListDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                readOnly: true,
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "DeploymentScopeTypeInformation"
+                        }
+                    }
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var DeploymentScopeTypeInformation = {
+    type: {
+        name: "Composite",
+        className: "DeploymentScopeTypeInformation",
+        modelProperties: {
+            type: {
+                serializedName: "type",
+                type: {
+                    name: "String"
+                }
+            },
+            displayName: {
+                serializedName: "displayName",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputDataSchema: {
+                serializedName: "inputDataSchema",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputDataForm: {
+                serializedName: "inputDataForm",
                 nullable: true,
                 type: {
                     name: "String"
@@ -2286,6 +2384,267 @@ export var ProjectTemplateDataResult = {
                 type: {
                     name: "Composite",
                     className: "ProjectTemplate"
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ScheduleListDataResult = {
+    type: {
+        name: "Composite",
+        className: "ScheduleListDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                readOnly: true,
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "Schedule"
+                        }
+                    }
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var Schedule = {
+    type: {
+        name: "Composite",
+        className: "Schedule",
+        modelProperties: {
+            organization: {
+                serializedName: "organization",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            projectId: {
+                serializedName: "projectId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            enabled: {
+                serializedName: "enabled",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            recurring: {
+                serializedName: "recurring",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            daysOfWeek: {
+                serializedName: "daysOfWeek",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            },
+            utcHour: {
+                serializedName: "utcHour",
+                type: {
+                    name: "Number"
+                }
+            },
+            utcMinute: {
+                serializedName: "utcMinute",
+                type: {
+                    name: "Number"
+                }
+            },
+            creator: {
+                serializedName: "creator",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            created: {
+                serializedName: "created",
+                type: {
+                    name: "DateTime"
+                }
+            },
+            lastRun: {
+                serializedName: "lastRun",
+                nullable: true,
+                type: {
+                    name: "DateTime"
+                }
+            },
+            componentTasks: {
+                serializedName: "componentTasks",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "ComponentTaskReference"
+                        }
+                    }
+                }
+            },
+            id: {
+                serializedName: "id",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ComponentTaskReference = {
+    type: {
+        name: "Composite",
+        className: "ComponentTaskReference",
+        modelProperties: {
+            componentId: {
+                serializedName: "componentId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            componentTaskTemplateId: {
+                serializedName: "componentTaskTemplateId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputJson: {
+                serializedName: "inputJson",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var ScheduleDefinition = {
+    type: {
+        name: "Composite",
+        className: "ScheduleDefinition",
+        modelProperties: {
+            enabled: {
+                serializedName: "enabled",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            recurring: {
+                serializedName: "recurring",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            daysOfWeek: {
+                serializedName: "daysOfWeek",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            },
+            utcHour: {
+                serializedName: "utcHour",
+                type: {
+                    name: "Number"
+                }
+            },
+            utcMinute: {
+                serializedName: "utcMinute",
+                type: {
+                    name: "Number"
+                }
+            },
+            componentTasks: {
+                serializedName: "componentTasks",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "ComponentTaskReference"
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+export var ScheduleDataResult = {
+    type: {
+        name: "Composite",
+        className: "ScheduleDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                type: {
+                    name: "Composite",
+                    className: "Schedule"
                 }
             },
             location: {

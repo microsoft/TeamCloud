@@ -22,5 +22,7 @@ namespace TeamCloud.API.Auth
         public const string ProjectUserWrite = nameof(ProjectUserWrite);
 
         public const string ProjectComponentOwner = nameof(ProjectComponentOwner);
+
+        public const string ProjectScheduleOwner = nameof(ProjectScheduleOwner);
     }
 }

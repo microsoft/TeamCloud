@@ -120,6 +120,45 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
+
+        public IAsyncEnumerable<Component> ListAsync(string projectId, IEnumerable<string> identifiers)
+            => ListAsync(projectId, identifiers, includeDeleted: false);
+
+        public async IAsyncEnumerable<Component> ListAsync(string projectId, IEnumerable<string> identifiers, bool includeDeleted)
+        {
+            if (projectId is null)
+                throw new ArgumentNullException(nameof(projectId));
+
+            if (!Guid.TryParse(projectId, out var projectIdParsed))
+                throw new ArgumentException("Value is not a valid GUID", nameof(projectId));
+
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var search = "'" + string.Join("', '", identifiers) + "'";
+            var searchLower = "'" + string.Join("', '", identifiers.Select(i => i.ToLowerInvariant())) + "'";
+
+            var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}' AND (c.id IN ({search}) OR c.slug IN ({searchLower}))";
+
+            if (!includeDeleted)
+                queryString += " AND NOT IS_DEFINED(c.deleted)";
+
+            var query = new QueryDefinition(queryString);
+
+            var queryIterator = container
+                .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(projectId));
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var queryResult in queryResponse)
+                    yield return queryResult;
+            }
+        }
+
         public override Task<Component> RemoveAsync(Component component)
             => RemoveAsync(component, soft: true);
 

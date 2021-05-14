@@ -38,6 +38,10 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public DeploymentScopeType Type { get; set; }
 
+        public string InputDataSchema { get; set; }
+
+        public string InputData { get; set; }
+
         public string ManagementGroupId { get; set; }
 
         public List<Guid> SubscriptionIds { get; set; }

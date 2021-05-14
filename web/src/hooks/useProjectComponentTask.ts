@@ -19,7 +19,7 @@ export const useProjectComponentTask = () => {
 
     return useQuery(['org', project?.organization, 'project', project?.id, 'component', component?.id, 'componenttask', subitemId], async () => {
         const { data } = await api.getComponentTask(subitemId, project!.organization, project!.id, component!.id);
-        return data;;
+        return data;
     }, {
         enabled: isAuthenticated && !!project?.id && !!component?.id && !!itemId && matchesRouteParam(component, itemId) && !!subitemId,
     });
