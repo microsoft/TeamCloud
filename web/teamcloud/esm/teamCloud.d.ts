@@ -25,20 +25,20 @@ export declare class TeamCloud extends TeamCloudContext {
     createComponent(organizationId: string, projectId: string, options?: TeamCloudCreateComponentOptionalParams): Promise<TeamCloudCreateComponentResponse>;
     /**
      * Gets a Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
+    getComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
     /**
      * Deletes an existing Project Component.
-     * @param id
+     * @param componentId
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    deleteComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
+    deleteComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
     /**
      * Gets all Component Tasks.
      * @param organizationId
@@ -46,7 +46,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTasks(organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
+    getComponentTasks(organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
     /**
      * Creates a new Project Component Task.
      * @param organizationId
@@ -54,7 +54,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    createComponentTask(organizationId: string, projectId: string, componentId: string, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
+    createComponentTask(organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
     /**
      * Gets the Component Task.
      * @param id
@@ -63,7 +63,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
+    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
     /**
      * Gets all Component Templates for a Project.
      * @param organizationId
@@ -379,6 +379,36 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
+    /**
+     * Gets all Schedule.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getSchedules(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetSchedulesResponse>;
+    /**
+     * Creates a new Project Schedule.
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    createSchedule(organizationId: string, projectId: string, options?: TeamCloudCreateScheduleOptionalParams): Promise<TeamCloudCreateScheduleResponse>;
+    /**
+     * Gets the Schedule.
+     * @param scheduleId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
+    /**
+     * Runs a Project Schedule.
+     * @param scheduleId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduleResponse>;
     /**
      * Gets the status of a long-running operation.
      * @param trackingId

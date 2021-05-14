@@ -111,6 +111,8 @@ export interface ComponentTask {
     // (undocumented)
     resourceState?: ComponentTaskResourceState;
     // (undocumented)
+    scheduleId?: string | null;
+    // (undocumented)
     started?: Date | null;
     // (undocumented)
     type?: ComponentTaskType;
@@ -147,6 +149,16 @@ export interface ComponentTaskListDataResult {
     location?: string | null;
     // (undocumented)
     status?: string | null;
+}
+
+// @public (undocumented)
+export interface ComponentTaskReference {
+    // (undocumented)
+    componentId?: string | null;
+    // (undocumented)
+    componentTaskTemplateId?: string | null;
+    // (undocumented)
+    inputJson?: string | null;
 }
 
 // @public
@@ -265,6 +277,10 @@ export interface DeploymentScope {
     // (undocumented)
     id: string;
     // (undocumented)
+    inputData?: string | null;
+    // (undocumented)
+    inputDataSchema?: string | null;
+    // (undocumented)
     isDefault: boolean;
     // (undocumented)
     managementGroupId?: string | null;
@@ -321,6 +337,32 @@ export interface DeploymentScopeListDataResult {
 
 // @public
 export type DeploymentScopeType = string;
+
+// @public (undocumented)
+export interface DeploymentScopeTypeInformation {
+    // (undocumented)
+    displayName?: string | null;
+    // (undocumented)
+    inputDataForm?: string | null;
+    // (undocumented)
+    inputDataSchema?: string | null;
+    // (undocumented)
+    type?: DeploymentScopeTypeInformationType;
+}
+
+// @public (undocumented)
+export interface DeploymentScopeTypeInformationListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: DeploymentScopeTypeInformation[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public
+export type DeploymentScopeTypeInformationType = string;
 
 // @public (undocumented)
 export interface ErrorResult {
@@ -417,6 +459,16 @@ export const enum KnownDeploymentScopeType {
 }
 
 // @public
+export const enum KnownDeploymentScopeTypeInformationType {
+    // (undocumented)
+    AzureDevOps = "AzureDevOps",
+    // (undocumented)
+    AzureResourceManager = "AzureResourceManager",
+    // (undocumented)
+    GitHub = "GitHub"
+}
+
+// @public
 export const enum KnownOrganizationResourceState {
     // (undocumented)
     Failed = "Failed",
@@ -496,6 +548,42 @@ export const enum KnownResultErrorCode {
     Unknown = "Unknown",
     // (undocumented)
     ValidationError = "ValidationError"
+}
+
+// @public
+export const enum KnownScheduleDaysOfWeekItem {
+    // (undocumented)
+    Friday = "Friday",
+    // (undocumented)
+    Monday = "Monday",
+    // (undocumented)
+    Saturday = "Saturday",
+    // (undocumented)
+    Sunday = "Sunday",
+    // (undocumented)
+    Thursday = "Thursday",
+    // (undocumented)
+    Tuesday = "Tuesday",
+    // (undocumented)
+    Wednesday = "Wednesday"
+}
+
+// @public
+export const enum KnownScheduleDefinitionDaysOfWeekItem {
+    // (undocumented)
+    Friday = "Friday",
+    // (undocumented)
+    Monday = "Monday",
+    // (undocumented)
+    Saturday = "Saturday",
+    // (undocumented)
+    Sunday = "Sunday",
+    // (undocumented)
+    Thursday = "Thursday",
+    // (undocumented)
+    Tuesday = "Tuesday",
+    // (undocumented)
+    Wednesday = "Wednesday"
 }
 
 // @public
@@ -836,6 +924,79 @@ export interface ResultError {
 export type ResultErrorCode = string;
 
 // @public (undocumented)
+export interface Schedule {
+    // (undocumented)
+    componentTasks?: ComponentTaskReference[] | null;
+    // (undocumented)
+    created?: Date;
+    // (undocumented)
+    creator?: string | null;
+    // (undocumented)
+    daysOfWeek?: ScheduleDaysOfWeekItem[] | null;
+    // (undocumented)
+    enabled?: boolean;
+    // (undocumented)
+    id: string;
+    // (undocumented)
+    lastRun?: Date | null;
+    // (undocumented)
+    organization: string;
+    // (undocumented)
+    projectId: string;
+    // (undocumented)
+    recurring?: boolean;
+    // (undocumented)
+    utcHour?: number;
+    // (undocumented)
+    utcMinute?: number;
+}
+
+// @public (undocumented)
+export interface ScheduleDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: Schedule;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public
+export type ScheduleDaysOfWeekItem = string;
+
+// @public (undocumented)
+export interface ScheduleDefinition {
+    // (undocumented)
+    componentTasks?: ComponentTaskReference[] | null;
+    // (undocumented)
+    daysOfWeek?: ScheduleDefinitionDaysOfWeekItem[] | null;
+    // (undocumented)
+    enabled?: boolean;
+    // (undocumented)
+    recurring?: boolean;
+    // (undocumented)
+    utcHour?: number;
+    // (undocumented)
+    utcMinute?: number;
+}
+
+// @public
+export type ScheduleDefinitionDaysOfWeekItem = string;
+
+// @public (undocumented)
+export interface ScheduleListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: Schedule[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
 export interface StatusResult {
     // (undocumented)
     code?: number;
@@ -868,9 +1029,9 @@ export interface StringDictionaryDataResult {
 // @public (undocumented)
 export class TeamCloud extends TeamCloudContext {
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
-    authorizeDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
+    authorizeDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
     createComponent(organizationId: string, projectId: string, options?: TeamCloudCreateComponentOptionalParams): Promise<TeamCloudCreateComponentResponse>;
-    createComponentTask(organizationId: string, projectId: string, componentId: string, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
+    createComponentTask(organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
     createDeploymentScope(organizationId: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
     createOrganization(options?: TeamCloudCreateOrganizationOptionalParams): Promise<TeamCloudCreateOrganizationResponse>;
     createOrganizationUser(organizationId: string, options?: TeamCloudCreateOrganizationUserOptionalParams): Promise<TeamCloudCreateOrganizationUserResponse>;
@@ -879,8 +1040,9 @@ export class TeamCloud extends TeamCloudContext {
     createProjectTag(organizationId: string, projectId: string, options?: TeamCloudCreateProjectTagOptionalParams): Promise<TeamCloudCreateProjectTagResponse>;
     createProjectTemplate(organizationId: string, options?: TeamCloudCreateProjectTemplateOptionalParams): Promise<TeamCloudCreateProjectTemplateResponse>;
     createProjectUser(organizationId: string, projectId: string, options?: TeamCloudCreateProjectUserOptionalParams): Promise<TeamCloudCreateProjectUserResponse>;
-    deleteComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
-    deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    createSchedule(organizationId: string, projectId: string, options?: TeamCloudCreateScheduleOptionalParams): Promise<TeamCloudCreateScheduleResponse>;
+    deleteComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
+    deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
     deleteOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationResponse>;
     deleteOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationUserResponse>;
     deleteProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
@@ -888,14 +1050,15 @@ export class TeamCloud extends TeamCloudContext {
     deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
     deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
     deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
-    getComponent(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
+    getComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
     getComponents(organizationId: string, projectId: string, options?: TeamCloudGetComponentsOptionalParams): Promise<TeamCloudGetComponentsResponse>;
-    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
-    getComponentTasks(organizationId: string, projectId: string, componentId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
+    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
+    getComponentTasks(organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
     getComponentTemplate(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplateResponse>;
     getComponentTemplates(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplatesResponse>;
-    getDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
+    getDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
     getDeploymentScopes(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopesResponse>;
+    getDeploymentScopeTypeInformation(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeTypeInformationResponse>;
     getOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationResponse>;
     getOrganizations(options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationsResponse>;
     getOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserResponse>;
@@ -913,11 +1076,14 @@ export class TeamCloud extends TeamCloudContext {
     getProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
     getProjectUserMe(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
     getProjectUsers(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
+    getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
+    getSchedules(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetSchedulesResponse>;
     getStatus(trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
     getUserProjects(organizationId: string, userId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsResponse>;
     getUserProjectsMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
     negotiateSignalR(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<coreHttp.RestResponse>;
-    updateDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
+    runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduleResponse>;
+    updateDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     updateOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudUpdateOrganizationUserOptionalParams): Promise<TeamCloudUpdateOrganizationUserResponse>;
     updateOrganizationUserMe(organizationId: string, options?: TeamCloudUpdateOrganizationUserMeOptionalParams): Promise<TeamCloudUpdateOrganizationUserMeResponse>;
     updateProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateProjectIdentityOptionalParams): Promise<TeamCloudUpdateProjectIdentityResponse>;
@@ -1090,6 +1256,20 @@ export type TeamCloudCreateProjectUserResponse = UserDataResult & {
 };
 
 // @public
+export interface TeamCloudCreateScheduleOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: ScheduleDefinition;
+}
+
+// @public
+export type TeamCloudCreateScheduleResponse = ScheduleDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ScheduleDataResult;
+    };
+};
+
+// @public
 export type TeamCloudDeleteComponentResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
@@ -1232,6 +1412,14 @@ export type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDataResult
 };
 
 // @public
+export type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: DeploymentScopeTypeInformationListDataResult;
+    };
+};
+
+// @public
 export type TeamCloudGetOrganizationResponse = OrganizationDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
@@ -1368,6 +1556,22 @@ export type TeamCloudGetProjectUsersResponse = UserListDataResult & {
 };
 
 // @public
+export type TeamCloudGetScheduleResponse = ScheduleDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ScheduleDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetSchedulesResponse = ScheduleListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ScheduleListDataResult;
+    };
+};
+
+// @public
 export type TeamCloudGetStatusResponse = StatusResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
@@ -1395,6 +1599,14 @@ export type TeamCloudGetUserProjectsResponse = ProjectListDataResult & {
 export interface TeamCloudOptionalParams extends coreHttp.ServiceClientOptions {
     endpoint?: string;
 }
+
+// @public
+export type TeamCloudRunScheduleResponse = ScheduleDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ScheduleDataResult;
+    };
+};
 
 // @public
 export interface TeamCloudUpdateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {

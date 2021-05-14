@@ -429,6 +429,51 @@ export interface ProjectTemplateDataResult {
   location?: string | null;
 }
 
+export interface ScheduleListDataResult {
+  code?: number;
+  status?: string | null;
+  /** NOTE: This property will not be serialized. It can only be populated by the server. */
+  readonly data?: Schedule[] | null;
+  location?: string | null;
+}
+
+export interface Schedule {
+  organization: string;
+  projectId: string;
+  enabled?: boolean;
+  recurring?: boolean;
+  daysOfWeek?: ScheduleDaysOfWeekItem[] | null;
+  utcHour?: number;
+  utcMinute?: number;
+  creator?: string | null;
+  created?: Date;
+  lastRun?: Date | null;
+  componentTasks?: ComponentTaskReference[] | null;
+  id: string;
+}
+
+export interface ComponentTaskReference {
+  componentId?: string | null;
+  componentTaskTemplateId?: string | null;
+  inputJson?: string | null;
+}
+
+export interface ScheduleDefinition {
+  enabled?: boolean;
+  recurring?: boolean;
+  daysOfWeek?: ScheduleDefinitionDaysOfWeekItem[] | null;
+  utcHour?: number;
+  utcMinute?: number;
+  componentTasks?: ComponentTaskReference[] | null;
+}
+
+export interface ScheduleDataResult {
+  code?: number;
+  status?: string | null;
+  data?: Schedule;
+  location?: string | null;
+}
+
 /** Known values of {@link ComponentType} that the service accepts. */
 export const enum KnownComponentType {
   Environment = "Environment",
@@ -746,6 +791,58 @@ export const enum KnownProjectResourceState {
  * **Failed**
  */
 export type ProjectResourceState = string;
+
+/** Known values of {@link ScheduleDaysOfWeekItem} that the service accepts. */
+export const enum KnownScheduleDaysOfWeekItem {
+  Sunday = "Sunday",
+  Monday = "Monday",
+  Tuesday = "Tuesday",
+  Wednesday = "Wednesday",
+  Thursday = "Thursday",
+  Friday = "Friday",
+  Saturday = "Saturday"
+}
+
+/**
+ * Defines values for ScheduleDaysOfWeekItem. \
+ * {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Sunday** \
+ * **Monday** \
+ * **Tuesday** \
+ * **Wednesday** \
+ * **Thursday** \
+ * **Friday** \
+ * **Saturday**
+ */
+export type ScheduleDaysOfWeekItem = string;
+
+/** Known values of {@link ScheduleDefinitionDaysOfWeekItem} that the service accepts. */
+export const enum KnownScheduleDefinitionDaysOfWeekItem {
+  Sunday = "Sunday",
+  Monday = "Monday",
+  Tuesday = "Tuesday",
+  Wednesday = "Wednesday",
+  Thursday = "Thursday",
+  Friday = "Friday",
+  Saturday = "Saturday"
+}
+
+/**
+ * Defines values for ScheduleDefinitionDaysOfWeekItem. \
+ * {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Sunday** \
+ * **Monday** \
+ * **Tuesday** \
+ * **Wednesday** \
+ * **Thursday** \
+ * **Friday** \
+ * **Saturday**
+ */
+export type ScheduleDefinitionDaysOfWeekItem = string;
 
 /** Optional parameters. */
 export interface TeamCloudGetComponentsOptionalParams
@@ -1490,6 +1587,60 @@ export type TeamCloudUpdateProjectUserMeResponse = UserDataResult & {
 
     /** The response body as parsed JSON or XML */
     parsedBody: UserDataResult;
+  };
+};
+
+/** Contains response data for the getSchedules operation. */
+export type TeamCloudGetSchedulesResponse = ScheduleListDataResult & {
+  /** The underlying HTTP response. */
+  _response: coreHttp.HttpResponse & {
+    /** The response body as text (string format) */
+    bodyAsText: string;
+
+    /** The response body as parsed JSON or XML */
+    parsedBody: ScheduleListDataResult;
+  };
+};
+
+/** Optional parameters. */
+export interface TeamCloudCreateScheduleOptionalParams
+  extends coreHttp.OperationOptions {
+  body?: ScheduleDefinition;
+}
+
+/** Contains response data for the createSchedule operation. */
+export type TeamCloudCreateScheduleResponse = ScheduleDataResult & {
+  /** The underlying HTTP response. */
+  _response: coreHttp.HttpResponse & {
+    /** The response body as text (string format) */
+    bodyAsText: string;
+
+    /** The response body as parsed JSON or XML */
+    parsedBody: ScheduleDataResult;
+  };
+};
+
+/** Contains response data for the getSchedule operation. */
+export type TeamCloudGetScheduleResponse = ScheduleDataResult & {
+  /** The underlying HTTP response. */
+  _response: coreHttp.HttpResponse & {
+    /** The response body as text (string format) */
+    bodyAsText: string;
+
+    /** The response body as parsed JSON or XML */
+    parsedBody: ScheduleDataResult;
+  };
+};
+
+/** Contains response data for the runSchedule operation. */
+export type TeamCloudRunScheduleResponse = ScheduleDataResult & {
+  /** The underlying HTTP response. */
+  _response: coreHttp.HttpResponse & {
+    /** The response body as text (string format) */
+    bodyAsText: string;
+
+    /** The response body as parsed JSON or XML */
+    parsedBody: ScheduleDataResult;
   };
 };
 

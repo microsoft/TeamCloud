@@ -112,14 +112,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{id}':
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}':
     get:
       tags:
         - Components
       summary: Gets a Project Component.
       operationId: GetComponent
       parameters:
-        - name: id
+        - name: componentId
           in: path
           required: true
           schema:
@@ -164,7 +164,7 @@ paths:
       summary: Deletes an existing Project Component.
       operationId: DeleteComponent
       parameters:
-        - name: id
+        - name: componentId
           in: path
           required: true
           schema:
@@ -2264,6 +2264,182 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules':
+    get:
+      tags:
+        - Schedule
+      summary: Gets all Schedule.
+      operationId: GetSchedules
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - Schedule
+      summary: Creates a new Project Schedule.
+      operationId: CreateSchedule
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleDefinition'
+      responses:
+        '201':
+          description: The created Project Schedule.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Schedule already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}':
+    get:
+      tags:
+        - Schedule
+      summary: Gets the Schedule.
+      operationId: GetSchedule
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a Schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Schedule with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run':
+    post:
+      tags:
+        - Schedule
+      summary: Runs a Project Schedule.
+      operationId: RunSchedule
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: The created Project Schedule.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   '/orgs/{organizationId}/status/{trackingId}':
     get:
       tags:
@@ -2664,6 +2840,9 @@ components:
         projectId:
           type: string
         requestedBy:
+          type: string
+          nullable: true
+        scheduleId:
           type: string
           nullable: true
         type:
@@ -3562,6 +3741,137 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/ProjectTemplate'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTaskReference:
+      type: object
+      properties:
+        componentId:
+          type: string
+          nullable: true
+        componentTaskTemplateId:
+          type: string
+          nullable: true
+        inputJson:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Schedule:
+      required:
+        - id
+        - organization
+        - projectId
+      type: object
+      properties:
+        organization:
+          type: string
+        projectId:
+          type: string
+        enabled:
+          type: boolean
+        recurring:
+          type: boolean
+        daysOfWeek:
+          type: array
+          items:
+            enum:
+              - Sunday
+              - Monday
+              - Tuesday
+              - Wednesday
+              - Thursday
+              - Friday
+              - Saturday
+            type: string
+          nullable: true
+        utcHour:
+          type: integer
+          format: int32
+        utcMinute:
+          type: integer
+          format: int32
+        creator:
+          type: string
+          nullable: true
+        created:
+          type: string
+          format: date-time
+        lastRun:
+          type: string
+          format: date-time
+          nullable: true
+        componentTasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTaskReference'
+          nullable: true
+        id:
+          type: string
+      additionalProperties: false
+    ScheduleListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Schedule'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ScheduleDefinition:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        recurring:
+          type: boolean
+        daysOfWeek:
+          type: array
+          items:
+            enum:
+              - Sunday
+              - Monday
+              - Tuesday
+              - Wednesday
+              - Thursday
+              - Friday
+              - Saturday
+            type: string
+          nullable: true
+        utcHour:
+          type: integer
+          format: int32
+        utcMinute:
+          type: integer
+          format: int32
+        componentTasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTaskReference'
+          nullable: true
+      additionalProperties: false
+    ScheduleDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/Schedule'
         location:
           type: string
           nullable: true
