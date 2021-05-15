@@ -37,6 +37,10 @@ namespace TeamCloud.Model.Data
 
         public DateTime Created { get; set; } = DateTime.UtcNow;
 
+        public string LastUpdatedBy { get; set; }
+
+        public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+
         public DateTime? LastRun { get; set; }
 
         public List<ComponentTaskReference> ComponentTasks { get; set; }

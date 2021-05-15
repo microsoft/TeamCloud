@@ -104,6 +104,7 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
         });
 
+
         [HttpPut("{projectIdentityId}")]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
         [Consumes("application/json")]
@@ -138,6 +139,7 @@ namespace TeamCloud.API.Controllers
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
+
 
         [HttpDelete("{projectIdentityId}")]
         [Authorize(Policy = AuthPolicies.ProjectMember)]

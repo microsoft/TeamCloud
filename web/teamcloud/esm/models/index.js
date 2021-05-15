@@ -90,6 +90,13 @@ export var KnownDeploymentScopeDefinitionType;
     KnownDeploymentScopeDefinitionType["AzureDevOps"] = "AzureDevOps";
     KnownDeploymentScopeDefinitionType["GitHub"] = "GitHub";
 })(KnownDeploymentScopeDefinitionType || (KnownDeploymentScopeDefinitionType = {}));
+/** Known values of {@link DeploymentScopeTypeInformationType} that the service accepts. */
+export var KnownDeploymentScopeTypeInformationType;
+(function (KnownDeploymentScopeTypeInformationType) {
+    KnownDeploymentScopeTypeInformationType["AzureResourceManager"] = "AzureResourceManager";
+    KnownDeploymentScopeTypeInformationType["AzureDevOps"] = "AzureDevOps";
+    KnownDeploymentScopeTypeInformationType["GitHub"] = "GitHub";
+})(KnownDeploymentScopeTypeInformationType || (KnownDeploymentScopeTypeInformationType = {}));
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export var KnownOrganizationResourceState;
 (function (KnownOrganizationResourceState) {

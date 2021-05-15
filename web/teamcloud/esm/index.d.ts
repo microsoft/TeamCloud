@@ -61,6 +61,7 @@ export declare interface ComponentTask {
     componentId: string;
     projectId: string;
     requestedBy?: string | null;
+    scheduleId?: string | null;
     type?: ComponentTaskType;
     typeName?: string | null;
     created?: Date;
@@ -218,6 +219,8 @@ export declare interface DeploymentScope {
     slug: string;
     isDefault: boolean;
     type: DeploymentScopeType;
+    inputDataSchema?: string | null;
+    inputData?: string | null;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
     authorizable?: boolean;
@@ -272,6 +275,32 @@ export declare interface DeploymentScopeListDataResult {
  * **GitHub**
  */
 export declare type DeploymentScopeType = string;
+
+export declare interface DeploymentScopeTypeInformation {
+    type?: DeploymentScopeTypeInformationType;
+    displayName?: string | null;
+    inputDataSchema?: string | null;
+    inputDataForm?: string | null;
+}
+
+export declare interface DeploymentScopeTypeInformationListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: DeploymentScopeTypeInformation[] | null;
+    location?: string | null;
+}
+
+/**
+ * Defines values for DeploymentScopeTypeInformationType. \
+ * {@link KnownDeploymentScopeTypeInformationType} can be used interchangeably with DeploymentScopeTypeInformationType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeTypeInformationType = string;
 
 export declare interface ErrorResult {
     code?: number;
@@ -332,6 +361,13 @@ export declare const enum KnownDeploymentScopeDefinitionType {
 
 /** Known values of {@link DeploymentScopeType} that the service accepts. */
 export declare const enum KnownDeploymentScopeType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+
+/** Known values of {@link DeploymentScopeTypeInformationType} that the service accepts. */
+export declare const enum KnownDeploymentScopeTypeInformationType {
     AzureResourceManager = "AzureResourceManager",
     AzureDevOps = "AzureDevOps",
     GitHub = "GitHub"
@@ -699,6 +735,8 @@ export declare interface Schedule {
     utcMinute?: number;
     creator?: string | null;
     created?: Date;
+    lastUpdatedBy?: string | null;
+    lastUpdated?: Date;
     lastRun?: Date | null;
     componentTasks?: ComponentTaskReference[] | null;
     id: string;
@@ -874,32 +912,38 @@ export declare class TeamCloud extends TeamCloudContext {
     createDeploymentScope(organizationId: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
     /**
      * Gets a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    getDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
+    getDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
     /**
      * Updates an existing Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    updateDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
+    updateDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     /**
      * Deletes a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    /**
+     * Gets all Deployment Scope type information.
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    getDeploymentScopeTypeInformation(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeTypeInformationResponse>;
     /**
      * Authorize an existing Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    authorizeDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
+    authorizeDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
     /**
      * Negotiates the SignalR connection.
      * @param organizationId
@@ -1182,6 +1226,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
+    /**
+     * Updates a Project Schedule.
+     * @param scheduleId
+     * @param organizationId
+     * @param projectId
+     * @param options The options parameters.
+     */
+    updateSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateScheduleOptionalParams): Promise<TeamCloudUpdateScheduleResponse>;
     /**
      * Runs a Project Schedule.
      * @param scheduleId
@@ -1618,6 +1670,17 @@ export declare type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDa
     };
 };
 
+/** Contains response data for the getDeploymentScopeTypeInformation operation. */
+export declare type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeTypeInformationListDataResult;
+    };
+};
+
 /** Contains response data for the getOrganization operation. */
 export declare type TeamCloudGetOrganizationResponse = OrganizationDataResult & {
     /** The underlying HTTP response. */
@@ -2005,6 +2068,22 @@ export declare type TeamCloudUpdateProjectUserResponse = UserDataResult & {
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
         parsedBody: UserDataResult;
+    };
+};
+
+/** Optional parameters. */
+export declare interface TeamCloudUpdateScheduleOptionalParams extends coreHttp.OperationOptions {
+    body?: Schedule;
+}
+
+/** Contains response data for the updateSchedule operation. */
+export declare type TeamCloudUpdateScheduleResponse = ScheduleDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduleDataResult;
     };
 };
 

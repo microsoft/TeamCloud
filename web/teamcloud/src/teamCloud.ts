@@ -89,6 +89,8 @@ import {
   TeamCloudCreateScheduleOptionalParams,
   TeamCloudCreateScheduleResponse,
   TeamCloudGetScheduleResponse,
+  TeamCloudUpdateScheduleOptionalParams,
+  TeamCloudUpdateScheduleResponse,
   TeamCloudRunScheduleResponse,
   TeamCloudGetStatusResponse,
   TeamCloudGetProjectStatusResponse,
@@ -1360,6 +1362,31 @@ export class TeamCloud extends TeamCloudContext {
       operationArguments,
       getScheduleOperationSpec
     ) as Promise<TeamCloudGetScheduleResponse>;
+  }
+
+  /**
+   * Updates a Project Schedule.
+   * @param scheduleId
+   * @param organizationId
+   * @param projectId
+   * @param options The options parameters.
+   */
+  updateSchedule(
+    scheduleId: string | null,
+    organizationId: string,
+    projectId: string,
+    options?: TeamCloudUpdateScheduleOptionalParams
+  ): Promise<TeamCloudUpdateScheduleResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      scheduleId,
+      organizationId,
+      projectId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      updateScheduleOperationSpec
+    ) as Promise<TeamCloudUpdateScheduleResponse>;
   }
 
   /**
@@ -2854,12 +2881,42 @@ const getScheduleOperationSpec: coreHttp.OperationSpec = {
   headerParameters: [Parameters.accept],
   serializer
 };
+const updateScheduleOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}",
+  httpMethod: "PUT",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ScheduleDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    409: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body14,
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId,
+    Parameters.scheduleId
+  ],
+  headerParameters: [Parameters.accept, Parameters.contentType],
+  mediaType: "json",
+  serializer
+};
 const runScheduleOperationSpec: coreHttp.OperationSpec = {
   path:
     "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run",
   httpMethod: "POST",
   responses: {
-    201: {
+    200: {
       bodyMapper: Mappers.ScheduleDataResult
     },
     400: {

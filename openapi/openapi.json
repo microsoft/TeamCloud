@@ -841,7 +841,7 @@
         }
       }
     },
-    "/orgs/{organizationId}/scopes/{id}": {
+    "/orgs/{organizationId}/scopes/{deploymentScopeId}": {
       "get": {
         "tags": [
           "DeploymentScopes"
@@ -850,7 +850,7 @@
         "operationId": "GetDeploymentScope",
         "parameters": [
           {
-            "name": "id",
+            "name": "deploymentScopeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -914,7 +914,7 @@
         "operationId": "UpdateDeploymentScope",
         "parameters": [
           {
-            "name": "id",
+            "name": "deploymentScopeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -987,7 +987,7 @@
         "operationId": "DeleteDeploymentScope",
         "parameters": [
           {
-            "name": "id",
+            "name": "deploymentScopeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1044,7 +1044,54 @@
         }
       }
     },
-    "/orgs/{organizationId}/scopes/{id}/authorize": {
+    "/orgs/{organizationId}/scopes/types": {
+      "get": {
+        "tags": [
+          "DeploymentScopes"
+        ],
+        "summary": "Gets all Deployment Scope type information.",
+        "operationId": "GetDeploymentScopeTypeInformation",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Deployment Scope type information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentScopeTypeInformationListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize": {
       "put": {
         "tags": [
           "DeploymentScopes"
@@ -1053,7 +1100,7 @@
         "operationId": "AuthorizeDeploymentScope",
         "parameters": [
           {
-            "name": "id",
+            "name": "deploymentScopeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3874,6 +3921,97 @@
             "description": "Forbidden"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "Updates a Project Schedule.",
+        "operationId": "UpdateSchedule",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Schedule"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated Project Schedule.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A Project with the provided projectId was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A Project Schedule id provided in the could not be found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
       }
     },
     "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run": {
@@ -3911,8 +4049,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "The created Project Schedule.",
+          "200": {
+            "description": "The Project Schedule run.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4954,6 +5092,14 @@
             ],
             "type": "string"
           },
+          "inputDataSchema": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputData": {
+            "type": "string",
+            "nullable": true
+          },
           "managementGroupId": {
             "type": "string",
             "nullable": true
@@ -5062,6 +5208,58 @@
           },
           "data": {
             "$ref": "#/components/schemas/DeploymentScope"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeploymentScopeTypeInformation": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "AzureResourceManager",
+              "AzureDevOps",
+              "GitHub"
+            ],
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputDataSchema": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputDataForm": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeploymentScopeTypeInformationListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentScopeTypeInformation"
+            },
+            "nullable": true,
+            "readOnly": true
           },
           "location": {
             "type": "string",
@@ -5856,6 +6054,14 @@
             "nullable": true
           },
           "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUpdatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastUpdated": {
             "type": "string",
             "format": "date-time"
           },

@@ -3,9 +3,9 @@
 
 import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
-import { CalloutLabel, ComponentTaskConsole } from '.';
+import { ComponentTaskConsole } from '.';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
 
 export interface IComponentTaskListProps { }
@@ -64,7 +64,13 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                             <Text styles={{ root: { color: theme.palette.neutralSecondary } }} variant='small'>{_getTaskStatus(t)}</Text>
                         </Stack.Item>
                     </Stack>
-                    {(t.scheduleId ?? false) && (<Stack.Item><FontIcon iconName='ScheduleEventAction' className='component-task-icon' /></Stack.Item>)}
+                    {(t.scheduleId ?? false) &&
+                        (<Stack.Item>
+                            <Link onClick={() => history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/settings/schedules/${t.scheduleId}`)}>
+                                <FontIcon iconName='ScheduleEventAction' className='component-task-icon' />
+                            </Link>
+                        </Stack.Item>)
+                    }
                     <Stack.Item>
                         <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.resourceState?.toLowerCase() ?? 'pending'}`} />
                     </Stack.Item>

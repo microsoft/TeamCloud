@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { useMutation, useQueryClient } from 'react-query'
-import { ProjectTemplateDefinition } from 'teamcloud';
+import { ErrorResult, ProjectTemplateDefinition } from 'teamcloud';
 import { api } from '../API';
 import { useOrg } from '.';
 
@@ -15,7 +15,13 @@ export const useCreateProjectTemplate = () => {
     return useMutation(async (templateDef: ProjectTemplateDefinition) => {
         if (!org) throw Error('No Org');
 
-        const { data } = await api.createProjectTemplate(org.id, { body: templateDef });
+        const { data, code, _response } = await api.createProjectTemplate(org.id, { body: templateDef });
+
+        if (code && code >= 400) {
+            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
+            throw error;
+        }
+
         return data;
     }, {
         onSuccess: data => {

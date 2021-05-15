@@ -12,7 +12,7 @@ import { ProjectMember } from '../model';
 import { ComponentTaskList, UserPersona, ComponentLink, ComponentTemplateLink } from '.';
 import { useDeploymentScopes, useProjectComponent, useProjectComponentTemplates, useProjectMembers } from '../hooks';
 
-export const ComponentOverview: React.FC = (props) => {
+export const ComponentOverview: React.FC = () => {
 
     const theme = getTheme();
 

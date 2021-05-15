@@ -74,6 +74,7 @@ export interface ComponentTask {
     componentId: string;
     projectId: string;
     requestedBy?: string | null;
+    scheduleId?: string | null;
     type?: ComponentTaskType;
     typeName?: string | null;
     created?: Date;
@@ -173,6 +174,8 @@ export interface DeploymentScope {
     slug: string;
     isDefault: boolean;
     type: DeploymentScopeType;
+    inputDataSchema?: string | null;
+    inputData?: string | null;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
     authorizable?: boolean;
@@ -194,6 +197,19 @@ export interface DeploymentScopeDataResult {
     status?: string | null;
     data?: DeploymentScope;
     location?: string | null;
+}
+export interface DeploymentScopeTypeInformationListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: DeploymentScopeTypeInformation[] | null;
+    location?: string | null;
+}
+export interface DeploymentScopeTypeInformation {
+    type?: DeploymentScopeTypeInformationType;
+    displayName?: string | null;
+    inputDataSchema?: string | null;
+    inputDataForm?: string | null;
 }
 export interface OrganizationListDataResult {
     code?: number;
@@ -405,6 +421,8 @@ export interface Schedule {
     utcMinute?: number;
     creator?: string | null;
     created?: Date;
+    lastUpdatedBy?: string | null;
+    lastUpdated?: Date;
     lastRun?: Date | null;
     componentTasks?: ComponentTaskReference[] | null;
     id: string;
@@ -620,6 +638,22 @@ export declare const enum KnownDeploymentScopeDefinitionType {
  * **GitHub**
  */
 export declare type DeploymentScopeDefinitionType = string;
+/** Known values of {@link DeploymentScopeTypeInformationType} that the service accepts. */
+export declare const enum KnownDeploymentScopeTypeInformationType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+/**
+ * Defines values for DeploymentScopeTypeInformationType. \
+ * {@link KnownDeploymentScopeTypeInformationType} can be used interchangeably with DeploymentScopeTypeInformationType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeTypeInformationType = string;
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export declare const enum KnownOrganizationResourceState {
     Pending = "Pending",
@@ -920,6 +954,16 @@ export declare type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeData
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
         parsedBody: DeploymentScopeDataResult;
+    };
+};
+/** Contains response data for the getDeploymentScopeTypeInformation operation. */
+export declare type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeTypeInformationListDataResult;
     };
 };
 /** Optional parameters. */
@@ -1394,6 +1438,20 @@ export declare type TeamCloudCreateScheduleResponse = ScheduleDataResult & {
 };
 /** Contains response data for the getSchedule operation. */
 export declare type TeamCloudGetScheduleResponse = ScheduleDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: ScheduleDataResult;
+    };
+};
+/** Optional parameters. */
+export interface TeamCloudUpdateScheduleOptionalParams extends coreHttp.OperationOptions {
+    body?: Schedule;
+}
+/** Contains response data for the updateSchedule operation. */
+export declare type TeamCloudUpdateScheduleResponse = ScheduleDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */

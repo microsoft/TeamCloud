@@ -186,12 +186,116 @@ namespace TeamCloud.API.Controllers
         });
 
 
+        [HttpPut("{scheduleId}")]
+        [Authorize(Policy = AuthPolicies.ProjectScheduleOwner)]
+        [Consumes("application/json")]
+        [SwaggerOperation(OperationId = "UpdateSchedule", Summary = "Updates a Project Schedule.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The updated Project Schedule.", typeof(DataResult<Schedule>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Schedule id provided in the could not be found.", typeof(ErrorResult))]
+        [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
+        public Task<IActionResult> Put([FromRoute] string scheduleId, [FromBody] Schedule updatedSchedule) => ExecuteAsync<TeamCloudScheduleContext>(async context =>
+        {
+            if (updatedSchedule is null)
+                return ErrorResult
+                    .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+            if (!updatedSchedule.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+                return ErrorResult
+                    .BadRequest(validationResult)
+                    .ToActionResult();
+
+
+            if (!context.Schedule.Id.Equals(updatedSchedule.Id, StringComparison.Ordinal))
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "id", Message = $"Schedule's id does match the identifier provided in the path." })
+                    .ToActionResult();
+
+
+            var componentIds = updatedSchedule.ComponentTasks
+                .Select(ct => ct.ComponentId)
+                .Distinct();
+
+            var components = await componentRepository
+                .ListAsync(context.Project.Id, componentIds)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+
+            if (!context.ContextUser.IsAdmin(context.Project.Id))
+            {
+                var notAllowedComponents = components
+                    .Where(c => c.Creator != context.ContextUser.Id);
+
+                if (notAllowedComponents.Any())
+                    return ErrorResult
+                        .BadRequest($"You are not authorized to schedule tasks on the following components: {string.Join(", ", notAllowedComponents.Select(c => c.Id))}.", ResultErrorCode.ValidationError)
+                        .ToActionResult();
+            }
+
+
+            var notFoundComponentIds = componentIds
+                .Where(cid => !components.Any(c => c.Id == cid));
+
+            if (notFoundComponentIds.Any())
+                return ErrorResult
+                    .BadRequest($"The following components could not be found on this project: {string.Join(", ", notFoundComponentIds)}.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+
+            var componentTemplateIds = components
+                .Select(c => c.TemplateId)
+                .Distinct();
+
+            var componentTemplates = await componentTemplateRepository
+                .ListAsync(context.Organization.Id, context.Project.Id, componentTemplateIds)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            var notFoundComponentTemplateIds = componentTemplateIds
+                .Where(ctid => !componentTemplates.Any(ct => ct.Id == ctid));
+
+            if (notFoundComponentTemplateIds.Any())
+                return ErrorResult
+                    .BadRequest($"The following component templates could not be found: {string.Join(", ", notFoundComponentTemplateIds)}.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+
+            var notFoundComponentTaskTemplateIds = updatedSchedule.ComponentTasks
+                .Where(ctr => !componentTemplates.First(ct => ct.Id == components.First(c => c.Id == ctr.ComponentId).TemplateId).Tasks.Any(t => t.Id == ctr.ComponentTaskTemplateId));
+
+            if (notFoundComponentTaskTemplateIds.Any())
+                return ErrorResult
+                    .BadRequest($"The following tasks could not be found on the specified components: {string.Join(", ", notFoundComponentTaskTemplateIds.Select(ctr => ctr.ComponentTaskTemplateId))}.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+
+            if (updatedSchedule.Creator != context.Schedule.Creator)
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "creator", Message = $"The Schedule's creator field cannot be changed." })
+                    .ToActionResult();
+
+            updatedSchedule.LastUpdatedBy = context.ContextUser.Id;
+            updatedSchedule.LastUpdated = DateTime.UtcNow;
+
+            updatedSchedule.Created = context.Schedule.Created;
+            updatedSchedule.LastRun = context.Schedule.LastRun;
+
+            var command = new ScheduleUpdateCommand(context.ContextUser, updatedSchedule);
+
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync(command, Request)
+                .ConfigureAwait(false);
+        });
+
 
         [HttpPost("{scheduleId}/run")]
         [Authorize(Policy = AuthPolicies.ProjectScheduleOwner)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "RunSchedule", Summary = "Runs a Project Schedule.")]
-        [SwaggerResponse(StatusCodes.Status201Created, "The created Project Schedule.", typeof(DataResult<Schedule>))]
+        [SwaggerResponse(StatusCodes.Status200OK, "The Project Schedule run.", typeof(DataResult<Schedule>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
@@ -260,8 +364,6 @@ namespace TeamCloud.API.Controllers
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
         });
-
-        // TODO: Update (PUT)
 
         // TODO: Delete (DELETE)
     }

@@ -940,6 +940,10 @@ export interface Schedule {
     // (undocumented)
     lastRun?: Date | null;
     // (undocumented)
+    lastUpdated?: Date;
+    // (undocumented)
+    lastUpdatedBy?: string | null;
+    // (undocumented)
     organization: string;
     // (undocumented)
     projectId: string;
@@ -1091,6 +1095,7 @@ export class TeamCloud extends TeamCloudContext {
     updateProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: TeamCloudUpdateProjectTemplateOptionalParams): Promise<TeamCloudUpdateProjectTemplateResponse>;
     updateProjectUser(userId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserOptionalParams): Promise<TeamCloudUpdateProjectUserResponse>;
     updateProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudUpdateProjectUserMeOptionalParams): Promise<TeamCloudUpdateProjectUserMeResponse>;
+    updateSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: TeamCloudUpdateScheduleOptionalParams): Promise<TeamCloudUpdateScheduleResponse>;
 }
 
 // @public
@@ -1718,6 +1723,20 @@ export type TeamCloudUpdateProjectUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: UserDataResult;
+    };
+};
+
+// @public
+export interface TeamCloudUpdateScheduleOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    body?: Schedule;
+}
+
+// @public
+export type TeamCloudUpdateScheduleResponse = ScheduleDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: ScheduleDataResult;
     };
 };
 
