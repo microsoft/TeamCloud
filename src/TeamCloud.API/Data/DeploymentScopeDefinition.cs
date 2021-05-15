@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Data
@@ -14,10 +15,13 @@ namespace TeamCloud.API.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public class DeploymentScopeDefinition : ISlug, IValidatable
     {
-        public string Slug => (this as ISlug).GetSlug();
-
         [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public DeploymentScopeType Type { get; set; }
+
+        public string Slug => ISlug.CreateSlug(this);
 
         public bool IsDefault { get; set; }
 

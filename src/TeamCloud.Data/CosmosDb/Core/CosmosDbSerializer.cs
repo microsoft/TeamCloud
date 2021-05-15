@@ -24,8 +24,7 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public CosmosDbSerializer(IDataProtectionProvider dataProtectionProvider = null)
         {
-            SerializerSettings = TeamCloudSerializerSettings
-                .Create(new CosmosDbContractResolver(dataProtectionProvider));
+            SerializerSettings = new TeamCloudSerializerSettings(new CosmosDbContractResolver(dataProtectionProvider));
         }
 
         public override T FromStream<T>(Stream stream)

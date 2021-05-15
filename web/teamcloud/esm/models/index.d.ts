@@ -23,8 +23,7 @@ export interface Component {
     identityId?: string | null;
     deleted?: Date | null;
     ttl?: number | null;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     id: string;
 }
 export interface ErrorResult {
@@ -117,6 +116,8 @@ export interface ComponentTemplate {
     taskRunner?: ComponentTaskRunner;
     type: ComponentTemplateType;
     folder?: string | null;
+    /** Any object */
+    configuration?: any | null;
     id: string;
 }
 export interface RepositoryReference {
@@ -143,7 +144,7 @@ export interface ComponentTaskTemplate {
     displayName?: string | null;
     description?: string | null;
     inputJsonSchema?: string | null;
-    type: ComponentTaskTemplateType;
+    type?: ComponentTaskTemplateType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly typeName?: string | null;
 }
@@ -169,18 +170,24 @@ export interface DeploymentScopeListDataResult {
 }
 export interface DeploymentScope {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
     displayName: string;
+    slug: string;
     isDefault: boolean;
+    type: DeploymentScopeType;
+    inputDataSchema?: string | null;
+    inputData?: string | null;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
+    authorizable?: boolean;
+    authorized?: boolean;
+    authorizeUrl?: string | null;
     id: string;
 }
 export interface DeploymentScopeDefinition {
+    displayName: string;
+    type: DeploymentScopeDefinitionType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly slug?: string | null;
-    displayName: string;
     isDefault?: boolean;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
@@ -191,6 +198,19 @@ export interface DeploymentScopeDataResult {
     data?: DeploymentScope;
     location?: string | null;
 }
+export interface DeploymentScopeTypeInformationListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: DeploymentScopeTypeInformation[] | null;
+    location?: string | null;
+}
+export interface DeploymentScopeTypeInformation {
+    type?: DeploymentScopeTypeInformationType;
+    displayName?: string | null;
+    inputDataSchema?: string | null;
+    inputDataForm?: string | null;
+}
 export interface OrganizationListDataResult {
     code?: number;
     status?: string | null;
@@ -200,8 +220,7 @@ export interface OrganizationListDataResult {
 }
 export interface Organization {
     tenant: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     subscriptionId: string;
     location: string;
@@ -281,8 +300,7 @@ export interface ProjectListDataResult {
 }
 export interface Project {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     template: string;
     templateInput?: string | null;
@@ -361,8 +379,7 @@ export interface ProjectTemplateListDataResult {
 }
 export interface ProjectTemplate {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     name?: string | null;
     displayName: string;
     components?: string[] | null;
@@ -431,20 +448,16 @@ export interface ScheduleDataResult {
 }
 /** Known values of {@link ComponentType} that the service accepts. */
 export declare const enum KnownComponentType {
-    Custom = "Custom",
-    AzureResource = "AzureResource",
     Environment = "Environment",
-    GitRepository = "GitRepository"
+    Repository = "Repository"
 }
 /**
  * Defines values for ComponentType. \
  * {@link KnownComponentType} can be used interchangeably with ComponentType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
- * **Custom** \
- * **AzureResource** \
  * **Environment** \
- * **GitRepository**
+ * **Repository**
  */
 export declare type ComponentType = string;
 /** Known values of {@link ComponentResourceState} that the service accepts. */
@@ -495,18 +508,18 @@ export declare const enum KnownResultErrorCode {
 export declare type ResultErrorCode = string;
 /** Known values of {@link ComponentTaskType} that the service accepts. */
 export declare const enum KnownComponentTaskType {
+    Custom = "Custom",
     Create = "Create",
-    Delete = "Delete",
-    Custom = "Custom"
+    Delete = "Delete"
 }
 /**
  * Defines values for ComponentTaskType. \
  * {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
+ * **Custom** \
  * **Create** \
- * **Delete** \
- * **Custom**
+ * **Delete**
  */
 export declare type ComponentTaskType = string;
 /** Known values of {@link ComponentTaskResourceState} that the service accepts. */
@@ -565,38 +578,82 @@ export declare const enum KnownRepositoryReferenceType {
 export declare type RepositoryReferenceType = string;
 /** Known values of {@link ComponentTaskTemplateType} that the service accepts. */
 export declare const enum KnownComponentTaskTemplateType {
+    Custom = "Custom",
     Create = "Create",
-    Delete = "Delete",
-    Custom = "Custom"
+    Delete = "Delete"
 }
 /**
  * Defines values for ComponentTaskTemplateType. \
  * {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
+ * **Custom** \
  * **Create** \
- * **Delete** \
- * **Custom**
+ * **Delete**
  */
 export declare type ComponentTaskTemplateType = string;
 /** Known values of {@link ComponentTemplateType} that the service accepts. */
 export declare const enum KnownComponentTemplateType {
-    Custom = "Custom",
-    AzureResource = "AzureResource",
     Environment = "Environment",
-    GitRepository = "GitRepository"
+    Repository = "Repository"
 }
 /**
  * Defines values for ComponentTemplateType. \
  * {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
- * **Custom** \
- * **AzureResource** \
  * **Environment** \
- * **GitRepository**
+ * **Repository**
  */
 export declare type ComponentTemplateType = string;
+/** Known values of {@link DeploymentScopeType} that the service accepts. */
+export declare const enum KnownDeploymentScopeType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+/**
+ * Defines values for DeploymentScopeType. \
+ * {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeType = string;
+/** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
+export declare const enum KnownDeploymentScopeDefinitionType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+/**
+ * Defines values for DeploymentScopeDefinitionType. \
+ * {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeDefinitionType = string;
+/** Known values of {@link DeploymentScopeTypeInformationType} that the service accepts. */
+export declare const enum KnownDeploymentScopeTypeInformationType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+/**
+ * Defines values for DeploymentScopeTypeInformationType. \
+ * {@link KnownDeploymentScopeTypeInformationType} can be used interchangeably with DeploymentScopeTypeInformationType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeTypeInformationType = string;
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export declare const enum KnownOrganizationResourceState {
     Pending = "Pending",
@@ -891,6 +948,30 @@ export declare type TeamCloudUpdateDeploymentScopeResponse = DeploymentScopeData
 };
 /** Contains response data for the deleteDeploymentScope operation. */
 export declare type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeDataResult;
+    };
+};
+/** Contains response data for the getDeploymentScopeTypeInformation operation. */
+export declare type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeTypeInformationListDataResult;
+    };
+};
+/** Optional parameters. */
+export interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+    body?: DeploymentScope;
+}
+/** Contains response data for the authorizeDeploymentScope operation. */
+export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */

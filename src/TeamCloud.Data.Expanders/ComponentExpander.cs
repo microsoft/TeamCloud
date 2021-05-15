@@ -18,7 +18,7 @@ namespace TeamCloud.Data.Expanders
         private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
 
-        public ComponentExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService)
+        public ComponentExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService) : base(true)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

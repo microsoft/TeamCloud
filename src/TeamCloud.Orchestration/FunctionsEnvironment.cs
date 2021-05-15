@@ -8,7 +8,9 @@ using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.WebJobs;
@@ -55,7 +57,7 @@ namespace TeamCloud.Orchestration
         public static bool IsLocalEnvironment
             => string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
-        public static async Task<string> GetFunctionUrlAsync(string functionName, bool withCode = false)
+        public static async Task<string> GetFunctionUrlAsync(string functionName, IFunctionsHost functionsHost = null, bool withCode = false, Func<string, string> replaceToken = null)
         {
             var functionJson = await GetFunctionJsonAsync(functionName)
                 .ConfigureAwait(false);
@@ -67,8 +69,7 @@ namespace TeamCloud.Orchestration
             if (string.IsNullOrEmpty(functionUrl))
                 return null;
 
-            var hostUrl = await GetHostUrlAsync()
-                .ConfigureAwait(false);
+            var hostUrl = (functionsHost ?? FunctionsHost.Default).HostUrl;
 
             if (!functionUrl.StartsWith(hostUrl, StringComparison.OrdinalIgnoreCase))
             {
@@ -86,7 +87,12 @@ namespace TeamCloud.Orchestration
                     .SetQueryParam("code", code);
             }
 
-            return functionUrl;
+            return Regex.Replace(HttpUtility.UrlDecode(functionUrl), "{(\\w+)}", (match) =>
+            {
+                var value = replaceToken?.Invoke(match.Groups[1].Value);
+
+                return value ?? match.Value;
+            });
         }
 
         public static async Task<string> GetFunctionKeyAsync(string functionName)
@@ -94,10 +100,7 @@ namespace TeamCloud.Orchestration
             var masterKey = await GetAdminKeyAsync()
                 .ConfigureAwait(false);
 
-            var hostUrl = await GetHostUrlAsync()
-                .ConfigureAwait(false);
-
-            var json = await hostUrl
+            var json = await FunctionsHost.Default.HostUrl
                 .AppendPathSegment("admin/functions")
                 .AppendPathSegment(functionName)
                 .AppendPathSegment("keys")
@@ -124,38 +127,6 @@ namespace TeamCloud.Orchestration
                 .ToString();
         }
 
-        public static async Task<string> GetHostUrlAsync()
-        {
-            var hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-            var hostUrl = $"http{(hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase) ? "" : "s")}://{hostName}";
-
-            if (IsLocalEnvironment)
-            {
-                try
-                {
-                    var json = await "http://localhost:4040/api/tunnels"
-                        .GetJObjectAsync()
-                        .ConfigureAwait(false);
-
-                    var exposedAddr = json
-                        .SelectTokens("$.tunnels[?(@.proto == 'https')].config.addr")
-                        .Select(token => token.ToString())
-                        .Where(addr => addr.Equals(hostUrl, StringComparison.OrdinalIgnoreCase))
-                        .FirstOrDefault();
-
-                    hostUrl = json
-                        .SelectToken($"$.tunnels[?(@.proto == 'https' && @.config.addr =='{exposedAddr}')].public_url")?
-                        .ToString() ?? hostUrl;
-                }
-                catch (FlurlHttpException)
-                {
-                    // swallow exceptions
-                }
-            }
-
-            return hostUrl;
-        }
-
         private static string GetResourceId(string token)
         {
             var jwtToken = new JwtSecurityTokenHandler()
@@ -175,13 +146,10 @@ namespace TeamCloud.Orchestration
             if (!functionMethod.GetParameters().Any(p => p.GetCustomAttribute<HttpTriggerAttribute>() != null))
                 return null;
 
-            var hostUrl = await GetHostUrlAsync()
-                .ConfigureAwait(false);
-
             var adminKey = await GetAdminKeyAsync()
                 .ConfigureAwait(false);
 
-            return await hostUrl
+            return await FunctionsHost.Default.HostUrl
                 .AppendPathSegment("/admin/functions")
                 .AppendPathSegment(functionName)
                 .SetQueryParam("code", adminKey)

@@ -362,11 +362,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Component#slug:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly slug: "
+                  "text": "slug: "
                 },
                 {
                   "kind": "Content",
@@ -1902,7 +1902,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "type: "
+                  "text": "type?: "
                 },
                 {
                   "kind": "Reference",
@@ -1952,7 +1952,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTaskTemplateType:type",
-          "docComment": "/**\n * Defines values for ComponentTaskTemplateType. \\ {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Create** \\ **Delete** \\ **Custom**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTaskTemplateType. \\ {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1977,7 +1977,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTaskType:type",
-          "docComment": "/**\n * Defines values for ComponentTaskType. \\ {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType, this enum contains the known values that the service supports. ### Know values supported by the service **Create** \\ **Delete** \\ **Custom**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTaskType. \\ {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2012,6 +2012,31 @@
           "releaseTag": "Public",
           "name": "ComponentTemplate",
           "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTemplate#configuration:member",
+              "docComment": "/**\n * Any object\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "configuration?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "any | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "configuration",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTemplate#description:member",
@@ -2685,7 +2710,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTemplateType:type",
-          "docComment": "/**\n * Defines values for ComponentTemplateType. \\ {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **AzureResource** \\ **Environment** \\ **GitRepository**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTemplateType. \\ {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2710,7 +2735,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentType:type",
-          "docComment": "/**\n * Defines values for ComponentType. \\ {@link KnownComponentType} can be used interchangeably with ComponentType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **AzureResource** \\ **Environment** \\ **GitRepository**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentType. \\ {@link KnownComponentType} can be used interchangeably with ComponentType, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2745,6 +2770,81 @@
           "releaseTag": "Public",
           "name": "DeploymentScope",
           "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#authorizable:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "authorizable?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "authorizable",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#authorized:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "authorized?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "authorized",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#authorizeUrl:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "authorizeUrl?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "authorizeUrl",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!DeploymentScope#displayName:member",
@@ -2790,6 +2890,56 @@
               ],
               "releaseTag": "Public",
               "name": "id",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#inputData:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "inputData?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "inputData",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#inputDataSchema:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "inputDataSchema?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "inputDataSchema",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -2873,11 +3023,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!DeploymentScope#slug:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly slug: "
+                  "text": "slug: "
                 },
                 {
                   "kind": "Content",
@@ -2915,6 +3065,32 @@
               ],
               "releaseTag": "Public",
               "name": "subscriptionIds",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#type:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "type: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScopeType",
+                  "canonicalReference": "teamcloud!DeploymentScopeType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "type",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3177,9 +3353,60 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeDefinition#type:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "type: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScopeDefinitionType",
+                  "canonicalReference": "teamcloud!DeploymentScopeDefinitionType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "type",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!DeploymentScopeDefinitionType:type",
+          "docComment": "/**\n * Defines values for DeploymentScopeDefinitionType. \\ {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type DeploymentScopeDefinitionType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "DeploymentScopeDefinitionType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",
@@ -3301,6 +3528,294 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!DeploymentScopeType:type",
+          "docComment": "/**\n * Defines values for DeploymentScopeType. \\ {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type DeploymentScopeType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "DeploymentScopeType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!DeploymentScopeTypeInformation:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface DeploymentScopeTypeInformation "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "DeploymentScopeTypeInformation",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformation#displayName:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "displayName?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "displayName",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformation#inputDataForm:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "inputDataForm?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "inputDataForm",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformation#inputDataSchema:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "inputDataSchema?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "inputDataSchema",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformation#type:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "type?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScopeTypeInformationType",
+                  "canonicalReference": "teamcloud!DeploymentScopeTypeInformationType:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "type",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!DeploymentScopeTypeInformationListDataResult:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface DeploymentScopeTypeInformationListDataResult "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "DeploymentScopeTypeInformationListDataResult",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformationListDataResult#code:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "code?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "code",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformationListDataResult#data:member",
+              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly data?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScopeTypeInformation",
+                  "canonicalReference": "teamcloud!DeploymentScopeTypeInformation:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[] | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "data",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformationListDataResult#location:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "location?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "location",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformationListDataResult#status:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "status?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "status",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!DeploymentScopeTypeInformationType:type",
+          "docComment": "/**\n * Defines values for DeploymentScopeTypeInformationType. \\ {@link KnownDeploymentScopeTypeInformationType} can be used interchangeably with DeploymentScopeTypeInformationType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type DeploymentScopeTypeInformationType = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "DeploymentScopeTypeInformationType",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",
@@ -3809,48 +4324,6 @@
           "members": [
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTemplateType.AzureResource:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "AzureResource = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"AzureResource\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "AzureResource",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTemplateType.Custom:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Custom = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"Custom\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Custom",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentTemplateType.Environment:member",
               "docComment": "",
               "excerptTokens": [
@@ -3872,20 +4345,20 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTemplateType.GitRepository:member",
+              "canonicalReference": "teamcloud!KnownComponentTemplateType.Repository:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "GitRepository = "
+                  "text": "Repository = "
                 },
                 {
                   "kind": "Content",
-                  "text": "\"GitRepository\""
+                  "text": "\"Repository\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "GitRepository",
+              "name": "Repository",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -3906,48 +4379,6 @@
           "releaseTag": "Public",
           "name": "KnownComponentType",
           "members": [
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentType.AzureResource:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "AzureResource = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"AzureResource\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "AzureResource",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentType.Custom:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Custom = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"Custom\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Custom",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
             {
               "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentType.Environment:member",
@@ -3971,20 +4402,254 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentType.GitRepository:member",
+              "canonicalReference": "teamcloud!KnownComponentType.Repository:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "GitRepository = "
+                  "text": "Repository = "
                 },
                 {
                   "kind": "Content",
-                  "text": "\"GitRepository\""
+                  "text": "\"Repository\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "GitRepository",
+              "name": "Repository",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType:enum",
+          "docComment": "/**\n * Known values of {@link DeploymentScopeDefinitionType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownDeploymentScopeDefinitionType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownDeploymentScopeDefinitionType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType.AzureDevOps:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureDevOps = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureDevOps\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureDevOps",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType.AzureResourceManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureResourceManager = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureResourceManager\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureResourceManager",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeDefinitionType.GitHub:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GitHub = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"GitHub\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "GitHub",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownDeploymentScopeType:enum",
+          "docComment": "/**\n * Known values of {@link DeploymentScopeType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownDeploymentScopeType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownDeploymentScopeType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeType.AzureDevOps:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureDevOps = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureDevOps\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureDevOps",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeType.AzureResourceManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureResourceManager = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureResourceManager\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureResourceManager",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeType.GitHub:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GitHub = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"GitHub\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "GitHub",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownDeploymentScopeTypeInformationType:enum",
+          "docComment": "/**\n * Known values of {@link DeploymentScopeTypeInformationType} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownDeploymentScopeTypeInformationType "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownDeploymentScopeTypeInformationType",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeTypeInformationType.AzureDevOps:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureDevOps = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureDevOps\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureDevOps",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeTypeInformationType.AzureResourceManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "AzureResourceManager = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"AzureResourceManager\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "AzureResourceManager",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeTypeInformationType.GitHub:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "GitHub = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"GitHub\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "GitHub",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -5405,11 +6070,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Organization#slug:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly slug: "
+                  "text": "slug: "
                 },
                 {
                   "kind": "Content",
@@ -6051,11 +6716,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Project#slug:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly slug: "
+                  "text": "slug: "
                 },
                 {
                   "kind": "Content",
@@ -7569,11 +8234,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ProjectTemplate#slug:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly slug: "
+                  "text": "slug: "
                 },
                 {
                   "kind": "Content",
@@ -9713,6 +10378,95 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#authorizeDeploymentScope:member(1)",
+              "docComment": "/**\n * Authorize an existing Deployment Scope.\n *\n * @param deploymentScopeId - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "authorizeDeploymentScope(deploymentScopeId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudAuthorizeDeploymentScopeOptionalParams",
+                  "canonicalReference": "teamcloud!TeamCloudAuthorizeDeploymentScopeOptionalParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudAuthorizeDeploymentScopeResponse",
+                  "canonicalReference": "teamcloud!TeamCloudAuthorizeDeploymentScopeResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 7,
+                "endIndex": 11
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "deploymentScopeId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                }
+              ],
+              "name": "authorizeDeploymentScope"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#createComponent:member(1)",
               "docComment": "/**\n * Creates a new Project Component.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
@@ -10726,11 +11480,11 @@
             {
               "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#deleteDeploymentScope:member(1)",
-              "docComment": "/**\n * Deletes a Deployment Scope.\n *\n * @param id - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
+              "docComment": "/**\n * Deletes a Deployment Scope.\n *\n * @param deploymentScopeId - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "deleteDeploymentScope(id: "
+                  "text": "deleteDeploymentScope(deploymentScopeId: "
                 },
                 {
                   "kind": "Content",
@@ -10793,7 +11547,7 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "id",
+                  "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -12129,11 +12883,11 @@
             {
               "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#getDeploymentScope:member(1)",
-              "docComment": "/**\n * Gets a Deployment Scope.\n *\n * @param id - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
+              "docComment": "/**\n * Gets a Deployment Scope.\n *\n * @param deploymentScopeId - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getDeploymentScope(id: "
+                  "text": "getDeploymentScope(deploymentScopeId: "
                 },
                 {
                   "kind": "Content",
@@ -12196,7 +12950,7 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "id",
+                  "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -12296,6 +13050,84 @@
                 }
               ],
               "name": "getDeploymentScopes"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#getDeploymentScopeTypeInformation:member(1)",
+              "docComment": "/**\n * Gets all Deployment Scope type information.\n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getDeploymentScopeTypeInformation(organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "coreHttp."
+                },
+                {
+                  "kind": "Reference",
+                  "text": "OperationOptions",
+                  "canonicalReference": "@azure/core-http!OperationOptions:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudGetDeploymentScopeTypeInformationResponse",
+                  "canonicalReference": "teamcloud!TeamCloudGetDeploymentScopeTypeInformationResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 6,
+                "endIndex": 10
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 5
+                  }
+                }
+              ],
+              "name": "getDeploymentScopeTypeInformation"
             },
             {
               "kind": "Method",
@@ -14502,11 +15334,11 @@
             {
               "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#updateDeploymentScope:member(1)",
-              "docComment": "/**\n * Updates an existing Deployment Scope.\n *\n * @param id - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
+              "docComment": "/**\n * Updates an existing Deployment Scope.\n *\n * @param deploymentScopeId - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "updateDeploymentScope(id: "
+                  "text": "updateDeploymentScope(deploymentScopeId: "
                 },
                 {
                   "kind": "Content",
@@ -14565,7 +15397,7 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "id",
+                  "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -15336,6 +16168,114 @@
             "endIndex": 3
           },
           "implementsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!TeamCloudAuthorizeDeploymentScopeOptionalParams:interface",
+          "docComment": "/**\n * Optional parameters.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends "
+            },
+            {
+              "kind": "Content",
+              "text": "coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "OperationOptions",
+              "canonicalReference": "@azure/core-http!OperationOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudAuthorizeDeploymentScopeOptionalParams",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!TeamCloudAuthorizeDeploymentScopeOptionalParams#body:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "body?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScope",
+                  "canonicalReference": "teamcloud!DeploymentScope:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "body",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 4
+            }
+          ]
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudAuthorizeDeploymentScopeResponse:type",
+          "docComment": "/**\n * Contains response data for the authorizeDeploymentScope operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudAuthorizeDeploymentScopeResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "DeploymentScopeDataResult",
+              "canonicalReference": "teamcloud!DeploymentScopeDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "DeploymentScopeDataResult",
+              "canonicalReference": "teamcloud!DeploymentScopeDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudAuthorizeDeploymentScopeResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
         },
         {
           "kind": "Class",
@@ -17528,6 +18468,54 @@
           ],
           "releaseTag": "Public",
           "name": "TeamCloudGetDeploymentScopesResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 7
+          }
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudGetDeploymentScopeTypeInformationResponse:type",
+          "docComment": "/**\n * Contains response data for the getDeploymentScopeTypeInformation operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudGetDeploymentScopeTypeInformationResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "DeploymentScopeTypeInformationListDataResult",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformationListDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n    _response: coreHttp."
+            },
+            {
+              "kind": "Reference",
+              "text": "HttpResponse",
+              "canonicalReference": "@azure/core-http!HttpResponse:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " & {\n        bodyAsText: string;\n        parsedBody: "
+            },
+            {
+              "kind": "Reference",
+              "text": "DeploymentScopeTypeInformationListDataResult",
+              "canonicalReference": "teamcloud!DeploymentScopeTypeInformationListDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    };\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudGetDeploymentScopeTypeInformationResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 7

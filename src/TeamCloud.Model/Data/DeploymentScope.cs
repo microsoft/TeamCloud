@@ -19,20 +19,39 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
-        [UniqueKey]
-        [JsonProperty(Required = Required.Always)]
-        public string Slug => (this as ISlug).GetSlug();
-
         [JsonProperty(Required = Required.Always)]
         public string DisplayName { get; set; }
 
+        private string slug;
+
+        [UniqueKey]
+        [JsonProperty(Required = Required.Always)]
+        public string Slug
+        {
+            get => slug ?? ISlug.CreateSlug(this);
+            set => slug = value;
+        }
+
         [JsonProperty(Required = Required.Always)]
         public bool IsDefault { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
+        public DeploymentScopeType Type { get; set; }
+
+        public string InputDataSchema { get; set; }
+
+        public string InputData { get; set; }
 
         public string ManagementGroupId { get; set; }
 
         public List<Guid> SubscriptionIds { get; set; }
 
+        public bool Authorizable { get; set; }
+
+        public bool Authorized { get; set; }
+
+        [DatabaseIgnore]
+        public string AuthorizeUrl { get; set; }
 
         public bool Equals(DeploymentScope other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);

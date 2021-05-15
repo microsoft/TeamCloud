@@ -4,14 +4,14 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, FontIcon, IColumn, Persona, PersonaSize, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
-import { Component, ComponentTemplate, ErrorResult } from 'teamcloud';
-import { api } from '../API';
+import { Component, ComponentTemplate } from 'teamcloud';
 import { DetailCard, ComponentLink } from '.';
 import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates } from '../hooks';
 
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
+import { useDeleteProjectComponent } from '../hooks/useDeleteProjectComponent';
 
 export const ComponentsCard: React.FC = () => {
 
@@ -25,7 +25,8 @@ export const ComponentsCard: React.FC = () => {
     const { data: project } = useProject();
     const { data: components } = useProjectComponents();
     const { data: templates } = useProjectComponentTemplates();
-
+    const deleteComponent = useDeleteProjectComponent();
+    
     const [component, setComponent] = useState<Component>();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
@@ -46,10 +47,7 @@ export const ComponentsCard: React.FC = () => {
 
     const _onComponentDelete = async () => {
         if (component && project) {
-            const result = await api.deleteComponent(component.id, project.organization, project.id);
-            if (result.code !== 202 && (result as ErrorResult).errors) {
-                console.log(result as ErrorResult);
-            }
+            await deleteComponent(component);
             setComponent(undefined);
             setDeleteConfirmOpen(false);
         }

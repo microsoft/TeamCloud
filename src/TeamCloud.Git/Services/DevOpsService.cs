@@ -11,8 +11,9 @@ using System.Threading.Tasks;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Common;
 using Microsoft.VisualStudio.Services.WebApi;
-using TeamCloud.Git.Data;
+using TeamCloud.Git.Converter;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -48,22 +49,19 @@ namespace TeamCloud.Git.Services
                 .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
                 .ConfigureAwait(false);
 
-            var projectYamlFileStream = await client
-                .GetItemContentAsync(project: repository.Project, repository.Repository, Constants.ProjectYaml, download: true, versionDescriptor: repository.VersionDescriptor())
+            var projectYamlFile = await client
+                .GetItemAsync(project: repository.Project, repository.Repository, Constants.ProjectYaml, download: true, versionDescriptor: repository.VersionDescriptor())
                 .ConfigureAwait(false);
 
-            using var streamReader = new StreamReader(projectYamlFileStream);
+            var projectYaml = projectYamlFile.Content;
+            var projectJson = new Deserializer().ToJson(projectYaml);
 
-            var projectYamlFile = await streamReader
-                .ReadToEndAsync()
+            TeamCloudSerialize.PopulateObject(projectJson, projectTemplate, new ProjectTemplateConverter(projectTemplate, projectYamlFile.Path));
+
+            projectTemplate.Description = await CheckAndPopulateFileContentAsync(client, repository, result.TreeEntries, projectTemplate.Description)
                 .ConfigureAwait(false);
 
-            var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile);
-
-            projectYaml.Description = await CheckAndPopulateFileContentAsync(client, repository, result.TreeEntries, projectYaml.Description)
-                .ConfigureAwait(false);
-
-            return projectTemplate.UpdateFromYaml(projectYaml);
+            return projectTemplate;
         }
 
 
@@ -96,24 +94,20 @@ namespace TeamCloud.Git.Services
 
             async Task<ComponentTemplate> ResolveComponentTemplate(GitTreeEntryRef componentItem)
             {
+                var componentYamlFile = await client
+                    .GetItemAsync(project: repository.Project, repository.Repository, componentItem.RelativePath, download: true, versionDescriptor: repository.VersionDescriptor())
+                    .ConfigureAwait(false);
+
+                var componentYaml = componentYamlFile.Content;
+                var componentJson = new Deserializer().ToJson(componentYaml);
+                var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, componentYamlFile.Path));
+
                 var folder = componentItem.RelativePath.Split(Constants.ComponentYaml).First().TrimEnd('/');
 
-                var componentFileStream = await client
-                    .GetItemContentAsync(project: repository.Project, repository.Repository, componentItem.RelativePath, download: true, versionDescriptor: repository.VersionDescriptor())
+                componentTemplate.Description = await CheckAndPopulateFileContentAsync(client, repository, result.TreeEntries, componentTemplate.Description, folder)
                     .ConfigureAwait(false);
 
-                using var streamReader = new StreamReader(componentFileStream);
-
-                var componentFile = await streamReader
-                    .ReadToEndAsync()
-                    .ConfigureAwait(false);
-
-                var componentYaml = yamlDeserializer.Deserialize<ComponentYaml>(componentFile);
-
-                componentYaml.Description = await CheckAndPopulateFileContentAsync(client, repository, result.TreeEntries, componentYaml.Description, folder)
-                    .ConfigureAwait(false);
-
-                return componentYaml.ToTemplate(projectTemplate, folder);
+                return componentTemplate;
             }
         }
 
@@ -198,15 +192,5 @@ namespace TeamCloud.Git.Services
 
             return repository;
         }
-    }
-
-    internal static class DevOpsServiceExtensions
-    {
-        public static GitVersionDescriptor VersionDescriptor(this RepositoryReference repository)
-            => new GitVersionDescriptor
-            {
-                Version = repository.Ref,
-                VersionType = GitVersionType.Commit
-            };
     }
 }

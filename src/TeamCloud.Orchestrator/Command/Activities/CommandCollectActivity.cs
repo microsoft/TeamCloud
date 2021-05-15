@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Handlers;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Activities
@@ -18,7 +19,7 @@ namespace TeamCloud.Orchestrator.Command.Activities
         [FunctionName(nameof(CommandCollectActivity))]
         public async Task RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext,
-            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandCollector,
+            [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandCollector,
             ILogger log)
         {
             if (activityContext is null)

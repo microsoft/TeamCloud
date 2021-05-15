@@ -7,7 +7,7 @@ import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDrop
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm'
 import { FuiForm } from '@rjsf/fluent-ui'
-import { FieldTemplateProps, ISubmitEvent } from '@rjsf/core';
+import { ISubmitEvent } from '@rjsf/core';
 import { ComponentDefinition, ComponentTemplate } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentList, ContentProgress, ContentSeparator } from '.';
 import { useOrg, useProject, useDeploymentScopes, useCreateProjectComponent, useProjectComponentTemplates } from '../hooks';
@@ -15,6 +15,8 @@ import { useOrg, useProject, useDeploymentScopes, useCreateProjectComponent, use
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
+import { TeamCloudFieldTemplate } from './form/TeamCloudFieldTemplate';
+import { TeamCloudForm } from './form/TeamCloudForm';
 
 export const ComponentForm: React.FC = () => {
 
@@ -227,8 +229,9 @@ export const ComponentForm: React.FC = () => {
                                             <FuiForm
                                                 disabled={!formEnabled}
                                                 onSubmit={_submitForm}
-                                                FieldTemplate={TCFieldTemplate}
-                                                // widgets={{ 'SelectWidget': TCSelectWidget }}
+                                                FieldTemplate={TeamCloudFieldTemplate}
+                                                widgets={TeamCloudForm.Widgets}
+                                                fields={TeamCloudForm.Fields}
                                                 schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}>
                                                 <ContentSeparator />
                                                 <div style={{ paddingTop: '24px' }}>
@@ -260,14 +263,4 @@ export const ComponentForm: React.FC = () => {
 }
 
 
-export const TCFieldTemplate: React.FC<FieldTemplateProps> = (props) => {
-    return props.id === 'root' ? (
-        <Stack styles={{ root: { minWidth: '460px' } }} tokens={{ childrenGap: '14px' }}>
-            {props.children}
-        </Stack>
-    ) : (
-        <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
-            {props.children}
-        </Stack.Item>
-    );
-}
+

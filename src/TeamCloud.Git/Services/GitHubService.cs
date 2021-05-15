@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 using Octokit;
 using Octokit.Internal;
 using TeamCloud.Git.Caching;
-using TeamCloud.Git.Data;
+using TeamCloud.Git.Converter;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -50,20 +51,24 @@ namespace TeamCloud.Git.Services
             if (!string.IsNullOrEmpty(repository.Token))
                 client.Credentials = new Credentials(repository.Token);
 
-            var projectYamlFile = await client.Repository.Content
+            var projectYamlFiles = await client.Repository.Content
                 .GetAllContents(repository.Organization, repository.Repository, Constants.ProjectYaml)
                 .ConfigureAwait(false);
 
-            var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile.First().Content);
+            var projectYamlFile = projectYamlFiles.First();
+            var projectYaml = projectYamlFile.Content;
+            var projectJson = new Deserializer().ToJson(projectYaml);
+
+            projectTemplate = TeamCloudSerialize.DeserializeObject<ProjectTemplate>(projectJson, new ProjectTemplateConverter(projectTemplate, projectYamlFile.Url));
 
             var result = await client.Git.Tree
                 .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
                 .ConfigureAwait(false);
 
-            projectYaml.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, projectYaml.Description)
+            projectTemplate.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, projectTemplate.Description)
                 .ConfigureAwait(false);
 
-            return projectTemplate.UpdateFromYaml(projectYaml);
+            return projectTemplate;
         }
 
 
@@ -91,18 +96,22 @@ namespace TeamCloud.Git.Services
 
             async Task<ComponentTemplate> ResolveComponentTemplate(TreeItem componentItem)
             {
-                var componentFiles = await client.Repository.Content
+                var componentYamlFiles = await client.Repository.Content
                     .GetAllContents(repository.Organization, repository.Repository, componentItem.Path)
                     .ConfigureAwait(false);
 
-                var componentYaml = yamlDeserializer.Deserialize<ComponentYaml>(componentFiles.First().Content);
+                var componentYamlFile = componentYamlFiles.First();
+                var componentYaml = componentYamlFile.Content;
+                var componentJson = new Deserializer().ToJson(componentYaml);
+
+                var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, componentItem.Url));
 
                 var folder = Regex.Replace(componentItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
 
-                componentYaml.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, componentYaml.Description, folder)
+                componentTemplate.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, componentTemplate.Description, folder)
                     .ConfigureAwait(false);
 
-                return componentYaml.ToTemplate(projectTemplate, folder);
+                return componentTemplate;
             }
         }
 

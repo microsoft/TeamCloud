@@ -4,11 +4,15 @@
  */
 
 using TeamCloud.Notification;
+using TeamCloud.Templates;
 
 namespace TeamCloud.Model.Messaging
 {
-    public sealed class WelcomeMessage : NotificationMessage, INotificationMessageMerge<WelcomeMessageData>
+    public sealed class WelcomeMessage : NotificationMessage, INotificationMessage<WelcomeMessageData>
     {
-
+        public void Merge(WelcomeMessageData data = null)
+        {
+            Body = Body?.Merge(data);
+        }
     }
 }

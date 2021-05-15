@@ -187,13 +187,13 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Gets a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.getDeploymentScope = function (id, organizationId, options) {
+    TeamCloud.prototype.getDeploymentScope = function (deploymentScopeId, organizationId, options) {
         var operationArguments = {
-            id: id,
+            deploymentScopeId: deploymentScopeId,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
@@ -201,13 +201,13 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Updates an existing Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.updateDeploymentScope = function (id, organizationId, options) {
+    TeamCloud.prototype.updateDeploymentScope = function (deploymentScopeId, organizationId, options) {
         var operationArguments = {
-            id: id,
+            deploymentScopeId: deploymentScopeId,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
@@ -215,17 +215,43 @@ var TeamCloud = /** @class */ (function (_super) {
     };
     /**
      * Deletes a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    TeamCloud.prototype.deleteDeploymentScope = function (id, organizationId, options) {
+    TeamCloud.prototype.deleteDeploymentScope = function (deploymentScopeId, organizationId, options) {
         var operationArguments = {
-            id: id,
+            deploymentScopeId: deploymentScopeId,
             organizationId: organizationId,
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
         return this.sendOperationRequest(operationArguments, deleteDeploymentScopeOperationSpec);
+    };
+    /**
+     * Gets all Deployment Scope type information.
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getDeploymentScopeTypeInformation = function (organizationId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getDeploymentScopeTypeInformationOperationSpec);
+    };
+    /**
+     * Authorize an existing Deployment Scope.
+     * @param deploymentScopeId
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.authorizeDeploymentScope = function (deploymentScopeId, organizationId, options) {
+        var operationArguments = {
+            deploymentScopeId: deploymentScopeId,
+            organizationId: organizationId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, authorizeDeploymentScopeOperationSpec);
     };
     /**
      * Negotiates the SignalR connection.
@@ -1167,7 +1193,7 @@ var createDeploymentScopeOperationSpec = {
     serializer: serializer
 };
 var getDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{id}",
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
     httpMethod: "GET",
     responses: {
         200: {
@@ -1182,12 +1208,16 @@ var getDeploymentScopeOperationSpec = {
             bodyMapper: Mappers.ErrorResult
         }
     },
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var updateDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{id}",
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
     httpMethod: "PUT",
     responses: {
         200: {
@@ -1203,13 +1233,17 @@ var updateDeploymentScopeOperationSpec = {
         }
     },
     requestBody: Parameters.body3,
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
     headerParameters: [Parameters.accept, Parameters.contentType],
     mediaType: "json",
     serializer: serializer
 };
 var deleteDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{id}",
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
     httpMethod: "DELETE",
     responses: {
         204: {
@@ -1224,8 +1258,55 @@ var deleteDeploymentScopeOperationSpec = {
             bodyMapper: Mappers.ErrorResult
         }
     },
-    urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
     headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var getDeploymentScopeTypeInformationOperationSpec = {
+    path: "/orgs/{organizationId}/scopes/types",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeploymentScopeTypeInformationListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {}
+    },
+    urlParameters: [Parameters.$host, Parameters.organizationId],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var authorizeDeploymentScopeOperationSpec = {
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize",
+    httpMethod: "PUT",
+    responses: {
+        200: {
+            bodyMapper: Mappers.DeploymentScopeDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    requestBody: Parameters.body3,
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.deploymentScopeId
+    ],
+    headerParameters: [Parameters.accept, Parameters.contentType1],
+    mediaType: "json",
     serializer: serializer
 };
 var negotiateSignalROperationSpec = {

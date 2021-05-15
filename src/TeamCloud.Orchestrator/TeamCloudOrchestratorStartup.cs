@@ -17,6 +17,10 @@ using Microsoft.Extensions.Configuration.AzureKeyVault;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TeamCloud.Adapters;
+using TeamCloud.Adapters.AzureDevOps;
+using TeamCloud.Adapters.AzureResourceManager;
+using TeamCloud.Adapters.GitHub;
 using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -32,6 +36,7 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Model.Handlers;
 using TeamCloud.Notification.Smtp;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
@@ -73,6 +78,12 @@ namespace TeamCloud.Orchestrator
                 .AddTeamCloudAudit()
                 .AddMvcCore()
                 .AddNewtonsoftJson();
+
+            builder.Services
+                .AddTeamCloudAdapterFramework()
+                .AddTeamCloudAdapter<AzureResourceManagerAdapter>()
+                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
+                .AddTeamCloudAdapter<GitHubAdapter>();
 
             var notificationSmtpOptions = builder.Services
                 .BuildServiceProvider()

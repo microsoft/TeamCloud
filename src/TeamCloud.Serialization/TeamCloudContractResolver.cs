@@ -4,7 +4,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
@@ -19,18 +21,23 @@ namespace TeamCloud.Serialization
     public class TeamCloudContractResolver : CamelCasePropertyNamesContractResolver
     {
         private readonly IDataProtectionProvider dataProtectionProvider;
+        private readonly IEnumerable<JsonConverter> converters;
 
-        public TeamCloudContractResolver(IDataProtectionProvider dataProtectionProvider = null)
+        public TeamCloudContractResolver(IDataProtectionProvider dataProtectionProvider = null, IEnumerable<JsonConverter> converters = null)
         {
             // prevent changing the case of dictionary keys
             NamingStrategy = new TeamCloudNamingStrategy();
 
             this.dataProtectionProvider = dataProtectionProvider;
+            this.converters = converters ?? Enumerable.Empty<JsonConverter>();
         }
 
-        protected override JsonContract CreateContract(Type objectType)
+
+        public override JsonContract ResolveContract(Type objectType)
         {
-            var contract = base.CreateContract(objectType);
+            var contract = converters.Any()
+                ? CreateContract(objectType)
+                : base.ResolveContract(objectType);
 
             return contract;
         }
@@ -40,16 +47,30 @@ namespace TeamCloud.Serialization
             if (objectType is null)
                 throw new ArgumentNullException(nameof(objectType));
 
-            if (typeof(Exception).IsAssignableFrom(objectType))
-                return new ExceptionConverter();
+            var converter = converters.FirstOrDefault(c => c.CanConvert(objectType));
 
-            if (typeof(NameValueCollection).IsAssignableFrom(objectType))
-                return new NameValueCollectionConverter();
+            if (converter != null)
+            {
+                return converter;
+            }
+            else if (typeof(Exception).IsAssignableFrom(objectType))
+            {
+                converter = new ExceptionConverter();
+            }
+            else if (typeof(NameValueCollection).IsAssignableFrom(objectType))
+            {
+                converter = new NameValueCollectionConverter();
+            }
+            else if (objectType.IsEnum)
+            {
+                converter = new StringEnumConverter();
+            }
+            else
+            {
+                converter = base.ResolveContractConverter(objectType);
+            }
 
-            if (objectType.IsEnum)
-                return new StringEnumConverter();
-
-            return base.ResolveContractConverter(objectType);
+            return converter;
         }
 
         protected override IValueProvider CreateMemberValueProvider(MemberInfo member)
@@ -78,6 +99,11 @@ namespace TeamCloud.Serialization
             }
 
             return prop;
+        }
+
+        protected override JsonDictionaryContract CreateDictionaryContract(Type objectType)
+        {
+            return base.CreateDictionaryContract(objectType);
         }
     }
 }

@@ -14,6 +14,7 @@ using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Handlers;
 using TeamCloud.Orchestrator.Command;
 using DayOfWeek = TeamCloud.Model.Data.DayOfWeek;
 
@@ -39,7 +40,7 @@ namespace TeamCloud.Orchestrator.Services
         [FunctionName(nameof(SchedulePoller))]
         public async Task Run([
             TimerTrigger("0 */5 * * * *")] TimerInfo timer,
-            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
+            [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
             ILogger log)
         {
             if (timer is null)

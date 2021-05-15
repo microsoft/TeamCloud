@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Data.Validators;
@@ -26,7 +27,7 @@ namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    public class OrganizationsController : ApiController
+    public class OrganizationsController : TeamCloudController
     {
         private readonly IOrganizationRepository organizationRepository;
         private readonly IUserRepository userRepository;
@@ -71,10 +72,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string organizationId) => ExecuteAsync((user, organization) =>
+        public Task<IActionResult> Get([FromRoute] string organizationId) => ExecuteAsync<TeamCloudOrganizationContext>(context =>
         {
             return DataResult<Organization>
-                .Ok(organization)
+                .Ok(context.Organization)
                 .ToActionResultAsync();
         });
 
@@ -190,9 +191,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the identifier provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string organizationId) => ExecuteAsync(async (user, organization) =>
+        public Task<IActionResult> Delete([FromRoute] string organizationId) => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
         {
-            var command = new OrganizationDeleteCommand(user, organization);
+            var command = new OrganizationDeleteCommand(context.ContextUser, context.Organization);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

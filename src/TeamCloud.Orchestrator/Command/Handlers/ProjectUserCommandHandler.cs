@@ -14,8 +14,9 @@ using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Model.Handlers;
+
 using TeamCloud.Model.Messaging;
-using TeamCloud.Notification;
 using TeamCloud.Orchestrator.Options;
 
 namespace TeamCloud.Orchestrator.Command.Handlers

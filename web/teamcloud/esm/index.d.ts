@@ -17,8 +17,7 @@ export declare interface Component {
     identityId?: string | null;
     deleted?: Date | null;
     ttl?: number | null;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     id: string;
 }
 
@@ -128,7 +127,7 @@ export declare interface ComponentTaskTemplate {
     displayName?: string | null;
     description?: string | null;
     inputJsonSchema?: string | null;
-    type: ComponentTaskTemplateType;
+    type?: ComponentTaskTemplateType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly typeName?: string | null;
 }
@@ -138,9 +137,9 @@ export declare interface ComponentTaskTemplate {
  * {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
+ * **Custom** \
  * **Create** \
- * **Delete** \
- * **Custom**
+ * **Delete**
  */
 export declare type ComponentTaskTemplateType = string;
 
@@ -149,9 +148,9 @@ export declare type ComponentTaskTemplateType = string;
  * {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
+ * **Custom** \
  * **Create** \
- * **Delete** \
- * **Custom**
+ * **Delete**
  */
 export declare type ComponentTaskType = string;
 
@@ -167,6 +166,8 @@ export declare interface ComponentTemplate {
     taskRunner?: ComponentTaskRunner;
     type: ComponentTemplateType;
     folder?: string | null;
+    /** Any object */
+    configuration?: any | null;
     id: string;
 }
 
@@ -197,10 +198,8 @@ export declare interface ComponentTemplatePermissions {
  * {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
- * **Custom** \
- * **AzureResource** \
  * **Environment** \
- * **GitRepository**
+ * **Repository**
  */
 export declare type ComponentTemplateType = string;
 
@@ -209,21 +208,24 @@ export declare type ComponentTemplateType = string;
  * {@link KnownComponentType} can be used interchangeably with ComponentType,
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
- * **Custom** \
- * **AzureResource** \
  * **Environment** \
- * **GitRepository**
+ * **Repository**
  */
 export declare type ComponentType = string;
 
 export declare interface DeploymentScope {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
     displayName: string;
+    slug: string;
     isDefault: boolean;
+    type: DeploymentScopeType;
+    inputDataSchema?: string | null;
+    inputData?: string | null;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
+    authorizable?: boolean;
+    authorized?: boolean;
+    authorizeUrl?: string | null;
     id: string;
 }
 
@@ -235,13 +237,25 @@ export declare interface DeploymentScopeDataResult {
 }
 
 export declare interface DeploymentScopeDefinition {
+    displayName: string;
+    type: DeploymentScopeDefinitionType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly slug?: string | null;
-    displayName: string;
     isDefault?: boolean;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
 }
+
+/**
+ * Defines values for DeploymentScopeDefinitionType. \
+ * {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeDefinitionType = string;
 
 export declare interface DeploymentScopeListDataResult {
     code?: number;
@@ -250,6 +264,43 @@ export declare interface DeploymentScopeListDataResult {
     readonly data?: DeploymentScope[] | null;
     location?: string | null;
 }
+
+/**
+ * Defines values for DeploymentScopeType. \
+ * {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeType = string;
+
+export declare interface DeploymentScopeTypeInformation {
+    type?: DeploymentScopeTypeInformationType;
+    displayName?: string | null;
+    inputDataSchema?: string | null;
+    inputDataForm?: string | null;
+}
+
+export declare interface DeploymentScopeTypeInformationListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: DeploymentScopeTypeInformation[] | null;
+    location?: string | null;
+}
+
+/**
+ * Defines values for DeploymentScopeTypeInformationType. \
+ * {@link KnownDeploymentScopeTypeInformationType} can be used interchangeably with DeploymentScopeTypeInformationType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type DeploymentScopeTypeInformationType = string;
 
 export declare interface ErrorResult {
     code?: number;
@@ -277,32 +328,49 @@ export declare const enum KnownComponentTaskResourceState {
 
 /** Known values of {@link ComponentTaskTemplateType} that the service accepts. */
 export declare const enum KnownComponentTaskTemplateType {
+    Custom = "Custom",
     Create = "Create",
-    Delete = "Delete",
-    Custom = "Custom"
+    Delete = "Delete"
 }
 
 /** Known values of {@link ComponentTaskType} that the service accepts. */
 export declare const enum KnownComponentTaskType {
+    Custom = "Custom",
     Create = "Create",
-    Delete = "Delete",
-    Custom = "Custom"
+    Delete = "Delete"
 }
 
 /** Known values of {@link ComponentTemplateType} that the service accepts. */
 export declare const enum KnownComponentTemplateType {
-    Custom = "Custom",
-    AzureResource = "AzureResource",
     Environment = "Environment",
-    GitRepository = "GitRepository"
+    Repository = "Repository"
 }
 
 /** Known values of {@link ComponentType} that the service accepts. */
 export declare const enum KnownComponentType {
-    Custom = "Custom",
-    AzureResource = "AzureResource",
     Environment = "Environment",
-    GitRepository = "GitRepository"
+    Repository = "Repository"
+}
+
+/** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
+export declare const enum KnownDeploymentScopeDefinitionType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+
+/** Known values of {@link DeploymentScopeType} that the service accepts. */
+export declare const enum KnownDeploymentScopeType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
+}
+
+/** Known values of {@link DeploymentScopeTypeInformationType} that the service accepts. */
+export declare const enum KnownDeploymentScopeTypeInformationType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
 }
 
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
@@ -398,8 +466,7 @@ export declare const enum KnownUserType {
 
 export declare interface Organization {
     tenant: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     subscriptionId: string;
     location: string;
@@ -453,8 +520,7 @@ export declare type OrganizationResourceState = string;
 
 export declare interface Project {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     displayName: string;
     template: string;
     templateInput?: string | null;
@@ -563,8 +629,7 @@ export declare type ProjectResourceState = string;
 
 export declare interface ProjectTemplate {
     organization: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug: string;
+    slug: string;
     name?: string | null;
     displayName: string;
     components?: string[] | null;
@@ -847,25 +912,38 @@ export declare class TeamCloud extends TeamCloudContext {
     createDeploymentScope(organizationId: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
     /**
      * Gets a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    getDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
+    getDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
     /**
      * Updates an existing Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    updateDeploymentScope(id: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
+    updateDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     /**
      * Deletes a Deployment Scope.
-     * @param id
+     * @param deploymentScopeId
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteDeploymentScope(id: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    /**
+     * Gets all Deployment Scope type information.
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    getDeploymentScopeTypeInformation(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeTypeInformationResponse>;
+    /**
+     * Authorize an existing Deployment Scope.
+     * @param deploymentScopeId
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    authorizeDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
     /**
      * Negotiates the SignalR connection.
      * @param organizationId
@@ -1193,6 +1271,22 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     getUserProjectsMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
 }
+
+/** Optional parameters. */
+export declare interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+    body?: DeploymentScope;
+}
+
+/** Contains response data for the authorizeDeploymentScope operation. */
+export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeDataResult;
+    };
+};
 
 export declare class TeamCloudContext extends coreHttp.ServiceClient {
     $host: string;
@@ -1573,6 +1667,17 @@ export declare type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDa
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
         parsedBody: DeploymentScopeListDataResult;
+    };
+};
+
+/** Contains response data for the getDeploymentScopeTypeInformation operation. */
+export declare type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: DeploymentScopeTypeInformationListDataResult;
     };
 };
 

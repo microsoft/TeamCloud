@@ -3,14 +3,14 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.Management.ManagementGroups;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Management.ManagementGroups;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;

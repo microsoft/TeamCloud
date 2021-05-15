@@ -100,9 +100,30 @@ export var body2 = {
     parameterPath: ["options", "body"],
     mapper: DeploymentScopeDefinitionMapper
 };
+export var deploymentScopeId = {
+    parameterPath: "deploymentScopeId",
+    mapper: {
+        serializedName: "deploymentScopeId",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
+};
 export var body3 = {
     parameterPath: ["options", "body"],
     mapper: DeploymentScopeMapper
+};
+export var contentType1 = {
+    parameterPath: ["options", "contentType"],
+    mapper: {
+        defaultValue: "application/json-patch+json",
+        isConstant: true,
+        serializedName: "Content-Type",
+        type: {
+            name: "String"
+        }
+    }
 };
 export var body4 = {
     parameterPath: ["options", "body"],

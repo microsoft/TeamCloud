@@ -31,6 +31,9 @@ import {
   TeamCloudUpdateDeploymentScopeOptionalParams,
   TeamCloudUpdateDeploymentScopeResponse,
   TeamCloudDeleteDeploymentScopeResponse,
+  TeamCloudGetDeploymentScopeTypeInformationResponse,
+  TeamCloudAuthorizeDeploymentScopeOptionalParams,
+  TeamCloudAuthorizeDeploymentScopeResponse,
   TeamCloudGetOrganizationsResponse,
   TeamCloudCreateOrganizationOptionalParams,
   TeamCloudCreateOrganizationResponse,
@@ -369,17 +372,17 @@ export class TeamCloud extends TeamCloudContext {
 
   /**
    * Gets a Deployment Scope.
-   * @param id
+   * @param deploymentScopeId
    * @param organizationId
    * @param options The options parameters.
    */
   getDeploymentScope(
-    id: string | null,
+    deploymentScopeId: string | null,
     organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudGetDeploymentScopeResponse> {
     const operationArguments: coreHttp.OperationArguments = {
-      id,
+      deploymentScopeId,
       organizationId,
       options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
     };
@@ -391,17 +394,17 @@ export class TeamCloud extends TeamCloudContext {
 
   /**
    * Updates an existing Deployment Scope.
-   * @param id
+   * @param deploymentScopeId
    * @param organizationId
    * @param options The options parameters.
    */
   updateDeploymentScope(
-    id: string | null,
+    deploymentScopeId: string | null,
     organizationId: string,
     options?: TeamCloudUpdateDeploymentScopeOptionalParams
   ): Promise<TeamCloudUpdateDeploymentScopeResponse> {
     const operationArguments: coreHttp.OperationArguments = {
-      id,
+      deploymentScopeId,
       organizationId,
       options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
     };
@@ -413,17 +416,17 @@ export class TeamCloud extends TeamCloudContext {
 
   /**
    * Deletes a Deployment Scope.
-   * @param id
+   * @param deploymentScopeId
    * @param organizationId
    * @param options The options parameters.
    */
   deleteDeploymentScope(
-    id: string | null,
+    deploymentScopeId: string | null,
     organizationId: string,
     options?: coreHttp.OperationOptions
   ): Promise<TeamCloudDeleteDeploymentScopeResponse> {
     const operationArguments: coreHttp.OperationArguments = {
-      id,
+      deploymentScopeId,
       organizationId,
       options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
     };
@@ -431,6 +434,47 @@ export class TeamCloud extends TeamCloudContext {
       operationArguments,
       deleteDeploymentScopeOperationSpec
     ) as Promise<TeamCloudDeleteDeploymentScopeResponse>;
+  }
+
+  /**
+   * Gets all Deployment Scope type information.
+   * @param organizationId
+   * @param options The options parameters.
+   */
+  getDeploymentScopeTypeInformation(
+    organizationId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetDeploymentScopeTypeInformationResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      organizationId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      getDeploymentScopeTypeInformationOperationSpec
+    ) as Promise<TeamCloudGetDeploymentScopeTypeInformationResponse>;
+  }
+
+  /**
+   * Authorize an existing Deployment Scope.
+   * @param deploymentScopeId
+   * @param organizationId
+   * @param options The options parameters.
+   */
+  authorizeDeploymentScope(
+    deploymentScopeId: string | null,
+    organizationId: string,
+    options?: TeamCloudAuthorizeDeploymentScopeOptionalParams
+  ): Promise<TeamCloudAuthorizeDeploymentScopeResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      deploymentScopeId,
+      organizationId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      authorizeDeploymentScopeOperationSpec
+    ) as Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
   }
 
   /**
@@ -1747,7 +1791,7 @@ const createDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
   serializer
 };
 const getDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{organizationId}/scopes/{id}",
+  path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1762,12 +1806,16 @@ const getDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.deploymentScopeId
+  ],
   headerParameters: [Parameters.accept],
   serializer
 };
 const updateDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{organizationId}/scopes/{id}",
+  path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
   httpMethod: "PUT",
   responses: {
     200: {
@@ -1783,13 +1831,17 @@ const updateDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
     }
   },
   requestBody: Parameters.body3,
-  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.deploymentScopeId
+  ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
   serializer
 };
 const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{organizationId}/scopes/{id}",
+  path: "/orgs/{organizationId}/scopes/{deploymentScopeId}",
   httpMethod: "DELETE",
   responses: {
     204: {
@@ -1804,8 +1856,55 @@ const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
       bodyMapper: Mappers.ErrorResult
     }
   },
-  urlParameters: [Parameters.$host, Parameters.organizationId, Parameters.id],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.deploymentScopeId
+  ],
   headerParameters: [Parameters.accept],
+  serializer
+};
+const getDeploymentScopeTypeInformationOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/scopes/types",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.DeploymentScopeTypeInformationListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {}
+  },
+  urlParameters: [Parameters.$host, Parameters.organizationId],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const authorizeDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize",
+  httpMethod: "PUT",
+  responses: {
+    200: {
+      bodyMapper: Mappers.DeploymentScopeDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  requestBody: Parameters.body3,
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.deploymentScopeId
+  ],
+  headerParameters: [Parameters.accept, Parameters.contentType1],
+  mediaType: "json",
   serializer
 };
 const negotiateSignalROperationSpec: coreHttp.OperationSpec = {

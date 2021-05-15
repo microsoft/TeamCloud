@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\TeamCloud.sln.targets" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Adapters\TeamCloud.Adapters.csproj" />
+    <ProjectReference Include="..\TeamCloud.Azure.Resources\TeamCloud.Azure.Resources.csproj" />
+    <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
+  </ItemGroup>
+
+</Project>

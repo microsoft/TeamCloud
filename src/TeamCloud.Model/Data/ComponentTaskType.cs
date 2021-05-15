@@ -11,10 +11,10 @@ namespace TeamCloud.Model.Data
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ComponentTaskType
     {
+        Custom, // this will be the default value
+
         Create,
 
-        Delete,
-
-        Custom
+        Delete
     }
 }

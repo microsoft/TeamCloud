@@ -20,14 +20,14 @@ namespace TeamCloud.Data.Providers
             this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document)
+        public IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document, bool includeOptional)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
             return serviceProvider
                 .GetServices<IDocumentExpander>()
-                .Where(s => s.CanExpand(document));
+                .Where(s => (includeOptional || s.Optional == includeOptional) && s.CanExpand(document));
         }
     }
 }

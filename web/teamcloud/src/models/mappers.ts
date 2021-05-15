@@ -170,7 +170,6 @@ export const Component: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -767,6 +766,13 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      configuration: {
+        serializedName: "configuration",
+        nullable: true,
+        type: {
+          name: "any"
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -952,7 +958,6 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
       },
       type: {
         serializedName: "type",
-        required: true,
         type: {
           name: "String"
         }
@@ -1084,16 +1089,15 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      slug: {
-        serializedName: "slug",
+      displayName: {
+        serializedName: "displayName",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
       },
-      displayName: {
-        serializedName: "displayName",
+      slug: {
+        serializedName: "slug",
         required: true,
         type: {
           name: "String"
@@ -1104,6 +1108,27 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
         required: true,
         type: {
           name: "Boolean"
+        }
+      },
+      type: {
+        serializedName: "type",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputDataSchema: {
+        serializedName: "inputDataSchema",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputData: {
+        serializedName: "inputData",
+        nullable: true,
+        type: {
+          name: "String"
         }
       },
       managementGroupId: {
@@ -1125,6 +1150,25 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           }
         }
       },
+      authorizable: {
+        serializedName: "authorizable",
+        type: {
+          name: "Boolean"
+        }
+      },
+      authorized: {
+        serializedName: "authorized",
+        type: {
+          name: "Boolean"
+        }
+      },
+      authorizeUrl: {
+        serializedName: "authorizeUrl",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -1141,17 +1185,24 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
     name: "Composite",
     className: "DeploymentScopeDefinition",
     modelProperties: {
-      slug: {
-        serializedName: "slug",
-        readOnly: true,
-        nullable: true,
+      displayName: {
+        serializedName: "displayName",
+        required: true,
         type: {
           name: "String"
         }
       },
-      displayName: {
-        serializedName: "displayName",
+      type: {
+        serializedName: "type",
         required: true,
+        type: {
+          name: "String"
+        }
+      },
+      slug: {
+        serializedName: "slug",
+        readOnly: true,
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1221,6 +1272,85 @@ export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
   }
 };
 
+export const DeploymentScopeTypeInformationListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "DeploymentScopeTypeInformationListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "DeploymentScopeTypeInformation"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const DeploymentScopeTypeInformation: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "DeploymentScopeTypeInformation",
+    modelProperties: {
+      type: {
+        serializedName: "type",
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputDataSchema: {
+        serializedName: "inputDataSchema",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputDataForm: {
+        serializedName: "inputDataForm",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
 export const OrganizationListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",
@@ -1279,7 +1409,6 @@ export const Organization: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -1710,7 +1839,6 @@ export const Project: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -2161,7 +2289,6 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }

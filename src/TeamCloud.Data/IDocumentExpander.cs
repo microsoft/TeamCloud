@@ -11,6 +11,13 @@ namespace TeamCloud.Data
 {
     public abstract class DocumentExpander : IDocumentExpander
     {
+        protected DocumentExpander(bool optional)
+        {
+            Optional = optional;
+        }
+
+        public bool Optional { get; }
+
         public virtual bool CanExpand(IContainerDocument document)
         {
             if (document is null)
@@ -47,6 +54,8 @@ namespace TeamCloud.Data
 
     public interface IDocumentExpander
     {
+        bool Optional { get; }
+
         bool CanExpand(IContainerDocument document);
 
         Task<IContainerDocument> ExpandAsync(IContainerDocument document);

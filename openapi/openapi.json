@@ -841,7 +841,7 @@
         }
       }
     },
-    "/orgs/{organizationId}/scopes/{id}": {
+    "/orgs/{organizationId}/scopes/{deploymentScopeId}": {
       "get": {
         "tags": [
           "DeploymentScopes"
@@ -850,7 +850,7 @@
         "operationId": "GetDeploymentScope",
         "parameters": [
           {
-            "name": "id",
+            "name": "deploymentScopeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -914,7 +914,7 @@
         "operationId": "UpdateDeploymentScope",
         "parameters": [
           {
-            "name": "id",
+            "name": "deploymentScopeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -987,7 +987,7 @@
         "operationId": "DeleteDeploymentScope",
         "parameters": [
           {
-            "name": "id",
+            "name": "deploymentScopeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1007,6 +1007,143 @@
         "responses": {
           "204": {
             "description": "The DeploymentScope was deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentScopeDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "A DeploymentScope with the id provided was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/orgs/{organizationId}/scopes/types": {
+      "get": {
+        "tags": [
+          "DeploymentScopes"
+        ],
+        "summary": "Gets all Deployment Scope type information.",
+        "operationId": "GetDeploymentScopeTypeInformation",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all Deployment Scope type information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentScopeTypeInformationListDataResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A validation error occured.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize": {
+      "put": {
+        "tags": [
+          "DeploymentScopes"
+        ],
+        "summary": "Authorize an existing Deployment Scope.",
+        "operationId": "AuthorizeDeploymentScope",
+        "parameters": [
+          {
+            "name": "deploymentScopeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentScope"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The DeploymentScope was updated.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4303,10 +4440,8 @@
           },
           "type": {
             "enum": [
-              "Custom",
-              "AzureResource",
               "Environment",
-              "GitRepository"
+              "Repository"
             ],
             "type": "string"
           },
@@ -4343,8 +4478,7 @@
             "nullable": true
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "id": {
             "type": "string"
@@ -4554,9 +4688,9 @@
           },
           "type": {
             "enum": [
+              "Custom",
               "Create",
-              "Delete",
-              "Custom"
+              "Delete"
             ],
             "type": "string"
           },
@@ -4738,9 +4872,6 @@
         "additionalProperties": false
       },
       "ComponentTaskTemplate": {
-        "required": [
-          "type"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4761,9 +4892,9 @@
           },
           "type": {
             "enum": [
+              "Custom",
               "Create",
-              "Delete",
-              "Custom"
+              "Delete"
             ],
             "type": "string"
           },
@@ -4865,15 +4996,16 @@
           },
           "type": {
             "enum": [
-              "Custom",
-              "AzureResource",
               "Environment",
-              "GitRepository"
+              "Repository"
             ],
             "type": "string"
           },
           "folder": {
             "type": "string",
+            "nullable": true
+          },
+          "configuration": {
             "nullable": true
           },
           "id": {
@@ -4935,22 +5067,38 @@
           "id",
           "isDefault",
           "organization",
-          "slug"
+          "slug",
+          "type"
         ],
         "type": "object",
         "properties": {
           "organization": {
             "type": "string"
           },
-          "slug": {
-            "type": "string",
-            "readOnly": true
-          },
           "displayName": {
+            "type": "string"
+          },
+          "slug": {
             "type": "string"
           },
           "isDefault": {
             "type": "boolean"
+          },
+          "type": {
+            "enum": [
+              "AzureResourceManager",
+              "AzureDevOps",
+              "GitHub"
+            ],
+            "type": "string"
+          },
+          "inputDataSchema": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputData": {
+            "type": "string",
+            "nullable": true
           },
           "managementGroupId": {
             "type": "string",
@@ -4962,6 +5110,16 @@
               "type": "string",
               "format": "uuid"
             },
+            "nullable": true
+          },
+          "authorizable": {
+            "type": "boolean"
+          },
+          "authorized": {
+            "type": "boolean"
+          },
+          "authorizeUrl": {
+            "type": "string",
             "nullable": true
           },
           "id": {
@@ -4998,17 +5156,26 @@
       },
       "DeploymentScopeDefinition": {
         "required": [
-          "displayName"
+          "displayName",
+          "type"
         ],
         "type": "object",
         "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "AzureResourceManager",
+              "AzureDevOps",
+              "GitHub"
+            ],
+            "type": "string"
+          },
           "slug": {
             "type": "string",
             "nullable": true,
             "readOnly": true
-          },
-          "displayName": {
-            "type": "string"
           },
           "isDefault": {
             "type": "boolean"
@@ -5049,6 +5216,58 @@
         },
         "additionalProperties": false
       },
+      "DeploymentScopeTypeInformation": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "AzureResourceManager",
+              "AzureDevOps",
+              "GitHub"
+            ],
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputDataSchema": {
+            "type": "string",
+            "nullable": true
+          },
+          "inputDataForm": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeploymentScopeTypeInformationListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeploymentScopeTypeInformation"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Organization": {
         "required": [
           "displayName",
@@ -5064,8 +5283,7 @@
             "type": "string"
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "displayName": {
             "type": "string"
@@ -5362,8 +5580,7 @@
             "type": "string"
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "displayName": {
             "type": "string"
@@ -5651,8 +5868,7 @@
             "type": "string"
           },
           "slug": {
-            "type": "string",
-            "readOnly": true
+            "type": "string"
           },
           "name": {
             "type": "string",

@@ -10,6 +10,8 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Handlers;
+
 using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator.Command.Handlers

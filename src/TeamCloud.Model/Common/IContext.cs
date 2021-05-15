@@ -24,4 +24,10 @@ namespace TeamCloud.Model.Common
         [JsonProperty(Required = Required.Always)]
         string ComponentId { get; set; }
     }
+
+    public interface IDeploymentScopeContext : IProjectContext
+    {
+        [JsonProperty(Required = Required.Always)]
+        string DeploymentScopeId { get; set; }
+    }
 }

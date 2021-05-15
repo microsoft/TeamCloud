@@ -9,15 +9,13 @@ namespace TeamCloud.Audit
 {
     public sealed class CommandAuditOptions : ICommandAuditOptions
     {
-        public static ICommandAuditOptions Default
-            => new CommandAuditOptions();
+        public static ICommandAuditOptions Default => new CommandAuditOptions();
 
         private CommandAuditOptions()
         { }
 
-        public string ConnectionString { get; set; }
-            = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+        public string ConnectionString => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
-        public string StoragePrefix { get; set; }
+        public string StoragePrefix => default;
     }
 }

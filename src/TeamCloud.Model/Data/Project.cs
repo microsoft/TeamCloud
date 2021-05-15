@@ -19,9 +19,15 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }
 
+        private string slug;
+
         [UniqueKey]
         [JsonProperty(Required = Required.Always)]
-        public string Slug => (this as ISlug).GetSlug();
+        public string Slug
+        {
+            get => slug ?? ISlug.CreateSlug(this);
+            set => slug = value;
+        }
 
         [UniqueKey]
         [JsonProperty(Required = Required.Always)]

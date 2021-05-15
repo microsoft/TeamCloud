@@ -10,6 +10,7 @@ using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Queue;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Handlers;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Utilities;
 using TeamCloud.Serialization;
@@ -26,7 +27,7 @@ namespace TeamCloud.Orchestrator.Data
                 {
                     var queue = storageAccount
                         .CreateCloudQueueClient()
-                        .GetQueueReference(ICommandHandler.ProcessorQueue);
+                        .GetQueueReference(CommandHandler.ProcessorQueue);
 
                     _ = await queue
                         .CreateIfNotExistsAsync()

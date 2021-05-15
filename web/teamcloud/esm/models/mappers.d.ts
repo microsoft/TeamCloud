@@ -22,6 +22,8 @@ export declare const DeploymentScopeListDataResult: coreHttp.CompositeMapper;
 export declare const DeploymentScope: coreHttp.CompositeMapper;
 export declare const DeploymentScopeDefinition: coreHttp.CompositeMapper;
 export declare const DeploymentScopeDataResult: coreHttp.CompositeMapper;
+export declare const DeploymentScopeTypeInformationListDataResult: coreHttp.CompositeMapper;
+export declare const DeploymentScopeTypeInformation: coreHttp.CompositeMapper;
 export declare const OrganizationListDataResult: coreHttp.CompositeMapper;
 export declare const Organization: coreHttp.CompositeMapper;
 export declare const OrganizationDefinition: coreHttp.CompositeMapper;

@@ -133,9 +133,32 @@ export const body2: OperationParameter = {
   mapper: DeploymentScopeDefinitionMapper
 };
 
+export const deploymentScopeId: OperationURLParameter = {
+  parameterPath: "deploymentScopeId",
+  mapper: {
+    serializedName: "deploymentScopeId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const body3: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: DeploymentScopeMapper
+};
+
+export const contentType1: OperationParameter = {
+  parameterPath: ["options", "contentType"],
+  mapper: {
+    defaultValue: "application/json-patch+json",
+    isConstant: true,
+    serializedName: "Content-Type",
+    type: {
+      name: "String"
+    }
+  }
 };
 
 export const body4: OperationParameter = {

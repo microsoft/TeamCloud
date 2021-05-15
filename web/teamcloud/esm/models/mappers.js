@@ -166,7 +166,6 @@ export var Component = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
@@ -751,6 +750,13 @@ export var ComponentTemplate = {
                     name: "String"
                 }
             },
+            configuration: {
+                serializedName: "configuration",
+                nullable: true,
+                type: {
+                    name: "any"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -933,7 +939,6 @@ export var ComponentTaskTemplate = {
             },
             type: {
                 serializedName: "type",
-                required: true,
                 type: {
                     name: "String"
                 }
@@ -1061,16 +1066,15 @@ export var DeploymentScope = {
                     name: "String"
                 }
             },
-            slug: {
-                serializedName: "slug",
+            displayName: {
+                serializedName: "displayName",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
             },
-            displayName: {
-                serializedName: "displayName",
+            slug: {
+                serializedName: "slug",
                 required: true,
                 type: {
                     name: "String"
@@ -1081,6 +1085,27 @@ export var DeploymentScope = {
                 required: true,
                 type: {
                     name: "Boolean"
+                }
+            },
+            type: {
+                serializedName: "type",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputDataSchema: {
+                serializedName: "inputDataSchema",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputData: {
+                serializedName: "inputData",
+                nullable: true,
+                type: {
+                    name: "String"
                 }
             },
             managementGroupId: {
@@ -1102,6 +1127,25 @@ export var DeploymentScope = {
                     }
                 }
             },
+            authorizable: {
+                serializedName: "authorizable",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            authorized: {
+                serializedName: "authorized",
+                type: {
+                    name: "Boolean"
+                }
+            },
+            authorizeUrl: {
+                serializedName: "authorizeUrl",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -1117,17 +1161,24 @@ export var DeploymentScopeDefinition = {
         name: "Composite",
         className: "DeploymentScopeDefinition",
         modelProperties: {
-            slug: {
-                serializedName: "slug",
-                readOnly: true,
-                nullable: true,
+            displayName: {
+                serializedName: "displayName",
+                required: true,
                 type: {
                     name: "String"
                 }
             },
-            displayName: {
-                serializedName: "displayName",
+            type: {
+                serializedName: "type",
                 required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            slug: {
+                serializedName: "slug",
+                readOnly: true,
+                nullable: true,
                 type: {
                     name: "String"
                 }
@@ -1195,6 +1246,83 @@ export var DeploymentScopeDataResult = {
         }
     }
 };
+export var DeploymentScopeTypeInformationListDataResult = {
+    type: {
+        name: "Composite",
+        className: "DeploymentScopeTypeInformationListDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                readOnly: true,
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "Composite",
+                            className: "DeploymentScopeTypeInformation"
+                        }
+                    }
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var DeploymentScopeTypeInformation = {
+    type: {
+        name: "Composite",
+        className: "DeploymentScopeTypeInformation",
+        modelProperties: {
+            type: {
+                serializedName: "type",
+                type: {
+                    name: "String"
+                }
+            },
+            displayName: {
+                serializedName: "displayName",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputDataSchema: {
+                serializedName: "inputDataSchema",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            inputDataForm: {
+                serializedName: "inputDataForm",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
 export var OrganizationListDataResult = {
     type: {
         name: "Composite",
@@ -1252,7 +1380,6 @@ export var Organization = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
@@ -1674,7 +1801,6 @@ export var Project = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }
@@ -2116,7 +2242,6 @@ export var ProjectTemplate = {
             slug: {
                 serializedName: "slug",
                 required: true,
-                readOnly: true,
                 type: {
                     name: "String"
                 }

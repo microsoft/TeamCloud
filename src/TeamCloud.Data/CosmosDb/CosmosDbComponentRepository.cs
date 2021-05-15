@@ -116,7 +116,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var queryResult in queryResponse)
-                    yield return queryResult;
+                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
             }
         }
 

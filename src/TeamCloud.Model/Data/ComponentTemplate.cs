@@ -3,17 +3,32 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
+    public abstract class ComponentTemplate<TConfiguration> : ComponentTemplate
+        where TConfiguration : class, new()
+    {
+        internal ComponentTemplate()
+        {
+            Configuration = Activator.CreateInstance<TConfiguration>();
+        }
+
+        public new TConfiguration Configuration
+        {
+            get => base.Configuration as TConfiguration;
+            set => base.Configuration = value;
+        }
+    }
+
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ComponentTemplate : ContainerDocument, IOrganizationContext, IRepositoryReference, IValidatable
+    public class ComponentTemplate : ContainerDocument, IOrganizationContext, IRepositoryReference, IValidatable
     {
         /// <summary>
         /// Gets or sets the organization this component template belongs to.
@@ -75,6 +90,11 @@ namespace TeamCloud.Model.Data
         /// Gets or sets the folder of the component in the repo
         /// </summary>
         public string Folder { get; set; }
+
+        /// <summary>
+        /// Gets or sets the configuration.
+        /// </summary>
+        public object Configuration { get; set; }
 
         /// <summary>
         /// Equalses the specified other.

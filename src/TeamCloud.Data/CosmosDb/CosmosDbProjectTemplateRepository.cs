@@ -132,13 +132,8 @@ namespace TeamCloud.Data.CosmosDb
                 var document = await AugmentAsync(response.Resource)
                     .ConfigureAwait(false);
 
-                if (expand)
-                {
-                    document = await ExpandAsync(document)
-                        .ConfigureAwait(false);
-                }
-
-                return document;
+                return await ExpandAsync(document, expand)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -298,7 +293,7 @@ namespace TeamCloud.Data.CosmosDb
                         .WhenAny(tasks)
                         .ConfigureAwait(false);
 
-                    yield return completed.Result;
+                    yield return await ExpandAsync(completed.Result).ConfigureAwait(false);
 
                     tasks.Remove(completed);
                 }

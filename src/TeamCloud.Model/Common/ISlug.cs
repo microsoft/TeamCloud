@@ -3,17 +3,18 @@
  *  Licensed under the MIT License.
  */
 
-using System.Diagnostics.CodeAnalysis;
+using System;
 using Slugify;
 
 namespace TeamCloud.Model.Common
 {
     public interface ISlug : IDisplayName
     {
-        [SuppressMessage("Naming", "CA1721: Property names should not match get methods", Justification = "Workaround for default interface property")]
-        string Slug { get; }
+        public static string CreateSlug(IDisplayName instance)
+            => instance is null
+            ? throw new ArgumentNullException(nameof(instance))
+            : new SlugHelper().GenerateSlug(instance.DisplayName ?? string.Empty);
 
-        public string GetSlug()
-            => new SlugHelper().GenerateSlug(DisplayName ?? string.Empty);
+        string Slug { get; }
     }
 }

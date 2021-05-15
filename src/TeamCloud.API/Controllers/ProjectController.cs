@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Data.Validators;
@@ -30,7 +31,7 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/projects")]
     [Produces("application/json")]
-    public class ProjectController : ApiController
+    public class ProjectController : TeamCloudController
     {
         private readonly IProjectRepository projectRepository;
         private readonly IProjectTemplateRepository projectTemplateRepository;
@@ -83,10 +84,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProjects", Summary = "Gets all Projects.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Projects.", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync(async (user, organization) =>
+        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
         {
             var projects = await projectRepository
-                .ListAsync(organization.Id)
+                .ListAsync(context.Organization.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -103,10 +104,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified Name or ID was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string projectId) => ExecuteAsync((user, organization, project) =>
+        public Task<IActionResult> Get([FromRoute] string projectId) => ExecuteAsync<TeamCloudProjectContext>(context =>
         {
             return DataResult<Project>
-                .Ok(project)
+                .Ok(context.Project)
                 .ToActionResultAsync();
         });
 
@@ -119,7 +120,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project already exists with the name specified in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition) => ExecuteAsync(async (user, organization) =>
+        public Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition) => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
         {
             if (projectDefinition is null)
                 throw new ArgumentNullException(nameof(projectDefinition));
@@ -132,7 +133,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var nameExists = await projectRepository
-                .NameExistsAsync(organization.Id, projectDefinition.DisplayName)
+                .NameExistsAsync(context.Organization.Id, projectDefinition.DisplayName)
                 .ConfigureAwait(false);
 
             if (nameExists)
@@ -142,13 +143,13 @@ namespace TeamCloud.API.Controllers
 
             var projectId = Guid.NewGuid().ToString();
 
-            var users = await ResolveUsersAsync(organization.Id, projectDefinition, projectId)
+            var users = await ResolveUsersAsync(context.Organization.Id, projectDefinition, projectId)
                 .ConfigureAwait(false);
 
             var project = new Project
             {
                 Id = projectId,
-                Organization = organization.Id,
+                Organization = context.Organization.Id,
                 Users = users,
                 DisplayName = projectDefinition.DisplayName
             };
@@ -158,7 +159,7 @@ namespace TeamCloud.API.Controllers
             if (!string.IsNullOrEmpty(projectDefinition.Template))
             {
                 template = await projectTemplateRepository
-                    .GetAsync(organization.Id, projectDefinition.Template)
+                    .GetAsync(context.Organization.Id, projectDefinition.Template)
                     .ConfigureAwait(false);
 
                 if (template is null)
@@ -169,7 +170,7 @@ namespace TeamCloud.API.Controllers
             else
             {
                 template = await projectTemplateRepository
-                    .GetDefaultAsync(organization.Id)
+                    .GetDefaultAsync(context.Organization.Id)
                     .ConfigureAwait(false);
 
                 if (template is null)
@@ -210,9 +211,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified name or ID was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string projectId) => ExecuteAsync(async (user, organization, project) =>
+        public Task<IActionResult> Delete([FromRoute] string projectId) => ExecuteAsync<TeamCloudProjectContext>(async context =>
         {
-            var command = new ProjectDeleteCommand(user, project);
+            var command = new ProjectDeleteCommand(context.ContextUser, context.Project);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

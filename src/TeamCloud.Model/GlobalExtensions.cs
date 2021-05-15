@@ -17,6 +17,16 @@ namespace TeamCloud.Model
 {
     public static class GlobalExtensions
     {
+        public static T MapTo<T>(this Enum instance, T defaultValue, bool ignoreCase = false)
+            where T : struct
+        {
+            if (instance is null)
+                throw new ArgumentNullException(nameof(instance));
+
+            return Enum.TryParse<T>(Enum.GetName(instance.GetType(), instance), ignoreCase, out T value)
+                ? value : defaultValue;
+        }
+
         public static BroadcastMessage ToBroadcastMessage(this ICommandResult commandResult)
         {
             if (commandResult is null)
@@ -42,7 +52,7 @@ namespace TeamCloud.Model
         {
             Id = containerDocument.Id,
             Type = containerDocument.GetType().Name.ToLowerInvariant(),
-            Organization = (containerDocument as IOrganizationContext)?.Organization,
+            Organization = (containerDocument as IProjectContext)?.Organization,
             Project = (containerDocument as IProjectContext)?.ProjectId,
             Component = (containerDocument as IComponentContext)?.ComponentId,
             ETag = containerDocument.ETag,
