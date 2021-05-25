@@ -3,8 +3,6 @@
  *  Licensed under the MIT License.
  */
 
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
@@ -23,10 +21,8 @@ namespace TeamCloud.API.Data
 
         public string Slug => ISlug.CreateSlug(this);
 
+        public string InputData { get; set; }
+
         public bool IsDefault { get; set; }
-
-        public string ManagementGroupId { get; set; }
-
-        public List<Guid> SubscriptionIds { get; set; }
     }
 }

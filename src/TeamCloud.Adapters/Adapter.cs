@@ -21,8 +21,8 @@ namespace TeamCloud.Adapters
 {
     public abstract class Adapter : IAdapter
     {
-        private static readonly JSchema inputDataSchemaEmpty = new JSchema() { Type = JSchemaType.Object };
-        private static readonly JObject inputDataFormEmpty = new JObject();
+        private static readonly JSchema dataSchemaEmpty = new JSchema() { Type = JSchemaType.Object };
+        private static readonly JObject formSchemaEmpty = new JObject();
 
         private static string PrettyPrintDeploymentScopeType(DeploymentScopeType type)
             => Regex.Replace(Enum.GetName(typeof(DeploymentScopeType), type), @"\B[A-Z]", " $0");
@@ -52,10 +52,10 @@ namespace TeamCloud.Adapters
             => tokenClient;
 
         public virtual Task<string> GetInputDataSchemaAsync()
-            => Task.FromResult(inputDataSchemaEmpty.ToString(Formatting.None));
+            => Task.FromResult(dataSchemaEmpty.ToString(Formatting.None));
 
         public virtual Task<string> GetInputFormSchemaAsync()
-            => Task.FromResult(inputDataFormEmpty.ToString(Formatting.None));
+            => Task.FromResult(formSchemaEmpty.ToString(Formatting.None));
 
         public virtual IEnumerable<ICommandHandler> GetCommandHandlers()
         {

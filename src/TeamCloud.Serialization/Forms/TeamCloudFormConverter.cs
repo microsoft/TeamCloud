@@ -42,9 +42,19 @@ namespace TeamCloud.Serialization.Forms
 
                     if (attributes.Any())
                     {
+                        var optionAttributes = attributes
+                            .OfType<TeamCloudFormOptionAttribute>()
+                            .ToList();
+
                         writer.WritePropertyName(property.PropertyName);
                         writer.WriteStartObject();
-                        attributes.ForEach(attribute => attribute.WriteJson(writer, objectContract, property.PropertyName));
+
+                        foreach (var attribute in attributes.Except(optionAttributes))
+                            attribute.WriteJson(writer, objectContract, property.PropertyName);
+
+                        if (optionAttributes.Any())
+                            TeamCloudFormOptionAttribute.WriteJson(optionAttributes, writer, objectContract, property.PropertyName);
+
                         writer.WriteEndObject();
                     }
                 }

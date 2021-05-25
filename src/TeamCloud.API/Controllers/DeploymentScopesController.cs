@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TeamCloud.Adapters;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
@@ -30,12 +29,10 @@ namespace TeamCloud.API.Controllers
     public class DeploymentScopesController : TeamCloudController
     {
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
-        private readonly IEnumerable<IAdapter> adapters;
 
-        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository, IEnumerable<IAdapter> adapters = null) : base()
+        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository) : base()
         {
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
         }
 
 
@@ -105,8 +102,7 @@ namespace TeamCloud.API.Controllers
                Organization = context.Organization.Id,
                Type = deploymentScopeDefinition.Type,
                DisplayName = deploymentScopeDefinition.DisplayName,
-               ManagementGroupId = deploymentScopeDefinition.ManagementGroupId,
-               SubscriptionIds = deploymentScopeDefinition.SubscriptionIds,
+               InputData = deploymentScopeDefinition.InputData,
                IsDefault = deploymentScopeDefinition.IsDefault
            };
 
@@ -178,30 +174,6 @@ namespace TeamCloud.API.Controllers
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
-        });
-
-        [HttpGet("types")]
-        [Authorize(Policy = AuthPolicies.OrganizationRead)]
-        [SwaggerOperation(OperationId = "GetDeploymentScopeTypeInformation", Summary = "Gets all Deployment Scope type information.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns all Deployment Scope type information.", typeof(DataResult<List<DeploymentScopeTypeInformation>>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public Task<IActionResult> Types() => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
-        {
-            var deploymentScopeTypeInformation = await adapters
-                .Select(async a => new DeploymentScopeTypeInformation()
-                {
-                    Type = a.Type,
-                    DisplayName = a.DisplayName,
-                    InputDataSchema = await a.GetInputDataSchemaAsync().ConfigureAwait(false),
-                    InputDataForm = await a.GetInputFormSchemaAsync().ConfigureAwait(false)
-                })
-                .ToAsyncEnumerable()
-                .ToListAsync()
-                .ConfigureAwait(false);
-
-            return DataResult<List<DeploymentScopeTypeInformation>>
-                .Ok(deploymentScopeTypeInformation)
-                .ToActionResult();
         });
 
         [HttpPut("{deploymentScopeId:deploymentScopeId}/authorize")]

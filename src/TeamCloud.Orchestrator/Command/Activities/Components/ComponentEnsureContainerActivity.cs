@@ -179,6 +179,10 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
 
         private async Task<IEnumerable<Guid>> GetSubscriptionIdsAsync(DeploymentScope deploymentScope, ILogger log)
         {
+            deploymentScope = await deploymentScopeRepository
+                .ExpandAsync(deploymentScope)
+                .ConfigureAwait(false);
+
             IEnumerable<Guid> subscriptionIds;
 
             if (AzureResourceIdentifier.TryParse(deploymentScope.ManagementGroupId, out var managementGroupResourceId))

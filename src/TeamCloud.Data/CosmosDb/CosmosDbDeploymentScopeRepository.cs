@@ -81,7 +81,10 @@ namespace TeamCloud.Data.CosmosDb
                         _ = await NotifySubscribersAsync(batchResources.Skip(1), DocumentSubscriptionEvent.Update)
                             .ConfigureAwait(false);
 
-                        return await NotifySubscribersAsync(batchResources.First(), DocumentSubscriptionEvent.Create)
+                        deploymentScope = await ExpandAsync(batchResources.First())
+                            .ConfigureAwait(false);
+
+                        return await NotifySubscribersAsync(deploymentScope, DocumentSubscriptionEvent.Create)
                             .ConfigureAwait(false);
                     }
                     else
@@ -95,7 +98,10 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
                         .ConfigureAwait(false);
 
-                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                    deploymentScope = await ExpandAsync(response.Resource)
+                        .ConfigureAwait(false);
+
+                    return await NotifySubscribersAsync(deploymentScope, DocumentSubscriptionEvent.Create)
                         .ConfigureAwait(false);
                 }
             }

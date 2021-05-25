@@ -9,11 +9,12 @@
     "@azure/core-auth": "^1.1.3",
     "@azure/msal-browser": "^2.11.2",
     "@azure/msal-react": "^1.0.0-alpha.6",
+    "@types/lodash": "^4.14.152",
     "@fluentui/react": "^7.126.3",
     "@microsoft/microsoft-graph-client": "^2.0.0",
     "@microsoft/signalr": "^5.0.4",
-    "@rjsf/core": "^2.4.2",
-    "@rjsf/fluent-ui": "^2.4.2",
+    "@rjsf/core": "^2.5.1",
+    "@rjsf/fluent-ui": "^2.5.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -54,6 +55,8 @@
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^1.14.1",
-    "@types/react-router-dom": "^5.1.5"
+    "@types/react-router-dom": "^5.1.5",
+    "lodash": "^4.17.15",
+    "lodash-es": "^4.17.15"
   }
 }

@@ -184,7 +184,8 @@ namespace TeamCloud.Data.CosmosDb
                     await PopulateUsersAsync(project)
                         .ConfigureAwait(false);
 
-                    yield return project;
+                    yield return await ExpandAsync(project)
+                        .ConfigureAwait(false);
                 }
             }
         }

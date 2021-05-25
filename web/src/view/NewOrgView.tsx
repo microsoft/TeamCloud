@@ -39,7 +39,7 @@ export const NewOrgView: React.FC = () => {
 
     const _orgComplete = () => orgName && orgSubscription && orgRegion;
 
-    const _scopeComplete = () => scope?.displayName && (scope.subscriptionIds || scope.managementGroupId);
+    const _scopeComplete = () => scope?.displayName && scope?.type && scope?.inputData;
 
     const _templateComplete = () => template?.displayName && template.repository.url;
 
@@ -137,27 +137,10 @@ export const NewOrgView: React.FC = () => {
         setScope(scope);
     }, []);
 
-
     const onTemplateChange = useCallback((template?: ProjectTemplateDefinition) => {
         // console.log(`+ onTemplateChange: ${template}`)
         setTemplate(template);
     }, []);
-
-    const getScopeDetail = () => {
-
-        const details = [{ label: 'Name', value: scope?.displayName ?? '', required: true }];
-
-        if (scope?.managementGroupId)
-            details.push({ label: 'Management Group', value: scope.managementGroupId, required: true });
-        else if (scope?.subscriptionIds)
-            details.push({ label: 'Subscriptions', value: scope.subscriptionIds.join(', '), required: true });
-        else {
-            details.push({ label: 'Management Group', value: '', required: true });
-            details.push({ label: 'Subscriptions', value: '', required: true });
-        }
-
-        return details;
-    };
 
     return (
         <Stack styles={{ root: { height: '100%' } }}>
@@ -244,11 +227,11 @@ export const NewOrgView: React.FC = () => {
                                 ]} />
                             </Stack.Item>
                             <Stack.Item>
-                                <NewOrgReviewSection title='Deployment Scope' details={getScopeDetail()} />
-                                {/* <NewOrgReviewSection title='Deployment Scope' details={[
+                                <NewOrgReviewSection title='Deployment Scope' details={[
                                     { label: 'Name', value: scope?.displayName ?? '', required: true },
-                                    { label: 'Subscriptions', value: scope?.subscriptionIds?.join(', '), required: true }
-                                ]} /> */}
+                                    { label: 'Type', value: scope?.type ?? '', required: true },
+                                    { label: 'Data', value: scope?.inputData ?? '', required: true }
+                                ]} />
                             </Stack.Item>
                             <Stack.Item>
                                 <NewOrgReviewSection title='Project Template' details={[

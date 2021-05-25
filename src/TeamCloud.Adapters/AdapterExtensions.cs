@@ -21,6 +21,9 @@ namespace TeamCloud.Adapters
     {
         public static string ToString(this JSchema schema, Formatting formatting)
         {
+            if (schema is null)
+                throw new ArgumentNullException(nameof(schema));
+
             var sb = new StringBuilder();
 
             using var sw = new StringWriter(sb);
@@ -62,28 +65,6 @@ namespace TeamCloud.Adapters
                 .AddSingleton<IAdapter, TAdapter>();
 
             return services;
-        }
-
-        internal static void ReadEntity(this ITableEntity tableEntity, IDictionary<string, EntityProperty> properties, OperationContext operationContext, IDataProtectionProvider protectionProvider)
-        {
-            if (protectionProvider != null)
-            {
-                //TODO: decrypt values
-            }
-
-            tableEntity.ReadEntity(properties, operationContext);
-        }
-
-        internal static IDictionary<string, EntityProperty> WriteEntity(this ITableEntity tableEntity, OperationContext operationContext, IDataProtectionProvider protectionProvider)
-        {
-            var properties = tableEntity.WriteEntity(operationContext);
-
-            if (protectionProvider != null)
-            {
-                //TODO: encrypt values
-            }
-
-            return properties;
         }
     }
 }

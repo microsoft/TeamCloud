@@ -57,7 +57,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     .ListAsync(loadAllPages: true)
                     .ConfigureAwait(false);
 
-                if (subscriptions.Any() && json.TrySelectToken("properties.subscriptionIds.items", out var subscriptionIdsToken))
+                if (subscriptions.Any() && json.TrySelectToken("$..properties.subscriptionIds.items", out var subscriptionIdsToken))
                 {
                     subscriptionIdsToken["enum"] = new JArray(subscriptions.OrderBy(s => s.DisplayName).Select(s => s.SubscriptionId));
                     subscriptionIdsToken["enumNames"] = new JArray(subscriptions.OrderBy(s => s.DisplayName).Select(s => s.DisplayName));
@@ -80,7 +80,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     .ToListAsync()
                     .ConfigureAwait(false);
 
-                if (managementGroups.Any() && json.TrySelectToken("properties.managementGroupId", out var managementGroupToken))
+                if (managementGroups.Any() && json.TrySelectToken("$..properties.managementGroupId", out var managementGroupToken))
                 {
                     managementGroupToken["enum"] = new JArray(managementGroups.OrderBy(mg => mg.DisplayName).Select(mg => mg.Id));
                     managementGroupToken["enumNames"] = new JArray(managementGroups.OrderBy(mg => mg.DisplayName).Select(mg => mg.DisplayName));

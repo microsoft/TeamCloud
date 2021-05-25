@@ -62,11 +62,8 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<ComponentTask>(idParsed.ToString(), GetPartitionKey(componentId))
                     .ConfigureAwait(false);
 
-                var expandTask = expand
-                    ? ExpandAsync(response.Resource)
-                    : Task.FromResult(response.Resource);
-
-                return await expandTask.ConfigureAwait(false);
+                return await ExpandAsync(response.Resource, expand)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {

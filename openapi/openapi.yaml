@@ -11,6 +11,29 @@ info:
     url: https://github.com/microsoft/TeamCloud/blob/main/LICENSE
   version: v1
 paths:
+  /adapters:
+    get:
+      tags:
+        - Adapter
+      summary: Gets all Adapters.
+      operationId: GetAdapters
+      responses:
+        '200':
+          description: Returns all Adapters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdapterInformationListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   '/orgs/{organizationId}/projects/{projectId}/components':
     get:
       tags:
@@ -638,35 +661,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResult'
         '404':
           description: A DeploymentScope with the id provided was not found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-  '/orgs/{organizationId}/scopes/types':
-    get:
-      tags:
-        - DeploymentScopes
-      summary: Gets all Deployment Scope type information.
-      operationId: GetDeploymentScopeTypeInformation
-      parameters:
-        - name: organizationId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Returns all Deployment Scope type information.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DeploymentScopeTypeInformationListDataResult'
-        '400':
-          description: A validation error occured.
           content:
             application/json:
               schema:
@@ -2714,6 +2708,92 @@ paths:
           description: Forbidden
 components:
   schemas:
+    AdapterInformation:
+      type: object
+      properties:
+        type:
+          enum:
+            - AzureResourceManager
+            - AzureDevOps
+            - GitHub
+          type: string
+        displayName:
+          type: string
+          nullable: true
+        inputDataSchema:
+          type: string
+          nullable: true
+        inputDataForm:
+          type: string
+          nullable: true
+      additionalProperties: false
+    AdapterInformationListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdapterInformation'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ResultError:
+      type: object
+      properties:
+        code:
+          enum:
+            - Unknown
+            - Failed
+            - Conflict
+            - NotFound
+            - ServerError
+            - ValidationError
+            - Unauthorized
+            - Forbidden
+          type: string
+        message:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          nullable: true
+      additionalProperties: false
+    ErrorResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultError'
+          nullable: true
+      additionalProperties: false
     Component:
       required:
         - creator
@@ -2800,54 +2880,6 @@ components:
           readOnly: true
         location:
           type: string
-          nullable: true
-      additionalProperties: false
-    ValidationError:
-      type: object
-      properties:
-        field:
-          type: string
-          nullable: true
-        message:
-          type: string
-          nullable: true
-      additionalProperties: false
-    ResultError:
-      type: object
-      properties:
-        code:
-          enum:
-            - Unknown
-            - Failed
-            - Conflict
-            - NotFound
-            - ServerError
-            - ValidationError
-            - Unauthorized
-            - Forbidden
-          type: string
-        message:
-          type: string
-          nullable: true
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          nullable: true
-      additionalProperties: false
-    ErrorResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ResultError'
           nullable: true
       additionalProperties: false
     ComponentDefinition:
@@ -3288,6 +3320,9 @@ components:
           type: string
           nullable: true
           readOnly: true
+        inputData:
+          type: string
+          nullable: true
         isDefault:
           type: boolean
         managementGroupId:
@@ -3311,44 +3346,6 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/DeploymentScope'
-        location:
-          type: string
-          nullable: true
-      additionalProperties: false
-    DeploymentScopeTypeInformation:
-      type: object
-      properties:
-        type:
-          enum:
-            - AzureResourceManager
-            - AzureDevOps
-            - GitHub
-          type: string
-        displayName:
-          type: string
-          nullable: true
-        inputDataSchema:
-          type: string
-          nullable: true
-        inputDataForm:
-          type: string
-          nullable: true
-      additionalProperties: false
-    DeploymentScopeTypeInformationListDataResult:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        status:
-          type: string
-          nullable: true
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/DeploymentScopeTypeInformation'
-          nullable: true
-          readOnly: true
         location:
           type: string
           nullable: true

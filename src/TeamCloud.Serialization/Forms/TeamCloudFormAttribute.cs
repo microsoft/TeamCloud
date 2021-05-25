@@ -9,6 +9,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Serialization.Forms
 {
+
     public abstract class TeamCloudFormAttribute : Attribute
     {
         protected TeamCloudFormAttribute(string name)
@@ -16,12 +17,13 @@ namespace TeamCloud.Serialization.Forms
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
 
+            // we remove any whitespaces - just to be on the safe side when rendering 
             Name = $"ui:{name}".Replace(" ", "", StringComparison.OrdinalIgnoreCase);
         }
 
         public string Name { get; }
 
-        public void WriteJson(JsonWriter writer, JsonContract contract, string property = null)
+        public virtual void WriteJson(JsonWriter writer, JsonContract contract, string property = null)
         {
             if (writer is null)
                 throw new ArgumentNullException(nameof(writer));

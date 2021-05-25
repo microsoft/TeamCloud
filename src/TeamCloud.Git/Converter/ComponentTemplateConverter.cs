@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Data;
@@ -27,6 +28,12 @@ namespace TeamCloud.Git.Converter
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var componentJson = JObject.ReadFrom(reader) as JObject;
+
+            foreach (var nameToken in componentJson.SelectTokens("$..name").Reverse().ToArray())
+            {
+                (nameToken.Parent.Parent as JObject)?.SetProperty("displayName", nameToken.ToString());
+                nameToken.Parent.Remove(); // get rid of the name token as we don't need it anymore
+            }
 
             // augment the component json by some project template level data
             componentJson.SetProperty(nameof(ComponentTemplate.Id), repositoryLocation.ToGuid().ToString());

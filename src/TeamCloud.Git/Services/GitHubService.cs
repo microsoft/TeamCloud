@@ -106,10 +106,8 @@ namespace TeamCloud.Git.Services
 
                 var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, componentItem.Url));
 
-                var folder = Regex.Replace(componentItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
-
-                componentTemplate.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, componentTemplate.Description, folder)
-                    .ConfigureAwait(false);
+                componentTemplate.Folder = Regex.Replace(componentItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
+                componentTemplate.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, componentTemplate.Description, componentTemplate.Folder).ConfigureAwait(false);
 
                 return componentTemplate;
             }

@@ -7,6 +7,32 @@
 import * as coreHttp from '@azure/core-http';
 
 // @public (undocumented)
+export interface AdapterInformation {
+    // (undocumented)
+    displayName?: string | null;
+    // (undocumented)
+    inputDataForm?: string | null;
+    // (undocumented)
+    inputDataSchema?: string | null;
+    // (undocumented)
+    type?: AdapterInformationType;
+}
+
+// @public (undocumented)
+export interface AdapterInformationListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: AdapterInformation[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public
+export type AdapterInformationType = string;
+
+// @public (undocumented)
 export interface Component {
     // (undocumented)
     creator: string;
@@ -311,6 +337,8 @@ export interface DeploymentScopeDefinition {
     // (undocumented)
     displayName: string;
     // (undocumented)
+    inputData?: string | null;
+    // (undocumented)
     isDefault?: boolean;
     // (undocumented)
     managementGroupId?: string | null;
@@ -339,32 +367,6 @@ export interface DeploymentScopeListDataResult {
 export type DeploymentScopeType = string;
 
 // @public (undocumented)
-export interface DeploymentScopeTypeInformation {
-    // (undocumented)
-    displayName?: string | null;
-    // (undocumented)
-    inputDataForm?: string | null;
-    // (undocumented)
-    inputDataSchema?: string | null;
-    // (undocumented)
-    type?: DeploymentScopeTypeInformationType;
-}
-
-// @public (undocumented)
-export interface DeploymentScopeTypeInformationListDataResult {
-    // (undocumented)
-    code?: number;
-    readonly data?: DeploymentScopeTypeInformation[] | null;
-    // (undocumented)
-    location?: string | null;
-    // (undocumented)
-    status?: string | null;
-}
-
-// @public
-export type DeploymentScopeTypeInformationType = string;
-
-// @public (undocumented)
 export interface ErrorResult {
     // (undocumented)
     code?: number;
@@ -372,6 +374,16 @@ export interface ErrorResult {
     errors?: ResultError[] | null;
     // (undocumented)
     status?: string | null;
+}
+
+// @public
+export const enum KnownAdapterInformationType {
+    // (undocumented)
+    AzureDevOps = "AzureDevOps",
+    // (undocumented)
+    AzureResourceManager = "AzureResourceManager",
+    // (undocumented)
+    GitHub = "GitHub"
 }
 
 // @public
@@ -450,16 +462,6 @@ export const enum KnownDeploymentScopeDefinitionType {
 
 // @public
 export const enum KnownDeploymentScopeType {
-    // (undocumented)
-    AzureDevOps = "AzureDevOps",
-    // (undocumented)
-    AzureResourceManager = "AzureResourceManager",
-    // (undocumented)
-    GitHub = "GitHub"
-}
-
-// @public
-export const enum KnownDeploymentScopeTypeInformationType {
     // (undocumented)
     AzureDevOps = "AzureDevOps",
     // (undocumented)
@@ -1054,6 +1056,7 @@ export class TeamCloud extends TeamCloudContext {
     deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
     deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
     deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
+    getAdapters(options?: coreHttp.OperationOptions): Promise<TeamCloudGetAdaptersResponse>;
     getComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
     getComponents(organizationId: string, projectId: string, options?: TeamCloudGetComponentsOptionalParams): Promise<TeamCloudGetComponentsResponse>;
     getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
@@ -1062,7 +1065,6 @@ export class TeamCloud extends TeamCloudContext {
     getComponentTemplates(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplatesResponse>;
     getDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
     getDeploymentScopes(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopesResponse>;
-    getDeploymentScopeTypeInformation(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeTypeInformationResponse>;
     getOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationResponse>;
     getOrganizations(options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationsResponse>;
     getOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserResponse>;
@@ -1347,6 +1349,14 @@ export type TeamCloudDeleteProjectUserResponse = StatusResult & {
 };
 
 // @public
+export type TeamCloudGetAdaptersResponse = AdapterInformationListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: AdapterInformationListDataResult;
+    };
+};
+
+// @public
 export type TeamCloudGetComponentResponse = ComponentDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
@@ -1413,14 +1423,6 @@ export type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDataResult
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: DeploymentScopeListDataResult;
-    };
-};
-
-// @public
-export type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
-    _response: coreHttp.HttpResponse & {
-        bodyAsText: string;
-        parsedBody: DeploymentScopeTypeInformationListDataResult;
     };
 };
 

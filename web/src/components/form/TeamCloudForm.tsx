@@ -1,8 +1,11 @@
-import { ManagementGroupWidget } from "./ManagementGroupWidget";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import { TeamCloudSelectWidget } from "./TeamCloudSelectWidget";
 
 export const TeamCloudForm = {
 	Widgets: {
-		ManagementGroupWidget: ManagementGroupWidget
+		SelectWidget: TeamCloudSelectWidget
 	},
 	Fields: {
 

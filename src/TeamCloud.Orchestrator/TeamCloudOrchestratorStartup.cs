@@ -41,7 +41,6 @@ using TeamCloud.Notification.Smtp;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
-using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Data;
 using TeamCloud.Orchestrator.Command.Handlers;
 using TeamCloud.Orchestrator.Command.Handlers.Messaging;
@@ -129,6 +128,7 @@ namespace TeamCloud.Orchestrator
 
             builder.Services
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
+                .AddSingleton<IDocumentExpander, DeploymentScopeExpander>()
                 .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
                 .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
                 .AddSingleton<IDocumentExpander, ComponentExpander>()

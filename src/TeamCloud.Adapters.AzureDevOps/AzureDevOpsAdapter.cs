@@ -20,6 +20,7 @@ using TeamCloud.Http;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Serialization;
+using TeamCloud.Serialization.Forms;
 using TeamCloud.Templates;
 
 namespace TeamCloud.Adapters.AzureDevOps
@@ -39,9 +40,17 @@ namespace TeamCloud.Adapters.AzureDevOps
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
         }
 
-        public override DeploymentScopeType Type => DeploymentScopeType.AzureDevOps;
+        public override DeploymentScopeType Type
+            => DeploymentScopeType.AzureDevOps;
 
-        public override string DisplayName => "Azure DevOps";
+        public override string DisplayName
+            => "Azure DevOps";
+
+        public override Task<string> GetInputDataSchemaAsync()
+            => TeamCloudForm.GetDataSchemaAsync<AzureDevOpsData>().ContinueWith(t => t.Result.ToString(), TaskScheduler.Current);
+
+        public override Task<string> GetInputFormSchemaAsync()
+            => TeamCloudForm.GetFormSchemaAsync<AzureDevOpsData>().ContinueWith(t => t.Result.ToString(), TaskScheduler.Current);
 
         public override async Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
         {

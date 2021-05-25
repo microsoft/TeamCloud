@@ -12,6 +12,7 @@ import * as Mappers from "./models/mappers";
 import { TeamCloudContext } from "./teamCloudContext";
 import {
   TeamCloudOptionalParams,
+  TeamCloudGetAdaptersResponse,
   TeamCloudGetComponentsOptionalParams,
   TeamCloudGetComponentsResponse,
   TeamCloudCreateComponentOptionalParams,
@@ -31,7 +32,6 @@ import {
   TeamCloudUpdateDeploymentScopeOptionalParams,
   TeamCloudUpdateDeploymentScopeResponse,
   TeamCloudDeleteDeploymentScopeResponse,
-  TeamCloudGetDeploymentScopeTypeInformationResponse,
   TeamCloudAuthorizeDeploymentScopeOptionalParams,
   TeamCloudAuthorizeDeploymentScopeResponse,
   TeamCloudGetOrganizationsResponse,
@@ -111,6 +111,22 @@ export class TeamCloud extends TeamCloudContext {
     options?: TeamCloudOptionalParams
   ) {
     super(credentials, $host, options);
+  }
+
+  /**
+   * Gets all Adapters.
+   * @param options The options parameters.
+   */
+  getAdapters(
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetAdaptersResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      getAdaptersOperationSpec
+    ) as Promise<TeamCloudGetAdaptersResponse>;
   }
 
   /**
@@ -434,25 +450,6 @@ export class TeamCloud extends TeamCloudContext {
       operationArguments,
       deleteDeploymentScopeOperationSpec
     ) as Promise<TeamCloudDeleteDeploymentScopeResponse>;
-  }
-
-  /**
-   * Gets all Deployment Scope type information.
-   * @param organizationId
-   * @param options The options parameters.
-   */
-  getDeploymentScopeTypeInformation(
-    organizationId: string,
-    options?: coreHttp.OperationOptions
-  ): Promise<TeamCloudGetDeploymentScopeTypeInformationResponse> {
-    const operationArguments: coreHttp.OperationArguments = {
-      organizationId,
-      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-    };
-    return this.sendOperationRequest(
-      operationArguments,
-      getDeploymentScopeTypeInformationOperationSpec
-    ) as Promise<TeamCloudGetDeploymentScopeTypeInformationResponse>;
   }
 
   /**
@@ -1505,6 +1502,23 @@ export class TeamCloud extends TeamCloudContext {
 // Operation Specifications
 const serializer = new coreHttp.Serializer(Mappers, /* isXml */ false);
 
+const getAdaptersOperationSpec: coreHttp.OperationSpec = {
+  path: "/adapters",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.AdapterInformationListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {}
+  },
+  urlParameters: [Parameters.$host],
+  headerParameters: [Parameters.accept],
+  serializer
+};
 const getComponentsOperationSpec: coreHttp.OperationSpec = {
   path: "/orgs/{organizationId}/projects/{projectId}/components",
   httpMethod: "GET",
@@ -1861,23 +1875,6 @@ const deleteDeploymentScopeOperationSpec: coreHttp.OperationSpec = {
     Parameters.organizationId,
     Parameters.deploymentScopeId
   ],
-  headerParameters: [Parameters.accept],
-  serializer
-};
-const getDeploymentScopeTypeInformationOperationSpec: coreHttp.OperationSpec = {
-  path: "/orgs/{organizationId}/scopes/types",
-  httpMethod: "GET",
-  responses: {
-    200: {
-      bodyMapper: Mappers.DeploymentScopeTypeInformationListDataResult
-    },
-    400: {
-      bodyMapper: Mappers.ErrorResult
-    },
-    401: {},
-    403: {}
-  },
-  urlParameters: [Parameters.$host, Parameters.organizationId],
   headerParameters: [Parameters.accept],
   serializer
 };

@@ -55,11 +55,8 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<User>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                var expandTask = expand
-                    ? ExpandAsync(response.Resource)
-                    : Task.FromResult(response.Resource);
-
-                return await expandTask.ConfigureAwait(false);
+                return await ExpandAsync(response.Resource)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -125,7 +122,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var user in queryResponse)
-                    yield return user;
+                    yield return await ExpandAsync(user).ConfigureAwait(false);
             }
         }
 
@@ -145,7 +142,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var user in queryResponse)
-                    yield return user;
+                    yield return await ExpandAsync(user).ConfigureAwait(false);
             }
         }
 
@@ -165,7 +162,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var user in queryResponse)
-                    yield return user;
+                    yield return await ExpandAsync(user).ConfigureAwait(false);
             }
         }
 
@@ -185,7 +182,7 @@ namespace TeamCloud.Data.CosmosDb
                     .ConfigureAwait(false);
 
                 foreach (var user in queryResponse)
-                    yield return user;
+                    yield return await ExpandAsync(user).ConfigureAwait(false);
             }
         }
 
@@ -238,9 +235,9 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
-
             var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 
+            var tasks = new List<Task>();
 
             while (queryIterator.HasMoreResults)
             {
@@ -248,10 +245,10 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadNextAsync()
                     .ConfigureAwait(false);
 
-                foreach (var user in queryResponse)
-                    _ = await RemoveProjectMembershipAsync(user, projectId)
-                        .ConfigureAwait(false);
+                tasks.AddRange(queryResponse.Select(user => RemoveProjectMembershipAsync(user, projectId)));
             }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         public async Task<User> RemoveProjectMembershipAsync(User user, string projectId)
@@ -404,7 +401,7 @@ namespace TeamCloud.Data.CosmosDb
                 {
                     try
                     {
-                        var response =  await container
+                        var response = await container
                             .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
                             .ConfigureAwait(false);
 

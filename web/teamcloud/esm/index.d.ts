@@ -1,5 +1,31 @@
 import * as coreHttp from '@azure/core-http';
 
+export declare interface AdapterInformation {
+    type?: AdapterInformationType;
+    displayName?: string | null;
+    inputDataSchema?: string | null;
+    inputDataForm?: string | null;
+}
+
+export declare interface AdapterInformationListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: AdapterInformation[] | null;
+    location?: string | null;
+}
+
+/**
+ * Defines values for AdapterInformationType. \
+ * {@link KnownAdapterInformationType} can be used interchangeably with AdapterInformationType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export declare type AdapterInformationType = string;
+
 export declare interface Component {
     href?: string | null;
     organization: string;
@@ -241,6 +267,7 @@ export declare interface DeploymentScopeDefinition {
     type: DeploymentScopeDefinitionType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly slug?: string | null;
+    inputData?: string | null;
     isDefault?: boolean;
     managementGroupId?: string | null;
     subscriptionIds?: string[] | null;
@@ -276,36 +303,17 @@ export declare interface DeploymentScopeListDataResult {
  */
 export declare type DeploymentScopeType = string;
 
-export declare interface DeploymentScopeTypeInformation {
-    type?: DeploymentScopeTypeInformationType;
-    displayName?: string | null;
-    inputDataSchema?: string | null;
-    inputDataForm?: string | null;
-}
-
-export declare interface DeploymentScopeTypeInformationListDataResult {
-    code?: number;
-    status?: string | null;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: DeploymentScopeTypeInformation[] | null;
-    location?: string | null;
-}
-
-/**
- * Defines values for DeploymentScopeTypeInformationType. \
- * {@link KnownDeploymentScopeTypeInformationType} can be used interchangeably with DeploymentScopeTypeInformationType,
- *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
- * **AzureResourceManager** \
- * **AzureDevOps** \
- * **GitHub**
- */
-export declare type DeploymentScopeTypeInformationType = string;
-
 export declare interface ErrorResult {
     code?: number;
     status?: string | null;
     errors?: ResultError[] | null;
+}
+
+/** Known values of {@link AdapterInformationType} that the service accepts. */
+export declare const enum KnownAdapterInformationType {
+    AzureResourceManager = "AzureResourceManager",
+    AzureDevOps = "AzureDevOps",
+    GitHub = "GitHub"
 }
 
 /** Known values of {@link ComponentResourceState} that the service accepts. */
@@ -361,13 +369,6 @@ export declare const enum KnownDeploymentScopeDefinitionType {
 
 /** Known values of {@link DeploymentScopeType} that the service accepts. */
 export declare const enum KnownDeploymentScopeType {
-    AzureResourceManager = "AzureResourceManager",
-    AzureDevOps = "AzureDevOps",
-    GitHub = "GitHub"
-}
-
-/** Known values of {@link DeploymentScopeTypeInformationType} that the service accepts. */
-export declare const enum KnownDeploymentScopeTypeInformationType {
     AzureResourceManager = "AzureResourceManager",
     AzureDevOps = "AzureDevOps",
     GitHub = "GitHub"
@@ -829,6 +830,11 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
     /**
+     * Gets all Adapters.
+     * @param options The options parameters.
+     */
+    getAdapters(options?: coreHttp.OperationOptions): Promise<TeamCloudGetAdaptersResponse>;
+    /**
      * Gets all Components for a Project.
      * @param organizationId
      * @param projectId
@@ -931,12 +937,6 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
-    /**
-     * Gets all Deployment Scope type information.
-     * @param organizationId
-     * @param options The options parameters.
-     */
-    getDeploymentScopeTypeInformation(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeTypeInformationResponse>;
     /**
      * Authorize an existing Deployment Scope.
      * @param deploymentScopeId
@@ -1577,6 +1577,17 @@ export declare type TeamCloudDeleteProjectUserResponse = StatusResult & {
     };
 };
 
+/** Contains response data for the getAdapters operation. */
+export declare type TeamCloudGetAdaptersResponse = AdapterInformationListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: AdapterInformationListDataResult;
+    };
+};
+
 /** Contains response data for the getComponent operation. */
 export declare type TeamCloudGetComponentResponse = ComponentDataResult & {
     /** The underlying HTTP response. */
@@ -1667,17 +1678,6 @@ export declare type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDa
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
         parsedBody: DeploymentScopeListDataResult;
-    };
-};
-
-/** Contains response data for the getDeploymentScopeTypeInformation operation. */
-export declare type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: DeploymentScopeTypeInformationListDataResult;
     };
 };
 

@@ -8,6 +8,38 @@
 
 import * as coreHttp from "@azure/core-http";
 
+export interface AdapterInformationListDataResult {
+  code?: number;
+  status?: string | null;
+  /** NOTE: This property will not be serialized. It can only be populated by the server. */
+  readonly data?: AdapterInformation[] | null;
+  location?: string | null;
+}
+
+export interface AdapterInformation {
+  type?: AdapterInformationType;
+  displayName?: string | null;
+  inputDataSchema?: string | null;
+  inputDataForm?: string | null;
+}
+
+export interface ErrorResult {
+  code?: number;
+  status?: string | null;
+  errors?: ResultError[] | null;
+}
+
+export interface ResultError {
+  code?: ResultErrorCode;
+  message?: string | null;
+  errors?: ValidationError[] | null;
+}
+
+export interface ValidationError {
+  field?: string | null;
+  message?: string | null;
+}
+
 export interface ComponentListDataResult {
   code?: number;
   status?: string | null;
@@ -35,23 +67,6 @@ export interface Component {
   ttl?: number | null;
   slug: string;
   id: string;
-}
-
-export interface ErrorResult {
-  code?: number;
-  status?: string | null;
-  errors?: ResultError[] | null;
-}
-
-export interface ResultError {
-  code?: ResultErrorCode;
-  message?: string | null;
-  errors?: ValidationError[] | null;
-}
-
-export interface ValidationError {
-  field?: string | null;
-  message?: string | null;
 }
 
 export interface ComponentDefinition {
@@ -216,6 +231,7 @@ export interface DeploymentScopeDefinition {
   type: DeploymentScopeDefinitionType;
   /** NOTE: This property will not be serialized. It can only be populated by the server. */
   readonly slug?: string | null;
+  inputData?: string | null;
   isDefault?: boolean;
   managementGroupId?: string | null;
   subscriptionIds?: string[] | null;
@@ -226,21 +242,6 @@ export interface DeploymentScopeDataResult {
   status?: string | null;
   data?: DeploymentScope;
   location?: string | null;
-}
-
-export interface DeploymentScopeTypeInformationListDataResult {
-  code?: number;
-  status?: string | null;
-  /** NOTE: This property will not be serialized. It can only be populated by the server. */
-  readonly data?: DeploymentScopeTypeInformation[] | null;
-  location?: string | null;
-}
-
-export interface DeploymentScopeTypeInformation {
-  type?: DeploymentScopeTypeInformationType;
-  displayName?: string | null;
-  inputDataSchema?: string | null;
-  inputDataForm?: string | null;
 }
 
 export interface OrganizationListDataResult {
@@ -494,6 +495,52 @@ export interface ScheduleDataResult {
   location?: string | null;
 }
 
+/** Known values of {@link AdapterInformationType} that the service accepts. */
+export const enum KnownAdapterInformationType {
+  AzureResourceManager = "AzureResourceManager",
+  AzureDevOps = "AzureDevOps",
+  GitHub = "GitHub"
+}
+
+/**
+ * Defines values for AdapterInformationType. \
+ * {@link KnownAdapterInformationType} can be used interchangeably with AdapterInformationType,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **AzureResourceManager** \
+ * **AzureDevOps** \
+ * **GitHub**
+ */
+export type AdapterInformationType = string;
+
+/** Known values of {@link ResultErrorCode} that the service accepts. */
+export const enum KnownResultErrorCode {
+  Unknown = "Unknown",
+  Failed = "Failed",
+  Conflict = "Conflict",
+  NotFound = "NotFound",
+  ServerError = "ServerError",
+  ValidationError = "ValidationError",
+  Unauthorized = "Unauthorized",
+  Forbidden = "Forbidden"
+}
+
+/**
+ * Defines values for ResultErrorCode. \
+ * {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Unknown** \
+ * **Failed** \
+ * **Conflict** \
+ * **NotFound** \
+ * **ServerError** \
+ * **ValidationError** \
+ * **Unauthorized** \
+ * **Forbidden**
+ */
+export type ResultErrorCode = string;
+
 /** Known values of {@link ComponentType} that the service accepts. */
 export const enum KnownComponentType {
   Environment = "Environment",
@@ -531,34 +578,6 @@ export const enum KnownComponentResourceState {
  * **Failed**
  */
 export type ComponentResourceState = string;
-
-/** Known values of {@link ResultErrorCode} that the service accepts. */
-export const enum KnownResultErrorCode {
-  Unknown = "Unknown",
-  Failed = "Failed",
-  Conflict = "Conflict",
-  NotFound = "NotFound",
-  ServerError = "ServerError",
-  ValidationError = "ValidationError",
-  Unauthorized = "Unauthorized",
-  Forbidden = "Forbidden"
-}
-
-/**
- * Defines values for ResultErrorCode. \
- * {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode,
- *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
- * **Unknown** \
- * **Failed** \
- * **Conflict** \
- * **NotFound** \
- * **ServerError** \
- * **ValidationError** \
- * **Unauthorized** \
- * **Forbidden**
- */
-export type ResultErrorCode = string;
 
 /** Known values of {@link ComponentTaskType} that the service accepts. */
 export const enum KnownComponentTaskType {
@@ -707,24 +726,6 @@ export const enum KnownDeploymentScopeDefinitionType {
  * **GitHub**
  */
 export type DeploymentScopeDefinitionType = string;
-
-/** Known values of {@link DeploymentScopeTypeInformationType} that the service accepts. */
-export const enum KnownDeploymentScopeTypeInformationType {
-  AzureResourceManager = "AzureResourceManager",
-  AzureDevOps = "AzureDevOps",
-  GitHub = "GitHub"
-}
-
-/**
- * Defines values for DeploymentScopeTypeInformationType. \
- * {@link KnownDeploymentScopeTypeInformationType} can be used interchangeably with DeploymentScopeTypeInformationType,
- *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
- * **AzureResourceManager** \
- * **AzureDevOps** \
- * **GitHub**
- */
-export type DeploymentScopeTypeInformationType = string;
 
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export const enum KnownOrganizationResourceState {
@@ -881,6 +882,18 @@ export const enum KnownScheduleDefinitionDaysOfWeekItem {
  * **Saturday**
  */
 export type ScheduleDefinitionDaysOfWeekItem = string;
+
+/** Contains response data for the getAdapters operation. */
+export type TeamCloudGetAdaptersResponse = AdapterInformationListDataResult & {
+  /** The underlying HTTP response. */
+  _response: coreHttp.HttpResponse & {
+    /** The response body as text (string format) */
+    bodyAsText: string;
+
+    /** The response body as parsed JSON or XML */
+    parsedBody: AdapterInformationListDataResult;
+  };
+};
 
 /** Optional parameters. */
 export interface TeamCloudGetComponentsOptionalParams
@@ -1077,18 +1090,6 @@ export type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult &
 
     /** The response body as parsed JSON or XML */
     parsedBody: DeploymentScopeDataResult;
-  };
-};
-
-/** Contains response data for the getDeploymentScopeTypeInformation operation. */
-export type TeamCloudGetDeploymentScopeTypeInformationResponse = DeploymentScopeTypeInformationListDataResult & {
-  /** The underlying HTTP response. */
-  _response: coreHttp.HttpResponse & {
-    /** The response body as text (string format) */
-    bodyAsText: string;
-
-    /** The response body as parsed JSON or XML */
-    parsedBody: DeploymentScopeTypeInformationListDataResult;
   };
 };
 

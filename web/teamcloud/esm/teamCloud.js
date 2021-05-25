@@ -22,6 +22,16 @@ var TeamCloud = /** @class */ (function (_super) {
         return _super.call(this, credentials, $host, options) || this;
     }
     /**
+     * Gets all Adapters.
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getAdapters = function (options) {
+        var operationArguments = {
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getAdaptersOperationSpec);
+    };
+    /**
      * Gets all Components for a Project.
      * @param organizationId
      * @param projectId
@@ -226,18 +236,6 @@ var TeamCloud = /** @class */ (function (_super) {
             options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
         };
         return this.sendOperationRequest(operationArguments, deleteDeploymentScopeOperationSpec);
-    };
-    /**
-     * Gets all Deployment Scope type information.
-     * @param organizationId
-     * @param options The options parameters.
-     */
-    TeamCloud.prototype.getDeploymentScopeTypeInformation = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getDeploymentScopeTypeInformationOperationSpec);
     };
     /**
      * Authorize an existing Deployment Scope.
@@ -910,6 +908,23 @@ var TeamCloud = /** @class */ (function (_super) {
 export { TeamCloud };
 // Operation Specifications
 var serializer = new coreHttp.Serializer(Mappers, /* isXml */ false);
+var getAdaptersOperationSpec = {
+    path: "/adapters",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.AdapterInformationListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {}
+    },
+    urlParameters: [Parameters.$host],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
 var getComponentsOperationSpec = {
     path: "/orgs/{organizationId}/projects/{projectId}/components",
     httpMethod: "GET",
@@ -1263,23 +1278,6 @@ var deleteDeploymentScopeOperationSpec = {
         Parameters.organizationId,
         Parameters.deploymentScopeId
     ],
-    headerParameters: [Parameters.accept],
-    serializer: serializer
-};
-var getDeploymentScopeTypeInformationOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/types",
-    httpMethod: "GET",
-    responses: {
-        200: {
-            bodyMapper: Mappers.DeploymentScopeTypeInformationListDataResult
-        },
-        400: {
-            bodyMapper: Mappers.ErrorResult
-        },
-        401: {},
-        403: {}
-    },
-    urlParameters: [Parameters.$host, Parameters.organizationId],
     headerParameters: [Parameters.accept],
     serializer: serializer
 };

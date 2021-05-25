@@ -185,11 +185,11 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public virtual async Task<T> ExpandAsync(T document, bool includeOptional = false)
         {
-            if (document is null)
-                throw new ArgumentNullException(nameof(document));
-
-            foreach (var expander in expanderProvider.GetExpanders(document, includeOptional))
-                document = (T)await expander.ExpandAsync(document).ConfigureAwait(false);
+            if (document != null)
+            {
+                foreach (var expander in expanderProvider.GetExpanders(document, includeOptional))
+                    document = (T)await expander.ExpandAsync(document).ConfigureAwait(false);
+            }
 
             return document;
         }

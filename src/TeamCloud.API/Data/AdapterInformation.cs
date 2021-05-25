@@ -10,7 +10,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class DeploymentScopeTypeInformation
+    public class AdapterInformation
     {
         public DeploymentScopeType Type { get; set; }
 

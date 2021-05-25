@@ -13,7 +13,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 {
     public sealed class AzureDevOpsToken : AuthorizationToken
     {
-        private static string FormatOrganizationUrl(string organization)
+        internal static string FormatOrganizationUrl(string organization)
         {
             if (string.IsNullOrWhiteSpace(organization))
                 return null;

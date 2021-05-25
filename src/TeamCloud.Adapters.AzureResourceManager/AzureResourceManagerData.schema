@@ -1,0 +1,36 @@
+﻿{
+	"type": "object",
+	"oneOf": [
+		{
+			"title": "Management Group",
+			"properties": {
+				"managementGroupId": {
+					"type": [
+						"string"
+					]
+				}
+			},
+			"required": [
+				"managementGroupId"
+			]
+		},
+		{
+			"title": "Subscriptions",
+			"properties": {
+				"subscriptionIds": {
+					"type": [
+						"array"
+					],
+					"items": {
+						"type": [
+							"string"
+						]
+					}
+				}
+			},
+			"required": [
+				"subscriptionIds"
+			]
+		}
+	]
+}

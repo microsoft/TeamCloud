@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
 
 namespace TeamCloud.Serialization.Forms
@@ -53,7 +52,7 @@ namespace TeamCloud.Serialization.Forms
                     using var streamReader = new StreamReader(schemaStream);
                     using var schemaReader = new JsonTextReader(streamReader);
 
-                    return Task.FromResult<JToken>(JSchema.Load(schemaReader));
+                    return Task.FromResult(JToken.Load(schemaReader));
                 }
 
             }).ConfigureAwait(false);
