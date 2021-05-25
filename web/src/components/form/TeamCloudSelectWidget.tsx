@@ -5,8 +5,7 @@ import React from "react";
 import { Dropdown, IDropdownOption } from "@fluentui/react";
 import { WidgetProps } from "@rjsf/core";
 import _pick from "lodash/pick";
-
-import "./TeamCloudSelectWidget.css"
+import { TeamCloudFieldDescription } from "./TeamCloudFieldDescription";
 
 // Keys of IDropdownProps from @fluentui/react
 const allowedProps = [
@@ -121,9 +120,7 @@ export const TeamCloudSelectWidget = ({
         onFocus={_onFocus}
         {...uiProps}
       />
-      { options.description 
-        ? <span><span className="ms-TextField-description teamCloudSelectWidgetDescription">{options.description}</span></span> 
-        : <></> }
+      <TeamCloudFieldDescription description={options.description as string} />
     </>
   );
 };
