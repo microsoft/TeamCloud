@@ -9,7 +9,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Model.Handlers
+namespace TeamCloud.Orchestrator.Command
 {
     public interface ICommandHandler
     {

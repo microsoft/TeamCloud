@@ -22,7 +22,6 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Handlers.Messaging

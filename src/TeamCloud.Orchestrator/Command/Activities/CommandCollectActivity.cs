@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Activities

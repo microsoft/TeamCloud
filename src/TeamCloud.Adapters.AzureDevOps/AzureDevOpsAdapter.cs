@@ -261,5 +261,24 @@ namespace TeamCloud.Adapters.AzureDevOps
             return new RedirectResult(url);
         }
 
+        public override Task<Component> CreateComponentAsync(Component component)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<Component> UpdateComponentAsync(Component component)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<Component> DeleteComponentAsync(Component component)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<NetworkCredential> GetServiceCredentialAsync(Component component)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Orchestrator.Command.Activities;
 
 namespace TeamCloud.Orchestrator.Command

@@ -25,8 +25,6 @@ using TeamCloud.Data;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
-using TeamCloud.Model.Data;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Serialization;
@@ -235,25 +233,7 @@ namespace TeamCloud.Orchestrator.API
 
         private async Task<IActionResult> ProcessCommandAsync(IDurableClient durableClient, ICommand command, IAsyncCollector<ICommand> commandQueue, IAsyncCollector<string> commandMonitor, ILogger log)
         {
-            var commandHandler = commandHandlers.SingleOrDefault(handler => handler.CanHandle(command));
-
-            var deploymentScope = command.Payload as DeploymentScope;
-
-            if (deploymentScope is null && command.Payload is IDeploymentScopeContext deploymentScopeContext)
-            {
-                deploymentScope = await deploymentScopeRepository
-                    .GetAsync(deploymentScopeContext.Organization, deploymentScopeContext.DeploymentScopeId)
-                    .ConfigureAwait(false);
-            }
-
-            if (deploymentScope != null)
-            {
-                commandHandler = adapters
-                    .SingleOrDefault(adapter => adapter.Type == deploymentScope.Type)?
-                    .GetCommandHandlers()
-                    .SingleOrDefault(handler => handler.CanHandle(command)) ?? commandHandler;
-            }
-
+            var commandHandler = commandHandlers.FirstOrDefault(handler => handler.CanHandle(command));
             var commandCollector = new CommandCollector(commandQueue, command);
 
             if (commandHandler is null)

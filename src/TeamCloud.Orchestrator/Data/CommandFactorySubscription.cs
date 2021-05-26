@@ -10,7 +10,6 @@ using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Queue;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Utilities;
 using TeamCloud.Serialization;

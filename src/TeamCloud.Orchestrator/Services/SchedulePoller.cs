@@ -14,7 +14,6 @@ using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Orchestrator.Command;
 using DayOfWeek = TeamCloud.Model.Data.DayOfWeek;
 

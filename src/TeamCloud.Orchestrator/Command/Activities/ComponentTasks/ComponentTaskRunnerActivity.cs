@@ -16,6 +16,7 @@ using Flurl.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Adapters;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
@@ -30,28 +31,34 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
     public sealed class ComponentTaskRunnerActivity
     {
         private readonly IOrganizationRepository organizationRepository;
+        private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IProjectRepository projectRepository;
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
         private readonly IComponentTaskRepository componentTaskRepository;
         private readonly IAzureSessionService azureSessionService;
         private readonly IAzureResourceService azureResourceService;
+        private readonly IEnumerable<IAdapter> adapters;
 
         public ComponentTaskRunnerActivity(IOrganizationRepository organizationRepository,
-                                       IProjectRepository projectRepository,
-                                       IComponentRepository componentRepository,
-                                       IComponentTemplateRepository componentTemplateRepository,
-                                       IComponentTaskRepository componentTaskRepository,
-                                       IAzureSessionService azureSessionService,
-                                       IAzureResourceService azureResourceService)
+                                           IDeploymentScopeRepository deploymentScopeRepository,
+                                           IProjectRepository projectRepository,
+                                           IComponentRepository componentRepository,
+                                           IComponentTemplateRepository componentTemplateRepository,
+                                           IComponentTaskRepository componentTaskRepository,
+                                           IAzureSessionService azureSessionService,
+                                           IAzureResourceService azureResourceService,
+                                           IEnumerable<IAdapter> adapters)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+            this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
         }
 
         [FunctionName(nameof(ComponentTaskRunnerActivity))]
@@ -171,6 +178,12 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                                         },
                                         new
                                         {
+                                            name = "credentials",
+                                            mountPath = "/mnt/credentials",
+                                            readOnly = false
+                                        },
+                                        new
+                                        {
                                             name = "temporary",
                                             mountPath = "/mnt/temporary",
                                             readOnly = false
@@ -222,7 +235,12 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                             new
                             {
                                 name = "secrets",
-                                secret = await GetComponentVaultSecretsAsync(project, component).ConfigureAwait(false)
+                                secret = await GetVaultSecretsAsync(project).ConfigureAwait(false)
+                            },
+                            new
+                            {
+                                name = "credentials",
+                                secret = await GetServiceCredentialsAsync(component).ConfigureAwait(false)
                             },
                             new
                             {
@@ -252,7 +270,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
                 componentTask = await componentTaskRepository
                     .SetAsync(componentTask)
-                            .ConfigureAwait(false);
+                    .ConfigureAwait(false);
 
                 object[] GetEnvironmentVariables()
                 {
@@ -318,7 +336,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             return componentTask;
         }
 
-        private async Task<string> ResolveContainerImage(ComponentTemplate componentTemplate, AzureContainerRegistryResource organizationRegistry, ILogger log)
+        private static async Task<string> ResolveContainerImage(ComponentTemplate componentTemplate, AzureContainerRegistryResource organizationRegistry, ILogger log)
         {
             if (componentTemplate is null)
                 throw new ArgumentNullException(nameof(componentTemplate));
@@ -493,7 +511,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             return (componentShare.AccountName, componentShare.Name, componentStorageKeys.First());
         }
 
-        private async Task<dynamic> GetComponentVaultSecretsAsync(Project project, Component component)
+        private async Task<dynamic> GetVaultSecretsAsync(Project project)
         {
             if (!AzureResourceIdentifier.TryParse(project.VaultId, out var _))
                 throw new NullReferenceException($"Missing vault id for project {project.Id}");
@@ -515,15 +533,52 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
             await foreach (var secret in componentVault.GetSecretsAsync())
             {
+                if (secret.Value is null) continue;
+
                 var secretNameSafe = Regex.Replace(secret.Key, "[^A-Za-z0-9_]", string.Empty);
                 var secretValueSafe = Convert.ToBase64String(Encoding.UTF8.GetBytes(secret.Value));
+
                 secretsProperties.Add(new KeyValuePair<string, object>(secretNameSafe, secretValueSafe));
             }
 
-            var secretsCount = Convert.ToBase64String(Encoding.UTF8.GetBytes(secretsProperties.Count.ToString()));
-            secretsProperties.Add(new KeyValuePair<string, object>($"_{nameof(secretsCount)}", secretsCount));
+            var count = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{secretsProperties.Count}"));
+            secretsProperties.Add(new KeyValuePair<string, object>($"_{nameof(count)}", count));
 
             return secretsObject;
+        }
+
+        private async Task<dynamic> GetServiceCredentialsAsync(Component component)
+        {
+            dynamic credentialObject = new ExpandoObject(); // the credentials container
+            var credentialProperties = credentialObject as IDictionary<string, object>;
+
+            var deploymentScope = await deploymentScopeRepository
+                .GetAsync(component.Organization, component.DeploymentScopeId)
+                .ConfigureAwait(false);
+
+            var adapter = adapters
+                .FirstOrDefault(a => a.Type == deploymentScope.Type);
+
+            if (adapter != null)
+            {
+                var credential = await adapter
+                    .GetServiceCredentialAsync(component)
+                    .ConfigureAwait(false);
+
+                if (credential != null)
+                {
+                    credentialProperties.Add(new KeyValuePair<string, object>("domain", EncodeValue(credential.Domain)));
+                    credentialProperties.Add(new KeyValuePair<string, object>("username", EncodeValue(credential.UserName)));
+                    credentialProperties.Add(new KeyValuePair<string, object>("password", EncodeValue(credential.Password)));
+
+                    string EncodeValue(string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+                }
+            }
+
+            var count = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{credentialProperties.Count}"));
+            credentialProperties.Add(new KeyValuePair<string, object>($"_{nameof(count)}", count));
+
+            return credentialObject;
         }
 
         private async Task<string> GetComponentRunnerLocationAsync(Component component)

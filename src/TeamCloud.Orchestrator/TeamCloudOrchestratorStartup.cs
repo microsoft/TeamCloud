@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -36,14 +37,12 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Notification.Smtp;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
+using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Data;
-using TeamCloud.Orchestrator.Command.Handlers;
-using TeamCloud.Orchestrator.Command.Handlers.Messaging;
 using TeamCloud.Serialization.Encryption;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
@@ -157,22 +156,29 @@ namespace TeamCloud.Orchestrator
             // command specific implementation logic. to register and identifiy a command
             // handler use the non-generic ICommandHandler interface.
 
-            builder.Services
-                .AddScoped<ICommandHandler, BroadcastCommandHandler>()
-                .AddScoped<ICommandHandler, NotificationCommandHandler>()
-                .AddScoped<ICommandHandler, ComponentCommandHandler>()
-                .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
-                .AddScoped<ICommandHandler, OrganizationCommandHandler>()
-                .AddScoped<ICommandHandler, OrganizationUserCommandHandler>()
-                .AddScoped<ICommandHandler, ProjectCommandHandler>()
-                .AddScoped<ICommandHandler, ProjectTemplateCommandHandler>()
-                .AddScoped<ICommandHandler, ProjectIdentityCommandHandler>()
-                .AddScoped<ICommandHandler, ProjectUserCommandHandler>()
-                .AddScoped<ICommandHandler, OrganizationDeployCommandHandler>()
-                .AddScoped<ICommandHandler, ProjectDeployCommandHandler>()
-                .AddScoped<ICommandHandler, ComponentTaskRunCommandHandler>()
-                .AddScoped<ICommandHandler, ComponentUpdateCommandHandler>()
-                .AddScoped<ICommandHandler, ScheduleCommandHandler>();
+            var commandHandlerTypes = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(ICommandHandler).IsAssignableFrom(t));
+
+            foreach (var commandHandlerType in commandHandlerTypes)
+                builder.Services.AddScoped(typeof(ICommandHandler), commandHandlerType);
+
+            //builder.Services
+            //    .AddScoped<ICommandHandler, BroadcastCommandHandler>()
+            //    .AddScoped<ICommandHandler, NotificationCommandHandler>()
+            //    .AddScoped<ICommandHandler, ComponentCommandHandler>()
+            //    .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
+            //    .AddScoped<ICommandHandler, OrganizationCommandHandler>()
+            //    .AddScoped<ICommandHandler, OrganizationUserCommandHandler>()
+            //    .AddScoped<ICommandHandler, ProjectCommandHandler>()
+            //    .AddScoped<ICommandHandler, ProjectTemplateCommandHandler>()
+            //    .AddScoped<ICommandHandler, ProjectIdentityCommandHandler>()
+            //    .AddScoped<ICommandHandler, ProjectUserCommandHandler>()
+            //    .AddScoped<ICommandHandler, OrganizationDeployCommandHandler>()
+            //    .AddScoped<ICommandHandler, ProjectDeployCommandHandler>()
+            //    .AddScoped<ICommandHandler, ComponentTaskRunCommandHandler>()
+            //    .AddScoped<ICommandHandler, ComponentUpdateCommandHandler>()
+            //    .AddScoped<ICommandHandler, ScheduleCommandHandler>();
         }
 
         private static IConfiguration GetConfiguration(IServiceCollection services)

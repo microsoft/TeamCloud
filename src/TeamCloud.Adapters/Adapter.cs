@@ -4,18 +4,14 @@
  */
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Handlers;
 
 namespace TeamCloud.Adapters
 {
@@ -26,8 +22,6 @@ namespace TeamCloud.Adapters
 
         private static string PrettyPrintDeploymentScopeType(DeploymentScopeType type)
             => Regex.Replace(Enum.GetName(typeof(DeploymentScopeType), type), @"\B[A-Z]", " $0");
-
-        private readonly static ConcurrentDictionary<Type, Type[]> CommandHandlerTypes = new ConcurrentDictionary<Type, Type[]>();
 
         private readonly IServiceProvider serviceProvider;
         private readonly IAuthorizationSessionClient sessionClient;
@@ -57,17 +51,12 @@ namespace TeamCloud.Adapters
         public virtual Task<string> GetInputFormSchemaAsync()
             => Task.FromResult(formSchemaEmpty.ToString(Formatting.None));
 
-        public virtual IEnumerable<ICommandHandler> GetCommandHandlers()
-        {
-            var commandHandlerTypes = CommandHandlerTypes.GetOrAdd(GetType(), type => type.Assembly
-                .GetExportedTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && typeof(ICommandHandler).IsAssignableFrom(t))
-                .ToArray());
-
-            foreach (var commandHandlerType in commandHandlerTypes)
-                yield return (ICommandHandler)ActivatorUtilities.CreateInstance(serviceProvider, commandHandlerType, new object[] { this });
-        }
+        public virtual Task<NetworkCredential> GetServiceCredentialAsync(Component component)
+            => Task.FromResult(default(NetworkCredential));
 
         public abstract Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
+        public abstract Task<Component> CreateComponentAsync(Component component);
+        public abstract Task<Component> UpdateComponentAsync(Component component);
+        public abstract Task<Component> DeleteComponentAsync(Component component);
     }
 }

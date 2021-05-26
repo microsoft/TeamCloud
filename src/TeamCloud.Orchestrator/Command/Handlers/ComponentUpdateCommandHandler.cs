@@ -11,20 +11,19 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Command.Activities.Adapters;
 using TeamCloud.Orchestrator.Command.Activities.Components;
 using TeamCloud.Orchestrator.Command.Entities;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ComponentUpdateCommandHandler : CommandHandler,
-        ICommandHandler<ComponentUpdateCommand>
+    public sealed class ComponentUpdateCommandHandler : CommandHandler<ComponentUpdateCommand>
     {
         public ComponentUpdateCommandHandler() : base(true)
         { }
 
-        public async Task<ICommandResult> HandleAsync(ComponentUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public override async Task<ICommandResult> HandleAsync(ComponentUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -48,11 +47,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .ConfigureAwait(true);
 
                 commandResult.Result = await orchestrationContext
-                    .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsurePermissionActivity), new ComponentEnsurePermissionActivity.Input() { Component = commandResult.Result })
-                    .ConfigureAwait(true);
-
-                commandResult.Result = await orchestrationContext
-                    .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureTaggingActivity), new ComponentEnsureTaggingActivity.Input() { Component = commandResult.Result })
+                    .CallActivityWithRetryAsync<Component>(nameof(AdapterUpdateComponentActivity), new AdapterUpdateComponentActivity.Input() { Component = commandResult.Result })
                     .ConfigureAwait(true);
             }
 

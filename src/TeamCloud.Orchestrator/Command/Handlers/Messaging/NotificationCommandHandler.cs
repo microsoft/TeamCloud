@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Handlers;
 using TeamCloud.Notification;
 using TeamCloud.Notification.Smtp;
 

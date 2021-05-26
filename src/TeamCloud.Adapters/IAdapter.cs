@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Handlers;
 
 namespace TeamCloud.Adapters
 {
@@ -20,8 +19,14 @@ namespace TeamCloud.Adapters
 
         Task<string> GetInputFormSchemaAsync();
 
-        IEnumerable<ICommandHandler> GetCommandHandlers();
-
         Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
+
+        Task<Component> CreateComponentAsync(Component component);
+
+        Task<Component> UpdateComponentAsync(Component component);
+
+        Task<Component> DeleteComponentAsync(Component component);
+
+        Task<NetworkCredential> GetServiceCredentialAsync(Component component);
     }
 }
