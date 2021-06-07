@@ -69,11 +69,22 @@ namespace TeamCloud.Adapters.AzureDevOps
         public DateTime? AccessTokenExpires
             => GetTokenExpirationDate(AccessToken);
 
+        [JsonIgnore]
+        public bool AccessTokenExpired
+            => AccessTokenExpires.HasValue ? AccessTokenExpires < DateTime.UtcNow : true;
+
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
 
         [JsonIgnore]
         public DateTime? RefreshTokenExpires
             => GetTokenExpirationDate(RefreshToken);
+
+        [JsonIgnore]
+        public bool RefreshTokenExpired
+            => RefreshTokenExpires.HasValue ? RefreshTokenExpires < DateTime.UtcNow : true;
+
+        [JsonIgnore]
+        public string RefreshCallback { get; set; }
     }
 }

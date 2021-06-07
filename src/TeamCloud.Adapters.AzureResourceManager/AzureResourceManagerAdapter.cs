@@ -8,11 +8,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.ManagementGroups;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
@@ -21,43 +25,43 @@ namespace TeamCloud.Adapters.AzureResourceManager
 {
     public sealed class AzureResourceManagerAdapter : Adapter
     {
-        private readonly IServiceProvider serviceProvider;
-        private readonly IAuthorizationSessionClient sessionClient;
-        private readonly IAuthorizationTokenClient tokenClient;
         private readonly IAzureSessionService azureSessionService;
         private readonly IAzureResourceService azureResourceService;
         private readonly IOrganizationRepository organizationRepository;
         private readonly IUserRepository userRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IProjectRepository projectRepository;
+        private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public AzureResourceManagerAdapter(IServiceProvider serviceProvider,
-                                           IAuthorizationSessionClient sessionClient,
+        public AzureResourceManagerAdapter(IAuthorizationSessionClient sessionClient,
                                            IAuthorizationTokenClient tokenClient,
+                                           IDistributedLockManager distributedLockManager,
                                            IAzureSessionService azureSessionService,
                                            IAzureResourceService azureResourceService,
                                            IOrganizationRepository organizationRepository,
                                            IUserRepository userRepository,
                                            IDeploymentScopeRepository deploymentScopeRepository,
                                            IProjectRepository projectRepository,
+                                           IComponentRepository componentRepository,
                                            IComponentTemplateRepository componentTemplateRepository)
-            : base(serviceProvider, sessionClient, tokenClient)
+            : base(sessionClient, tokenClient, distributedLockManager)
         {
-            this.serviceProvider = serviceProvider;
-            this.sessionClient = sessionClient;
-            this.tokenClient = tokenClient;
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
 
         public override DeploymentScopeType Type
             => DeploymentScopeType.AzureResourceManager;
+
+        public override IEnumerable<ComponentType> ComponentTypes
+            => new ComponentType[] { ComponentType.Environment };
 
         public override async Task<string> GetInputDataSchemaAsync()
         {
@@ -125,7 +129,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
         public override Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
             => azureSessionService.GetIdentityAsync().ContinueWith(identity => identity != null, TaskScheduler.Current);
 
-        public override async Task<Component> CreateComponentAsync(Component component)
+        public override async Task<Component> CreateComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -136,54 +140,22 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     .ConfigureAwait(false);
 
                 resourceId = AzureResourceIdentifier.Parse(component.ResourceId);
-            }
 
-            if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var identityId))
-            {
-                component.IdentityId = await CreateIdentityIdAsync(component)
+                var sessionIdenity = await azureResourceService.AzureSessionService
+                    .GetIdentityAsync()
                     .ConfigureAwait(false);
 
-                identityId = AzureResourceIdentifier.Parse(component.IdentityId);
-            }
+                component.ResourceUrl = resourceId.GetPortalUrl(sessionIdenity.TenantId);
 
-            var session = await azureResourceService.AzureSessionService
-                .CreateSessionAsync(identityId.SubscriptionId)
-                .ConfigureAwait(false);
-
-            var identity = await session.Identities
-                .GetByIdAsync(identityId.ToString())
-                .ConfigureAwait(false);
-
-            var roleAssignments = new Dictionary<string, IEnumerable<Guid>>()
-            {
-                { identity.PrincipalId, Enumerable.Repeat(AzureRoleDefinition.Contributor, 1) }
-            };
-
-            if (string.IsNullOrEmpty(resourceId.ResourceGroup))
-            {
-                var subscription = await azureResourceService
-                    .GetSubscriptionAsync(resourceId.SubscriptionId, true)
-                    .ConfigureAwait(false);
-
-                await subscription
-                    .SetRoleAssignmentsAsync(roleAssignments)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                var resourceGroup = await azureResourceService
-                    .GetResourceGroupAsync(resourceId.SubscriptionId, resourceId.ResourceGroup, true)
-                    .ConfigureAwait(false);
-
-                await resourceGroup
-                    .SetRoleAssignmentsAsync(roleAssignments)
+                component = await componentRepository
+                    .SetAsync(component)
                     .ConfigureAwait(false);
             }
 
-            return await UpdateComponentAsync(component).ConfigureAwait(false);
+            return await UpdateComponentAsync(component, commandQueue, log).ConfigureAwait(false);
         }
 
-        public override async Task<Component> UpdateComponentAsync(Component component)
+        public override async Task<Component> UpdateComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -277,9 +249,9 @@ namespace TeamCloud.Adapters.AzureResourceManager
             }
         }
 
-        public override Task<Component> DeleteComponentAsync(Component component)
+        public override Task<Component> DeleteComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(component);
         }
 
         private async Task<string> CreateResourceIdAsync(Component component)
@@ -347,45 +319,6 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     return null;
                 }
             }
-        }
-
-        private async Task<string> CreateIdentityIdAsync(Component component)
-        {
-            var deploymentScope = await deploymentScopeRepository
-                .GetAsync(component.Organization, component.DeploymentScopeId)
-                .ConfigureAwait(false);
-
-            var project = await projectRepository
-                .GetAsync(component.Organization, component.ProjectId)
-                .ConfigureAwait(false);
-
-            var projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
-
-            var session = await azureResourceService.AzureSessionService
-                .CreateSessionAsync(projectResourceId.SubscriptionId)
-                .ConfigureAwait(false);
-
-            var identities = await session.Identities
-                .ListByResourceGroupAsync(projectResourceId.ResourceGroup, loadAllPages: true)
-                .ConfigureAwait(false);
-
-            var identity = identities
-                .SingleOrDefault(i => i.Name.Equals(deploymentScope.Id, StringComparison.OrdinalIgnoreCase));
-
-            if (identity is null)
-            {
-                var location = await GetLocationAsync(component)
-                    .ConfigureAwait(false);
-
-                identity = await session.Identities
-                    .Define(deploymentScope.Id)
-                        .WithRegion(location)
-                        .WithExistingResourceGroup(projectResourceId.ResourceGroup)
-                    .CreateAsync()
-                    .ConfigureAwait(false);
-            }
-
-            return identity.Id;
         }
 
         private async Task<string> GetLocationAsync(Component component)

@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -130,10 +129,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             {
                 commandResult.Result = command.Payload;
 
-                var adapter = adapters
-                    .FirstOrDefault(a => a.Type == command.Payload.Type);
-
-                if (adapter is null)
+                if (!adapters.TryGetAdapter(command.Payload.Type, out var adapter))
                 {
                     throw new NullReferenceException($"Could not find adapter for {command.Payload}");
                 }

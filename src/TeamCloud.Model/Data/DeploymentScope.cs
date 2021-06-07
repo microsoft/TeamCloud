@@ -44,14 +44,21 @@ namespace TeamCloud.Model.Data
 
         public string ManagementGroupId { get; set; }
 
-        public List<Guid> SubscriptionIds { get; set; }
+        public IList<Guid> SubscriptionIds { get; set; }
+            = new List<Guid>();
 
+        [DatabaseIgnore]
         public bool Authorizable { get; set; }
 
+        [DatabaseIgnore]
         public bool Authorized { get; set; }
 
         [DatabaseIgnore]
         public string AuthorizeUrl { get; set; }
+
+        [DatabaseIgnore]
+        public IList<ComponentType> ComponentTypes { get; set; }
+            = new List<ComponentType>();
 
         public bool Equals(DeploymentScope other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);

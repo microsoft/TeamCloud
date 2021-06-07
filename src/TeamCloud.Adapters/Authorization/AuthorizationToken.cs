@@ -18,8 +18,5 @@ namespace TeamCloud.Adapters.Authorization
 
         public string TokenId
             => Entity.RowKey;
-
-        public bool Active
-            => true;
     }
 }

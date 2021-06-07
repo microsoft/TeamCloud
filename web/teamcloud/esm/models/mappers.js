@@ -296,6 +296,13 @@ export var Component = {
                     name: "String"
                 }
             },
+            resourceUrl: {
+                serializedName: "resourceUrl",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             resourceState: {
                 serializedName: "resourceState",
                 type: {
@@ -1223,6 +1230,18 @@ export var DeploymentScope = {
                     name: "String"
                 }
             },
+            componentTypes: {
+                serializedName: "componentTypes",
+                nullable: true,
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,
@@ -1271,25 +1290,6 @@ export var DeploymentScopeDefinition = {
                 serializedName: "isDefault",
                 type: {
                     name: "Boolean"
-                }
-            },
-            managementGroupId: {
-                serializedName: "managementGroupId",
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
-            subscriptionIds: {
-                serializedName: "subscriptionIds",
-                nullable: true,
-                type: {
-                    name: "Sequence",
-                    element: {
-                        type: {
-                            name: "Uuid"
-                        }
-                    }
                 }
             }
         }

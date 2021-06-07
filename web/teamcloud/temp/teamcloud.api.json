@@ -624,6 +624,31 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Component#resourceUrl:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "resourceUrl?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "resourceUrl",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Component#slug:member",
               "docComment": "",
               "excerptTokens": [
@@ -3110,6 +3135,36 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!DeploymentScope#componentTypes:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "componentTypes?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "DeploymentScopeComponentTypesItem",
+                  "canonicalReference": "teamcloud!DeploymentScopeComponentTypesItem:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[] | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "componentTypes",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!DeploymentScope#displayName:member",
               "docComment": "",
               "excerptTokens": [
@@ -3363,6 +3418,31 @@
           "extendsTokenRanges": []
         },
         {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!DeploymentScopeComponentTypesItem:type",
+          "docComment": "/**\n * Defines values for DeploymentScopeComponentTypesItem. \\ {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type DeploymentScopeComponentTypesItem = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "DeploymentScopeComponentTypesItem",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
           "kind": "Interface",
           "canonicalReference": "teamcloud!DeploymentScopeDataResult:interface",
           "docComment": "",
@@ -3569,31 +3649,6 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!DeploymentScopeDefinition#managementGroupId:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "managementGroupId?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "managementGroupId",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!DeploymentScopeDefinition#slug:member",
               "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
               "excerptTokens": [
@@ -3612,31 +3667,6 @@
               ],
               "releaseTag": "Public",
               "name": "slug",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!DeploymentScopeDefinition#subscriptionIds:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "subscriptionIds?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string[] | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "subscriptionIds",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -4506,6 +4536,63 @@
             {
               "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentType.Repository:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Repository = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Repository\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Repository",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Enum",
+          "canonicalReference": "teamcloud!KnownDeploymentScopeComponentTypesItem:enum",
+          "docComment": "/**\n * Known values of {@link DeploymentScopeComponentTypesItem} that the service accepts.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare const enum KnownDeploymentScopeComponentTypesItem "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "KnownDeploymentScopeComponentTypesItem",
+          "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeComponentTypesItem.Environment:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Environment = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Environment\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Environment",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownDeploymentScopeComponentTypesItem.Repository:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -5833,6 +5920,27 @@
               ],
               "releaseTag": "Public",
               "name": "Application",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownUserType.Group:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Group = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Group\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Group",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -21270,7 +21378,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!UserType:type",
-          "docComment": "/**\n * Defines values for UserType. \\ {@link KnownUserType} can be used interchangeably with UserType, this enum contains the known values that the service supports. ### Know values supported by the service **User** \\ **System** \\ **Provider** \\ **Application**\n */\n",
+          "docComment": "/**\n * Defines values for UserType. \\ {@link KnownUserType} can be used interchangeably with UserType, this enum contains the known values that the service supports. ### Know values supported by the service **User** \\ **Group** \\ **System** \\ **Provider** \\ **Application**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

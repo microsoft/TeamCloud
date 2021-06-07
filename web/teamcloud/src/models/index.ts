@@ -60,6 +60,7 @@ export interface Component {
   valueJson?: string | null;
   type: ComponentType;
   resourceId?: string | null;
+  resourceUrl?: string | null;
   resourceState?: ComponentResourceState;
   deploymentScopeId?: string | null;
   identityId?: string | null;
@@ -223,6 +224,7 @@ export interface DeploymentScope {
   authorizable?: boolean;
   authorized?: boolean;
   authorizeUrl?: string | null;
+  componentTypes?: DeploymentScopeComponentTypesItem[] | null;
   id: string;
 }
 
@@ -233,8 +235,6 @@ export interface DeploymentScopeDefinition {
   readonly slug?: string | null;
   inputData?: string | null;
   isDefault?: boolean;
-  managementGroupId?: string | null;
-  subscriptionIds?: string[] | null;
 }
 
 export interface DeploymentScopeDataResult {
@@ -709,6 +709,22 @@ export const enum KnownDeploymentScopeType {
  */
 export type DeploymentScopeType = string;
 
+/** Known values of {@link DeploymentScopeComponentTypesItem} that the service accepts. */
+export const enum KnownDeploymentScopeComponentTypesItem {
+  Environment = "Environment",
+  Repository = "Repository"
+}
+
+/**
+ * Defines values for DeploymentScopeComponentTypesItem. \
+ * {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Environment** \
+ * **Repository**
+ */
+export type DeploymentScopeComponentTypesItem = string;
+
 /** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
 export const enum KnownDeploymentScopeDefinitionType {
   AzureResourceManager = "AzureResourceManager",
@@ -752,6 +768,7 @@ export type OrganizationResourceState = string;
 /** Known values of {@link UserType} that the service accepts. */
 export const enum KnownUserType {
   User = "User",
+  Group = "Group",
   System = "System",
   Provider = "Provider",
   Application = "Application"
@@ -763,6 +780,7 @@ export const enum KnownUserType {
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
  * **User** \
+ * **Group** \
  * **System** \
  * **Provider** \
  * **Application**

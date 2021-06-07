@@ -90,6 +90,12 @@ export var KnownDeploymentScopeType;
     KnownDeploymentScopeType["AzureDevOps"] = "AzureDevOps";
     KnownDeploymentScopeType["GitHub"] = "GitHub";
 })(KnownDeploymentScopeType || (KnownDeploymentScopeType = {}));
+/** Known values of {@link DeploymentScopeComponentTypesItem} that the service accepts. */
+export var KnownDeploymentScopeComponentTypesItem;
+(function (KnownDeploymentScopeComponentTypesItem) {
+    KnownDeploymentScopeComponentTypesItem["Environment"] = "Environment";
+    KnownDeploymentScopeComponentTypesItem["Repository"] = "Repository";
+})(KnownDeploymentScopeComponentTypesItem || (KnownDeploymentScopeComponentTypesItem = {}));
 /** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
 export var KnownDeploymentScopeDefinitionType;
 (function (KnownDeploymentScopeDefinitionType) {
@@ -110,6 +116,7 @@ export var KnownOrganizationResourceState;
 export var KnownUserType;
 (function (KnownUserType) {
     KnownUserType["User"] = "User";
+    KnownUserType["Group"] = "Group";
     KnownUserType["System"] = "System";
     KnownUserType["Provider"] = "Provider";
     KnownUserType["Application"] = "Application";

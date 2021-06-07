@@ -12,6 +12,7 @@ namespace TeamCloud.Model.Data
     public enum UserType
     {
         User,
+        Group,
         System,
         Provider,
         Application

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.Adapters;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
@@ -35,13 +36,15 @@ namespace TeamCloud.API.Controllers
         private readonly IComponentTemplateRepository componentTemplateRepository;
         private readonly IProjectTemplateRepository projectTemplateRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
+        private readonly IEnumerable<IAdapter> adapters;
 
-        public ComponentsController(IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository, IProjectTemplateRepository projectTemplateRepository, IDeploymentScopeRepository deploymentScopeRepository) : base()
+        public ComponentsController(IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository, IProjectTemplateRepository projectTemplateRepository, IDeploymentScopeRepository deploymentScopeRepository, IEnumerable<IAdapter> adapters) : base()
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
         }
 
         [HttpGet]
@@ -136,17 +139,24 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
             }
 
-            if (Guid.TryParse(componentDefinition.DeploymentScopeId, out Guid deploymentScopeId))
-            {
-                var deploymentScope = await deploymentScopeRepository
-                    .GetAsync(context.Organization.Id, deploymentScopeId.ToString())
-                    .ConfigureAwait(false);
+            var deploymentScope = await deploymentScopeRepository
+                .GetAsync(context.Organization.Id, componentDefinition.DeploymentScopeId)
+                .ConfigureAwait(false);
 
-                if (deploymentScope is null)
-                    return ErrorResult
-                        .NotFound($"A DeploymentScope with the id '{deploymentScopeId}' could not be found for Project {context.Project.Id}.")
-                        .ToActionResult();
-            }
+            if (deploymentScope is null)
+                return ErrorResult
+                    .NotFound($"A DeploymentScope with the id '{componentDefinition.DeploymentScopeId}' could not be found for Project {context.Project.Id}.")
+                    .ToActionResult();
+
+            if (!adapters.TryGetAdapter(deploymentScope.Type, out var adapter))
+                return ErrorResult
+                    .BadRequest($"Adapter of type {deploymentScope.Type} referenced by DeploymentScope with the id '{deploymentScope.Id}' does not exist.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+            if (!(await adapter.IsAuthorizedAsync(deploymentScope).ConfigureAwait(false)))
+                return ErrorResult
+                    .BadRequest($"Adapter of type {deploymentScope.Type} referenced by DeploymentScope with the id '{deploymentScope.Id}' is not authorized.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
 
             var currentUser = await UserService
                 .CurrentUserAsync(context.Organization.Id)

@@ -53,7 +53,8 @@ namespace TeamCloud.Adapters.Authorization
                 throw;
             }
         }
-        public async Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope) where TAuthorizationToken : AuthorizationToken
+        public async Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
+            where TAuthorizationToken : AuthorizationToken
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -68,19 +69,11 @@ namespace TeamCloud.Adapters.Authorization
                 .ExecuteAsync(TableOperation.Retrieve<TAuthorizationToken>(partitionKey, rowKey))
                 .ConfigureAwait(false);
 
-            var token = response.Result as TAuthorizationToken;
-
-            if (token?.Active ?? true)
-                return token;
-
-            await table
-                .ExecuteAsync(TableOperation.Delete(token))
-                .ConfigureAwait(false);
-
-            return null;
+            return response.Result as TAuthorizationToken;
         }
 
-        public async Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken) where TAuthorizationToken : AuthorizationToken
+        public async Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken, bool force = false)
+            where TAuthorizationToken : AuthorizationToken
         {
             if (authorizationToken is null)
                 throw new ArgumentNullException(nameof(authorizationToken));
@@ -88,8 +81,15 @@ namespace TeamCloud.Adapters.Authorization
             var table = await GetTableAsync()
                 .ConfigureAwait(false);
 
+            if (authorizationToken.Entity.ETag != null && force)
+                authorizationToken.Entity.ETag = "*";
+
+            var tableOperation = authorizationToken.Entity.ETag is null || force
+                ? TableOperation.InsertOrReplace(authorizationToken)
+                : TableOperation.Replace(authorizationToken);
+
             var response = await table
-                .ExecuteAsync(TableOperation.InsertOrReplace(authorizationToken))
+                .ExecuteAsync(tableOperation)
                 .ConfigureAwait(false);
 
             return response.Result as TAuthorizationToken;

@@ -52,7 +52,7 @@ namespace TeamCloud.Azure.Resources
         {
             azureResourceIdentifier = null;
 
-            if (string.IsNullOrEmpty(resourceId))
+            if (string.IsNullOrWhiteSpace(resourceId))
                 return false;
 
             resourceId = SanitizeResourceId(resourceId, out bool addedTrailingSlash);

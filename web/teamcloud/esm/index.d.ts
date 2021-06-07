@@ -38,6 +38,7 @@ export declare interface Component {
     valueJson?: string | null;
     type: ComponentType;
     resourceId?: string | null;
+    resourceUrl?: string | null;
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string | null;
     identityId?: string | null;
@@ -252,8 +253,19 @@ export declare interface DeploymentScope {
     authorizable?: boolean;
     authorized?: boolean;
     authorizeUrl?: string | null;
+    componentTypes?: DeploymentScopeComponentTypesItem[] | null;
     id: string;
 }
+
+/**
+ * Defines values for DeploymentScopeComponentTypesItem. \
+ * {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Environment** \
+ * **Repository**
+ */
+export declare type DeploymentScopeComponentTypesItem = string;
 
 export declare interface DeploymentScopeDataResult {
     code?: number;
@@ -269,8 +281,6 @@ export declare interface DeploymentScopeDefinition {
     readonly slug?: string | null;
     inputData?: string | null;
     isDefault?: boolean;
-    managementGroupId?: string | null;
-    subscriptionIds?: string[] | null;
 }
 
 /**
@@ -356,6 +366,12 @@ export declare const enum KnownComponentTemplateType {
 
 /** Known values of {@link ComponentType} that the service accepts. */
 export declare const enum KnownComponentType {
+    Environment = "Environment",
+    Repository = "Repository"
+}
+
+/** Known values of {@link DeploymentScopeComponentTypesItem} that the service accepts. */
+export declare const enum KnownDeploymentScopeComponentTypesItem {
     Environment = "Environment",
     Repository = "Repository"
 }
@@ -460,6 +476,7 @@ export declare const enum KnownUserRole {
 /** Known values of {@link UserType} that the service accepts. */
 export declare const enum KnownUserType {
     User = "User",
+    Group = "Group",
     System = "System",
     Provider = "Provider",
     Application = "Application"
@@ -2144,6 +2161,7 @@ export declare type UserRole = string;
  *  this enum contains the known values that the service supports.
  * ### Know values supported by the service
  * **User** \
+ * **Group** \
  * **System** \
  * **Provider** \
  * **Application**

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\TeamCloud.sln.targets" />
 
@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Azure.Resources\TeamCloud.Azure.Resources.csproj" />
     <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
   </ItemGroup>

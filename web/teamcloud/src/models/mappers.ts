@@ -305,6 +305,13 @@ export const Component: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      resourceUrl: {
+        serializedName: "resourceUrl",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       resourceState: {
         serializedName: "resourceState",
         type: {
@@ -1248,6 +1255,18 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      componentTypes: {
+        serializedName: "componentTypes",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -1297,25 +1316,6 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
         serializedName: "isDefault",
         type: {
           name: "Boolean"
-        }
-      },
-      managementGroupId: {
-        serializedName: "managementGroupId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      subscriptionIds: {
-        serializedName: "subscriptionIds",
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Uuid"
-            }
-          }
         }
       }
     }

@@ -4556,6 +4556,10 @@
             "type": "string",
             "nullable": true
           },
+          "resourceUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "resourceState": {
             "enum": [
               "Pending",
@@ -5164,6 +5168,17 @@
             "type": "string",
             "nullable": true
           },
+          "componentTypes": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "Environment",
+                "Repository"
+              ],
+              "type": "string"
+            },
+            "nullable": true
+          },
           "id": {
             "type": "string"
           }
@@ -5225,18 +5240,6 @@
           },
           "isDefault": {
             "type": "boolean"
-          },
-          "managementGroupId": {
-            "type": "string",
-            "nullable": true
-          },
-          "subscriptionIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5455,6 +5458,7 @@
           "userType": {
             "enum": [
               "User",
+              "Group",
               "System",
               "Provider",
               "Application"

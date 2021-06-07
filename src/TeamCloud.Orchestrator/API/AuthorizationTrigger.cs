@@ -63,29 +63,24 @@ namespace TeamCloud.Orchestrator.API
                 .GetAsync(organization, deploymentScopeId)
                 .ConfigureAwait(false);
 
-            if (deploymentScope is null)
-                return new NotFoundResult();
-
-            var adapter = adapters
-                .OfType<IAdapterAuthorize>()
-                .FirstOrDefault(a => a.Type == deploymentScope.Type);
-
-            if (adapter is null)
-                return new NotFoundResult();
-
-            var authorizationEndpoints = new AuthorizationEndpoints()
+            if (deploymentScope != null && adapters.TryGetAdapter(deploymentScope.Type, out var adapter) && adapter is IAdapterAuthorize adapterAuthorize)
             {
-                AuthorizationUrl = await FunctionsEnvironment
-                    .GetFunctionUrlAsync(nameof(Authorize), functionsHost, replaceToken: (token) => ResolveTokenValue(token, deploymentScope))
-                    .ConfigureAwait(false),
+                var authorizationEndpoints = new AuthorizationEndpoints()
+                {
+                    AuthorizationUrl = await FunctionsEnvironment
+                        .GetFunctionUrlAsync(nameof(Authorize), functionsHost, replaceToken: (token) => ResolveTokenValue(token, deploymentScope))
+                        .ConfigureAwait(false),
 
-                CallbackUrl = await FunctionsEnvironment
-                    .GetFunctionUrlAsync(nameof(Callback), functionsHost, replaceToken: (token) => ResolveTokenValue(token, deploymentScope))
-                    .ConfigureAwait(false)
-            };
+                    CallbackUrl = await FunctionsEnvironment
+                        .GetFunctionUrlAsync(nameof(Callback), functionsHost, replaceToken: (token) => ResolveTokenValue(token, deploymentScope))
+                        .ConfigureAwait(false)
+                };
 
-            return await callback(adapter, deploymentScope, authorizationEndpoints)
-                .ConfigureAwait(false);
+                return await callback(adapterAuthorize, deploymentScope, authorizationEndpoints)
+                    .ConfigureAwait(false);
+            }
+
+            return new NotFoundResult();
         }
 
         [FunctionName(nameof(Authorize))]

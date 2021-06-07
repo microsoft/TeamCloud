@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,7 @@ using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
@@ -62,11 +64,15 @@ namespace TeamCloud.Http
                 {
                     var instrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
 
-                    var telemetryConfiguration = string.IsNullOrWhiteSpace(instrumentationKey)
+                    var telemetryConfiguration = string.IsNullOrWhiteSpace(instrumentationKey) || instrumentationKey.Equals(Guid.Empty.ToString(), StringComparison.OrdinalIgnoreCase)
                         ? new TelemetryConfiguration()
                         : new TelemetryConfiguration(instrumentationKey);
 
                     return new TeamCloudHttpClientFactory(telemetryConfiguration);
+                }
+                finally
+                {
+                    TelemetryDebugWriter.IsTracingDisabled = Debugger.IsAttached;
                 }
             }
         }

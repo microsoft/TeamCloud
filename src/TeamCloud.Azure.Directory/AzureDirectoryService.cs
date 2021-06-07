@@ -18,7 +18,11 @@ namespace TeamCloud.Azure.Directory
 {
     public interface IAzureDirectoryService
     {
+        Task<bool> IsUserAsync(string identifier);
+
         Task<Guid?> GetUserIdAsync(string identifier);
+
+        Task<bool> IsGroupAsync(string identifier);
 
         Task<Guid?> GetGroupIdAsync(string identifier);
 
@@ -54,6 +58,9 @@ namespace TeamCloud.Azure.Directory
             .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)?
             .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
 
+        public Task<bool> IsUserAsync(string identifier)
+            => GetUserIdAsync(identifier).ContinueWith(task => task.Result.HasValue, TaskContinuationOptions.OnlyOnRanToCompletion);
+
         public async Task<Guid?> GetUserIdAsync(string identifier)
         {
             if (identifier is null)
@@ -82,6 +89,9 @@ namespace TeamCloud.Azure.Directory
             // not a user name or objectId, and not a service principal name, appId, or objectId
             return null;
         }
+
+        public Task<bool> IsGroupAsync(string identifier)
+            => GetGroupIdAsync(identifier).ContinueWith(task => task.Result.HasValue, TaskContinuationOptions.OnlyOnRanToCompletion);
 
         public async Task<Guid?> GetGroupIdAsync(string identifier)
         {

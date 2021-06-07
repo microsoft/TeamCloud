@@ -13,7 +13,7 @@ namespace TeamCloud.Adapters.Authorization
         Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
             where TAuthorizationToken : AuthorizationToken;
 
-        Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken)
+        Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken, bool force = false)
             where TAuthorizationToken : AuthorizationToken;
     }
 }

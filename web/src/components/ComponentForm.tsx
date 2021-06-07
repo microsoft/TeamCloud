@@ -15,6 +15,7 @@ import { useOrg, useProject, useDeploymentScopes, useCreateProjectComponent, use
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
+
 import { TeamCloudFieldTemplate } from './form/TeamCloudFieldTemplate';
 import { TeamCloudForm } from './form/TeamCloudForm';
 
@@ -45,13 +46,14 @@ export const ComponentForm: React.FC = () => {
 
     useEffect(() => {
         if (project && scopes) {
-            // console.log(`+ setDeploymentScopeOptions (${project.slug})`);
-            const options = scopes.map(s => ({ key: s.id, text: s.displayName ?? s.id } as IDropdownOption))
+            const options = scopes
+                .filter(s => s.authorized && s.componentTypes && s.componentTypes.includes(template?.type as string))
+                .map(s => ({ key: s.id, text: s.displayName ?? s.id } as IDropdownOption));
             setDeploymentScopeOptions(options);
             if (scopes.length === 1)
                 setDeploymentScopeId(scopes[0].id);
         }
-    }, [project, scopes]);
+    }, [project, scopes, template]);
 
 
     const _submitForm = async (e: ISubmitEvent<any>) => {
@@ -69,38 +71,31 @@ export const ComponentForm: React.FC = () => {
         }
     };
 
-
-    const _getTypeImage = (template: ComponentTemplate) => {
-        const provider = template.repository.provider.toLowerCase();
-        switch (template.type) {
-            // case 'Custom': return 'Link';
-            // case 'Readme': return 'PageList';
-            case 'Environment': return Resource;
-            case 'AzureResource': return Resource;
-            case 'GitRepository': return provider === 'github' ? GitHub : provider === 'devops' ? DevOps : undefined;
+    const _getTypeIcon = (template: ComponentTemplate) => {
+        switch (template?.type.toLowerCase()) { 
+            case 'environment': return 'AzureLogo';
+            case 'repository': return 'OpenSource';
         }
+        console.log(`Icon for component type '${template?.type}' not found`);
         return undefined;
     };
 
+    const _getTypeImage = (template: ComponentTemplate) => {
+        switch (template?.type.toLowerCase()) {
+            case 'environment': return Resource;
+            case 'repository': return Resource;
+        }
+        console.log(`Icon for component type '${template?.type}' not found`);
+        return Resource;
+    };
+
     const _getRepoImage = (template: ComponentTemplate) => {
-        switch (template.repository.provider) {
+        switch (template?.repository.provider) {
             // case 'Unknown': return;
             case 'DevOps': return DevOps;
             case 'GitHub': return GitHub;
         }
         return undefined;
-    };
-
-    const _getTypeIcon = (template: ComponentTemplate) => {
-        if (template.type)
-            switch (template.type) { // VisualStudioIDELogo32
-                case 'Custom': return 'Link'; // Link12, FileSymlink, OpenInNewWindow, VSTSLogo
-                case 'Readme': return 'PageList'; // Preview, Copy, FileHTML, FileCode, MarkDownLanguage, Document
-                case 'Environment': return 'AzureLogo'; // Processing, Settings, Globe, Repair
-                case 'AzureResource': return 'AzureLogo'; // AzureServiceEndpoint
-                case 'GitRepository': return 'OpenSource';
-                default: return undefined;
-            }
     };
 
     const onRenderNameColumn = (template?: ComponentTemplate, index?: number, column?: IColumn) => {
@@ -144,7 +139,7 @@ export const ComponentForm: React.FC = () => {
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 220, maxWidth: 220, isResizable: false, onRender: onRenderNameColumn, styles: { cellName: { paddingLeft: '5px' } } },
-        { key: 'type', name: 'Type', minWidth: 160, maxWidth: 160, isResizable: false, onRender: onRenderTypeColumn },
+        { key: 'type', name: 'Resource', minWidth: 160, maxWidth: 160, isResizable: false, onRender: onRenderTypeColumn },
         { key: 'description', name: 'Description', minWidth: 460, onRender: (t: ComponentTemplate) => t.description?.replace(imageOrLinkRe, '').replace(titleRe, '').replace(deviderRe, '') },
         { key: 'blank', name: '', minWidth: 40, maxWidth: 40, onRender: (_: ComponentTemplate) => undefined },
         { key: 'repository', name: 'Repository', minWidth: 240, maxWidth: 240, onRender: onRenderRepoColumn },
@@ -235,7 +230,7 @@ export const ComponentForm: React.FC = () => {
                                                 schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}>
                                                 <ContentSeparator />
                                                 <div style={{ paddingTop: '24px' }}>
-                                                    <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(template)} styles={{ root: { marginRight: 8 } }} />
+                                                    <PrimaryButton type='submit' text='Create component' disabled={!formEnabled || !(template) || (deploymentScopeOptions?.length ?? 0) === 0} styles={{ root: { marginRight: 8 } }} />
                                                     <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => setTemplate(undefined)} />
                                                 </div>
                                             </FuiForm>

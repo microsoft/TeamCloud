@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
@@ -107,6 +108,20 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                             // in a successful resource state before. just to avoid the confusion on the
                             // FE side if the an already successful provisioned component goes back
                             // into provisionine state.
+
+                            component = await UpdateComponentAsync(component, ResourceState.Provisioning)
+                                .ConfigureAwait(true);
+                        }
+
+                        if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var _))
+                        {
+                            // ensure every component has an identity assigned that can be used
+                            // as the identity of the task runner container to access azure or
+                            // call back into teamcloud using the azure cli extension
+
+                            component = await orchestrationContext
+                                .CallActivityWithRetryAsync<Component>(nameof(ComponentIdentityActivity), new ComponentIdentityActivity.Input() { Component = component })
+                                .ConfigureAwait(true);
 
                             component = await UpdateComponentAsync(component, ResourceState.Provisioning)
                                 .ConfigureAwait(true);

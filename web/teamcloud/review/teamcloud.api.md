@@ -61,6 +61,8 @@ export interface Component {
     // (undocumented)
     resourceState?: ComponentResourceState;
     // (undocumented)
+    resourceUrl?: string | null;
+    // (undocumented)
     slug: string;
     // (undocumented)
     templateId: string;
@@ -299,6 +301,8 @@ export interface DeploymentScope {
     // (undocumented)
     authorizeUrl?: string | null;
     // (undocumented)
+    componentTypes?: DeploymentScopeComponentTypesItem[] | null;
+    // (undocumented)
     displayName: string;
     // (undocumented)
     id: string;
@@ -320,6 +324,9 @@ export interface DeploymentScope {
     type: DeploymentScopeType;
 }
 
+// @public
+export type DeploymentScopeComponentTypesItem = string;
+
 // @public (undocumented)
 export interface DeploymentScopeDataResult {
     // (undocumented)
@@ -340,11 +347,7 @@ export interface DeploymentScopeDefinition {
     inputData?: string | null;
     // (undocumented)
     isDefault?: boolean;
-    // (undocumented)
-    managementGroupId?: string | null;
     readonly slug?: string | null;
-    // (undocumented)
-    subscriptionIds?: string[] | null;
     // (undocumented)
     type: DeploymentScopeDefinitionType;
 }
@@ -444,6 +447,14 @@ export const enum KnownComponentTemplateType {
 
 // @public
 export const enum KnownComponentType {
+    // (undocumented)
+    Environment = "Environment",
+    // (undocumented)
+    Repository = "Repository"
+}
+
+// @public
+export const enum KnownDeploymentScopeComponentTypesItem {
     // (undocumented)
     Environment = "Environment",
     // (undocumented)
@@ -604,6 +615,8 @@ export const enum KnownUserRole {
 export const enum KnownUserType {
     // (undocumented)
     Application = "Application",
+    // (undocumented)
+    Group = "Group",
     // (undocumented)
     Provider = "Provider",
     // (undocumented)

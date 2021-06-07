@@ -15,7 +15,7 @@ namespace TeamCloud.Adapters.AzureDevOps
         [TeamCloudFormDescription("Azure DevOps Organization name or base URL.")]
         public string Organization
         {
-            get => string.IsNullOrWhiteSpace(organization) ? null : AzureDevOpsToken.FormatOrganizationUrl(Organization);
+            get => string.IsNullOrWhiteSpace(organization) ? null : AzureDevOpsToken.FormatOrganizationUrl(organization);
             set => organization = value;
         }
     }

@@ -102,8 +102,8 @@ namespace TeamCloud.Data.Expanders
                 try
                 {
                     var storageAccount = await azureResourceService
-                    .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
-                    .ConfigureAwait(false);
+                        .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                        .ConfigureAwait(false);
 
                     if (storageAccount != null)
                     {
@@ -111,14 +111,14 @@ namespace TeamCloud.Data.Expanders
                             .CreateShareClientAsync(document.ComponentId)
                             .ConfigureAwait(false);
 
-                        var dirClient = shareClient
+                        var directoryClient = shareClient
                             .GetDirectoryClient(".output");
 
-                        await dirClient
+                        await directoryClient
                             .CreateIfNotExistsAsync()
                             .ConfigureAwait(false);
 
-                        var fileClient = dirClient
+                        var fileClient = directoryClient
                             .GetFileClient($"{document.Id}");
 
                         if (await fileClient.ExistsAsync().ConfigureAwait(false))

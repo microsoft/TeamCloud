@@ -28,38 +28,37 @@ namespace TeamCloud.Data.Expanders
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            var adapter = adapters
-                .FirstOrDefault(a => a.Type == document.Type);
-
-            if (adapter is null)
-                return document;
-
-            document.InputDataSchema = await adapter
-                .GetInputDataSchemaAsync()
-                .ConfigureAwait(false);
-
-            if (adapter is IAdapterAuthorize adapterAuthorize)
+            if (adapters.TryGetAdapter(document.Type, out var adapter))
             {
-                document.Authorizable = true;
-                document.Authorized = await adapterAuthorize
-                    .IsAuthorizedAsync(document)
+                document.InputDataSchema = await adapter
+                    .GetInputDataSchemaAsync()
                     .ConfigureAwait(false);
-            }
-            else
-            {
-                document.Authorizable = false;
-                document.Authorized = !(adapter is null);
-            }
 
-            if (document.Type == DeploymentScopeType.AzureResourceManager && !string.IsNullOrWhiteSpace(document.InputData))
-            {
-                // TODO: remove this special handling for AzureResourceManager deployment scopes
-                // when adapters are fully implemented and ManagementGroupId and SubscriptionIds are gone.
+                document.ComponentTypes = adapter.ComponentTypes.ToList();
 
-                var inputData = JObject.Parse(document.InputData);
+                if (adapter is IAdapterAuthorize adapterAuthorize)
+                {
+                    document.Authorizable = true;
+                    document.Authorized = await adapterAuthorize
+                        .IsAuthorizedAsync(document)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    document.Authorizable = false;
+                    document.Authorized = !(adapter is null);
+                }
 
-                document.ManagementGroupId = inputData.SelectToken("$..managementGroupId")?.ToString();
-                document.SubscriptionIds = (inputData.SelectToken("$..subscriptionIds") as JArray)?.Select(t => Guid.Parse(t.ToString())).ToList() ?? new List<Guid>();
+                if (document.Type == DeploymentScopeType.AzureResourceManager && !string.IsNullOrWhiteSpace(document.InputData))
+                {
+                    // TODO: remove this special handling for AzureResourceManager deployment scopes
+                    // when adapters are fully implemented and ManagementGroupId and SubscriptionIds are gone.
+
+                    var inputData = JObject.Parse(document.InputData);
+
+                    document.ManagementGroupId = inputData.SelectToken("$..managementGroupId")?.ToString();
+                    document.SubscriptionIds = (inputData.SelectToken("$..subscriptionIds") as JArray)?.Select(t => Guid.Parse(t.ToString())).ToList() ?? new List<Guid>();
+                }
             }
 
             return document;

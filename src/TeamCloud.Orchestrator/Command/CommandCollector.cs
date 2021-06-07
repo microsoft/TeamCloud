@@ -31,10 +31,13 @@ namespace TeamCloud.Orchestrator.Command
             if (item is null)
                 throw new ArgumentNullException(nameof(item));
 
-            if (!commandContext.User.Id.Equals(item.User?.Id, StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException($"Command user must not different to base command ({commandContext.User.Id})");
-
-            item.ParentId = commandContext?.CommandId ?? item.ParentId;
+            if (commandContext != null)
+            {
+                if (commandContext.User.Id.Equals(item.User?.Id, StringComparison.OrdinalIgnoreCase))
+                    item.ParentId = commandContext.CommandId;
+                else
+                    throw new ArgumentException($"Command user must not different to base command ({commandContext.User.Id})");
+            }
 
             if (orchestrationContext is null)
             {

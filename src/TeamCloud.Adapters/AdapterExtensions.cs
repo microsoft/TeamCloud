@@ -6,19 +6,47 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Schema;
 using TeamCloud.Adapters.Authorization;
+using TeamCloud.Adapters.Diagnostics;
+using TeamCloud.Adapters.Threading;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters
 {
     public static class AdapterExtensions
     {
+        public static bool TryGetAdapter(this IEnumerable<IAdapter> adapters, DeploymentScopeType deploymentScopeType, out IAdapter adapter)
+        {
+            if (adapters is null)
+                throw new ArgumentNullException(nameof(adapters));
+
+            try
+            {
+                adapter = adapters.GetAdapter(deploymentScopeType);
+            }
+            catch
+            {
+                adapter = null;
+            }
+
+            return adapter != null;
+        }
+
+        public static IAdapter GetAdapter(this IEnumerable<IAdapter> adapters, DeploymentScopeType deploymentScopeType)
+        {
+            if (adapters is null)
+                throw new ArgumentNullException(nameof(adapters));
+
+            return adapters.SingleOrDefault(a => a.Type == deploymentScopeType);
+        }
+
         public static string ToString(this JSchema schema, Formatting formatting)
         {
             if (schema is null)
@@ -38,6 +66,12 @@ namespace TeamCloud.Adapters
         {
             if (services is null)
                 throw new ArgumentNullException(nameof(services));
+
+            services
+                .TryAddSingleton<IAdapterInitializationLoggerFactory, AdapterInitializationLoggerFactory>();
+
+            services
+                .TryAddSingleton<IDistributedLockManager, BlobStorageDistributedLockManager>();
 
             services
                 .TryAddTransient(provider => AuthorizationSessionOptions.Default);

@@ -2836,6 +2836,9 @@ components:
         resourceId:
           type: string
           nullable: true
+        resourceUrl:
+          type: string
+          nullable: true
         resourceState:
           enum:
             - Pending
@@ -3280,6 +3283,14 @@ components:
         authorizeUrl:
           type: string
           nullable: true
+        componentTypes:
+          type: array
+          items:
+            enum:
+              - Environment
+              - Repository
+            type: string
+          nullable: true
         id:
           type: string
       additionalProperties: false
@@ -3325,15 +3336,6 @@ components:
           nullable: true
         isDefault:
           type: boolean
-        managementGroupId:
-          type: string
-          nullable: true
-        subscriptionIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-          nullable: true
       additionalProperties: false
     DeploymentScopeDataResult:
       type: object
@@ -3493,6 +3495,7 @@ components:
         userType:
           enum:
             - User
+            - Group
             - System
             - Provider
             - Application

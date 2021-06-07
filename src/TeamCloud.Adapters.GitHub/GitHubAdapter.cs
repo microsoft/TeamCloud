@@ -4,13 +4,17 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Adapters.Authorization;
+using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Templates;
 
@@ -18,13 +22,18 @@ namespace TeamCloud.Adapters.GitHub
 {
     public sealed class GitHubAdapter : Adapter, IAdapterAuthorize
     {
-        public GitHubAdapter(IServiceProvider serviceProvider, IAuthorizationSessionClient sessionClient, IAuthorizationTokenClient tokenClient)
-            : base(serviceProvider, sessionClient, tokenClient)
+        public GitHubAdapter(IAuthorizationSessionClient sessionClient, IAuthorizationTokenClient tokenClient, IDistributedLockManager distributedLockManager)
+            : base(sessionClient, tokenClient, distributedLockManager)
         { }
 
-        public override DeploymentScopeType Type => DeploymentScopeType.GitHub;
+        public override DeploymentScopeType Type
+            => DeploymentScopeType.GitHub;
 
-        public override string DisplayName => base.DisplayName.Replace(" ", "");
+        public override IEnumerable<ComponentType> ComponentTypes
+            => new ComponentType[] { ComponentType.Repository };
+
+        public override string DisplayName
+            => base.DisplayName.Replace(" ", "");
 
         public override async Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
         {
@@ -77,17 +86,17 @@ namespace TeamCloud.Adapters.GitHub
             });
         }
 
-        public override Task<Component> CreateComponentAsync(Component component)
+        public override Task<Component> CreateComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<Component> UpdateComponentAsync(Component component)
+        public override Task<Component> UpdateComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<Component> DeleteComponentAsync(Component component)
+        public override Task<Component> DeleteComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log)
         {
             throw new NotImplementedException();
         }

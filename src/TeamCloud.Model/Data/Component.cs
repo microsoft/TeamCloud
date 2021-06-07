@@ -73,9 +73,14 @@ namespace TeamCloud.Model.Data
         public ComponentType Type { get; set; }
 
         /// <summary>
-        /// Get or set the Azure resource ID (subscription or resource group) this component is linked to
+        /// Get or set the resource ID this component is linked to.
         /// </summary>
         public string ResourceId { get; set; }
+
+        /// <summary>
+        /// Get or set the URL of the component when opened in a browser.
+        /// </summary>
+        public string ResourceUrl { get; set; }
 
         /// <summary>
         /// Gets or sets the state of the resource.
