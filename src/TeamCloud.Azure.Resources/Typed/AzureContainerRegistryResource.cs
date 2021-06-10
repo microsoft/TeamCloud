@@ -310,8 +310,8 @@ namespace TeamCloud.Azure.Resources.Typed
             var registry = await registryInstance
                 .ConfigureAwait(false);
 
-            var identity = await AzureResourceService.AzureSessionService
-                .GetIdentityAsync()
+            var tenantId = await AzureResourceService.AzureSessionService
+                .GetTenantIdAsync()
                 .ConfigureAwait(false);
 
             var token = await AzureResourceService.AzureSessionService
@@ -322,7 +322,7 @@ namespace TeamCloud.Azure.Resources.Typed
             {
                 grant_type = "access_token",
                 service = registry.LoginServerUrl,
-                tenant = identity.TenantId.ToString(),
+                tenant = tenantId.ToString(),
                 access_token = token
             };
 

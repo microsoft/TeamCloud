@@ -61,7 +61,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
 
         private async Task<bool> GuardOrganizationAsync(Component component)
         {
-            var tenantId = (await azureSessionService.GetIdentityAsync().ConfigureAwait(false)).TenantId;
+            var tenantId = await azureSessionService
+                .GetTenantIdAsync()
+                .ConfigureAwait(false);
 
             var organization = await organizationRepository
                 .GetAsync(tenantId.ToString(), component.Organization)

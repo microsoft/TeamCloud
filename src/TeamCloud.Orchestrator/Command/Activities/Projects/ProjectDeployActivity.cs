@@ -3,11 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Data;
@@ -44,7 +44,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.Projects
 
             var project = context.GetInput<Input>().Project;
 
-            var tenantId = (await azureSessionService.GetIdentityAsync().ConfigureAwait(false)).TenantId;
+            var tenantId = await azureSessionService
+                .GetTenantIdAsync()
+                .ConfigureAwait(false);
 
             var organization = await organizationRepository
                 .GetAsync(tenantId.ToString(), project.Organization)

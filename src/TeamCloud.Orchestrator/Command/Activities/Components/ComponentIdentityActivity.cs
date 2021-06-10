@@ -93,7 +93,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
 
         private async Task<string> GetLocationAsync(Component component)
         {
-            var tenantId = (await azureResourceService.AzureSessionService.GetIdentityAsync().ConfigureAwait(false)).TenantId;
+            var tenantId = await azureResourceService.AzureSessionService
+                .GetTenantIdAsync()
+                .ConfigureAwait(false);
 
             var organization = await organizationRepository
                 .GetAsync(tenantId.ToString(), component.Organization)

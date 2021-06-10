@@ -529,10 +529,12 @@ namespace TeamCloud.Adapters.AzureDevOps
             if (callback is null)
                 throw new ArgumentNullException(nameof(callback));
 
-            var tenantId = (await azureSessionService.GetIdentityAsync().ConfigureAwait(false)).TenantId.ToString();
+            var tenantId = await azureSessionService
+                .GetTenantIdAsync()
+                .ConfigureAwait(false);
 
             var componentOrganization = await organizationRepository
-                .GetAsync(tenantId, component.Organization)
+                .GetAsync(tenantId.ToString(), component.Organization)
                 .ConfigureAwait(false);
 
             var componentProject = await projectRepository

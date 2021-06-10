@@ -94,12 +94,12 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             {
                 try
                 {
-                    var identity = await azureSessionService
-                        .GetIdentityAsync()
+                    var tenantId = await azureSessionService
+                        .GetTenantIdAsync()
                         .ConfigureAwait(false);
 
                     var organization = await organizationRepository
-                        .GetAsync(identity.TenantId.ToString(), componentTask.Organization)
+                        .GetAsync(tenantId.ToString(), componentTask.Organization)
                         .ConfigureAwait(false);
 
                     var organizationRegistry = AzureResourceIdentifier.TryParse(organization.RegistryId, out var organizationRegistryId)
@@ -592,7 +592,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
         private async Task<string> GetComponentRunnerLocationAsync(Component component)
         {
-            var tenantId = (await azureSessionService.GetIdentityAsync().ConfigureAwait(false)).TenantId;
+            var tenantId = await azureSessionService
+                .GetTenantIdAsync()
+                .ConfigureAwait(false);
 
             var organization = await organizationRepository
                 .GetAsync(tenantId.ToString(), component.Organization)
