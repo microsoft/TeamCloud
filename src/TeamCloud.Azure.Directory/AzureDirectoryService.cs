@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
@@ -36,6 +37,8 @@ namespace TeamCloud.Azure.Directory
 
         Task<AzureServicePrincipal> CreateServicePrincipalAsync(string name, string password = null);
 
+        Task<AzureServicePrincipal> RefreshServicePrincipalAsync(string identifier, string password = null);
+
         Task<AzureServicePrincipal> GetServicePrincipalAsync(string identifier);
 
         Task DeleteServicePrincipalAsync(string name);
@@ -47,6 +50,8 @@ namespace TeamCloud.Azure.Directory
 
     public class AzureDirectoryService : IAzureDirectoryService
     {
+        private const string SECRET_DESCRIPTION = "Managed by TeamCloud";
+
         private readonly IAzureSessionService azureSessionService;
 
         public AzureDirectoryService(IAzureSessionService azureSessionService)
@@ -417,10 +422,6 @@ namespace TeamCloud.Azure.Directory
                 .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
                 .ConfigureAwait(false);
 
-            password ??= CreateServicePrincipalPassword();
-
-            var expiresOn = DateTime.UtcNow.AddYears(1);
-
             var parameters = new ApplicationCreateParameters()
             {
                 DisplayName = name,
@@ -447,6 +448,10 @@ namespace TeamCloud.Azure.Directory
                 .CreateAsync(new ServicePrincipalCreateParameters { AppId = application.AppId })
                 .ConfigureAwait(false);
 
+            var expiresOn = DateTime.UtcNow.AddYears(1);
+
+            password ??= CreateServicePrincipalPassword();
+
             await client.Applications
                 .UpdatePasswordCredentialsAsync(application.ObjectId, new List<PasswordCredential> {
                     new PasswordCredential {
@@ -454,7 +459,7 @@ namespace TeamCloud.Azure.Directory
                         EndDate = expiresOn,
                         KeyId = Guid.NewGuid().ToString(),
                         Value = password,
-                        CustomKeyIdentifier = Guid.Parse(principal.ObjectId).ToByteArray()
+                        CustomKeyIdentifier = Encoding.UTF8.GetBytes(SECRET_DESCRIPTION)
                     }
                 }).ConfigureAwait(false);
 
@@ -471,6 +476,60 @@ namespace TeamCloud.Azure.Directory
             return azureServicePrincipal;
         }
 
+        public async Task<AzureServicePrincipal> RefreshServicePrincipalAsync(string identifier, string password = null)
+        {
+            if (identifier is null)
+                throw new ArgumentNullException(nameof(identifier));
+
+            identifier = SanitizeServicePrincipalName(identifier);
+
+            using var client = await azureSessionService
+                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                .ConfigureAwait(false);
+
+            var principal = await GetServicePrincipalInnerAsync(client, identifier)
+                .ConfigureAwait(false);
+
+            if (principal is null)
+                return null;
+
+            var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
+                .ConfigureAwait(false);
+
+            if (application is null)
+                return null;
+
+            var expiresOn = DateTime.UtcNow.AddYears(1);
+
+            password ??= CreateServicePrincipalPassword();
+
+            application.PasswordCredentials = application.PasswordCredentials
+                .Where(cred => !Encoding.UTF8.GetBytes(SECRET_DESCRIPTION).SequenceEqual(cred.CustomKeyIdentifier ?? Enumerable.Empty<byte>()))
+                .Append(new PasswordCredential
+                {
+                    StartDate = DateTime.UtcNow,
+                    EndDate = expiresOn,
+                    KeyId = Guid.NewGuid().ToString(),
+                    Value = password,
+                    CustomKeyIdentifier = Encoding.UTF8.GetBytes(SECRET_DESCRIPTION)
+                }).ToList();
+
+            await client.Applications
+                .UpdatePasswordCredentialsAsync(application.ObjectId, application.PasswordCredentials)
+                .ConfigureAwait(false);
+
+            var azureServicePrincipal = new AzureServicePrincipal()
+            {
+                ObjectId = Guid.Parse(principal.ObjectId),
+                ApplicationId = Guid.Parse(principal.AppId),
+                TenantId = Guid.Parse(principal.AppOwnerTenantId),
+                Name = principal.ServicePrincipalNames.FirstOrDefault(),
+                Password = password,
+                ExpiresOn = expiresOn
+            };
+
+            return azureServicePrincipal;
+        }
 
         public async Task<AzureServicePrincipal> GetServicePrincipalAsync(string identifier)
         {
@@ -495,10 +554,10 @@ namespace TeamCloud.Azure.Directory
             if (application is null)
                 return null;
 
+            var customKeyIdentifier = Guid.Parse(principal.ObjectId).ToByteArray();
+
             var expiresOn = application.PasswordCredentials
-                .Where(c => c.CustomKeyIdentifier == Guid.Parse(principal.ObjectId).ToByteArray())
-                .OrderBy(c => c.EndDate)
-                .FirstOrDefault()?.EndDate;
+                .SingleOrDefault(c => c.KeyId.Equals(principal.ObjectId, StringComparison.Ordinal))?.EndDate;
 
             return new AzureServicePrincipal
             {

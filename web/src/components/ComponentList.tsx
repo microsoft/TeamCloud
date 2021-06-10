@@ -56,7 +56,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
         if (!item) return undefined;
         const creator = members?.find(m => m.user.id === item.component.creator);
         return (
-            <UserPersona user={creator?.graphUser} showSecondaryText />
+            <UserPersona principal={creator?.graphPrincipal} showSecondaryText />
         )
     };
 

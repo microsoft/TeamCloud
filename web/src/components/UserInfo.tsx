@@ -50,7 +50,7 @@ export const UserInfo: React.FC = () => {
         <>
             <UserPersona
                 hidePersonaDetails
-                user={graphUser}
+                principal={graphUser}
                 styles={personaStyles}
                 onClick={() => setPanelOpen(true)} />
             <Panel
@@ -60,7 +60,7 @@ export const UserInfo: React.FC = () => {
                 hasCloseButton={false}
                 onDismiss={() => setPanelOpen(false)} >
                 <Stack>
-                    <UserPersona user={graphUser} large />
+                    <UserPersona principal={graphUser} large />
                     <Separator />
                     <Stack tokens={{ childrenGap: '8px' }}>
                         <PrimaryButton text='Edit' onClick={() => { }} />

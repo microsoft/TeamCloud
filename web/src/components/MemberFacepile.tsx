@@ -6,6 +6,7 @@ import React from 'react';
 import { UserPersona } from '.';
 import { useGraphUser } from '../hooks';
 import { Member, ProjectMember } from '../model';
+import { isPrincipalUser } from '../MSGraph';
 
 export interface IMemberFacepileProps {
     members?: Member[];
@@ -46,9 +47,9 @@ export const MemberFacepile: React.FunctionComponent<IMemberFacepileProps> = (pr
             ]} />
     );
 
-    const _facepilePersonas = (): IFacepilePersona[] => props.members?.map(m => ({
-        personaName: m.graphUser?.displayName,
-        imageUrl: m.graphUser?.imageUrl,
+    const _facepilePersonas = (): IFacepilePersona[] => props.members?.filter(m => m.graphPrincipal)?.map(m => ({
+        personaName: m.graphPrincipal?.displayName,
+        imageUrl: isPrincipalUser(m.graphPrincipal) ? m.graphPrincipal?.imageUrl : undefined,
         data: m,
     })) ?? [];
 
@@ -60,7 +61,7 @@ export const MemberFacepile: React.FunctionComponent<IMemberFacepileProps> = (pr
                     <Stack
                         tokens={{ padding: '20px 20px 0 20px' }}>
                         <Stack.Item>
-                            <UserPersona user={member.graphUser} large />
+                            <UserPersona principal={member.graphPrincipal} large />
                         </Stack.Item>
                         <Stack.Item>
                             <Separator />
@@ -107,7 +108,7 @@ export const MemberFacepile: React.FunctionComponent<IMemberFacepileProps> = (pr
     return (
         <Shimmer
             customElementsGroup={_getShimmerElements()}
-            isDataLoaded={props.members !== undefined}
+            isDataLoaded={props.members?.filter(m => m.graphPrincipal) !== undefined}
             width={152} >
             <Facepile
                 styles={{ itemButton: _personaCoinStyles }}

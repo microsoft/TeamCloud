@@ -64,7 +64,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             try
             {
                 component = await adapter
-                    .CreateComponentAsync(component, new CommandCollector(commandQueue), log)
+                    .CreateComponentAsync(component, context.GetInput<Input>().User, new CommandCollector(commandQueue), log)
                     .ConfigureAwait(false);
             }
             catch (Exception exc)
@@ -80,6 +80,8 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
         internal struct Input
         {
             public Component Component { get; set; }
+
+            public User User { get; set; }
         }
     }
 }

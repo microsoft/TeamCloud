@@ -19,7 +19,7 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
     const [addMembersPanelOpen, setAddMembersPanelOpen] = useState(false);
 
     const onRenderMemberColumn = (member?: Member, index?: number, column?: IColumn) => (
-        <UserPersona user={member?.graphUser} showSecondaryText />
+        <UserPersona principal={member?.graphPrincipal} showSecondaryText />
     );
 
     const onRenderRoleColumn = (member?: Member, index?: number, column?: IColumn) => {
@@ -33,12 +33,12 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
 
     const columns: IColumn[] = [
         { key: 'member', name: 'Member', minWidth: 240, isResizable: false, onRender: onRenderMemberColumn },
-        { key: 'role', name: 'Role', minWidth: 240, onRender: onRenderRoleColumn },
-        { key: 'type', name: 'Type', minWidth: 240, onRender: (m: Member) => m.user.userType }
+        { key: 'role', name: 'Role', minWidth: 240, maxWidth: 240, onRender: onRenderRoleColumn },
+        { key: 'type', name: 'Type', minWidth: 240, maxWidth: 240, onRender: (m: Member) => m.user.userType }
     ];
 
     const _applyFilter = (member: Member, filter: string): boolean =>
-        filter ? member.graphUser?.displayName?.toUpperCase().includes(filter.toUpperCase()) ?? false : true;
+        filter ? member.graphPrincipal?.displayName?.toUpperCase().includes(filter.toUpperCase()) ?? false : true;
 
     const _onItemInvoked = (member: Member): void => {
         console.log(member);
@@ -48,7 +48,7 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
         <>
             <ContentList
                 columns={columns}
-                items={props.members}
+                items={props.members?.filter(m => m.graphPrincipal)}
                 applyFilter={_applyFilter}
                 onItemInvoked={_onItemInvoked}
                 filterPlaceholder='Filter members'

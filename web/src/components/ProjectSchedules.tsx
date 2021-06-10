@@ -81,7 +81,7 @@ export const ProjectSchedules: React.FC = () => {
                         <Text variant='xLarge' >Project owner</Text>
                     </Stack.Item>
                     <Stack.Item>
-                        <UserPersona user={owner?.graphUser} showSecondaryText />
+                        <UserPersona principal={owner?.graphPrincipal} showSecondaryText />
                     </Stack.Item>
                     <Stack.Item>
                         <DefaultButton

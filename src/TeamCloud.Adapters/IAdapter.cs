@@ -27,11 +27,11 @@ namespace TeamCloud.Adapters
 
         Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
 
-        Task<Component> CreateComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
 
-        Task<Component> UpdateComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
 
-        Task<Component> DeleteComponentAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
 
         Task<NetworkCredential> GetServiceCredentialAsync(Component component);
     }

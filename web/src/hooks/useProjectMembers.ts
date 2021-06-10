@@ -3,7 +3,7 @@
 
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
-import { getGraphUser } from '../MSGraph';
+import { getGraphPrincipal } from '../MSGraph';
 import { api } from '../API';
 import { useProject } from '.';
 import { ErrorResult } from 'teamcloud';
@@ -26,7 +26,7 @@ export const useProjectMembers = () => {
         if (_users.data) {
             let _members = await Promise.all(_users.data.map(async u => ({
                 user: u,
-                graphUser: await getGraphUser(u.id),
+                graphPrincipal: await getGraphPrincipal(u),
                 projectMembership: u.projectMemberships!.find(m => m.projectId === project!.id)!
             })));
             return _members;

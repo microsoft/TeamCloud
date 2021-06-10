@@ -11,5 +11,6 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     public sealed class ComponentRepositoryConfiguration
     {
+        public string TemplateRepository { get; set; }
     }
 }

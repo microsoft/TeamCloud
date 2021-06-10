@@ -12,6 +12,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.TeamFoundation.Core.WebApi;
+using Microsoft.TeamFoundation.DistributedTask.WebApi;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Graph.Client;
 using Microsoft.VisualStudio.Services.Operations;
 using Microsoft.VisualStudio.Services.WebApi;
@@ -236,6 +238,89 @@ namespace TeamCloud.Adapters.AzureDevOps
                 for (int i = 1; i < 10000; i++)
                     yield return $"{projectName.Trim()} {i:#0000}";
             }
+        }
+
+        internal static async Task<bool> HasCommitsAsync(this GitHttpClient client, Guid repositoryId)
+        {
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
+
+            var commits = await client
+                .GetCommitsAsync(repositoryId, new GitQueryCommitsCriteria() { Top = 1 })
+                .ConfigureAwait(false);
+
+            return commits.Any();
+        }
+
+        private static ProjectReference ToVariableProjectReference(this TeamProject project)
+            => new ProjectReference() { Id = project.Id, Name = project.Name };
+
+        internal static Task<VariableGroup> AddVariableGroupAsync(this TaskAgentHttpClient client, TeamProject project, string name, IDictionary<string, VariableValue> variables, string description = null)
+        {
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
+
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
+
+            if (variables is null)
+                throw new ArgumentNullException(nameof(variables));
+
+            if (!variables.Any())
+                throw new ArgumentException($"'{nameof(name)}' must contain at least one variable.", nameof(variables));
+
+            return client.AddVariableGroupAsync(new VariableGroupParameters()
+            {
+                Name = name,
+                Description = description,
+                Type = "Vsts",
+                Variables = variables,
+                VariableGroupProjectReferences = new List<VariableGroupProjectReference>()
+                {
+                    new VariableGroupProjectReference()
+                    {
+                        Name = name,
+                        Description = description,
+                        ProjectReference = project.ToVariableProjectReference()
+                    }
+                }
+            });
+        }
+
+        internal static Task<VariableGroup> UpdateVariableGroupAsync(this TaskAgentHttpClient client, TeamProject project, VariableGroup group)
+        {
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
+
+            if (project is null)
+                throw new ArgumentNullException(nameof(project));
+
+            if (group is null)
+                throw new ArgumentNullException(nameof(group));
+
+            var variableGroupProjectReferenced = group.VariableGroupProjectReferences ?? new List<VariableGroupProjectReference>();
+
+            if (!variableGroupProjectReferenced.Any(r => project.Id.Equals(r.ProjectReference?.Id)))
+            {
+                variableGroupProjectReferenced.Add(new VariableGroupProjectReference()
+                {
+                    Name = group.Name,
+                    Description = group.Description,
+                    ProjectReference = project.ToVariableProjectReference()
+                });
+            }
+
+            return client.UpdateVariableGroupAsync(group.Id, new VariableGroupParameters()
+            {
+                Name = group.Name,
+                Description = group.Description,
+                Type = group.Type,
+                Variables = group.Variables,
+                VariableGroupProjectReferences = variableGroupProjectReferenced
+            });
         }
     }
 }

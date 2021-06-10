@@ -58,7 +58,7 @@ export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
     const onRenderCreatorColumn = (item?: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }, index?: number, column?: IColumn) => {
         if (!item) return undefined;
         const creator = members?.find(m => m.user.id === item.schedule.creator);
-        return (<UserPersona user={creator?.graphUser} size={PersonaSize.size24} />)
+        return (<UserPersona principal={creator?.graphPrincipal} size={PersonaSize.size24} />)
     };
 
     const onRenderDaysColumn = (item?: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }, index?: number, column?: IColumn) => {

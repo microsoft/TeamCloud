@@ -82,7 +82,7 @@ export const ComponentOverview: React.FC = () => {
                         <Text>{component?.resourceState}</Text>
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection title='Creator'>
-                        <UserPersona user={creator?.graphUser} showSecondaryText styles={{ root: { minWidth: '220px' } }} />
+                        <UserPersona principal={creator?.graphPrincipal} showSecondaryText styles={{ root: { minWidth: '220px' } }} />
                     </ComponentOverviewHeaderSection>
                 </Stack>
             </Stack.Item>

@@ -56,6 +56,8 @@ namespace TeamCloud.Adapters.AzureDevOps
             set => organization = value;
         }
 
+        public string PersonalAccessToken { get; set; }
+
         [JsonProperty("client_id")]
         public string ClientId { get; set; }
 
@@ -67,7 +69,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 
         [JsonIgnore]
         public DateTime? AccessTokenExpires
-            => GetTokenExpirationDate(AccessToken);
+            => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(AccessToken);
 
         [JsonIgnore]
         public bool AccessTokenExpired
@@ -78,7 +80,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 
         [JsonIgnore]
         public DateTime? RefreshTokenExpires
-            => GetTokenExpirationDate(RefreshToken);
+            => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(RefreshToken);
 
         [JsonIgnore]
         public bool RefreshTokenExpired

@@ -47,7 +47,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .ConfigureAwait(true);
 
                 commandResult.Result = await orchestrationContext
-                    .CallActivityWithRetryAsync<Component>(nameof(AdapterUpdateComponentActivity), new AdapterUpdateComponentActivity.Input() { Component = commandResult.Result })
+                    .CallActivityWithRetryAsync<Component>(nameof(AdapterUpdateComponentActivity), new AdapterUpdateComponentActivity.Input() { Component = commandResult.Result, User = command.User })
                     .ConfigureAwait(true);
             }
 

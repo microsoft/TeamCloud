@@ -10,14 +10,28 @@
             height: 100%
         }
 
+        hr {
+            color: darkgray;
+        }
+
         h2 {
             margin-top: 2rem;
         }
 
+        .jumbotron {
+            margin: 0;
+            border-bottom: 1px solid lightgray;
+        }
+
+        .caution {
+            margin: 20px;
+            font-weight: bold;
+            text-align: center;
+            display: block;
+            color: orange;
+        }
         #content {
-            height: 100%;
-            padding: 50px 20px;
-            background-color: #F0F0F0;
+            padding: 20px 20px;
             border-left: 1px solid lightgray;
             border-right: 1px solid lightgray;
         }
@@ -33,49 +47,60 @@
     <div class="container-fluid h-100">
         <div class="row justify-content-center h-100">
             <div class="col-3"></div>
-            <div class="col-6 jumbotron" id="content">
-                <h1 class="display-4">TeamCloud Azure DevOps Provider</h1>
-                <p class="lead">...</p>
-                <hr class="my-4">
-                <h2>Register provider</h2>
-                <p>Click <a target="_blank" href="https://app.vsaex.visualstudio.com/app/register">here</a> to register a new Azure DevOps application. Please fill out the form with the following 2 <b>required</b> values set and <b>all</b> scopes selected:</p>
-                <table class="table table-borderless">
-                    <tbody>
-                        <tr>
-                            <td>Application website</td>
-                            <td>{{ applicationWebsite }}</td>
-                        </tr>
-                        <tr>
-                            <td>Authorization callback URL</td>
-                            <td>{{ applicationCallback }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="col-6" id="content">
+                <div class="jumbotron">
+                    <h1 class="display-4">TeamCloud Azure DevOps Provider</h1>
+                </div>
                 <h2>Authorize provider</h2>
+                {% if error != "" %}
+                <div id="error" class="alert alert-danger">
+                    <strong>Error:</strong> {{ error }}.
+                </div>
+                {% elseif succeeded == true %}
+                <div id="success" class="alert alert-success">
+                    Successfully authorized TeamCloud Azure DevOps provider.
+                </div>
+                {% endif %}
                 <form method="post" enctype="application/x-www-form-urlencoded">
 
-                    {% if error != "" %}
-                        <div id="error" class="alert alert-danger">
-                            <strong>Error:</strong> {{ error }}.
-                        </div>
-                    {% elseif succeeded == true %}
-                        <div id="success" class="alert alert-success">
-                            Successfully authorized TeamCloud Azure DevOps provider.
-                        </div>
-                    {% endif %}
+
 
                     <div id="registrationForm">
                         <div class="form-group">
                             <label for="client_id">Organization</label>
                             <input type="text" class="form-control" name="organization" id="organization" placeholder="Enter your Azure DevOps organization name" value="{{ session.organization }}" />
                         </div>
+                        <hr />
+                        <h2>Personal Access Token (PAT)</h2>
+                        <p>A personal access token (PAT) is used as an alternate password to authenticate into Azure DevOps and currently the only way to leverage the full Azure DevOps REST API.</p>
                         <div class="form-group">
-                            <label for="client_id">Application/Client Id</label>
-                            <input type="text" class="form-control" name="client_id" id="client_id" placeholder="Enter your id" value="{{ session.clientId }}" />
+                            <label for="client_id">Personal Access Token</label>
+                            <input type="password" class="form-control" name="pat" id="pat" placeholder="Enter your Personal Access Token (PAT)" />
+                        </div>
+                        <hr />
+                        <h2>Azure DevOps Application (OAuth2)</h2>
+                        <p>Azure DevOps Services uses the OAuth 2.0 protocol to authorize your app for a user and generate an access token.</p>
+                        <i class="caution">CAUTION: If a personal access token is given, Client ID and Secret are ignored!</i>
+                        <p>Click <a target="_blank" href="https://app.vsaex.visualstudio.com/app/register">here</a> to register a new Azure DevOps application. Please fill out the form with the following 2 <b>required</b> values set and <b>all</b> scopes selected:</p>
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td>Application website</td>
+                                    <td>{{ applicationWebsite }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Authorization callback URL</td>
+                                    <td>{{ applicationCallback }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="form-group">
+                            <label for="client_id">Client Id</label>
+                            <input type="text" class="form-control" name="client_id" id="client_id" placeholder="Enter your client id" value="{{ session.clientId }}" />
                         </div>
                         <div class="form-group">
-                            <label for="client_secret">Appliation/Client Secret</label>
-                            <input type="password" class="form-control" name="client_secret" id="client_secret" placeholder="Enter your secret" />
+                            <label for="client_secret">Client Secret</label>
+                            <input type="password" class="form-control" name="client_secret" id="client_secret" placeholder="Enter your client secret" />
                         </div>
                         <button id="authorize" type="submit" class="btn btn-primary">Authorize</button>
                     </div>
