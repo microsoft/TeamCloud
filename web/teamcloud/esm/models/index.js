@@ -103,6 +103,18 @@ export var KnownDeploymentScopeDefinitionType;
     KnownDeploymentScopeDefinitionType["AzureDevOps"] = "AzureDevOps";
     KnownDeploymentScopeDefinitionType["GitHub"] = "GitHub";
 })(KnownDeploymentScopeDefinitionType || (KnownDeploymentScopeDefinitionType = {}));
+/** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
+export var KnownCommandAuditEntityRuntimeStatus;
+(function (KnownCommandAuditEntityRuntimeStatus) {
+    KnownCommandAuditEntityRuntimeStatus["Unknown"] = "Unknown";
+    KnownCommandAuditEntityRuntimeStatus["Running"] = "Running";
+    KnownCommandAuditEntityRuntimeStatus["Completed"] = "Completed";
+    KnownCommandAuditEntityRuntimeStatus["ContinuedAsNew"] = "ContinuedAsNew";
+    KnownCommandAuditEntityRuntimeStatus["Failed"] = "Failed";
+    KnownCommandAuditEntityRuntimeStatus["Canceled"] = "Canceled";
+    KnownCommandAuditEntityRuntimeStatus["Terminated"] = "Terminated";
+    KnownCommandAuditEntityRuntimeStatus["Pending"] = "Pending";
+})(KnownCommandAuditEntityRuntimeStatus || (KnownCommandAuditEntityRuntimeStatus = {}));
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export var KnownOrganizationResourceState;
 (function (KnownOrganizationResourceState) {
@@ -118,8 +130,7 @@ export var KnownUserType;
     KnownUserType["User"] = "User";
     KnownUserType["Group"] = "Group";
     KnownUserType["System"] = "System";
-    KnownUserType["Provider"] = "Provider";
-    KnownUserType["Application"] = "Application";
+    KnownUserType["Service"] = "Service";
 })(KnownUserType || (KnownUserType = {}));
 /** Known values of {@link UserRole} that the service accepts. */
 export var KnownUserRole;

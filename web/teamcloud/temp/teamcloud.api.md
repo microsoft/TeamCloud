@@ -33,6 +33,58 @@ export interface AdapterInformationListDataResult {
 export type AdapterInformationType = string;
 
 // @public (undocumented)
+export interface CommandAuditEntity {
+    // (undocumented)
+    command?: string | null;
+    readonly commandId?: string | null;
+    // (undocumented)
+    commandJson?: string | null;
+    readonly componentTask?: string | null;
+    // (undocumented)
+    created?: Date | null;
+    // (undocumented)
+    customStatus?: string | null;
+    // (undocumented)
+    errors?: string | null;
+    readonly organizationId?: string | null;
+    readonly parentId?: string | null;
+    readonly projectId?: string | null;
+    // (undocumented)
+    resultJson?: string | null;
+    // (undocumented)
+    runtimeStatus?: CommandAuditEntityRuntimeStatus;
+    // (undocumented)
+    updated?: Date | null;
+    readonly userId?: string | null;
+}
+
+// @public (undocumented)
+export interface CommandAuditEntityDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: CommandAuditEntity;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
+export interface CommandAuditEntityListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: CommandAuditEntity[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public
+export type CommandAuditEntityRuntimeStatus = string;
+
+// @public (undocumented)
 export interface Component {
     // (undocumented)
     creator: string;
@@ -390,6 +442,26 @@ export const enum KnownAdapterInformationType {
 }
 
 // @public
+export const enum KnownCommandAuditEntityRuntimeStatus {
+    // (undocumented)
+    Canceled = "Canceled",
+    // (undocumented)
+    Completed = "Completed",
+    // (undocumented)
+    ContinuedAsNew = "ContinuedAsNew",
+    // (undocumented)
+    Failed = "Failed",
+    // (undocumented)
+    Pending = "Pending",
+    // (undocumented)
+    Running = "Running",
+    // (undocumented)
+    Terminated = "Terminated",
+    // (undocumented)
+    Unknown = "Unknown"
+}
+
+// @public
 export const enum KnownComponentResourceState {
     // (undocumented)
     Failed = "Failed",
@@ -614,11 +686,9 @@ export const enum KnownUserRole {
 // @public
 export const enum KnownUserType {
     // (undocumented)
-    Application = "Application",
-    // (undocumented)
     Group = "Group",
     // (undocumented)
-    Provider = "Provider",
+    Service = "Service",
     // (undocumented)
     System = "System",
     // (undocumented)
@@ -1046,6 +1116,17 @@ export interface StringDictionaryDataResult {
 }
 
 // @public (undocumented)
+export interface StringListDataResult {
+    // (undocumented)
+    code?: number;
+    readonly data?: string[] | null;
+    // (undocumented)
+    location?: string | null;
+    // (undocumented)
+    status?: string | null;
+}
+
+// @public (undocumented)
 export class TeamCloud extends TeamCloudContext {
     constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
     authorizeDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
@@ -1070,6 +1151,9 @@ export class TeamCloud extends TeamCloudContext {
     deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
     deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
     getAdapters(options?: coreHttp.OperationOptions): Promise<TeamCloudGetAdaptersResponse>;
+    getAuditCommands(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetAuditCommandsResponse>;
+    getAuditEntries(organizationId: string, options?: TeamCloudGetAuditEntriesOptionalParams): Promise<TeamCloudGetAuditEntriesResponse>;
+    getAuditEntry(commandId: string, organizationId: string, options?: TeamCloudGetAuditEntryOptionalParams): Promise<TeamCloudGetAuditEntryResponse>;
     getComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
     getComponents(organizationId: string, projectId: string, options?: TeamCloudGetComponentsOptionalParams): Promise<TeamCloudGetComponentsResponse>;
     getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
@@ -1366,6 +1450,43 @@ export type TeamCloudGetAdaptersResponse = AdapterInformationListDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
         parsedBody: AdapterInformationListDataResult;
+    };
+};
+
+// @public
+export type TeamCloudGetAuditCommandsResponse = StringListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: StringListDataResult;
+    };
+};
+
+// @public
+export interface TeamCloudGetAuditEntriesOptionalParams extends coreHttp.OperationOptions {
+    commands?: string[];
+    // (undocumented)
+    timeRange?: string;
+}
+
+// @public
+export type TeamCloudGetAuditEntriesResponse = CommandAuditEntityListDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: CommandAuditEntityListDataResult;
+    };
+};
+
+// @public
+export interface TeamCloudGetAuditEntryOptionalParams extends coreHttp.OperationOptions {
+    // (undocumented)
+    expand?: boolean;
+}
+
+// @public
+export type TeamCloudGetAuditEntryResponse = CommandAuditEntityDataResult & {
+    _response: coreHttp.HttpResponse & {
+        bodyAsText: string;
+        parsedBody: CommandAuditEntityDataResult;
     };
 };
 

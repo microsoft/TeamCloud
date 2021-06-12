@@ -10,37 +10,15 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Azure.Cosmos.Table;
 using Newtonsoft.Json;
-using TeamCloud.Model.Data;
 
-namespace TeamCloud.Adapters.Authorization
+namespace TeamCloud.Audit.Model
 {
-    public abstract class AuthorizationEntity : ITableEntity
+    public abstract class AuditEntity : ITableEntity
     {
-        public static string GetEntityId(DeploymentScope deploymentScope)
-        {
-            var entityId = Guid.Empty;
-
-            if (deploymentScope != null)
-            {
-                var result = Merge(Guid.Parse(deploymentScope.Organization), Guid.Parse(deploymentScope.Id));
-
-                entityId = new Guid(result.ToArray());
-            }
-
-            return entityId.ToString();
-
-            static IEnumerable<byte> Merge(Guid guid1, Guid guid2)
-            {
-                var buffer1 = guid1.ToByteArray();
-                var buffer2 = guid2.ToByteArray();
-
-                for (int i = 0; i < buffer1.Length; i++)
-                    yield return (byte)(buffer1[i] ^ buffer2[i]);
-            }
-        }
-
-        internal AuthorizationEntity()
-        { }
+        public const string PartitionKeyName = nameof(TableEntity.PartitionKey);
+        public const string RowKeyName = nameof(TableEntity.RowKey);
+        public const string TimestampName = nameof(TableEntity.Timestamp);
+        public const string ETag = nameof(TableEntity.ETag);
 
         private static bool IsEdmType(Type type)
             => Enum.GetNames(typeof(EdmType)).Contains(type.Name, StringComparer.OrdinalIgnoreCase) || type.IsEnum;
@@ -125,7 +103,5 @@ namespace TeamCloud.Adapters.Authorization
 
             return properties;
         }
-
-
     }
 }

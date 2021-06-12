@@ -9,6 +9,7 @@ import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentH
 import { useOrg, useAzureSubscriptions, useMembers, useDeploymentScopes, useProjectTemplates, useCreateDeploymentScope, useCreateProjectTemplate, useAddMembers } from '../hooks';
 
 import business from '../img/MSC17_business_001_noBG.png'
+import { AuditList } from '../components/AuditList';
 
 export const OrgSettingsView: React.FC = () => {
 
@@ -105,7 +106,7 @@ export const OrgSettingsView: React.FC = () => {
                     <ProjectTemplateForm {...{ createProjectTemplate: _createProjectTemplate }} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/audit'>
-                    <NoData image={business} title='Coming soon' description='Come back to see usage policy and compliance infomation.' />
+                    <AuditList {...{}} />
                 </Route>
                 <Route exact path='/orgs/:orgId/settings/usage'>
                     <NoData image={business} title='Coming soon' description='Come back to see usage information per org, project, and user.' />

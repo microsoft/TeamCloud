@@ -176,7 +176,7 @@ namespace TeamCloud.Orchestrator.API
                             .ConfigureAwait(false);
 
                         await commandAuditWriter
-                            .AuditAsync(command, commandResult)
+                            .WriteAsync(command, commandResult)
                             .ConfigureAwait(false);
 
                         if (commandResult?.RuntimeStatus.IsActive() ?? false)
@@ -247,7 +247,7 @@ namespace TeamCloud.Orchestrator.API
                 try
                 {
                     await commandAuditWriter
-                        .AuditAsync(command)
+                        .WriteAsync(command)
                         .ConfigureAwait(false);
 
                     if (commandHandler.Orchestration)
@@ -301,7 +301,7 @@ namespace TeamCloud.Orchestrator.API
                     if (commandResult.RuntimeStatus.IsFinal())
                     {
                         await commandAuditWriter
-                            .AuditAsync(command, commandResult)
+                            .WriteAsync(command, commandResult)
                             .ConfigureAwait(false);
                     }
                     else

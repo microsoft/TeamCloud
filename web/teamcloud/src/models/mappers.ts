@@ -1358,6 +1358,239 @@ export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
   }
 };
 
+export const CommandAuditEntityListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "CommandAuditEntityListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "CommandAuditEntity"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const CommandAuditEntity: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "CommandAuditEntity",
+    modelProperties: {
+      commandId: {
+        serializedName: "commandId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      organizationId: {
+        serializedName: "organizationId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      commandJson: {
+        serializedName: "commandJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resultJson: {
+        serializedName: "resultJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectId: {
+        serializedName: "projectId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      userId: {
+        serializedName: "userId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      parentId: {
+        serializedName: "parentId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      command: {
+        serializedName: "command",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      componentTask: {
+        serializedName: "componentTask",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      runtimeStatus: {
+        serializedName: "runtimeStatus",
+        type: {
+          name: "String"
+        }
+      },
+      customStatus: {
+        serializedName: "customStatus",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      errors: {
+        serializedName: "errors",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      created: {
+        serializedName: "created",
+        nullable: true,
+        type: {
+          name: "DateTime"
+        }
+      },
+      updated: {
+        serializedName: "updated",
+        nullable: true,
+        type: {
+          name: "DateTime"
+        }
+      }
+    }
+  }
+};
+
+export const CommandAuditEntityDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "CommandAuditEntityDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "CommandAuditEntity"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const StringListDataResult: coreHttp.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "StringListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
 export const OrganizationListDataResult: coreHttp.CompositeMapper = {
   type: {
     name: "Composite",

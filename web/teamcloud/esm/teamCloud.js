@@ -266,6 +266,44 @@ var TeamCloud = /** @class */ (function (_super) {
         return this.sendOperationRequest(operationArguments, negotiateSignalROperationSpec);
     };
     /**
+     * Gets all audit entries.
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getAuditEntries = function (organizationId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getAuditEntriesOperationSpec);
+    };
+    /**
+     * Gets an audit entry.
+     * @param commandId
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getAuditEntry = function (commandId, organizationId, options) {
+        var operationArguments = {
+            commandId: commandId,
+            organizationId: organizationId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getAuditEntryOperationSpec);
+    };
+    /**
+     * Gets all auditable commands.
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    TeamCloud.prototype.getAuditCommands = function (organizationId, options) {
+        var operationArguments = {
+            organizationId: organizationId,
+            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+        };
+        return this.sendOperationRequest(operationArguments, getAuditCommandsOperationSpec);
+    };
+    /**
      * Gets all Organizations.
      * @param options The options parameters.
      */
@@ -1316,6 +1354,72 @@ var negotiateSignalROperationSpec = {
         Parameters.organizationId,
         Parameters.projectId
     ],
+    serializer: serializer
+};
+var getAuditEntriesOperationSpec = {
+    path: "/orgs/{organizationId}/audit",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.CommandAuditEntityListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    queryParameters: [Parameters.timeRange, Parameters.commands],
+    urlParameters: [Parameters.$host, Parameters.organizationId],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var getAuditEntryOperationSpec = {
+    path: "/orgs/{organizationId}/audit/{commandId}",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.CommandAuditEntityDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    queryParameters: [Parameters.expand],
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.commandId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer: serializer
+};
+var getAuditCommandsOperationSpec = {
+    path: "/orgs/{organizationId}/audit/commands",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.StringListDataResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [Parameters.$host, Parameters.organizationId],
+    headerParameters: [Parameters.accept],
     serializer: serializer
 };
 var getOrganizationsOperationSpec = {

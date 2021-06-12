@@ -26,6 +26,60 @@ export declare interface AdapterInformationListDataResult {
  */
 export declare type AdapterInformationType = string;
 
+export declare interface CommandAuditEntity {
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly commandId?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly organizationId?: string | null;
+    commandJson?: string | null;
+    resultJson?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly projectId?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly userId?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly parentId?: string | null;
+    command?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly componentTask?: string | null;
+    runtimeStatus?: CommandAuditEntityRuntimeStatus;
+    customStatus?: string | null;
+    errors?: string | null;
+    created?: Date | null;
+    updated?: Date | null;
+}
+
+export declare interface CommandAuditEntityDataResult {
+    code?: number;
+    status?: string | null;
+    data?: CommandAuditEntity;
+    location?: string | null;
+}
+
+export declare interface CommandAuditEntityListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: CommandAuditEntity[] | null;
+    location?: string | null;
+}
+
+/**
+ * Defines values for CommandAuditEntityRuntimeStatus. \
+ * {@link KnownCommandAuditEntityRuntimeStatus} can be used interchangeably with CommandAuditEntityRuntimeStatus,
+ *  this enum contains the known values that the service supports.
+ * ### Know values supported by the service
+ * **Unknown** \
+ * **Running** \
+ * **Completed** \
+ * **ContinuedAsNew** \
+ * **Failed** \
+ * **Canceled** \
+ * **Terminated** \
+ * **Pending**
+ */
+export declare type CommandAuditEntityRuntimeStatus = string;
+
 export declare interface Component {
     href?: string | null;
     organization: string;
@@ -326,6 +380,18 @@ export declare const enum KnownAdapterInformationType {
     GitHub = "GitHub"
 }
 
+/** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
+export declare const enum KnownCommandAuditEntityRuntimeStatus {
+    Unknown = "Unknown",
+    Running = "Running",
+    Completed = "Completed",
+    ContinuedAsNew = "ContinuedAsNew",
+    Failed = "Failed",
+    Canceled = "Canceled",
+    Terminated = "Terminated",
+    Pending = "Pending"
+}
+
 /** Known values of {@link ComponentResourceState} that the service accepts. */
 export declare const enum KnownComponentResourceState {
     Pending = "Pending",
@@ -478,8 +544,7 @@ export declare const enum KnownUserType {
     User = "User",
     Group = "Group",
     System = "System",
-    Provider = "Provider",
-    Application = "Application"
+    Service = "Service"
 }
 
 export declare interface Organization {
@@ -838,6 +903,14 @@ export declare interface StringDictionaryDataResult {
     location?: string | null;
 }
 
+export declare interface StringListDataResult {
+    code?: number;
+    status?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly data?: string[] | null;
+    location?: string | null;
+}
+
 export declare class TeamCloud extends TeamCloudContext {
     /**
      * Initializes a new instance of the TeamCloud class.
@@ -968,6 +1041,25 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     negotiateSignalR(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<coreHttp.RestResponse>;
+    /**
+     * Gets all audit entries.
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    getAuditEntries(organizationId: string, options?: TeamCloudGetAuditEntriesOptionalParams): Promise<TeamCloudGetAuditEntriesResponse>;
+    /**
+     * Gets an audit entry.
+     * @param commandId
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    getAuditEntry(commandId: string, organizationId: string, options?: TeamCloudGetAuditEntryOptionalParams): Promise<TeamCloudGetAuditEntryResponse>;
+    /**
+     * Gets all auditable commands.
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    getAuditCommands(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetAuditCommandsResponse>;
     /**
      * Gets all Organizations.
      * @param options The options parameters.
@@ -1605,6 +1697,51 @@ export declare type TeamCloudGetAdaptersResponse = AdapterInformationListDataRes
     };
 };
 
+/** Contains response data for the getAuditCommands operation. */
+export declare type TeamCloudGetAuditCommandsResponse = StringListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: StringListDataResult;
+    };
+};
+
+/** Optional parameters. */
+export declare interface TeamCloudGetAuditEntriesOptionalParams extends coreHttp.OperationOptions {
+    timeRange?: string;
+    /** Array of Get1ItemsItem */
+    commands?: string[];
+}
+
+/** Contains response data for the getAuditEntries operation. */
+export declare type TeamCloudGetAuditEntriesResponse = CommandAuditEntityListDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: CommandAuditEntityListDataResult;
+    };
+};
+
+/** Optional parameters. */
+export declare interface TeamCloudGetAuditEntryOptionalParams extends coreHttp.OperationOptions {
+    expand?: boolean;
+}
+
+/** Contains response data for the getAuditEntry operation. */
+export declare type TeamCloudGetAuditEntryResponse = CommandAuditEntityDataResult & {
+    /** The underlying HTTP response. */
+    _response: coreHttp.HttpResponse & {
+        /** The response body as text (string format) */
+        bodyAsText: string;
+        /** The response body as parsed JSON or XML */
+        parsedBody: CommandAuditEntityDataResult;
+    };
+};
+
 /** Contains response data for the getComponent operation. */
 export declare type TeamCloudGetComponentResponse = ComponentDataResult & {
     /** The underlying HTTP response. */
@@ -2163,8 +2300,7 @@ export declare type UserRole = string;
  * **User** \
  * **Group** \
  * **System** \
- * **Provider** \
- * **Application**
+ * **Service**
  */
 export declare type UserType = string;
 

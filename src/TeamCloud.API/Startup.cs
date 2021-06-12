@@ -35,6 +35,7 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
+using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
@@ -116,6 +117,7 @@ namespace TeamCloud.API
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
+                .AddTeamCloudAudit()
                 .AddTeamCloudHttp();
 
             if (string.IsNullOrEmpty(Configuration.GetValue<string>("Cache:Configuration")))
@@ -206,6 +208,7 @@ namespace TeamCloud.API
                     options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
                     options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
                     options.ConstraintMap.Add("deploymentScopeId", typeof(DeploymentScopeIdentifierConstraint));
+                    options.ConstraintMap.Add("commandId", typeof(CommandIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()

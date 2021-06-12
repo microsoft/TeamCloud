@@ -125,6 +125,48 @@ export var contentType1 = {
         }
     }
 };
+export var timeRange = {
+    parameterPath: ["options", "timeRange"],
+    mapper: {
+        serializedName: "timeRange",
+        type: {
+            name: "String"
+        }
+    }
+};
+export var commands = {
+    parameterPath: ["options", "commands"],
+    mapper: {
+        serializedName: "commands",
+        type: {
+            name: "Sequence",
+            element: {
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export var commandId = {
+    parameterPath: "commandId",
+    mapper: {
+        serializedName: "commandId",
+        required: true,
+        type: {
+            name: "Uuid"
+        }
+    }
+};
+export var expand = {
+    parameterPath: ["options", "expand"],
+    mapper: {
+        serializedName: "expand",
+        type: {
+            name: "Boolean"
+        }
+    }
+};
 export var body4 = {
     parameterPath: ["options", "body"],
     mapper: OrganizationDefinitionMapper

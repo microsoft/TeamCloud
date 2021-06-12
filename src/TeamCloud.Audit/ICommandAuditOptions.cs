@@ -8,7 +8,5 @@ namespace TeamCloud.Audit
     public interface ICommandAuditOptions
     {
         public string ConnectionString { get; }
-
-        public string StoragePrefix { get; }
     }
 }

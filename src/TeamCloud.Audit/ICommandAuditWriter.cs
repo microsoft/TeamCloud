@@ -10,6 +10,6 @@ namespace TeamCloud.Audit
 {
     public interface ICommandAuditWriter
     {
-        Task AuditAsync(ICommand command, ICommandResult commandResult = default);
+        Task WriteAsync(ICommand command, ICommandResult commandResult = default);
     }
 }

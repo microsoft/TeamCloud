@@ -39,7 +39,7 @@ namespace TeamCloud.Orchestrator.Command.Activities
                 var functionInput = activityContext.GetInput<Input>();
 
                 await commandAuditWriter
-                    .AuditAsync(functionInput.Command, functionInput.CommandResult)
+                    .WriteAsync(functionInput.Command, functionInput.CommandResult)
                     .ConfigureAwait(false);
             }
             catch (Exception exc)

@@ -34,6 +34,11 @@ import {
   TeamCloudDeleteDeploymentScopeResponse,
   TeamCloudAuthorizeDeploymentScopeOptionalParams,
   TeamCloudAuthorizeDeploymentScopeResponse,
+  TeamCloudGetAuditEntriesOptionalParams,
+  TeamCloudGetAuditEntriesResponse,
+  TeamCloudGetAuditEntryOptionalParams,
+  TeamCloudGetAuditEntryResponse,
+  TeamCloudGetAuditCommandsResponse,
   TeamCloudGetOrganizationsResponse,
   TeamCloudCreateOrganizationOptionalParams,
   TeamCloudCreateOrganizationResponse,
@@ -494,6 +499,66 @@ export class TeamCloud extends TeamCloudContext {
       operationArguments,
       negotiateSignalROperationSpec
     ) as Promise<coreHttp.RestResponse>;
+  }
+
+  /**
+   * Gets all audit entries.
+   * @param organizationId
+   * @param options The options parameters.
+   */
+  getAuditEntries(
+    organizationId: string,
+    options?: TeamCloudGetAuditEntriesOptionalParams
+  ): Promise<TeamCloudGetAuditEntriesResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      organizationId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      getAuditEntriesOperationSpec
+    ) as Promise<TeamCloudGetAuditEntriesResponse>;
+  }
+
+  /**
+   * Gets an audit entry.
+   * @param commandId
+   * @param organizationId
+   * @param options The options parameters.
+   */
+  getAuditEntry(
+    commandId: string,
+    organizationId: string,
+    options?: TeamCloudGetAuditEntryOptionalParams
+  ): Promise<TeamCloudGetAuditEntryResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      commandId,
+      organizationId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      getAuditEntryOperationSpec
+    ) as Promise<TeamCloudGetAuditEntryResponse>;
+  }
+
+  /**
+   * Gets all auditable commands.
+   * @param organizationId
+   * @param options The options parameters.
+   */
+  getAuditCommands(
+    organizationId: string,
+    options?: coreHttp.OperationOptions
+  ): Promise<TeamCloudGetAuditCommandsResponse> {
+    const operationArguments: coreHttp.OperationArguments = {
+      organizationId,
+      options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
+    };
+    return this.sendOperationRequest(
+      operationArguments,
+      getAuditCommandsOperationSpec
+    ) as Promise<TeamCloudGetAuditCommandsResponse>;
   }
 
   /**
@@ -1913,6 +1978,72 @@ const negotiateSignalROperationSpec: coreHttp.OperationSpec = {
     Parameters.organizationId,
     Parameters.projectId
   ],
+  serializer
+};
+const getAuditEntriesOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/audit",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.CommandAuditEntityListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  queryParameters: [Parameters.timeRange, Parameters.commands],
+  urlParameters: [Parameters.$host, Parameters.organizationId],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getAuditEntryOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/audit/{commandId}",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.CommandAuditEntityDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  queryParameters: [Parameters.expand],
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.commandId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const getAuditCommandsOperationSpec: coreHttp.OperationSpec = {
+  path: "/orgs/{organizationId}/audit/commands",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.StringListDataResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.organizationId],
+  headerParameters: [Parameters.accept],
   serializer
 };
 const getOrganizationsOperationSpec: coreHttp.OperationSpec = {

@@ -31,7 +31,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public string OrganizationId
         {
-            get => organizationId ?? (Payload as IOrganizationContext)?.Organization;
+            get => (Payload as IOrganizationContext)?.Organization ?? (Payload as Organization)?.Id ?? organizationId;
             set => organizationId = value;
         }
 
@@ -39,7 +39,7 @@ namespace TeamCloud.Model.Commands.Core
 
         public virtual string ProjectId
         {
-            get => projectId ?? (Payload as IProjectContext)?.ProjectId;
+            get => (Payload as IProjectContext)?.ProjectId ?? (Payload as Project)?.Id ?? projectId;
             set => projectId = value;
         }
 
@@ -58,6 +58,8 @@ namespace TeamCloud.Model.Commands.Core
             var result = Activator.CreateInstance<TCommandResult>();
 
             result.CommandId = CommandId;
+            result.OrganizationId = OrganizationId;
+            result.ProjectId = ProjectId;
             result.CommandAction = CommandAction;
             result.RuntimeStatus = CommandRuntimeStatus.Unknown;
 

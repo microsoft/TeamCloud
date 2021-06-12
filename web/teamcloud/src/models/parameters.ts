@@ -161,6 +161,52 @@ export const contentType1: OperationParameter = {
   }
 };
 
+export const timeRange: OperationQueryParameter = {
+  parameterPath: ["options", "timeRange"],
+  mapper: {
+    serializedName: "timeRange",
+    type: {
+      name: "String"
+    }
+  }
+};
+
+export const commands: OperationQueryParameter = {
+  parameterPath: ["options", "commands"],
+  mapper: {
+    serializedName: "commands",
+    type: {
+      name: "Sequence",
+      element: {
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const commandId: OperationURLParameter = {
+  parameterPath: "commandId",
+  mapper: {
+    serializedName: "commandId",
+    required: true,
+    type: {
+      name: "Uuid"
+    }
+  }
+};
+
+export const expand: OperationQueryParameter = {
+  parameterPath: ["options", "expand"],
+  mapper: {
+    serializedName: "expand",
+    type: {
+      name: "Boolean"
+    }
+  }
+};
+
 export const body4: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: OrganizationDefinitionMapper

@@ -4,18 +4,19 @@
  */
 
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Azure.Cosmos.Table;
+using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Audit.Model
 {
-    public sealed class CommandAuditEntity : TableEntityBase
+    [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    public sealed class CommandAuditEntity : AuditEntity
     {
-        private static readonly string EmptyKey = Guid.Empty.ToString();
-
-
+        internal const string AUDIT_TABLE_NAME = "AuditCommands";
+        internal const string AUDIT_CONTAINER_NAME = "audit-commands";
 
         public CommandAuditEntity()
         { }
@@ -25,45 +26,49 @@ namespace TeamCloud.Audit.Model
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            PartitionKey = $"{command.OrganizationId ?? EmptyKey}|{command.ProjectId ?? EmptyKey}";
-            RowKey = command.CommandId.ToString();
+            Entity.RowKey = command.CommandId.ToString();
+
+            Entity.PartitionKey = Guid.TryParse(command.OrganizationId, out var organizationId)
+                ? organizationId.ToString()
+                : Guid.Empty.ToString();
+
+            ProjectId = Guid.TryParse(command.ProjectId, out var projectId)
+                ? projectId.ToString()
+                : Guid.Empty.ToString();
+
+            ComponentTask = (command as ComponentTaskRunCommand)?.Payload?.TypeName
+                ?? (command as ComponentTaskRunCommand)?.Payload?.Type.ToString()
+                ?? string.Empty;
 
             UserId = command.User.Id.ToString();
             ParentId = command.ParentId.ToString();
-            CommandId = command.CommandId.ToString();
             Command = command.GetTypeName(prettyPrint: true);
-
-            ComponentTask = (command as ComponentTaskRunCommand)?.Payload?.TypeName ?? (command as ComponentTaskRunCommand)?.Payload?.Type.ToString() ?? string.Empty;
         }
 
         [IgnoreProperty]
-        public string ProjectId => PartitionKey;
+        public string CommandId => Entity.RowKey;
 
         [IgnoreProperty]
-        public string AuditId => RowKey;
+        public string OrganizationId => Entity.PartitionKey;
 
-        [Column(Order = 100)]
+        [IgnoreProperty]
+        public string CommandJson { get; set; }
+
+        [IgnoreProperty]
+        public string ResultJson { get; set; }
+
+        public string ProjectId { get; private set; }
         public string UserId { get; private set; }
-        [Column(Order = 101)]
         public string ParentId { get; private set; }
-        [Column(Order = 102)]
-        public string CommandId { get; private set; }
-        [Column(Order = 103)]
-        public string Command { get; private set; }
 
-        [Column(Order = 201)]
+        public string Command { get; private set; }
         public string ComponentTask { get; private set; }
 
-        [Column(Order = 301)]
         public CommandRuntimeStatus RuntimeStatus { get; set; } = CommandRuntimeStatus.Unknown;
-        [Column(Order = 302)]
         public string CustomStatus { get; set; }
-        [Column(Order = 303)]
         public string Errors { get; set; }
 
-        [Column(Order = 901)]
         public DateTime? Created { get; set; }
-        [Column(Order = 902)]
         public DateTime? Updated { get; set; }
     }
 }
