@@ -5,8 +5,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -38,6 +40,8 @@ namespace TeamCloud.Serialization.Forms
             {
                 using var schemaStream = GetResourceStream<TData>("schema");
 
+                JToken token;
+
                 if (schemaStream is null)
                 {
                     var generator = new JSchemaGenerator()
@@ -45,14 +49,42 @@ namespace TeamCloud.Serialization.Forms
                         ContractResolver = new TeamCloudContractResolver()
                     };
 
-                    return Task.FromResult(JToken.Parse(generator.Generate(type).ToString()));
+                    token = JToken.Parse(generator.Generate(type).ToString());
                 }
                 else
                 {
                     using var streamReader = new StreamReader(schemaStream);
                     using var schemaReader = new JsonTextReader(streamReader);
 
-                    return Task.FromResult(JToken.Load(schemaReader));
+                    token = JToken.Load(schemaReader);
+                }
+
+                foreach (var propertyToken in token.SelectTokens("$..properties.*"))
+                {
+                    var titleToken = propertyToken.SelectToken("title");
+
+                    if (titleToken is null
+                        && propertyToken is JObject propertyObject
+                        && propertyToken.Parent is JProperty propertyParent)
+                    {
+                        var title = PrettyPrintCamelCase(propertyParent.Name);
+
+                        propertyObject.Add("title", new JValue(title));
+                    }
+                }
+
+                return Task.FromResult(token);
+
+                string PrettyPrintCamelCase(string value)
+                {
+                    if (string.IsNullOrEmpty(value))
+                        return value;
+
+                    var buffer = value.Trim()
+                        .Select((c, i) => i == 0 ? char.ToUpper(c, CultureInfo.InvariantCulture) : c)
+                        .ToArray();
+
+                    return Regex.Replace(new string(buffer), @"(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", " $1");
                 }
 
             }).ConfigureAwait(false);
