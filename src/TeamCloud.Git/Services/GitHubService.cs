@@ -16,7 +16,6 @@ using TeamCloud.Git.Converter;
 using TeamCloud.Model.Data;
 using TeamCloud.Serialization;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace TeamCloud.Git.Services
 {
@@ -26,7 +25,6 @@ namespace TeamCloud.Git.Services
         private static readonly string ProductHeaderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         private readonly GitHubClient client;
-        private readonly IDeserializer yamlDeserializer;
 
         internal GitHubService(IRepositoryCache cache)
         {
@@ -35,10 +33,6 @@ namespace TeamCloud.Git.Services
                 new GitHubCache(new HttpClientAdapter(HttpMessageHandlerFactory.CreateDefault), cache));
 
             client = new GitHubClient(connection);
-
-            yamlDeserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         }
 
         internal async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)

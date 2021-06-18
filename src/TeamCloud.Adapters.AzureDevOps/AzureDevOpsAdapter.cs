@@ -72,20 +72,21 @@ namespace TeamCloud.Adapters.AzureDevOps
         private readonly IAzureDirectoryService azureDirectoryService;
         private readonly IFunctionsHost functionsHost;
 
-        public AzureDevOpsAdapter(IAuthorizationSessionClient sessionClient,
-                                  IAuthorizationTokenClient tokenClient,
-                                  IDistributedLockManager distributedLockManager,
-                                  IHttpClientFactory httpClientFactory,
-                                  IOrganizationRepository organizationRepository,
-                                  IUserRepository userRepository,
-                                  IDeploymentScopeRepository deploymentScopeRepository,
-                                  IProjectRepository projectRepository,
-                                  IComponentRepository componentRepository,
-                                  IComponentTemplateRepository componentTemplateRepository,
-                                  IAzureSessionService azureSessionService,
-                                  IAzureResourceService azureResourceService,
-                                  IAzureDirectoryService azureDirectoryService,
-                                  IFunctionsHost functionsHost = null)
+        public AzureDevOpsAdapter(
+            IAuthorizationSessionClient sessionClient,
+            IAuthorizationTokenClient tokenClient,
+            IDistributedLockManager distributedLockManager,
+            IHttpClientFactory httpClientFactory,
+            IOrganizationRepository organizationRepository,
+            IUserRepository userRepository,
+            IDeploymentScopeRepository deploymentScopeRepository,
+            IProjectRepository projectRepository,
+            IComponentRepository componentRepository,
+            IComponentTemplateRepository componentTemplateRepository,
+            IAzureSessionService azureSessionService,
+            IAzureResourceService azureResourceService,
+            IAzureDirectoryService azureDirectoryService,
+            IFunctionsHost functionsHost = null)
             : base(sessionClient, tokenClient, distributedLockManager)
         {
             this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
@@ -111,10 +112,12 @@ namespace TeamCloud.Adapters.AzureDevOps
             => "Azure DevOps";
 
         public override Task<string> GetInputDataSchemaAsync()
-            => TeamCloudForm.GetDataSchemaAsync<AzureDevOpsData>().ContinueWith(t => t.Result.ToString(), TaskScheduler.Current);
+            => TeamCloudForm.GetDataSchemaAsync<AzureDevOpsData>()
+            .ContinueWith(t => t.Result.ToString(), TaskContinuationOptions.OnlyOnRanToCompletion);
 
         public override Task<string> GetInputFormSchemaAsync()
-            => TeamCloudForm.GetFormSchemaAsync<AzureDevOpsData>().ContinueWith(t => t.Result.ToString(), TaskScheduler.Current);
+            => TeamCloudForm.GetFormSchemaAsync<AzureDevOpsData>()
+            .ContinueWith(t => t.Result.ToString(), TaskContinuationOptions.OnlyOnRanToCompletion);
 
         public override async Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
         {
@@ -286,6 +289,10 @@ namespace TeamCloud.Adapters.AzureDevOps
                 log.LogInformation($"Authorization succeeded");
             }
 
+            var data = string.IsNullOrWhiteSpace(deploymentScope.InputData)
+                ? default
+                : TeamCloudSerialize.DeserializeObject<AzureDevOpsData>(deploymentScope.InputData);
+
             return new ContentResult
             {
                 StatusCode = (int)HttpStatusCode.OK,
@@ -294,6 +301,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                 {
                     applicationWebsite = functionsHost.HostUrl,
                     applicationCallback = authorizationEndpoints.CallbackUrl,
+                    data = data,
                     session = authorizationSession,
                     error = queryError ?? string.Empty,
                     succeeded = queryParams.ContainsKey("succeeded")
@@ -697,8 +705,14 @@ namespace TeamCloud.Adapters.AzureDevOps
 
                 if (gitRepo is null)
                 {
+                    var repoSettings = new GitRepository()
+                    {
+                        Name = component.DisplayName,
+                        ProjectReference = teamProject
+                    };
+
                     gitRepo = await gitClient
-                        .CreateRepositoryAsync(new GitRepository() { Name = component.DisplayName, ProjectReference = teamProject })
+                        .CreateRepositoryAsync(repoSettings)
                         .ConfigureAwait(false);
 
                     resourceIdUpdated = true;

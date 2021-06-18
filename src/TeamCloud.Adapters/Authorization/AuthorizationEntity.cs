@@ -11,6 +11,7 @@ using System.Reflection;
 using Microsoft.Azure.Cosmos.Table;
 using Newtonsoft.Json;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Adapters.Authorization
 {
@@ -45,6 +46,9 @@ namespace TeamCloud.Adapters.Authorization
         private static bool IsEdmType(Type type)
             => Enum.GetNames(typeof(EdmType)).Contains(type.Name, StringComparer.OrdinalIgnoreCase) || type.IsEnum;
 
+        private static bool IsComplexType(Type type)
+            => type.IsClass && type != typeof(string);
+
         private static readonly ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> ResolvePropertiesCache = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
 
         private static IEnumerable<PropertyInfo> ResolveProperties(Type type)
@@ -58,7 +62,7 @@ namespace TeamCloud.Adapters.Authorization
 
             return properties.Union(ResolvePropertiesCache.GetOrAdd(type, (type) => type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && IsEdmType(pi.PropertyType) && (pi.CanWrite || pi.GetSetMethod(true) != null))));
+                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && (IsEdmType(pi.PropertyType) || IsComplexType(pi.PropertyType)) && (pi.CanWrite || pi.GetSetMethod(true) != null))));
         }
 
         private IEnumerable<PropertyInfo> EntityProperties => ResolveProperties(this.GetType());
@@ -95,7 +99,20 @@ namespace TeamCloud.Adapters.Authorization
                         }
                         catch (Exception exc)
                         {
-                            throw new Exception($"Failed to read value for property '{entityProperty.Name}'", exc);
+                            throw new Exception($"Failed to parse enum value for property '{entityProperty.Name}'", exc);
+                        }
+                    }
+                    else if (IsComplexType(entityProperty.PropertyType) && property.PropertyType == EdmType.String && !string.IsNullOrWhiteSpace(property.StringValue))
+                    {
+                        try
+                        {
+                            value = string.IsNullOrWhiteSpace(property.StringValue)
+                                ? default
+                                : TeamCloudSerialize.DeserializeObject(property.StringValue, entityProperty.PropertyType);
+                        }
+                        catch (Exception exc)
+                        {
+                            throw new Exception($"Failed to deserialize complex value for property '{entityProperty.Name}'", exc);
                         }
                     }
 
@@ -116,6 +133,16 @@ namespace TeamCloud.Adapters.Authorization
                 if (entityProperty.PropertyType.IsEnum)
                 {
                     properties[entityProperty.Name] = new EntityProperty(Enum.GetName(entityProperty.PropertyType, entityProperty.GetValue(this)));
+                }
+                else if (IsComplexType(entityProperty.PropertyType))
+                {
+                    var value = entityProperty.GetValue(this);
+
+                    var json = value is null
+                        ? default
+                        : TeamCloudSerialize.SerializeObject(value as object);
+
+                    properties[entityProperty.Name] = EntityProperty.GeneratePropertyForString(json);
                 }
                 else
                 {

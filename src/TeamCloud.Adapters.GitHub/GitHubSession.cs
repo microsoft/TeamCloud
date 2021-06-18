@@ -10,10 +10,12 @@ namespace TeamCloud.Adapters.GitHub
 {
     public sealed class GitHubSession : AuthorizationSession
     {
+        public GitHubSession() : this(null)
+        { }
+
         public GitHubSession(DeploymentScope deploymentScope = null) : base(GetEntityId(deploymentScope))
         { }
 
-        public string TeamCloudOrganization { get; internal set; }
-        public string TeamCloudDeploymentScope { get; internal set; }
+        public string Organization { get; internal set; }
     }
 }

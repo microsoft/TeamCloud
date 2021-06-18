@@ -21,11 +21,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
 {
     public sealed class AdapterUpdateComponentActivity
     {
+        private readonly IComponentRepository componentRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IEnumerable<IAdapter> adapters;
 
-        public AdapterUpdateComponentActivity(IDeploymentScopeRepository deploymentScopeRepository, IEnumerable<IAdapter> adapters)
+        public AdapterUpdateComponentActivity(IComponentRepository componentRepository, IDeploymentScopeRepository deploymentScopeRepository, IEnumerable<IAdapter> adapters)
         {
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
         }
@@ -44,6 +46,14 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
                 throw new ArgumentNullException(nameof(log));
 
             var component = context.GetInput<Input>().Component;
+
+            // ensure we deal with the latest version of the component
+            // as adapters have the power to update it - so it could be
+            // changed in case this is a retry
+
+            component = await componentRepository
+                .GetAsync(component.ProjectId, component.Id)
+                .ConfigureAwait(false);
 
             var deploymentScope = await deploymentScopeRepository
                 .GetAsync(component.Organization, component.DeploymentScopeId)

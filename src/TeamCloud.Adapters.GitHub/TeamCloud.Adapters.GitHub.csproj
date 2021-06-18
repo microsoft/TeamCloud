@@ -8,21 +8,34 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="GitHubAdapter_Authorize.html" />
     <None Remove="GitHubAdapter_Callback.html" />
+    <None Remove="GitHubAdapter_Install.html" />
+    <None Remove="GitHubAdapter_Register.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="GitHubAdapter_Authorize.html" />
+    <EmbeddedResource Include="GitHubAdapter_Install.html" />
+    <EmbeddedResource Include="GitHubAdapter_Register.html" />
     <EmbeddedResource Include="GitHubAdapter_Callback.html" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="jose-jwt" Version="3.1.1" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
+    <PackageReference Include="FluentValidation" Version="9.2.2" />
+    <PackageReference Include="Flurl.Http" Version="2.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Octokit" Version="0.48.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Adapters\TeamCloud.Adapters.csproj" />
+    <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />
+    <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
+    <ProjectReference Include="..\TeamCloud.Http\TeamCloud.Http.csproj" />
+    <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
+    <ProjectReference Include="..\TeamCloud.Orchestration\TeamCloud.Orchestration.csproj" />
+    <ProjectReference Include="..\TeamCloud.Templates\TeamCloud.Templates.csproj" />
   </ItemGroup>
 
 </Project>

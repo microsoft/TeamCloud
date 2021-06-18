@@ -131,24 +131,23 @@ namespace TeamCloud.Adapters.AzureDevOps
 
                 if (match.Success)
                 {
-                    if (expression == ProjectExpression)
+                    azureDevOpsIdentifier = expression switch
                     {
-                        azureDevOpsIdentifier = new AzureDevOpsIdentifier()
+                        Regex exp when (expression == ProjectExpression) => new AzureDevOpsIdentifier()
                         {
                             Organization = match.Groups[1].Value,
                             Project = match.Groups[2].Value
-                        };
-                    }
-                    else if (expression == ResourceExpression)
-                    {
+                        },
 
-                        azureDevOpsIdentifier = new AzureDevOpsIdentifier()
+                        Regex exp when (expression == ResourceExpression) => new AzureDevOpsIdentifier()
                         {
                             Organization = match.Groups[1].Value,
                             Project = match.Groups[2].Value,
                             ResourcePath = match.Groups[3].Value
-                        };
-                    }
+                        },
+
+                        _ => default
+                    };
                 }
 
                 if (azureDevOpsIdentifier != null) break;

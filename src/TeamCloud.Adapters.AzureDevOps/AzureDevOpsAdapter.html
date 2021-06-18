@@ -68,7 +68,7 @@
                     <div id="registrationForm">
                         <div class="form-group">
                             <label for="client_id">Organization</label>
-                            <input type="text" class="form-control" name="organization" id="organization" placeholder="Enter your Azure DevOps organization name" value="{{ session.organization }}" />
+                            <input type="text" class="form-control" name="organization" id="organization" placeholder="Enter your Azure DevOps organization name" readonly value="{{ session.organization | default: data.organization }}" />
                         </div>
                         <hr />
                         <h2>Personal Access Token (PAT)</h2>
