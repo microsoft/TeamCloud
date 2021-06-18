@@ -85,7 +85,7 @@ namespace TeamCloud.Git.Services
                 .Select(ti => ResolveComponentTemplate(ti))
                 .ToList();
 
-            while(componentTemplateTasks.Any())
+            while (componentTemplateTasks.Any())
             {
                 var componentTemplateTask = await Task
                     .WhenAny(componentTemplateTasks)
@@ -93,11 +93,11 @@ namespace TeamCloud.Git.Services
 
                 try
                 {
-                    yield return componentTemplateTask.Result;
+                    yield return await componentTemplateTask.ConfigureAwait(false);
                 }
                 finally
-                { 
-                    componentTemplateTasks.Remove(componentTemplateTask); 
+                {
+                    componentTemplateTasks.Remove(componentTemplateTask);
                 }
             }
 
