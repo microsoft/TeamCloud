@@ -410,7 +410,7 @@ namespace TeamCloud.Adapters.GitHub
                 .GetAsync(component.Organization, component.ProjectId)
                 .ConfigureAwait(false);
 
-            var repositoryName = component.DisplayName;
+            var repositoryName = $"{project.DisplayName} {component.DisplayName}";
             var repositoryDescription = $"Repository for TeamCloud project {project.DisplayName}";
 
             Repository repository = null;
