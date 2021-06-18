@@ -64,6 +64,37 @@ namespace TeamCloud.Git.Services
             return projectTemplate;
         }
 
+        internal async Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId)
+        {
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
+
+            if (!Guid.TryParse(templateId, out var templateIdParsed))
+                return null;
+
+            var repository = projectTemplate.Repository;
+
+            var creds = new VssBasicCredential(string.Empty, repository.Token);
+            using var connection = new VssConnection(new Uri(repository.BaselUrl), creds);
+            using var client = connection.GetClient<GitHttpClient>();
+
+            var commit = await client
+                .GetCommitAsync(project: repository.Project, repository.Ref, repository.Repository)
+                .ConfigureAwait(false);
+
+            var result = await client
+                .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
+                .ConfigureAwait(false);
+
+            var componentTemplateItem = result.TreeEntries
+                .FirstOrDefault(ti => ti.Url.ToGuid().Equals(templateIdParsed));
+
+            if (componentTemplateItem is null)
+                return null;
+
+            return await ResolveComponentTemplateAsync(projectTemplate, repository, client, result, componentTemplateItem)
+                .ConfigureAwait(false);
+        }
 
         internal async IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
         {
@@ -84,32 +115,46 @@ namespace TeamCloud.Git.Services
                 .GetTreeAsync(project: repository.Project, repository.Repository, commit.TreeId, recursive: true)
                 .ConfigureAwait(false);
 
-            var componentTemplates = result.TreeEntries
+            var componentTemplateTasks = result.TreeEntries
                 .Where(t => t.RelativePath.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal))
-                .Select(te => ResolveComponentTemplate(te))
-                .ToAsyncEnumerable();
+                .Select(te => ResolveComponentTemplateAsync(projectTemplate, repository, client, result, te))
+                .ToList();
 
-            await foreach (var componentTemplate in componentTemplates)
-                yield return componentTemplate;
-
-            async Task<ComponentTemplate> ResolveComponentTemplate(GitTreeEntryRef componentItem)
+            while (componentTemplateTasks.Any())
             {
-                var componentYamlFile = await client
-                    .GetItemAsync(project: repository.Project, repository.Repository, componentItem.RelativePath, download: true, versionDescriptor: repository.VersionDescriptor())
+                var componentTemplateTask = await Task
+                    .WhenAny(componentTemplateTasks)
                     .ConfigureAwait(false);
 
-                var componentYaml = componentYamlFile.Content;
-                var componentJson = new Deserializer().ToJson(componentYaml);
-                var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, componentYamlFile.Path));
-
-                var folder = componentItem.RelativePath.Split(Constants.ComponentYaml).First().TrimEnd('/');
-
-                componentTemplate.Description = await CheckAndPopulateFileContentAsync(client, repository, result.TreeEntries, componentTemplate.Description, folder)
-                    .ConfigureAwait(false);
-
-                return componentTemplate;
+                try
+                {
+                    yield return await componentTemplateTask.ConfigureAwait(false);
+                }
+                finally
+                {
+                    componentTemplateTasks.Remove(componentTemplateTask);
+                }
             }
         }
+
+        private static async Task<ComponentTemplate> ResolveComponentTemplateAsync(ProjectTemplate projectTemplate, RepositoryReference repository, GitHttpClient client, GitTreeRef tree, GitTreeEntryRef treeItem)
+        {
+            var componentYamlFile = await client
+                .GetItemAsync(project: repository.Project, repository.Repository, treeItem.RelativePath, download: true, versionDescriptor: repository.VersionDescriptor())
+                .ConfigureAwait(false);
+
+            var componentYaml = componentYamlFile.Content;
+            var componentJson = new Deserializer().ToJson(componentYaml);
+            var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, componentYamlFile.Path));
+
+            var folder = treeItem.RelativePath.Split(Constants.ComponentYaml).First().TrimEnd('/');
+
+            componentTemplate.Description = await CheckAndPopulateFileContentAsync(client, repository, tree.TreeEntries, componentTemplate.Description, folder)
+                .ConfigureAwait(false);
+
+            return componentTemplate;
+        }
+
 
         private static async Task<string> CheckAndPopulateFileContentAsync(GitHttpClient client, RepositoryReference repo, IEnumerable<GitTreeEntryRef> tree, string value, string folder = null)
         {

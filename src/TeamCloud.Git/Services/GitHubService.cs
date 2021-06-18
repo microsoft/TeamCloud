@@ -65,6 +65,32 @@ namespace TeamCloud.Git.Services
             return projectTemplate;
         }
 
+        internal async Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId)
+        {
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
+
+            if (!Guid.TryParse(templateId, out var templateIdParsed))
+                return null;
+
+            var repository = projectTemplate.Repository;
+
+            if (!string.IsNullOrEmpty(repository.Token))
+                client.Credentials = new Credentials(repository.Token);
+
+            var result = await client.Git.Tree
+                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
+                .ConfigureAwait(false);
+
+            var componentTreeItem = result.Tree
+                .FirstOrDefault(ti => ti.Url.ToGuid().Equals(templateIdParsed));
+
+            if (componentTreeItem is null)
+                return null;
+
+            return await ResolveComponentTemplateAsync(projectTemplate, repository, result, componentTreeItem)
+                .ConfigureAwait(false);
+        }
 
         internal async IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
         {
@@ -82,7 +108,7 @@ namespace TeamCloud.Git.Services
 
             var componentTemplateTasks = result.Tree
                 .Where(ti => ti.Path.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal))
-                .Select(ti => ResolveComponentTemplate(ti))
+                .Select(ti => ResolveComponentTemplateAsync(projectTemplate, repository, result, ti))
                 .ToList();
 
             while (componentTemplateTasks.Any())
@@ -100,26 +126,25 @@ namespace TeamCloud.Git.Services
                     componentTemplateTasks.Remove(componentTemplateTask);
                 }
             }
-
-            async Task<ComponentTemplate> ResolveComponentTemplate(TreeItem componentItem)
-            {
-                var componentYamlFiles = await client.Repository.Content
-                    .GetAllContents(repository.Organization, repository.Repository, componentItem.Path)
-                    .ConfigureAwait(false);
-
-                var componentYamlFile = componentYamlFiles.First();
-                var componentYaml = componentYamlFile.Content;
-                var componentJson = new Deserializer().ToJson(componentYaml);
-
-                var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, componentItem.Url));
-
-                componentTemplate.Folder = Regex.Replace(componentItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
-                componentTemplate.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, componentTemplate.Description, componentTemplate.Folder).ConfigureAwait(false);
-
-                return componentTemplate;
-            }
         }
 
+        private async Task<ComponentTemplate> ResolveComponentTemplateAsync(ProjectTemplate projectTemplate, RepositoryReference repository, TreeResponse tree, TreeItem treeItem)
+        {
+            var componentYamlFiles = await client.Repository.Content
+                .GetAllContents(repository.Organization, repository.Repository, treeItem.Path)
+                .ConfigureAwait(false);
+
+            var componentYamlFile = componentYamlFiles.First();
+            var componentYaml = componentYamlFile.Content;
+            var componentJson = new Deserializer().ToJson(componentYaml);
+
+            var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, treeItem.Url));
+
+            componentTemplate.Folder = Regex.Replace(treeItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
+            componentTemplate.Description = await CheckAndPopulateFileContentAsync(repository, tree.Tree, componentTemplate.Description, componentTemplate.Folder).ConfigureAwait(false);
+
+            return componentTemplate;
+        }
 
         private async Task<string> CheckAndPopulateFileContentAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree, string value, string folder = null)
         {

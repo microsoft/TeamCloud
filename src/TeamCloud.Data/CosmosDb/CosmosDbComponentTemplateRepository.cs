@@ -28,7 +28,7 @@ namespace TeamCloud.Data.CosmosDb
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        private Task<string> GetTemplateIdAsync(string organization, string projectId)
+        private Task<string> ResolveProjectTemplateIdAsync(string organization, string projectId)
         {
             var cacheKey = $"{this.GetType().Name}|{organization}|{projectId}";
 
@@ -46,14 +46,21 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task<ComponentTemplate> GetAsync(string organization, string projectId, string id)
         {
-            return await ListAsync(organization, projectId)
-                .FirstOrDefaultAsync(ct => ct.Id.Equals(id, StringComparison.OrdinalIgnoreCase))
+            var templateId = await ResolveProjectTemplateIdAsync(organization, projectId)
+                .ConfigureAwait(false);
+
+            var projectTemplate = await projectTemplateRepository
+                .GetAsync(organization, templateId)
+                .ConfigureAwait(false);
+
+            return await repositoryService
+                .GetComponentTemplateAsync(projectTemplate, id)
                 .ConfigureAwait(false);
         }
 
         public async IAsyncEnumerable<ComponentTemplate> ListAsync(string organization, string projectId)
         {
-            var templateId = await GetTemplateIdAsync(organization, projectId)
+            var templateId = await ResolveProjectTemplateIdAsync(organization, projectId)
                 .ConfigureAwait(false);
 
             var projectTemplate = await projectTemplateRepository
@@ -67,7 +74,7 @@ namespace TeamCloud.Data.CosmosDb
 
         public async IAsyncEnumerable<ComponentTemplate> ListAsync(string organization, string projectId, IEnumerable<string> identifiers)
         {
-            var templateId = await GetTemplateIdAsync(organization, projectId)
+            var templateId = await ResolveProjectTemplateIdAsync(organization, projectId)
                 .ConfigureAwait(false);
 
             var projectTemplate = await projectTemplateRepository
