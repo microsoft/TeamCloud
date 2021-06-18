@@ -80,13 +80,26 @@ namespace TeamCloud.Git.Services
                 .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
                 .ConfigureAwait(false);
 
-            var componentTemplates = result.Tree
+            var componentTemplateTasks = result.Tree
                 .Where(ti => ti.Path.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal))
                 .Select(ti => ResolveComponentTemplate(ti))
-                .ToAsyncEnumerable();
+                .ToList();
 
-            await foreach (var componentTemplate in componentTemplates)
-                yield return componentTemplate;
+            while(componentTemplateTasks.Any())
+            {
+                var componentTemplateTask = await Task
+                    .WhenAny(componentTemplateTasks)
+                    .ConfigureAwait(false);
+
+                try
+                {
+                    yield return componentTemplateTask.Result;
+                }
+                finally
+                { 
+                    componentTemplateTasks.Remove(componentTemplateTask); 
+                }
+            }
 
             async Task<ComponentTemplate> ResolveComponentTemplate(TreeItem componentItem)
             {
