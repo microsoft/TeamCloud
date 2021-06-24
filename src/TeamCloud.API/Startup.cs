@@ -50,6 +50,7 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 
 namespace TeamCloud.API
@@ -118,7 +119,8 @@ namespace TeamCloud.API
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
                 .AddTeamCloudAudit()
-                .AddTeamCloudHttp();
+                .AddTeamCloudHttp()
+                .AddTeamCloudSecrets();
 
             if (string.IsNullOrEmpty(Configuration.GetValue<string>("Cache:Configuration")))
             {

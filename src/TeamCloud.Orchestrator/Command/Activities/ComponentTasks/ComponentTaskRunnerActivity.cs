@@ -525,11 +525,11 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
         private async Task<dynamic> GetVaultSecretsAsync(Project project)
         {
-            if (!AzureResourceIdentifier.TryParse(project.VaultId, out var _))
+            if (!AzureResourceIdentifier.TryParse(project.SharedVaultId, out var _))
                 throw new NullReferenceException($"Missing vault id for project {project.Id}");
 
             var componentVault = await azureResourceService
-                .GetResourceAsync<AzureKeyVaultResource>(project.VaultId, true)
+                .GetResourceAsync<AzureKeyVaultResource>(project.SharedVaultId, true)
                 .ConfigureAwait(false);
 
             var identity = await azureResourceService.AzureSessionService

@@ -1,4 +1,9 @@
-﻿using TeamCloud.Serialization.Forms;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using TeamCloud.Serialization.Forms;
 
 namespace TeamCloud.Adapters.GitHub
 {

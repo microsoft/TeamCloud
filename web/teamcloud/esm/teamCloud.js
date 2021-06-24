@@ -1577,6 +1577,9 @@ var updateOrganizationUserOperationSpec = {
     path: "/orgs/{organizationId}/users/{userId}",
     httpMethod: "PUT",
     responses: {
+        200: {
+            bodyMapper: Mappers.UserDataResult
+        },
         202: {
             bodyMapper: Mappers.StatusResult
         },
@@ -1605,6 +1608,9 @@ var deleteOrganizationUserOperationSpec = {
     responses: {
         202: {
             bodyMapper: Mappers.StatusResult
+        },
+        204: {
+            bodyMapper: Mappers.UserDataResult
         },
         401: {},
         403: {},
@@ -1644,6 +1650,9 @@ var updateOrganizationUserMeOperationSpec = {
     path: "/orgs/{organizationId}/me",
     httpMethod: "PUT",
     responses: {
+        200: {
+            bodyMapper: Mappers.UserDataResult
+        },
         202: {
             bodyMapper: Mappers.StatusResult
         },

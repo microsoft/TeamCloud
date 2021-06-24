@@ -26,6 +26,10 @@ export declare interface AdapterInformationListDataResult {
  */
 export declare type AdapterInformationType = string;
 
+export declare interface AlternateIdentity {
+    login?: string | null;
+}
+
 export declare interface CommandAuditEntity {
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly commandId?: string | null;
@@ -614,7 +618,10 @@ export declare interface Project {
     } | null;
     resourceId?: string | null;
     resourceState?: ProjectResourceState;
-    vaultId?: string | null;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly vaultId?: string | null;
+    sharedVaultId?: string | null;
+    secretsVaultId?: string | null;
     storageId?: string | null;
     id: string;
 }
@@ -2116,13 +2123,13 @@ export declare interface TeamCloudUpdateOrganizationUserMeOptionalParams extends
 }
 
 /** Contains response data for the updateOrganizationUserMe operation. */
-export declare type TeamCloudUpdateOrganizationUserMeResponse = StatusResult & {
+export declare type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -2132,13 +2139,13 @@ export declare interface TeamCloudUpdateOrganizationUserOptionalParams extends c
 }
 
 /** Contains response data for the updateOrganizationUser operation. */
-export declare type TeamCloudUpdateOrganizationUserResponse = StatusResult & {
+export declare type TeamCloudUpdateOrganizationUserResponse = UserDataResult & {
     /** The underlying HTTP response. */
     _response: coreHttp.HttpResponse & {
         /** The response body as text (string format) */
         bodyAsText: string;
         /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -2249,11 +2256,18 @@ export declare interface User {
     userType: UserType;
     role: UserRole;
     projectMemberships?: ProjectMembership[] | null;
+    alternateIdentities?: UserAlternateIdentities | null;
     /** Dictionary of <string> */
     properties?: {
         [propertyName: string]: string;
     } | null;
     id: string;
+}
+
+export declare interface UserAlternateIdentities {
+    azureResourceManager?: AlternateIdentity;
+    azureDevOps?: AlternateIdentity;
+    gitHub?: AlternateIdentity;
 }
 
 export declare interface UserDataResult {

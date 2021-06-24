@@ -23,18 +23,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 {
     public static class AzureDevOpsExtensions
     {
-        internal static Guid Merge(this Guid instance, Guid value, params Guid[] additionalValues)
-        {
-            var buffer = value.ToByteArray();
 
-            var result = new Guid(instance.ToByteArray()
-                .Select((b, i) => (byte)(b ^ buffer[i]))
-                .ToArray());
-
-            return additionalValues.Any()
-                ? result.Merge(additionalValues.First(), additionalValues.Skip(1).ToArray())
-                : result;
-        }
 
         internal static bool TryMatch(this Regex expression, string input, out Match match)
         {

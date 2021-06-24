@@ -35,6 +35,8 @@ export declare const OrganizationDataResult: coreHttp.CompositeMapper;
 export declare const UserListDataResult: coreHttp.CompositeMapper;
 export declare const User: coreHttp.CompositeMapper;
 export declare const ProjectMembership: coreHttp.CompositeMapper;
+export declare const UserAlternateIdentities: coreHttp.CompositeMapper;
+export declare const AlternateIdentity: coreHttp.CompositeMapper;
 export declare const UserDefinition: coreHttp.CompositeMapper;
 export declare const UserDataResult: coreHttp.CompositeMapper;
 export declare const ProjectListDataResult: coreHttp.CompositeMapper;

@@ -1,4 +1,9 @@
-﻿using TeamCloud.Audit;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using TeamCloud.Audit;
 
 namespace TeamCloud.Configuration.Options
 {

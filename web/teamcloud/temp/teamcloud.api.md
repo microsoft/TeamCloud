@@ -33,6 +33,12 @@ export interface AdapterInformationListDataResult {
 export type AdapterInformationType = string;
 
 // @public (undocumented)
+export interface AlternateIdentity {
+    // (undocumented)
+    login?: string | null;
+}
+
+// @public (undocumented)
 export interface CommandAuditEntity {
     // (undocumented)
     command?: string | null;
@@ -774,6 +780,10 @@ export interface Project {
     // (undocumented)
     resourceState?: ProjectResourceState;
     // (undocumented)
+    secretsVaultId?: string | null;
+    // (undocumented)
+    sharedVaultId?: string | null;
+    // (undocumented)
     slug: string;
     // (undocumented)
     storageId?: string | null;
@@ -786,8 +796,7 @@ export interface Project {
     templateInput?: string | null;
     // (undocumented)
     users?: User[] | null;
-    // (undocumented)
-    vaultId?: string | null;
+    readonly vaultId?: string | null;
 }
 
 // @public (undocumented)
@@ -1770,10 +1779,10 @@ export interface TeamCloudUpdateOrganizationUserMeOptionalParams extends coreHtt
 }
 
 // @public
-export type TeamCloudUpdateOrganizationUserMeResponse = StatusResult & {
+export type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -1784,10 +1793,10 @@ export interface TeamCloudUpdateOrganizationUserOptionalParams extends coreHttp.
 }
 
 // @public
-export type TeamCloudUpdateOrganizationUserResponse = StatusResult & {
+export type TeamCloudUpdateOrganizationUserResponse = UserDataResult & {
     _response: coreHttp.HttpResponse & {
         bodyAsText: string;
-        parsedBody: StatusResult;
+        parsedBody: UserDataResult;
     };
 };
 
@@ -1879,6 +1888,8 @@ export type TeamCloudUpdateScheduleResponse = ScheduleDataResult & {
 // @public (undocumented)
 export interface User {
     // (undocumented)
+    alternateIdentities?: UserAlternateIdentities | null;
+    // (undocumented)
     displayName?: string | null;
     // (undocumented)
     id: string;
@@ -1897,6 +1908,16 @@ export interface User {
     role: UserRole;
     // (undocumented)
     userType: UserType;
+}
+
+// @public (undocumented)
+export interface UserAlternateIdentities {
+    // (undocumented)
+    azureDevOps?: AlternateIdentity;
+    // (undocumented)
+    azureResourceManager?: AlternateIdentity;
+    // (undocumented)
+    gitHub?: AlternateIdentity;
 }
 
 // @public (undocumented)

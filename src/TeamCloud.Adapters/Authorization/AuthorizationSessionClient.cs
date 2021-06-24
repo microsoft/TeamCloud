@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
-using TeamCloud.Adapters.Utilities;
+using Nito.AsyncEx;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization
@@ -45,8 +45,7 @@ namespace TeamCloud.Adapters.Authorization
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            var table = await tableInstance.Value
-                .ConfigureAwait(false);
+            var table = await tableInstance.ConfigureAwait(false);
 
             var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
             var partitionKey = string.Join(",", typeof(TAuthorizationSession).AssemblyQualifiedName.Split(',').Take(2));
@@ -73,8 +72,7 @@ namespace TeamCloud.Adapters.Authorization
             if (authorizationSession is null)
                 throw new ArgumentNullException(nameof(authorizationSession));
 
-            var table = await tableInstance.Value
-                .ConfigureAwait(false);
+            var table = await tableInstance.ConfigureAwait(false);
 
             var response = await table
                 .ExecuteAsync(TableOperation.InsertOrReplace(authorizationSession))

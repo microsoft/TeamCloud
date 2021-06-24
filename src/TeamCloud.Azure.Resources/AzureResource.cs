@@ -468,7 +468,9 @@ namespace TeamCloud.Azure.Resources
                     .Select(roleId => AddRoleAssignmentAsync(userObjectId, roleId)));
             }
 
-            Task.WaitAll(tasks.ToArray());
+            await tasks
+                .WhenAll()
+                .ConfigureAwait(false);
         }
 
         public virtual async Task<IDictionary<string, IEnumerable<Guid>>> GetRoleAssignmentsAsync(bool includeInherited = false)

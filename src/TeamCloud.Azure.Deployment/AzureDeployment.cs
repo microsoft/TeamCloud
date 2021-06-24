@@ -214,7 +214,9 @@ namespace TeamCloud.Azure.Deployment
                 .AllowAnyHttpStatus()
                 .DeleteAsync());
 
-            Task.WaitAll(tasks.ToArray());
+            await tasks
+                .WhenAll()
+                .ConfigureAwait(false);
         }
 
         public async Task<IReadOnlyDictionary<string, object>> GetOutputAsync()

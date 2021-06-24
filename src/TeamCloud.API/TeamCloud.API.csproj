@@ -57,5 +57,6 @@
     <ProjectReference Include="..\TeamCloud.Http\TeamCloud.Http.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
     <ProjectReference Include="..\TeamCloud.Model.Validation\TeamCloud.Model.Validation.csproj" />
+    <ProjectReference Include="..\TeamCloud.Secrets\TeamCloud.Secrets.csproj" />
   </ItemGroup>
 </Project>

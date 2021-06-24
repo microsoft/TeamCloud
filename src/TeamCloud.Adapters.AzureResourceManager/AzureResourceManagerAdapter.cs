@@ -14,10 +14,12 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
+using TeamCloud.Azure.Directory;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
+using TeamCloud.Secrets;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
 
@@ -37,7 +39,9 @@ namespace TeamCloud.Adapters.AzureResourceManager
         public AzureResourceManagerAdapter(IAuthorizationSessionClient sessionClient,
                                            IAuthorizationTokenClient tokenClient,
                                            IDistributedLockManager distributedLockManager,
+                                           ISecretsStoreProvider secretsStoreProvider,
                                            IAzureSessionService azureSessionService,
+                                           IAzureDirectoryService azureDirectoryService,
                                            IAzureResourceService azureResourceService,
                                            IOrganizationRepository organizationRepository,
                                            IUserRepository userRepository,
@@ -45,7 +49,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                                            IProjectRepository projectRepository,
                                            IComponentRepository componentRepository,
                                            IComponentTemplateRepository componentTemplateRepository)
-            : base(sessionClient, tokenClient, distributedLockManager)
+            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

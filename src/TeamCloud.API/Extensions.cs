@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -24,7 +23,7 @@ using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.API
 {
-    internal static class GlobalExtensions
+    internal static class Extensions
     {
         internal static async IAsyncEnumerable<TSource> ToAsyncEnumerable<TSource>(this IEnumerable<Task<TSource>> source)
         {
@@ -153,11 +152,7 @@ namespace TeamCloud.API
             return serializer.Deserialize<T>(jsonReader);
         }
 
-        public static bool IsGuid(this string value)
-            => Guid.TryParse(value, out var _);
 
-        public static bool IsEMail(this string value)
-            => new EmailAddressAttribute().IsValid(value);
 
         public static bool IsUserIdentifier(this string identifier)
             => !string.IsNullOrWhiteSpace(identifier);

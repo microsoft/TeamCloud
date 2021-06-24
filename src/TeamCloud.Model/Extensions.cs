@@ -15,7 +15,7 @@ using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.Model
 {
-    public static class GlobalExtensions
+    public static class Extensions
     {
         public static T MapTo<T>(this Enum instance, T defaultValue, bool ignoreCase = false)
             where T : struct

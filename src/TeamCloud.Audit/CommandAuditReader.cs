@@ -1,4 +1,9 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,14 +48,15 @@ namespace TeamCloud.Audit
 
                 var entity = result.Result as CommandAuditEntity;
 
-                if (entity != null && includeJsonDumps) Task.WaitAll(
+                if (entity != null && includeJsonDumps) await Task.WhenAll(
 
                     ReadBlobAsync(entity.GetCommandPath())
                         .ContinueWith(t => entity.CommandJson = t.Result, TaskContinuationOptions.OnlyOnRanToCompletion),
 
                     ReadBlobAsync(entity.GetResultPath())
                         .ContinueWith(t => entity.ResultJson = t.Result, TaskContinuationOptions.OnlyOnRanToCompletion)
-                );
+
+                ).ConfigureAwait(false);
 
                 return entity;
             }
@@ -97,7 +103,7 @@ namespace TeamCloud.Audit
             {
                 filter = TableQuery.CombineFilters(
                     filter,
-                    TableOperators.And, 
+                    TableOperators.And,
                     TableQuery.GenerateFilterCondition(
                         nameof(CommandAuditEntity.ProjectId),
                         QueryComparisons.Equal,

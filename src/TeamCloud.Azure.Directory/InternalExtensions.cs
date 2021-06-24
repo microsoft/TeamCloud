@@ -4,19 +4,12 @@
  */
 
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace TeamCloud.Azure.Directory
 {
     internal static class InternalExtensions
     {
-        internal static bool IsGuid(this string value)
-            => Guid.TryParse(value, out var _);
-
-        internal static bool IsEMail(this string value)
-            => new EmailAddressAttribute().IsValid(value);
-
         internal static bool StartsWithHttp(this string value)
             => value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
             || value.StartsWith("https://", StringComparison.OrdinalIgnoreCase);

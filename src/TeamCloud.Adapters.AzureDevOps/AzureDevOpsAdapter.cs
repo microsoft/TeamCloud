@@ -44,6 +44,7 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Secrets;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
 using TeamCloud.Templates;
@@ -52,6 +53,7 @@ using IHttpClientFactory = Flurl.Http.Configuration.IHttpClientFactory;
 using ProjectReference = Microsoft.VisualStudio.Services.ServiceEndpoints.WebApi.ProjectReference;
 using ServiceEndpoint = Microsoft.VisualStudio.Services.ServiceEndpoints.WebApi.ServiceEndpoint;
 using User = TeamCloud.Model.Data.User;
+using UserType = TeamCloud.Model.Data.UserType;
 
 namespace TeamCloud.Adapters.AzureDevOps
 {
@@ -61,21 +63,18 @@ namespace TeamCloud.Adapters.AzureDevOps
         private const string VisualStudioTokenUrl = "https://app.vssps.visualstudio.com/oauth2/token";
 
         private readonly IHttpClientFactory httpClientFactory;
-        private readonly IOrganizationRepository organizationRepository;
         private readonly IUserRepository userRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
-        private readonly IProjectRepository projectRepository;
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
-        private readonly IAzureSessionService azureSessionService;
         private readonly IAzureResourceService azureResourceService;
-        private readonly IAzureDirectoryService azureDirectoryService;
         private readonly IFunctionsHost functionsHost;
 
         public AzureDevOpsAdapter(
             IAuthorizationSessionClient sessionClient,
             IAuthorizationTokenClient tokenClient,
             IDistributedLockManager distributedLockManager,
+            ISecretsStoreProvider secretsStoreProvider,
             IHttpClientFactory httpClientFactory,
             IOrganizationRepository organizationRepository,
             IUserRepository userRepository,
@@ -87,18 +86,14 @@ namespace TeamCloud.Adapters.AzureDevOps
             IAzureResourceService azureResourceService,
             IAzureDirectoryService azureDirectoryService,
             IFunctionsHost functionsHost = null)
-            : base(sessionClient, tokenClient, distributedLockManager)
+            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository)
         {
             this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
-            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-            this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
         }
 
@@ -365,20 +360,6 @@ namespace TeamCloud.Adapters.AzureDevOps
             return new RedirectResult(redirectUrl);
         }
 
-        private async Task<T> CreateClientAsync<T>(Component component, bool patAuthRequired = false)
-            where T : VssHttpClientBase
-        {
-            if (component is null)
-                throw new ArgumentNullException(nameof(component));
-
-            var deploymentScope = await deploymentScopeRepository
-                .GetAsync(component.Organization, component.DeploymentScopeId, true)
-                .ConfigureAwait(false);
-
-            return await CreateClientAsync<T>(deploymentScope, patAuthRequired)
-                .ConfigureAwait(false);
-        }
-
         private async Task<T> CreateClientAsync<T>(DeploymentScope deploymentScope, bool patAuthRequired = false)
             where T : VssHttpClientBase
         {
@@ -480,19 +461,6 @@ namespace TeamCloud.Adapters.AzureDevOps
             return token;
         }
 
-        private async Task<Operation> WaitForOperationAsync(Component component, Guid operationId, int intervalInSeconds = 5, int timeoutInSeconds = 60)
-        {
-            if (component is null)
-                throw new ArgumentNullException(nameof(component));
-
-            var deploymentScope = await deploymentScopeRepository
-                .GetAsync(component.Organization, component.DeploymentScopeId, true)
-                .ConfigureAwait(false);
-
-            return await WaitForOperationAsync(deploymentScope, operationId, intervalInSeconds, timeoutInSeconds)
-                .ConfigureAwait(false);
-        }
-
         private async Task<Operation> WaitForOperationAsync(DeploymentScope deploymentScope, Guid operationId, int intervalInSeconds = 5, int timeoutInSeconds = 60)
         {
             if (deploymentScope is null)
@@ -523,7 +491,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
         }
 
-        private async Task<Component> ExecuteAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log, bool ensureResourceExists, Func<TeamProject, Task<Component>> callback)
+        private async Task<Component> ExecuteAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log, bool ensureResourceExists, Func<Organization, DeploymentScope, Project, TeamProject, Task<Component>> callback)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -537,150 +505,144 @@ namespace TeamCloud.Adapters.AzureDevOps
             if (callback is null)
                 throw new ArgumentNullException(nameof(callback));
 
-            var tenantId = await azureSessionService
-                .GetTenantIdAsync()
-                .ConfigureAwait(false);
-
-            var componentOrganization = await organizationRepository
-                .GetAsync(tenantId.ToString(), component.Organization)
-                .ConfigureAwait(false);
-
-            var componentProject = await projectRepository
-                .GetAsync(component.Organization, component.ProjectId)
-                .ConfigureAwait(false);
-
-            using var projectClient = await CreateClientAsync<ProjectHttpClient>(component).ConfigureAwait(false);
-
-            var projectName = $"{componentOrganization.DisplayName} - {componentProject.DisplayName}";
-
-            var projectIdentifier = AzureDevOpsIdentifier.TryParse(component.ResourceId, out var identifier)
-                ? identifier.Project ?? componentProject.DisplayName
-                : componentProject.DisplayName;
-
-            TeamProject project;
-
-            await using (var adapterLock = await AcquireLockAsync(nameof(AzureDevOpsAdapter), component.DeploymentScopeId).ConfigureAwait(false))
+            await base.ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
             {
-                try
+                using var projectClient = await CreateClientAsync<ProjectHttpClient>(componentDeploymentScope).ConfigureAwait(false);
+
+                var projectName = $"{componentOrganization.DisplayName} - {componentProject.DisplayName}";
+
+                var projectIdentifier = AzureDevOpsIdentifier.TryParse(component.ResourceId, out var identifier)
+                    ? identifier.Project ?? componentProject.DisplayName
+                    : componentProject.DisplayName;
+
+                TeamProject project;
+
+                await using (var adapterLock = await AcquireLockAsync(nameof(AzureDevOpsAdapter), component.DeploymentScopeId).ConfigureAwait(false))
                 {
-                    project = await projectClient
-                        .GetProject(projectIdentifier)
-                        .ConfigureAwait(false);
-                }
-                catch
-                {
-                    project = null;
-                }
+                    try
+                    {
+                        project = await projectClient
+                            .GetProject(projectIdentifier)
+                            .ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        project = null;
+                    }
 
-                if (project is null || !(await MatchesTeamCloudProjectIdAsync(project.Id).ConfigureAwait(false)))
-                {
-                    var projectReferences = await projectClient
-                        .GetProjects()
-                        .ConfigureAwait(false);
+                    if (project is null || !(await MatchesTeamCloudProjectIdAsync(project.Id).ConfigureAwait(false)))
+                    {
+                        var projectReferences = await projectClient
+                            .GetProjects()
+                            .ConfigureAwait(false);
 
-                    var projectReference = await projectReferences
-                        .AsContinuousCollectionAsync(continuationToken => projectClient.GetProjects(continuationToken: continuationToken))
-                        .FirstOrDefaultAwaitAsync(projectRef => MatchesTeamCloudProjectIdAsync(projectRef.Id))
-                        .ConfigureAwait(false);
+                        var projectReference = await projectReferences
+                            .AsContinuousCollectionAsync(continuationToken => projectClient.GetProjects(continuationToken: continuationToken))
+                            .FirstOrDefaultAwaitAsync(projectRef => MatchesTeamCloudProjectIdAsync(projectRef.Id))
+                            .ConfigureAwait(false);
 
-                    project = projectReference is null ? null : await projectClient
-                        .GetProject(projectReference.Id.ToString())
-                        .ConfigureAwait(false);
-                }
+                        project = projectReference is null ? null : await projectClient
+                            .GetProject(projectReference.Id.ToString())
+                            .ConfigureAwait(false);
+                    }
 
-                if (project is null && ensureResourceExists)
-                {
-                    using var processClient = await CreateClientAsync<ProcessHttpClient>(component).ConfigureAwait(false);
+                    if (project is null && ensureResourceExists)
+                    {
+                        using var processClient = await CreateClientAsync<ProcessHttpClient>(componentDeploymentScope).ConfigureAwait(false);
 
-                    var processTemplates = await processClient
-                        .GetProcessesAsync()
-                        .ConfigureAwait(false);
+                        var processTemplates = await processClient
+                            .GetProcessesAsync()
+                            .ConfigureAwait(false);
 
-                    var processCapabilities = new Dictionary<string, string>()
+                        var processCapabilities = new Dictionary<string, string>()
                     {
                         { TeamProjectCapabilitiesConstants.ProcessTemplateCapabilityTemplateTypeIdAttributeName, processTemplates.Single(pt => pt.Name.Equals("Agile", StringComparison.OrdinalIgnoreCase)).Id.ToString() }
                     };
 
-                    var versionControlCapabilities = new Dictionary<string, string>()
+                        var versionControlCapabilities = new Dictionary<string, string>()
                     {
                         { TeamProjectCapabilitiesConstants.VersionControlCapabilityAttributeName, SourceControlTypes.Git.ToString() }
                     };
 
-                    var projectTemplate = new TeamProject()
-                    {
-                        Name = await projectClient.GenerateProjectNameAsync(projectName).ConfigureAwait(false),
-                        Description = string.Empty,
-                        Capabilities = new Dictionary<string, Dictionary<string, string>>()
+                        var projectTemplate = new TeamProject()
+                        {
+                            Name = await projectClient.GenerateProjectNameAsync(projectName).ConfigureAwait(false),
+                            Description = string.Empty,
+                            Capabilities = new Dictionary<string, Dictionary<string, string>>()
                         {
                             { TeamProjectCapabilitiesConstants.VersionControlCapabilityName, versionControlCapabilities },
                             { TeamProjectCapabilitiesConstants.ProcessTemplateCapabilityName, processCapabilities }
                         }
-                    };
+                        };
 
-                    var projectOperation = await projectClient
-                        .QueueCreateProject(projectTemplate)
-                        .ConfigureAwait(false);
+                        var projectOperation = await projectClient
+                            .QueueCreateProject(projectTemplate)
+                            .ConfigureAwait(false);
 
-                    if (!projectOperation.Status.IsFinal())
-                        await WaitForOperationAsync(component, projectOperation.Id).ConfigureAwait(false);
+                        if (!projectOperation.Status.IsFinal())
+                            await WaitForOperationAsync(componentDeploymentScope, projectOperation.Id).ConfigureAwait(false);
 
-                    project = await projectClient
-                        .GetProject(projectTemplate.Name)
-                        .ConfigureAwait(false);
+                        project = await projectClient
+                            .GetProject(projectTemplate.Name)
+                            .ConfigureAwait(false);
 
-                    var properties = new JsonPatchDocument();
+                        var properties = new JsonPatchDocument();
 
-                    properties.Add(new JsonPatchOperation()
+                        properties.Add(new JsonPatchOperation()
+                        {
+                            Operation = Microsoft.VisualStudio.Services.WebApi.Patch.Operation.Add,
+                            Path = $"/TeamCloud.Organization",
+                            Value = $"{componentProject.Organization}"
+                        });
+
+                        properties.Add(new JsonPatchOperation()
+                        {
+                            Operation = Microsoft.VisualStudio.Services.WebApi.Patch.Operation.Add,
+                            Path = $"/TeamCloud.Project",
+                            Value = $"{componentProject.Id}"
+                        });
+
+                        await projectClient
+                            .SetProjectPropertiesAsync(project.Id, properties)
+                            .ConfigureAwait(false);
+                    }
+
+                    if (project != null && !AzureDevOpsIdentifier.TryParse(component.ResourceId, out var _))
                     {
-                        Operation = Microsoft.VisualStudio.Services.WebApi.Patch.Operation.Add,
-                        Path = $"/TeamCloud.Organization",
-                        Value = $"{componentProject.Organization}"
-                    });
+                        component.ResourceId = AzureDevOpsIdentifier
+                            .FromUrl(project.Url)
+                            .ToString();
 
-                    properties.Add(new JsonPatchOperation()
-                    {
-                        Operation = Microsoft.VisualStudio.Services.WebApi.Patch.Operation.Add,
-                        Path = $"/TeamCloud.Project",
-                        Value = $"{componentProject.Id}"
-                    });
-
-                    await projectClient
-                        .SetProjectPropertiesAsync(project.Id, properties)
-                        .ConfigureAwait(false);
+                        component = await componentRepository
+                            .SetAsync(component)
+                            .ConfigureAwait(false);
+                    }
                 }
 
-                if (project != null && !AzureDevOpsIdentifier.TryParse(component.ResourceId, out var _))
+                return await callback(componentOrganization, componentDeploymentScope, componentProject, project).ConfigureAwait(false);
+
+                async ValueTask<bool> MatchesTeamCloudProjectIdAsync(Guid projectId)
                 {
-                    component.ResourceId = AzureDevOpsIdentifier
-                        .FromUrl(project.Url)
-                        .ToString();
-
-                    component = await componentRepository
-                        .SetAsync(component)
+                    var projectProperties = await projectClient
+                        .GetProjectPropertiesAsync(projectId, new string[] { "TeamCloud.Project" })
                         .ConfigureAwait(false);
+
+                    return componentProject.Id.Equals(projectProperties.FirstOrDefault()?.Value as string, StringComparison.OrdinalIgnoreCase);
                 }
-            }
 
-            return await callback(project).ConfigureAwait(false);
+            }).ConfigureAwait(false);
 
-            async ValueTask<bool> MatchesTeamCloudProjectIdAsync(Guid projectId)
-            {
-                var projectProperties = await projectClient
-                    .GetProjectPropertiesAsync(projectId, new string[] { "TeamCloud.Project" })
-                    .ConfigureAwait(false);
-
-                return componentProject.Id.Equals(projectProperties.FirstOrDefault()?.Value as string, StringComparison.OrdinalIgnoreCase);
-            }
+            return component;
         }
 
-        public override Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, true, async (teamProject) =>
+        public override Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, true, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
         {
             await using (var teamProjectLock = await AcquireLockAsync(nameof(AzureDevOpsAdapter), teamProject.Id.ToString()).ConfigureAwait(false))
             {
                 var resourceId = AzureDevOpsIdentifier.Parse(component.ResourceId);
                 var resourceIdUpdated = false;
 
-                using var gitClient = await CreateClientAsync<GitHttpClient>(component).ConfigureAwait(false);
+                using var gitClient = await CreateClientAsync<GitHttpClient>(componentDeploymentScope).ConfigureAwait(false);
 
                 GitRepository gitRepo = null;
 
@@ -759,16 +721,16 @@ namespace TeamCloud.Adapters.AzureDevOps
             return await UpdateComponentAsync(component, commandUser, commandQueue, log).ConfigureAwait(false);
         });
 
-        public override Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, false, async (teamProject) =>
+        public override Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, false, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
         {
             if (teamProject is null)
                 throw new ArgumentNullException(nameof(teamProject));
 
             await using (var teamProjectLock = await AcquireLockAsync(nameof(AzureDevOpsAdapter), teamProject.Id.ToString()).ConfigureAwait(false))
             {
-                using var graphClient = await CreateClientAsync<GraphHttpClient>(component).ConfigureAwait(false);
-                using var entitlementClient = await CreateClientAsync<MemberEntitlementManagementHttpClient>(component).ConfigureAwait(false);
-                using var teamClient = await CreateClientAsync<TeamHttpClient>(component).ConfigureAwait(false);
+                using var graphClient = await CreateClientAsync<GraphHttpClient>(componentDeploymentScope).ConfigureAwait(false);
+                using var entitlementClient = await CreateClientAsync<MemberEntitlementManagementHttpClient>(componentDeploymentScope).ConfigureAwait(false);
+                using var teamClient = await CreateClientAsync<TeamHttpClient>(componentDeploymentScope).ConfigureAwait(false);
 
                 var aadGraphUsers = new ConcurrentDictionary<string, string>();
                 var aadGraphGroups = new ConcurrentDictionary<string, string>();
@@ -786,10 +748,6 @@ namespace TeamCloud.Adapters.AzureDevOps
                         .ForEachAsync(graphGroup => aadGraphGroups.TryAdd(graphGroup.OriginId, graphGroup.Descriptor))
 
                     ).ConfigureAwait(false);
-
-                var project = await projectRepository
-                    .GetAsync(component.Organization, component.ProjectId)
-                    .ConfigureAwait(false);
 
                 var users = await userRepository
                     .ListAsync(component.Organization, component.ProjectId)
@@ -980,6 +938,29 @@ namespace TeamCloud.Adapters.AzureDevOps
 
                 async Task SyncServiceConnectionsAsync()
                 {
+
+                    var servicePrincipalTasks = await deploymentScopeRepository
+                        .ListAsync(component.Organization)
+                        .Where(ds => ds.Type == DeploymentScopeType.AzureResourceManager)
+                        .Select(ds => SyncServiceConnectionAsync(ds))
+                        .ToListAsync()
+                        .ConfigureAwait(false);
+
+                    while (servicePrincipalTasks.Any())
+                    {
+                        var servicePrincipalTask = await Task
+                            .WhenAny(servicePrincipalTasks)
+                            .ConfigureAwait(false);
+
+                        servicePrincipalTasks.Remove(servicePrincipalTask);
+                    }
+                }
+
+                async Task SyncServiceConnectionAsync(DeploymentScope serviceConnectionDeploymentScope)
+                {
+                    if (serviceConnectionDeploymentScope is null)
+                        throw new ArgumentNullException(nameof(serviceConnectionDeploymentScope));
+
                     const string SERVICE_ENDPOINT_PREFIX = "TeamCloud";
 
                     // CAUTION: the REST API used by the ServiceEndpointHttpClient requires PAT auth when
@@ -987,7 +968,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 
                     // Instead of throwing an exception we just skip the variable group sync and move on - assuming this is a non essential feature
 
-                    var serviceEndpointClient = await CreateClientAsync<ServiceEndpointHttpClient>(component, patAuthRequired: true).ConfigureAwait(false);
+                    var serviceEndpointClient = await CreateClientAsync<ServiceEndpointHttpClient>(componentDeploymentScope, patAuthRequired: true).ConfigureAwait(false);
 
                     if (serviceEndpointClient is null)
                     {
@@ -995,134 +976,89 @@ namespace TeamCloud.Adapters.AzureDevOps
                     }
                     else
                     {
+                        var servicePrincipal = await GetServicePrincipalAsync(serviceConnectionDeploymentScope, componentProject)
+                            .ConfigureAwait(false);
+
                         var serviceEndpoints = await serviceEndpointClient
                             .GetServiceEndpointsAsync(teamProject.Id, "AzureRM")
                             .ConfigureAwait(false);
 
-                        await foreach (var deploymentScope in deploymentScopeRepository.ListAsync(component.Organization).Where(ds => ds.Type == DeploymentScopeType.AzureResourceManager))
+                        var servicePrincipalUser = await userRepository
+                            .GetAsync(component.Organization, servicePrincipal.ObjectId.ToString())
+                            .ConfigureAwait(false);
+
+                        if (servicePrincipalUser is null || servicePrincipalUser.ProjectMembership(componentProject.Id) is null)
                         {
-                            var servicePrincipalKey = Guid.Parse(component.Organization).Merge(
-                                Guid.Parse(component.DeploymentScopeId),
-                                Guid.Parse(component.ProjectId));
+                            // the service principal is not yet a registered TeamCloud user and/or
+                            // member of the current project - ensure both requirements are fullfilled
 
-                            var servicePrincipalName = $"{nameof(AzureDevOpsAdapter)}/{servicePrincipalKey}";
+                            var servicePrincipalUserIsNew = (servicePrincipalUser is null);
 
-                            var servicePrincipal = await azureDirectoryService
-                                .GetServicePrincipalAsync(servicePrincipalName)
+                            servicePrincipalUser ??= new User
+                            {
+                                Id = servicePrincipal.ObjectId.ToString(),
+                                Role = OrganizationUserRole.None,
+                                UserType = Model.Data.UserType.Service,
+                                Organization = component.Organization
+                            };
+
+                            servicePrincipalUser.EnsureProjectMembership(componentProject.Id, ProjectUserRole.Member);
+
+                            var projectUserCommand = servicePrincipalUserIsNew
+                                ? (ICommand)new ProjectUserCreateCommand(commandUser, servicePrincipalUser, componentProject.Id)
+                                : (ICommand)new ProjectUserUpdateCommand(commandUser, servicePrincipalUser, componentProject.Id);
+
+                            await commandQueue
+                                .AddAsync(projectUserCommand)
+                                .ConfigureAwait(false);
+                        }
+
+                        if (AzureResourceIdentifier.TryParse(componentProject.ResourceId, out var projectResourceId))
+                        {
+                            // the corresponding TeamCloud project has already a resource group assigned and 
+                            // therefore has a 'home subscription' - so we are ready to create/update a service endpoint.
+
+                            var projectResourceGroup = await azureResourceService
+                                .GetResourceGroupAsync(projectResourceId.SubscriptionId, projectResourceId.ResourceGroup)
                                 .ConfigureAwait(false);
 
-                            if (servicePrincipal is null)
+                            if (projectResourceGroup != null)
                             {
-                                // there is no service principal for the current deployment scope
-                                // create a new one that we can use to create/update the corresponding
-                                // service endpoint in the current team project
+                                // ensure our service principal has at least read access on a restricted scope
+                                // inside of the project's home subscription. otherwise the corresponding service
+                                // endpoint won't be able to authenticate to Azure at all.
 
-                                servicePrincipal = await azureDirectoryService
-                                    .CreateServicePrincipalAsync(servicePrincipalName)
-                                    .ConfigureAwait(false);
-                            }
-                            else if (servicePrincipal.ExpiresOn.GetValueOrDefault(DateTime.MinValue) < DateTime.UtcNow)
-                            {
-                                // a service principal exists, but its secret is expired. lets refresh
-                                // the service principal (create a new secret) so we can move on
-                                // creating/updating the corresponding service endpoint.
-
-                                servicePrincipal = await azureDirectoryService
-                                    .RefreshServicePrincipalAsync(servicePrincipalName)
-                                    .ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                // TODO: implement a secret store using key vault to store service
-                                // principal secrets to avoid unnecessary secret refreshs
-                            }
-
-                            var servicePrincipalUser = await userRepository
-                                .GetAsync(component.Organization, servicePrincipal.ObjectId.ToString())
-                                .ConfigureAwait(false);
-
-                            if (servicePrincipalUser is null || servicePrincipalUser.ProjectMembership(project.Id) is null)
-                            {
-                                // the service principal is not yet a registered TeamCloud user and/or
-                                // member of the current project - ensure both requirements are fullfilled
-
-                                var servicePrincipalUserIsNew = (servicePrincipalUser is null);
-
-                                servicePrincipalUser ??= new User
-                                {
-                                    Id = servicePrincipal.ObjectId.ToString(),
-                                    Role = OrganizationUserRole.None,
-                                    UserType = UserType.Service,
-                                    Organization = component.Organization
-                                };
-
-                                servicePrincipalUser.EnsureProjectMembership(project.Id, ProjectUserRole.Member);
-
-                                var projectUserCommand = servicePrincipalUserIsNew
-                                    ? (ICommand)new ProjectUserCreateCommand(commandUser, servicePrincipalUser, project.Id)
-                                    : (ICommand)new ProjectUserUpdateCommand(commandUser, servicePrincipalUser, project.Id);
-
-                                await commandQueue
-                                    .AddAsync(projectUserCommand)
+                                await projectResourceGroup
+                                    .AddRoleAssignmentAsync(servicePrincipal.ObjectId.ToString(), AzureRoleDefinition.Reader)
                                     .ConfigureAwait(false);
                             }
 
-                            if (AzureResourceIdentifier.TryParse(project.ResourceId, out var projectResourceId))
+                            var serviceEndpointName = $"{SERVICE_ENDPOINT_PREFIX} {serviceConnectionDeploymentScope.DisplayName}";
+
+                            var serviceEndpoint = serviceEndpoints
+                                .SingleOrDefault(se => se.Name.Equals(serviceEndpointName, StringComparison.OrdinalIgnoreCase));
+
+                            if (serviceEndpoint is null)
                             {
-                                // the corresponding TeamCloud project has already a resource group assigned and 
-                                // therefore has a 'home subscription' - so we are ready to create/update a service endpoint.
-
-                                if (string.IsNullOrEmpty(servicePrincipal.Password))
+                                serviceEndpoint = new ServiceEndpoint()
                                 {
-                                    // this shouldn't be necessary anymore once we can restore a service principal
-                                    // secret from a key vault - until then we are going to simple refresh the secret
-
-                                    servicePrincipal = await azureDirectoryService
-                                        .RefreshServicePrincipalAsync(servicePrincipalName)
-                                        .ConfigureAwait(false);
-                                }
-
-                                var projectResourceGroup = await azureResourceService
-                                    .GetResourceGroupAsync(projectResourceId.SubscriptionId, projectResourceId.ResourceGroup)
-                                    .ConfigureAwait(false);
-
-                                if (projectResourceGroup != null)
-                                {
-                                    // ensure our service principal has at least read access on a restricted scope
-                                    // inside of the project's home subscription. otherwise the corresponding service
-                                    // endpoint won't be able to authenticate to Azure at all.
-
-                                    await projectResourceGroup
-                                        .AddRoleAssignmentAsync(servicePrincipal.ObjectId.ToString(), AzureRoleDefinition.Reader)
-                                        .ConfigureAwait(false);
-                                }
-
-                                var serviceEndpointName = $"{SERVICE_ENDPOINT_PREFIX} {deploymentScope.DisplayName}";
-
-                                var serviceEndpoint = serviceEndpoints
-                                    .SingleOrDefault(se => se.Name.Equals(serviceEndpointName, StringComparison.OrdinalIgnoreCase));
-
-                                if (serviceEndpoint is null)
-                                {
-                                    serviceEndpoint = new ServiceEndpoint()
+                                    Name = serviceEndpointName,
+                                    Type = "AzureRM",
+                                    Url = new Uri("https://management.azure.com/"),
+                                    IsShared = false,
+                                    IsReady = true,
+                                    Authorization = new EndpointAuthorization()
                                     {
-                                        Name = serviceEndpointName,
-                                        Type = "AzureRM",
-                                        Url = new Uri("https://management.azure.com/"),
-                                        IsShared = false,
-                                        IsReady = true,
-                                        Authorization = new EndpointAuthorization()
-                                        {
-                                            Scheme = "ServicePrincipal",
-                                            Parameters = new Dictionary<string, string>()
+                                        Scheme = "ServicePrincipal",
+                                        Parameters = new Dictionary<string, string>()
                                         {
                                             { "tenantid", servicePrincipal.TenantId.ToString() },
                                             { "serviceprincipalid", servicePrincipal.ApplicationId.ToString() },
                                             { "authenticationType", "spnKey" },
                                             { "serviceprincipalkey", servicePrincipal.Password }
                                         }
-                                        },
-                                        ServiceEndpointProjectReferences = new List<ServiceEndpointProjectReference>()
+                                    },
+                                    ServiceEndpointProjectReferences = new List<ServiceEndpointProjectReference>()
                                     {
                                         new ServiceEndpointProjectReference()
                                         {
@@ -1134,7 +1070,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                                             }
                                         }
                                     },
-                                        Data = new Dictionary<string, string>()
+                                    Data = new Dictionary<string, string>()
                                     {
                                         { "subscriptionId", projectResourceId.SubscriptionId.ToString() },
                                         { "subscriptionName", projectResourceId.SubscriptionId.ToString() },
@@ -1142,27 +1078,27 @@ namespace TeamCloud.Adapters.AzureDevOps
                                         { "scopeLevel", "Subscription"},
                                         { "creationMode", "Manual" }
                                     }
-                                    };
+                                };
 
-                                    await serviceEndpointClient
-                                        .CreateServiceEndpointAsync(serviceEndpoint)
-                                        .ConfigureAwait(false);
-                                }
-                                else
+                                await serviceEndpointClient
+                                    .CreateServiceEndpointAsync(serviceEndpoint)
+                                    .ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                serviceEndpoint.Authorization = new EndpointAuthorization()
                                 {
-                                    serviceEndpoint.Authorization = new EndpointAuthorization()
-                                    {
-                                        Scheme = "ServicePrincipal",
-                                        Parameters = new Dictionary<string, string>()
+                                    Scheme = "ServicePrincipal",
+                                    Parameters = new Dictionary<string, string>()
                                     {
                                         { "tenantid", servicePrincipal.TenantId.ToString() },
                                         { "serviceprincipalid", servicePrincipal.ApplicationId.ToString() },
                                         { "authenticationType", "spnKey" },
                                         { "serviceprincipalkey", servicePrincipal.Password }
                                     }
-                                    };
+                                };
 
-                                    serviceEndpoint.ServiceEndpointProjectReferences = new List<ServiceEndpointProjectReference>()
+                                serviceEndpoint.ServiceEndpointProjectReferences = new List<ServiceEndpointProjectReference>()
                                 {
                                     new ServiceEndpointProjectReference()
                                     {
@@ -1175,10 +1111,9 @@ namespace TeamCloud.Adapters.AzureDevOps
                                     }
                                 };
 
-                                    await serviceEndpointClient
-                                        .UpdateServiceEndpointAsync(serviceEndpoint.Id, serviceEndpoint)
-                                        .ConfigureAwait(false);
-                                }
+                                await serviceEndpointClient
+                                    .UpdateServiceEndpointAsync(serviceEndpoint.Id, serviceEndpoint)
+                                    .ConfigureAwait(false);
                             }
                         }
                     }
@@ -1193,7 +1128,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 
                     // Instead of throwing an exception we just skip the variable group sync and move on - assuming this is a non essential feature
 
-                    using var taskAgentClient = await CreateClientAsync<TaskAgentHttpClient>(component, patAuthRequired: true).ConfigureAwait(false);
+                    using var taskAgentClient = await CreateClientAsync<TaskAgentHttpClient>(componentDeploymentScope, patAuthRequired: true).ConfigureAwait(false);
 
                     if (taskAgentClient is null)
                     {
@@ -1206,10 +1141,10 @@ namespace TeamCloud.Adapters.AzureDevOps
                             .ConfigureAwait(false);
 
                         var variableLookups = new Dictionary<string, Func<IDictionary<string, VariableValue>>>()
-                    {
-                        { $"{VARIABLE_GROUP_PREFIX}Tags", () => project.Tags.ToDictionary(k => k.Key, v => new VariableValue() { Value = v.Value, IsReadOnly = true, IsSecret = false }) },
-                        { $"{VARIABLE_GROUP_PREFIX}Props", () => new Dictionary<string, VariableValue>() }
-                    };
+                        {
+                            { $"{VARIABLE_GROUP_PREFIX}Tags", () => componentProject.Tags.ToDictionary(k => k.Key, v => new VariableValue() { Value = v.Value, IsReadOnly = true, IsSecret = false }) },
+                            { $"{VARIABLE_GROUP_PREFIX}Props", () => new Dictionary<string, VariableValue>() }
+                        };
 
                         var tasks = new List<Task>();
 
@@ -1246,7 +1181,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                             }
                         }
 
-                        await Task.WhenAll(tasks).ConfigureAwait(false);
+                        await tasks.WhenAll().ConfigureAwait(false);
                     }
                 }
             }
@@ -1254,7 +1189,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             return component;
         });
 
-        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, false, async (teamProject) =>
+        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, false, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
         {
             if (teamProject is null)
             {
@@ -1268,7 +1203,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             {
                 var resourceId = AzureDevOpsIdentifier.Parse(component.ResourceId);
 
-                using var gitClient = await CreateClientAsync<GitHttpClient>(component).ConfigureAwait(false);
+                using var gitClient = await CreateClientAsync<GitHttpClient>(componentDeploymentScope).ConfigureAwait(false);
 
                 if (resourceId.TryGetResourceValue("repositories", true, out var repositoryValue) && Guid.TryParse(repositoryValue, out var repositoryId))
                 {
@@ -1295,17 +1230,11 @@ namespace TeamCloud.Adapters.AzureDevOps
             return component;
         });
 
-        public override async Task<NetworkCredential> GetServiceCredentialAsync(Component component)
+        public override Task<NetworkCredential> GetServiceCredentialAsync(Component component)
+            => ExecuteAsync<NetworkCredential>(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
         {
-            if (component is null)
-                throw new ArgumentNullException(nameof(component));
-
-            var deploymentScope = await deploymentScopeRepository
-                .GetAsync(component.Organization, component.DeploymentScopeId, true)
-                .ConfigureAwait(false);
-
             var token = await TokenClient
-                .GetAsync<AzureDevOpsToken>(deploymentScope)
+                .GetAsync<AzureDevOpsToken>(componentDeploymentScope)
                 .ConfigureAwait(false);
 
             if (token is null)
@@ -1322,6 +1251,6 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
 
             return token is null ? null : new NetworkCredential("bearer", token.AccessToken, token.Organization);
-        }
+        });
     }
 }

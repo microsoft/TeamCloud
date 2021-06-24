@@ -43,6 +43,7 @@ using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Data;
+using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
@@ -74,6 +75,7 @@ namespace TeamCloud.Orchestrator
                 })
                 .AddTeamCloudHttp()
                 .AddTeamCloudAudit()
+                .AddTeamCloudSecrets()
                 .AddMvcCore()
                 .AddNewtonsoftJson();
 

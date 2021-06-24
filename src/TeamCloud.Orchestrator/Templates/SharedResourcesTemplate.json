@@ -154,13 +154,32 @@
 							"false": [ "00000000-0000-0000-0000-000000000000" ]
 						},
 						"resourcePrefix": "tc",
-						"projectKeyVault": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+						"projectSharedVault": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id), '-shared')]",
+						"projectSecretsVault": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id), '-secrets')]",
 						"projectStorageAccount": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
 						"projectIdentities": "[variables('deploymentScopes')[string(not(empty(parameters('deploymentScopes'))))]]"
 					},
 					"resources": [
 						{
-							"name": "[variables('projectKeyVault')]",
+							"name": "[variables('projectSharedVault')]",
+							"type": "Microsoft.KeyVault/vaults",
+							"apiVersion": "2019-09-01",
+							"location": "[resourceGroup().location]",
+							"properties": {
+								"sku": {
+									"name": "Standard",
+									"family": "A"
+								},
+								"enabledForDeployment": true,
+								"enabledForDiskEncryption": true,
+								"enabledForTemplateDeployment": true,
+								"enableSoftDelete": true,
+								"tenantId": "[subscription().tenantId]",
+								"accessPolicies": []
+							}
+						},
+						{
+							"name": "[variables('projectSecretsVault')]",
 							"type": "Microsoft.KeyVault/vaults",
 							"apiVersion": "2019-09-01",
 							"location": "[resourceGroup().location]",
@@ -205,7 +224,8 @@
 							"type": "object",
 							"value": {
 								"resourceId": "[resourceGroup().id]",
-								"vaultId": "[resourceId('Microsoft.KeyVault/vaults',variables('projectKeyVault'))]",
+								"sharedVaultId": "[resourceId('Microsoft.KeyVault/vaults',variables('projectSharedVault'))]",
+								"secretsVaultId": "[resourceId('Microsoft.KeyVault/vaults',variables('projectSecretsVault'))]",
 								"storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('projectStorageAccount'))]"
 							}
 						}

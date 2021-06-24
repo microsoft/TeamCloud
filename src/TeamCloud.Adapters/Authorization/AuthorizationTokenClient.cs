@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
-using TeamCloud.Adapters.Utilities;
+using Nito.AsyncEx;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization
@@ -39,28 +39,13 @@ namespace TeamCloud.Adapters.Authorization
             });
         }
 
-        private async Task<CloudTable> GetTableAsync()
-        {
-            try
-            {
-                return await tableInstance.Value
-                    .ConfigureAwait(false);
-            }
-            catch
-            {
-                tableInstance.Reset();
-
-                throw;
-            }
-        }
         public async Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
             where TAuthorizationToken : AuthorizationToken
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            var table = await GetTableAsync()
-                .ConfigureAwait(false);
+            var table = await tableInstance.ConfigureAwait(false);
 
             var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
             var partitionKey = string.Join(",", typeof(TAuthorizationToken).AssemblyQualifiedName.Split(',').Take(2));
@@ -78,8 +63,7 @@ namespace TeamCloud.Adapters.Authorization
             if (authorizationToken is null)
                 throw new ArgumentNullException(nameof(authorizationToken));
 
-            var table = await GetTableAsync()
-                .ConfigureAwait(false);
+            var table = await tableInstance.ConfigureAwait(false);
 
             if (authorizationToken.Entity.ETag != null && force)
                 authorizationToken.Entity.ETag = "*";

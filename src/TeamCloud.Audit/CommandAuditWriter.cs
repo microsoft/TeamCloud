@@ -56,11 +56,12 @@ namespace TeamCloud.Audit
                 commandResult.OrganizationId = command.OrganizationId;
             }
 
-            Task.WaitAll
-            (
+            await Task.WhenAll(
+
                 WriteBlobAsync(command, command?.GetPath()),
                 WriteBlobAsync(commandResult, commandResult?.GetPath())
-            );
+
+                ).ConfigureAwait(false);
 
             Task WriteBlobAsync(object auditData, string auditPath)
             {

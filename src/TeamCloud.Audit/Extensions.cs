@@ -14,7 +14,7 @@ using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Audit
 {
-    public static class GlobalExtensions
+    public static class Extensions
     {
         private const string COMMAND_QUALIFIER = "command";
         private const string RESULT_QUALIFIER = "result";

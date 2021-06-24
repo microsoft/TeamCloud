@@ -345,6 +345,7 @@ export interface User {
   userType: UserType;
   role: UserRole;
   projectMemberships?: ProjectMembership[] | null;
+  alternateIdentities?: UserAlternateIdentities | null;
   /** Dictionary of <string> */
   properties?: { [propertyName: string]: string } | null;
   id: string;
@@ -355,6 +356,16 @@ export interface ProjectMembership {
   role: ProjectMembershipRole;
   /** Dictionary of <string> */
   properties?: { [propertyName: string]: string } | null;
+}
+
+export interface UserAlternateIdentities {
+  azureResourceManager?: AlternateIdentity;
+  azureDevOps?: AlternateIdentity;
+  gitHub?: AlternateIdentity;
+}
+
+export interface AlternateIdentity {
+  login?: string | null;
 }
 
 export interface UserDefinition {
@@ -390,7 +401,10 @@ export interface Project {
   tags?: { [propertyName: string]: string } | null;
   resourceId?: string | null;
   resourceState?: ProjectResourceState;
-  vaultId?: string | null;
+  /** NOTE: This property will not be serialized. It can only be populated by the server. */
+  readonly vaultId?: string | null;
+  sharedVaultId?: string | null;
+  secretsVaultId?: string | null;
   storageId?: string | null;
   id: string;
 }
@@ -1354,14 +1368,14 @@ export interface TeamCloudUpdateOrganizationUserOptionalParams
 }
 
 /** Contains response data for the updateOrganizationUser operation. */
-export type TeamCloudUpdateOrganizationUserResponse = StatusResult & {
+export type TeamCloudUpdateOrganizationUserResponse = UserDataResult & {
   /** The underlying HTTP response. */
   _response: coreHttp.HttpResponse & {
     /** The response body as text (string format) */
     bodyAsText: string;
 
     /** The response body as parsed JSON or XML */
-    parsedBody: StatusResult;
+    parsedBody: UserDataResult;
   };
 };
 
@@ -1396,14 +1410,14 @@ export interface TeamCloudUpdateOrganizationUserMeOptionalParams
 }
 
 /** Contains response data for the updateOrganizationUserMe operation. */
-export type TeamCloudUpdateOrganizationUserMeResponse = StatusResult & {
+export type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult & {
   /** The underlying HTTP response. */
   _response: coreHttp.HttpResponse & {
     /** The response body as text (string format) */
     bodyAsText: string;
 
     /** The response body as parsed JSON or XML */
-    parsedBody: StatusResult;
+    parsedBody: UserDataResult;
   };
 };
 

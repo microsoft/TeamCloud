@@ -77,11 +77,15 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns User.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User matching the current user was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> GetMe() => ExecuteAsync<TeamCloudOrganizationContext>(context =>
+        public Task<IActionResult> GetMe() => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
         {
+            var user = await userRepository
+                .ExpandAsync(context.ContextUser, true)
+                .ConfigureAwait(false);
+
             return DataResult<User>
-                .Ok(context.ContextUser)
-                .ToActionResultAsync();
+                .Ok(user)
+                .ToActionResult();
         });
 
 
@@ -144,6 +148,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = AuthPolicies.OrganizationUserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateOrganizationUser", Summary = "Updates an existing User.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The user was successfully updated.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the ID provided in the request body was not found.", typeof(ErrorResult))]
@@ -162,8 +167,8 @@ namespace TeamCloud.API.Controllers
 
             if (context.User.IsOwner() && !user.IsOwner())
                 return ErrorResult
-                        .BadRequest($"The Organization must have an owner. To change this user's role you must first transfer ownership to another user.", ResultErrorCode.ValidationError)
-                        .ToActionResult();
+                    .BadRequest($"The Organization must have an owner. To change this user's role you must first transfer ownership to another user.", ResultErrorCode.ValidationError)
+                    .ToActionResult();
 
             if (!context.User.HasEqualMemberships(user))
                 return ErrorResult
@@ -182,6 +187,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = AuthPolicies.OrganizationUserWrite)]
         [Consumes("application/json")]
         [SwaggerOperation(OperationId = "UpdateOrganizationUserMe", Summary = "Updates an existing User.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The user was successfully updated.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the ID provided in the request body was not found.", typeof(ErrorResult))]
@@ -224,6 +230,7 @@ namespace TeamCloud.API.Controllers
         [Authorize(Policy = AuthPolicies.OrganizationUserWrite)]
         [SwaggerOperation(OperationId = "DeleteOrganizationUser", Summary = "Deletes an existing User.")]
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the User. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status204NoContent, "The user was successfully deleted.", typeof(DataResult<User>))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the identifier provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
         public Task<IActionResult> Delete([FromRoute] string userId) => ExecuteAsync<TeamCloudOrganizationUserContext>(async context =>

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using TeamCloud.Adapters.Utilities;
+using Nito.AsyncEx;
 
 namespace TeamCloud.Adapters.Threading
 {
@@ -53,9 +53,7 @@ namespace TeamCloud.Adapters.Threading
 
             if (!lockDirectoryMap.TryGetValue(account, out var directory))
             {
-                var container = await containerInstance
-                    .Value
-                    .ConfigureAwait(false);
+                var container = await containerInstance.ConfigureAwait(false);
 
                 lockDirectoryMap[account] = directory = container.GetDirectoryReference(account);
             }

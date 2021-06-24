@@ -14,7 +14,7 @@ using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator
 {
-    internal static class GlobalExtensions
+    internal static class Extensions
     {
 
 

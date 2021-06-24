@@ -280,6 +280,47 @@
         },
         {
           "kind": "Interface",
+          "canonicalReference": "teamcloud!AlternateIdentity:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface AlternateIdentity "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AlternateIdentity",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!AlternateIdentity#login:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "login?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "login",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
           "canonicalReference": "teamcloud!CommandAuditEntity:interface",
           "docComment": "",
           "excerptTokens": [
@@ -7650,6 +7691,56 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#secretsVaultId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "secretsVaultId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "secretsVaultId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#sharedVaultId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sharedVaultId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "sharedVaultId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Project#slug:member",
               "docComment": "",
               "excerptTokens": [
@@ -7806,11 +7897,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Project#vaultId:member",
-              "docComment": "",
+              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "vaultId?: "
+                  "text": "readonly vaultId?: "
                 },
                 {
                   "kind": "Content",
@@ -21427,8 +21518,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -21445,8 +21536,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -21535,8 +21626,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -21553,8 +21644,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -22234,6 +22325,36 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!User#alternateIdentities:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "alternateIdentities?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "UserAlternateIdentities",
+                  "canonicalReference": "teamcloud!UserAlternateIdentities:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "alternateIdentities",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!User#displayName:member",
               "docComment": "",
               "excerptTokens": [
@@ -22459,6 +22580,100 @@
               ],
               "releaseTag": "Public",
               "name": "userType",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!UserAlternateIdentities:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface UserAlternateIdentities "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "UserAlternateIdentities",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!UserAlternateIdentities#azureDevOps:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "azureDevOps?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AlternateIdentity",
+                  "canonicalReference": "teamcloud!AlternateIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "azureDevOps",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!UserAlternateIdentities#azureResourceManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "azureResourceManager?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AlternateIdentity",
+                  "canonicalReference": "teamcloud!AlternateIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "azureResourceManager",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!UserAlternateIdentities#gitHub:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "gitHub?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AlternateIdentity",
+                  "canonicalReference": "teamcloud!AlternateIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "gitHub",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2

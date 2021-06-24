@@ -36,10 +36,29 @@ namespace TeamCloud.Model.Data
         [JsonProperty(Required = Required.Always)]
         public OrganizationUserRole Role { get; set; }
 
-        // [JsonProperty(Required = Required.Always)]
-        public IList<ProjectMembership> ProjectMemberships { get; set; } = new List<ProjectMembership>();
+        private IList<ProjectMembership> projectMemberships;
 
-        public IDictionary<string, string> Properties { get; set; } = new Dictionary<string, string>();
+        public IList<ProjectMembership> ProjectMemberships
+        {
+            get => projectMemberships ??= new List<ProjectMembership>();
+            set => projectMemberships = value;
+        }
+
+        private IDictionary<DeploymentScopeType, AlternateIdentity> alternateIdentities;
+
+        public IDictionary<DeploymentScopeType, AlternateIdentity> AlternateIdentities
+        {
+            get => alternateIdentities ??= new Dictionary<DeploymentScopeType, AlternateIdentity>();
+            set => alternateIdentities = value;
+        }
+
+        private IDictionary<string, string> properties;
+
+        public IDictionary<string, string> Properties
+        {
+            get => properties ??= new Dictionary<string, string>();
+            set => properties = value;
+        }
 
         string INotificationRecipient.Address { get => MailAddress ?? Id; }
 

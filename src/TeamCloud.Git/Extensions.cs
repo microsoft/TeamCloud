@@ -19,7 +19,7 @@ using YamlDotNet.Serialization;
 
 namespace TeamCloud.Git
 {
-    public static class GlobalExtensions
+    public static class Extensions
     {
         public static RepositoryReference ParseUrl(this RepositoryReference repository)
         {
@@ -134,14 +134,7 @@ namespace TeamCloud.Git
         internal static bool IsTag(this Microsoft.TeamFoundation.SourceControl.WebApi.GitRef gitRef)
             => gitRef?.Name?.StartsWith("refs/tags/", StringComparison.Ordinal) ?? throw new ArgumentNullException(nameof(gitRef));
 
-        internal static Guid ToGuid(this string value)
-        {
-            var buffer = Encoding.UTF8.GetBytes(value);
 
-            using var hasher = MD5.Create();
-
-            return new Guid(hasher.ComputeHash(buffer));
-        }
 
 
         internal static string ToString(this JSchema schema, Formatting formatting)

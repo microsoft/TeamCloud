@@ -79,7 +79,9 @@ namespace TeamCloud.Azure.Deployment.Providers
                 .GetBlockBlobReference($"{deploymentId}/{template.Key}")
                 .UploadTextAsync(template.Value));
 
-            Task.WaitAll(uploadTasks.ToArray());
+            await uploadTasks
+                .WhenAll()
+                .ConfigureAwait(false);
 
             return deploymentContainer.Value.Uri.AbsoluteUri
                 .AppendPathSegment(deploymentId.ToString())
