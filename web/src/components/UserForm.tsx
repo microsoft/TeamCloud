@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { PrimaryButton, DefaultButton, Stack, TextField, Dropdown, Spinner, getTheme, Modal, IconButton, Pivot, PivotItem, IColumn, DetailsList, DetailsListLayoutMode, CheckboxVisibility, Text, SelectionMode } from '@fluentui/react';
 import { AlternateIdentity, User, UserRole } from 'teamcloud';
-import { GraphUser, Properties } from '../model'
+import { GraphUser } from '../model'
 import { api } from '../API'
 import { UserPersona } from '.';
 import { prettyPrintCamlCaseString } from '../Utils';
