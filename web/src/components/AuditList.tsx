@@ -6,11 +6,12 @@ import { ContentList, ContentProgress } from '.';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import { useAuditCommands } from '../hooks/useAudit';
-import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, IDropdownStyles, IIconProps, Modal, Pivot, PivotItem, Stack, Text } from '@fluentui/react';
+import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, IDropdownStyles, IIconProps, Pivot, PivotItem, ScrollablePane, ScrollbarVisibility, Stack, Text } from '@fluentui/react';
 import { CommandAuditEntity, ErrorResult } from 'teamcloud';
 import { api } from '../API';
 import { useParams } from 'react-router-dom';
 import JSONPretty from 'react-json-pretty';
+import { Lightbox } from './common';
 
 export const AuditList: React.FC = () => {
 
@@ -196,6 +197,7 @@ export const AuditList: React.FC = () => {
             onClick={_onRefresh} />
     );
 
+   
     return (
         <>
             <ContentProgress progressHidden={!auditEntriesLoading} />
@@ -211,41 +213,35 @@ export const AuditList: React.FC = () => {
                 noDataTitle='You do not have any audit records yet'
                 noDataImage={collaboration}
             />
-            <Modal
-                theme={theme}
-                styles={{ main: { margin: 'auto 100px', minHeight:'calc(100% - 32px)', minWidth:'calc(100% - 32px)' }, scrollableContent: { padding: '50px' } }}
-                isBlocking={false}
+            <Lightbox
+                title={`Command: ${auditEntity?.command} (${auditEntity?.commandId})`}
+                titleSize='xxLargePlus'
                 isOpen={(auditEntity ? true : false)}
                 onDismiss={() => setAuditEntity(undefined)}>
-                <Stack tokens={{ childrenGap: '12px' }}>
-                    <Stack.Item>
-                        <Stack horizontal horizontalAlign='space-between' 
-                            tokens={{ childrenGap: '50px' }} 
-                            style={{ paddingBottom: '32px', borderBottom: '1px lightgray solid' }}>
-                            <Stack.Item>
-                                <Text variant='xxLargePlus'>{`Command: ${auditEntity?.command} (${auditEntity?.commandId})`}</Text>
-                            </Stack.Item>
-                            <Stack.Item>
-                                <IconButton iconProps={{ iconName: 'ChromeClose' }}
-                                    onClick={() => setAuditEntity(undefined)} />
-                            </Stack.Item>
-                        </Stack>
-                    </Stack.Item>
-                    <Stack.Item>
-                        <Pivot selectedKey={pivotKey} onLinkClick={(i, e) => setPivotKey(i?.props.itemKey ?? 'Details')} styles={{ root: { height: '100%', marginBottom: '12px' } }}>
-                            <PivotItem headerText='Details' itemKey='Details'>
-                                <JSONPretty data={auditEntity} />
-                            </PivotItem>
-                            <PivotItem headerText='Command' itemKey='Command'>
+                <Pivot selectedKey={pivotKey} onLinkClick={(i, e) => setPivotKey(i?.props.itemKey ?? 'Details')} styles={{ root: { height: '100%', marginBottom: '12px' } }}>
+                    <PivotItem headerText='Details' itemKey='Details'>
+                        <div style={{ height: 'calc(100vh - 320px)', position: 'relative', maxHeight: 'inherit' }}>
+                            <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+                                <JSONPretty data={auditEntity ? JSON.stringify(auditEntity) : {}} />
+                            </ScrollablePane>
+                        </div>
+                    </PivotItem>
+                    <PivotItem headerText='Command' itemKey='Command'>
+                        <div style={{ height: 'calc(100vh - 320px)', position: 'relative', maxHeight: 'inherit' }}>
+                            <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                                 <JSONPretty data={auditEntity?.commandJson} />
-                            </PivotItem>
-                            <PivotItem headerText='Result' itemKey='Result'>
+                            </ScrollablePane>
+                        </div>
+                    </PivotItem>
+                    <PivotItem headerText='Result' itemKey='Result'>
+                        <div style={{ height: 'calc(100vh - 320px)', position: 'relative', maxHeight: 'inherit' }}>
+                            <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                                 <JSONPretty data={auditEntity?.resultJson} />
-                            </PivotItem>
-                        </Pivot>
-                    </Stack.Item>
-                </Stack>
-            </Modal>
+                            </ScrollablePane>
+                        </div>
+                    </PivotItem>
+                </Pivot>
+            </Lightbox>
         </>
     );
 }

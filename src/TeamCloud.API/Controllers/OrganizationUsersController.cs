@@ -79,6 +79,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User matching the current user was not found.", typeof(ErrorResult))]
         public Task<IActionResult> GetMe() => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
         {
+            // ensure the ME user is expanded
             var user = await userRepository
                 .ExpandAsync(context.ContextUser, true)
                 .ConfigureAwait(false);
@@ -220,9 +221,16 @@ namespace TeamCloud.API.Controllers
 
             var command = new OrganizationUserUpdateCommand(context.ContextUser, user);
 
-            return await Orchestrator
-                .InvokeAndReturnActionResultAsync(command, Request)
+            var commandResult = (OrganizationUserUpdateCommandResult)await Orchestrator
+                .InvokeAsync(command)
                 .ConfigureAwait(false);
+
+            // ensure the ME user is expanded
+            commandResult.Result = await userRepository
+                .ExpandAsync(commandResult.Result, true)
+                .ConfigureAwait(false);
+
+            return commandResult.ToActionResult(Request);
         });
 
 

@@ -12,11 +12,15 @@ namespace TeamCloud.Adapters.GitHub
         private string organization;
 
         [TeamCloudFormTitle("Organization")]
-        [TeamCloudFormDescription("Azure DevOps Organization name or base URL.")]
+        [TeamCloudFormDescription("GitHub organization's name or base URL.")]
         public string Organization
         {
             get => string.IsNullOrWhiteSpace(organization) ? null : GitHubToken.FormatOrganizationUrl(organization);
             set => organization = value;
         }
+
+        [TeamCloudFormTitle("Public Repository")]
+        [TeamCloudFormDescription("Determins if repositories should be public accessible or not.")]
+        public bool PublicRepository { get; set; }
     }
 }

@@ -10,7 +10,7 @@ import { ErrorResult } from 'teamcloud';
 export const useUser = () => {
 
     const { data: org } = useOrg();
-
+    
     const isAuthenticated = useIsAuthenticated();
 
     return useQuery(['org', org?.id, 'user', 'me'], async () => {

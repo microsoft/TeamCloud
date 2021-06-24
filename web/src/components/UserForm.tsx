@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { PrimaryButton, DefaultButton, Stack, TextField, Dropdown, Spinner, getTheme, Modal, IconButton, Pivot, PivotItem, IColumn, DetailsList, DetailsListLayoutMode, CheckboxVisibility, Text, SelectionMode } from '@fluentui/react';
-import { AlternateIdentity, User, UserRole } from 'teamcloud';
+import { PrimaryButton, DefaultButton, Stack, TextField, Dropdown, Spinner, IconButton, Pivot, PivotItem, IColumn, DetailsList, DetailsListLayoutMode, CheckboxVisibility, Text, SelectionMode } from '@fluentui/react';
+import { AlternateIdentity, ErrorResult, User, UserRole } from 'teamcloud';
 import { GraphUser } from '../model'
 import { api } from '../API'
 import { UserPersona } from '.';
 import { prettyPrintCamlCaseString } from '../Utils';
+import { Lightbox } from './common';
+import { useProjects } from '../hooks';
+import { useQueryClient } from 'react-query';
 
 export interface IUserFormProps {
     me: boolean;
@@ -30,7 +33,20 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
         value: string
     }
 
-    const theme = getTheme();
+    interface MembershipItem {
+        project: string
+        role: string
+    }
+
+    const detailsListTextStyle: React.CSSProperties = {
+        verticalAlign: 'middle',
+        lineHeight: '30px',
+        fontSize: '14px'
+    }
+
+    const queryClient = useQueryClient();
+    
+    const { data: projects } = useProjects();
 
     const [newPropertyKey, setNewPropertyKey] = useState<string>();
     const [newPropertyAddEnabled, setNewPropertyAddEnabled] = useState<boolean>(false);
@@ -42,6 +58,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
 
     useEffect(() => {
         if (props.user) {
+            console.log("Updating form user: " + JSON.stringify(props.user));
             setFormUser({ ...props.user });
         } else {
             setFormUser(undefined);
@@ -49,12 +66,13 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     }, [props.user]);
 
     useEffect(() => {    
-        if (formUser && formUser.properties)
-        {   
+        if (formUser && formUser.properties) {   
+
             var sanitized: string = (newPropertyKey ?? '').trim();
             var enabled: boolean = (sanitized.length > 0 && (!Object.keys(formUser.properties).includes(sanitized) ?? false));
 
             setNewPropertyAddEnabled(enabled);
+
         } else {
             setNewPropertyAddEnabled(false);
         }
@@ -62,21 +80,43 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     }, [formUser, newPropertyKey])
 
     const _submitForm = async () => {
-        if (props.user) {
-            setFormEnabled(false);
-            const result = await api.updateOrganizationUser(props.user!.id, props.user!.organization, { body: formUser });
-            console.log(JSON.stringify(result));
-            if (result.code === 200) {
+        if (formUser) {
+
+            console.log(`Submitting: ${JSON.stringify(formUser)}`);
+
+            try {
+                
+                setFormEnabled(false);
+
+                const { code, _response } = await api.updateOrganizationUserMe(formUser!.organization, { body: formUser });
+
+                if (code && code >= 400) {
+                    const error = JSON.parse(_response.bodyAsText) as ErrorResult;
+                    throw error;
+                }  
+                
+                queryClient.invalidateQueries(['org', formUser!.organization, 'user', 'me']);
+
                 _resetAndCloseForm();
-            } else {
-                setErrorMessage(result.status ?? undefined);
+
+            } catch (error) {
+
+                setErrorMessage(error);
+
+            } finally {
+
+                setFormEnabled(true);
             }
+
+        } else {
+
+            _resetAndCloseForm();
         }
     };
 
     const _resetAndCloseForm = () => {
         setFormEnabled(true);
-        setFormUser(undefined);
+        setFormUser(undefined);       
         props.onFormClose();
     };
 
@@ -119,10 +159,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     }
     const _renderPropertyKeyColumn = (item?: PropertyItem, index?: number, column?: IColumn) => {
         if (!item) return undefined;
-        return (
-            <Stack>
-                <Text style={{ verticalAlign: 'middle', lineHeight: '30px' }}>{ item.key }</Text>
-            </Stack>);
+        return (<Stack><Text style={detailsListTextStyle}>{ item.key }</Text></Stack>);
     }
 
     const _renderPropertyValueColumn = (item?: PropertyItem, index?: number, column?: IColumn) => {
@@ -141,8 +178,16 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     }
 
     const propertiesColums: IColumn[] = [
-        { key: 'key', name: 'Key', minWidth: 100, maxWidth: 200, isResizable: false, onRender: _renderPropertyKeyColumn },
-        { key: 'value', name: 'Value', minWidth: 400, onRender: _renderPropertyValueColumn },
+        { 
+            key: 'key', name: 'Key', 
+            minWidth: 100, maxWidth: 200, isResizable: false, 
+            onRender: _renderPropertyKeyColumn 
+        },
+        {
+            key: 'value', name: 'Value', 
+            minWidth: 400, 
+            onRender: _renderPropertyValueColumn 
+        }
     ];
 
     const _renderPropertiesPivot = () => {
@@ -223,35 +268,83 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
         ) : (<></>);
     };
 
+    const _renderMembershipValueColumn = (item?: MembershipItem, index?: number, column?: IColumn) => {
+        if (item && column) {
+            let property: string = column.fieldName ?? column.key ?? ''
+            return <Text style={detailsListTextStyle}>{(item as any)[property]}</Text>
+        }
+        return <></>
+    };
+
+    const membershipColums: IColumn[] = [
+        { 
+            key: 'project', name: 'Project', fieldName: 'project', 
+            minWidth: 100, maxWidth: 200, isResizable: false, 
+            onRender: _renderMembershipValueColumn 
+        },
+        { 
+            key: 'role', name: 'Role', fieldName: 'role', 
+            minWidth: 400, 
+            onRender: _renderMembershipValueColumn
+        }
+    ];
+
     const _renderMembershipPivot = () => {
-        return (<></>);
+
+        let items:MembershipItem[] = [];
+
+        if (projects && formUser?.projectMemberships) {
+            items = formUser.projectMemberships.map((membership) => ({
+                project: projects.find(p => p.id === membership.projectId)?.displayName ?? membership.projectId,
+                role: membership.role
+            } as MembershipItem));
+        }
+
+        return (
+            <DetailsList
+                columns={membershipColums}
+                items={items} 
+                layoutMode={DetailsListLayoutMode.justified}
+                checkboxVisibility={CheckboxVisibility.hidden}
+                selectionPreservedOnEmptyClick={true} />
+        )
     };
 
     const _renderAlternateIdentityServiceColumn = (item?: AlternateIdentityItem, index?: number, column?: IColumn) => {
         if (!item) return undefined;
         return <Stack verticalAlign='center'>
-            <Text>{ item.title }</Text>
+            <Text style={detailsListTextStyle}>{ item.title }</Text>
         </Stack>
     };
 
     const _onAlternateIdentityLoginChange = (key: string, newValue?: string) => {
-        if (formUser)
-        {
-            let alternateIdentity:AlternateIdentity = (formUser.alternateIdentities as any)[key];
-            if (alternateIdentity) alternateIdentity.login = newValue;
+        if (formUser?.alternateIdentities && Object.keys(formUser.alternateIdentities).includes(key)) {
+            let identity = (formUser.alternateIdentities as any)[key] as AlternateIdentity;
+            if (identity) {
+                identity.login = newValue || '';
+                setFormUser({ ...formUser });
+            }
         }
     }
 
     const _renderAlternateIdentityLoginColumn =(item?: AlternateIdentityItem, index?: number, column?: IColumn) => {
         if (!item || !item.identity) return undefined
         return <TextField 
-            value={item.identity.login ?? undefined } 
+            value={item.identity.login ?? undefined} 
             onChange={(_ev, val) => _onAlternateIdentityLoginChange(item.key, val)} />;
     };
 
     const alternateIdentitiesColums: IColumn[] = [
-        { key: 'title', name: 'Service', minWidth: 100, maxWidth: 200, isResizable: false, onRender: _renderAlternateIdentityServiceColumn },
-        { key: 'login', name: 'Login', minWidth: 400, onRender: _renderAlternateIdentityLoginColumn },
+        { 
+            key: 'title', name: 'Service', 
+            minWidth: 100, maxWidth: 200, isResizable: false, 
+            onRender: _renderAlternateIdentityServiceColumn 
+        },
+        { 
+            key: 'login', name: 'Login', 
+            minWidth: 400, 
+            onRender: _renderAlternateIdentityLoginColumn 
+        }
     ];
 
     const _renderAlternateIdentitiesPivot = () => {
@@ -276,60 +369,41 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
         )
     };
 
+    const _renderLightboxHeader = (): JSX.Element => {
+        return (<UserPersona principal={props.graphUser} large />);
+    };
+
+    const _renderLightboxFooter = (): JSX.Element => {
+        return (
+            <>
+                <Stack.Item><Text style={detailsListTextStyle}>{errorMessage}</Text></Stack.Item>
+                <Stack.Item><Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} /></Stack.Item>
+                <PrimaryButton text='Ok' disabled={!formEnabled} onClick={() => _submitForm()} />
+                <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
+            </>
+        );
+    }
+
     return (
-
-        <Modal
-            theme={theme}
-            styles={{ main: { margin: 'auto 100px', minHeight:'calc(100% - 32px)', minWidth:'calc(100% - 32px)' }, scrollableContent: { padding: '50px' } }}
-            isBlocking={false}
+        <Lightbox
             isOpen={props.panelIsOpen}
-            onDismiss={() => _resetAndCloseForm()}>
-                
-            <Stack tokens={{ childrenGap: '12px' }} style={{height: 'calc(100vh - 132px)' }}>
-                <Stack.Item>
-                    <Stack horizontal horizontalAlign='space-between' 
-                        tokens={{ childrenGap: '50px' }} 
-                        style={{ paddingBottom: '32px', borderBottom: '1px lightgray solid' }}>
-                        <Stack.Item>
-                            <UserPersona principal={props.graphUser} large />
-                        </Stack.Item>
-                        <Stack.Item>
-                            <IconButton 
-                                iconProps={{ iconName: 'ChromeClose' }}
-                                onClick={() => _resetAndCloseForm()} />
-                        </Stack.Item>
-                    </Stack>
-                </Stack.Item>
-                <Stack.Item>
-                    <Pivot selectedKey={pivotKey} onLinkClick={(i, e) => setPivotKey(i?.props.itemKey ?? 'Details')} styles={{ root: { height: '100%', marginBottom: '12px' } }}>
-                        <PivotItem headerText='Details' itemKey='Details'>
-                            {_renderDetailsPivot()}
-                        </PivotItem>
-                        <PivotItem headerText='Properties' itemKey='Properties'>
-                            {_renderPropertiesPivot()}
-                        </PivotItem>
-                        <PivotItem headerText='Memberships' itemKey='Memberships'>
-                            {_renderMembershipPivot()}
-                        </PivotItem>
-                        <PivotItem headerText='Alternate Identities' itemKey='AlternateIdentities'>
-                            {_renderAlternateIdentitiesPivot()}
-                        </PivotItem>
-                    </Pivot>
-                </Stack.Item>
-                <Stack.Item style={{}}>
-                    <Stack horizontal horizontalAlign='end'
-                        tokens={{ childrenGap: '50px' }} 
-                        style={{ paddingTop: '32px', borderTop: '1px lightgray solid', position: 'absolute', left: '50px', bottom: '50px', width: 'calc(100% - 100px)' }}>
-                        <Stack.Item>
-                            <Text>{errorMessage}</Text>
-                            <PrimaryButton text='Ok' disabled={!formEnabled} onClick={() => _submitForm()} styles={{ root: { marginRight: 8 } }} />
-                            <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => _resetAndCloseForm()} />
-                            <Spinner styles={{ root: { visibility: formEnabled ? 'hidden' : 'visible' } }} />
-                        </Stack.Item>
-                    </Stack>
-                </Stack.Item>
-            </Stack>
-
-        </Modal>
+            onDismiss={() => _resetAndCloseForm()}
+            onRenderHeader={_renderLightboxHeader}
+            onRenderFooter={_renderLightboxFooter}>
+            <Pivot selectedKey={pivotKey} onLinkClick={(i, e) => setPivotKey(i?.props.itemKey ?? 'Details')} styles={{ root: { height: '100%', marginBottom: '12px' } }}>
+                <PivotItem headerText='Details' itemKey='Details'>
+                    {_renderDetailsPivot()}
+                </PivotItem>
+                <PivotItem headerText='Memberships' itemKey='Memberships'>
+                    {_renderMembershipPivot()}
+                </PivotItem>
+                <PivotItem headerText='Properties' itemKey='Properties'>
+                    {_renderPropertiesPivot()}
+                </PivotItem>
+                <PivotItem headerText='Alternate Identities' itemKey='AlternateIdentities'>
+                    {_renderAlternateIdentitiesPivot()}
+                </PivotItem>
+            </Pivot>
+        </Lightbox>
     );
 }

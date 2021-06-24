@@ -595,10 +595,15 @@ namespace TeamCloud.Adapters.GitHub
                     // need to fall back to a classic repository import later on if a
                     // template repository git url is given.
 
+                    var data = string.IsNullOrWhiteSpace(componentDeploymentScope.InputData)
+                        ? default
+                        : TeamCloudSerialize.DeserializeObject<GitHubData>(componentDeploymentScope.InputData);
+
                     var repoSettings = new NewRepository(repositoryName)
                     {
                         Description = repositoryDescription,
-                        AutoInit = string.IsNullOrWhiteSpace(repositoryTemplateUrl)
+                        AutoInit = string.IsNullOrWhiteSpace(repositoryTemplateUrl),
+                        Private = !(data?.PublicRepository ?? false)
                     };
 
                     repository = await client.Repository
