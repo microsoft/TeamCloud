@@ -727,46 +727,14 @@ namespace TeamCloud.Adapters.GitHub
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            var usersByRole = users
-                .GroupBy(user => user.ProjectMembership(componentProject.Id).Role)
-                .Where(grp => grp.Key != ProjectUserRole.None)
-                .ToDictionary(k => k.Key, v => v.AsEnumerable());
-
-            await usersByRole.Keys
-                .Select(role => ResolveGroupsAsync(role))
-                .WhenAll()
-                .ConfigureAwait(false);
-
             await Task.WhenAll(
 
-                SynchronizeTeamMembersAsync(memberTeam, ProjectUserRole.Member),
-                SynchronizeTeamMembersAsync(adminTeam, ProjectUserRole.Admin, ProjectUserRole.Owner)
+                SynchronizeTeamMembersAsync(memberTeam, users.Where(user => user.IsMember())),
+                SynchronizeTeamMembersAsync(adminTeam, users.Where(user => user.IsAdmin()))
 
                 ).ConfigureAwait(false);
 
             return component;
-
-            async Task ResolveGroupsAsync(ProjectUserRole role)
-            {
-                if (usersByRole.TryGetValue(role, out var users))
-                {
-                    var memberIds = new HashSet<Guid>(await users
-                        .ToAsyncEnumerable()
-                        .SelectMany(user => azureDirectoryService.GetGroupMembersAsync(user.Id))
-                        .ToArrayAsync()
-                        .ConfigureAwait(false));
-
-                    var membersResolved = await memberIds
-                        .Except(users.Select(u => Guid.Parse(u.Id)))
-                        .Select(userId => EnsureUserAsync(userId))
-                        .WhenAll()
-                        .ConfigureAwait(false);
-
-                    usersByRole[role] = users
-                        .Where(u => !memberIds.Contains(Guid.Parse(u.Id)))  // strip out all user entities we couldn't resolve
-                        .Concat(membersResolved);                           // append all resolved users/members 
-                }
-            }
 
             async Task<User> EnsureUserAsync(Guid userId)
             {
@@ -788,33 +756,45 @@ namespace TeamCloud.Adapters.GitHub
                         .AddAsync(new OrganizationUserCreateCommand(commandUser, user))
                         .ConfigureAwait(false);
                 }
-
-                return user;
-            }
-
-            async Task<User> EnsureAlternateIdentity(User user)
-            {
-                if (user?.AlternateIdentities.TryAdd(Type, new AlternateIdentity()) ?? false)
+                else 
                 {
-                    user = await userRepository
-                        .SetAsync(user)
+                    user = await InitializeUserAsync(user)
                         .ConfigureAwait(false);
                 }
 
                 return user;
             }
 
-            async Task SynchronizeTeamMembersAsync(Team team, ProjectUserRole role, params ProjectUserRole[] additionalRoles)
+            async Task<User> InitializeUserAsync(User user)
             {
-                var users = await usersByRole
-                    .Where(kvp => additionalRoles.Prepend(role).Contains(kvp.Key))
-                    .SelectMany(kvp => kvp.Value)
-                    .Distinct()
-                    .Select(usr => EnsureAlternateIdentity(usr))
-                    .WhenAll()
+                if (user?.AlternateIdentities.TryAdd(Type, new AlternateIdentity()) ?? false)
+                {
+                    await commandQueue
+                        .AddAsync(new OrganizationUserUpdateCommand(commandUser, user))
+                        .ConfigureAwait(false);
+                }
+
+                return user;
+            }
+
+            async Task SynchronizeTeamMembersAsync(Team team, IEnumerable<User> users)
+            {
+                var userIds = new HashSet<Guid>(await users
+                    .ToAsyncEnumerable()
+                    .SelectMany(user => azureDirectoryService.GetGroupMembersAsync(user.Id))
+                    .ToArrayAsync()
+                    .ConfigureAwait(false));
+
+                var teamUsers = await userIds
+                    .Select(userId =>
+                    {
+                        var user = users.SingleOrDefault(u => userId.Equals(Guid.Parse(u.Id)));
+                        return user is null ? EnsureUserAsync(userId) : InitializeUserAsync(user);
+
+                    }).WhenAll()
                     .ConfigureAwait(false);
 
-                var logins = users
+                var logins = teamUsers
                     .Select(user => user.AlternateIdentities.TryGetValue(this.Type, out var alternateIdentity) ? alternateIdentity.Login : null)
                     .Where(login => !string.IsNullOrWhiteSpace(login))
                     .Distinct(StringComparer.OrdinalIgnoreCase);
@@ -826,13 +806,13 @@ namespace TeamCloud.Adapters.GitHub
                 var membershipTasks = new List<Task>();
 
                 membershipTasks.AddRange(logins
-                    .Except(members.Select(m => m.Login))
-                    .Select(l => client.Organization.Team.AddOrEditMembership(team.Id, l, new UpdateTeamMembership(TeamRole.Member))));
+                    .Except(members.Select(m => m.Login), StringComparer.OrdinalIgnoreCase)
+                    .Select(login => client.Organization.Team.AddOrEditMembership(team.Id, login, new UpdateTeamMembership(TeamRole.Member))));
 
                 membershipTasks.AddRange(members
                     .Select(m => m.Login)
-                    .Except(logins)
-                    .Select(l => client.Organization.Team.RemoveMembership(team.Id, l)));
+                    .Except(logins, StringComparer.OrdinalIgnoreCase)
+                    .Select(login => client.Organization.Team.RemoveMembership(team.Id, login)));
 
                 await membershipTasks
                     .WhenAll()

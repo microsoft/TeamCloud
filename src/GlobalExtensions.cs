@@ -97,5 +97,39 @@ namespace TeamCloud
 
             return EMailExpression.Match(value).Length > 0;
         }
+
+        private static readonly Regex EnumPrettyPrintExpression = new Regex(
+            @"\B[A-Z]",
+            RegexOptions.Compiled);
+
+        private static readonly string[] WellknownCompounds = new[]
+        {
+            "GitHub",
+            "DevOps"
+        };
+
+        internal static string ToString(this Enum instance, bool prettyPrint, params string[] compounds)
+        {
+            var output = instance.ToString();
+
+            if (prettyPrint)
+            {
+                output = EnumPrettyPrintExpression.Replace(output, " $0").Trim();
+
+                WellknownCompounds
+                    .Union(compounds)
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Select(c => c.Trim())
+                    .OrderByDescending(c => c)
+                    .ToList()
+                    .ForEach(c =>
+                    {
+                        var compoundSanitized = EnumPrettyPrintExpression.Replace(c, " $0").Trim();
+                        output = output.Replace(compoundSanitized, c, StringComparison.Ordinal);
+                    });
+            }
+
+            return output;
+        }
     }
 }

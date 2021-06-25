@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -30,9 +29,6 @@ namespace TeamCloud.Adapters
     {
         private static readonly JSchema dataSchemaEmpty = new JSchema() { Type = JSchemaType.Object };
         private static readonly JObject formSchemaEmpty = new JObject();
-
-        private static string PrettyPrintDeploymentScopeType(DeploymentScopeType type)
-            => Regex.Replace(Enum.GetName(typeof(DeploymentScopeType), type), @"\B[A-Z]", " $0");
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -77,7 +73,7 @@ namespace TeamCloud.Adapters
         public abstract IEnumerable<ComponentType> ComponentTypes { get; }
 
         public virtual string DisplayName
-            => PrettyPrintDeploymentScopeType(Type);
+            => Type.ToString(prettyPrint: true);
 
         protected IAuthorizationSessionClient SessionClient
             => sessionClient;

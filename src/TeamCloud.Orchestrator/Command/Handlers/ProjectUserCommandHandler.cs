@@ -158,10 +158,12 @@ namespace TeamCloud.Orchestrator.Command.Handlers
         {
             if (command.Payload is User userNew)
             {
-                var projects = await Task.WhenAll(userNew.ProjectMemberships
+                var projects = await userNew.ProjectMemberships
                     .Select(pm => pm.ProjectId)
                     .Except(userOld?.ProjectMemberships.Select(pm => pm.ProjectId) ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase)
-                    .Select(pid => projectRepository.GetAsync(userNew.Organization, pid, true))).ConfigureAwait(false);
+                    .Select(pid => projectRepository.GetAsync(userNew.Organization, pid, true))
+                    .WhenAll()
+                    .ConfigureAwait(false);
 
                 if (projects.Any())
                 {
@@ -177,13 +179,14 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                         .ExpandAsync(userNew)
                         .ConfigureAwait(false);
 
-                    await Task
-                        .WhenAll(projects.Select(project => SendWelcomeMessageAsync(command.User, organization, project, userNew)))
+                    await projects
+                        .Select(project => SendWelcomeMessageAsync(command.User, organization, project, userNew))
+                        .WhenAll()
                         .ConfigureAwait(false);
                 }
             }
 
-            async Task SendWelcomeMessageAsync(User sender, Organization organization, Project project, User user)
+            Task SendWelcomeMessageAsync(User sender, Organization organization, Project project, User user)
             {
                 var message = NotificationMessage.Create<WelcomeMessage>(user);
 
@@ -195,9 +198,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     PortalUrl = endpointOptions.Portal
                 });
 
-                await commandQueue
-                    .AddAsync(new NotificationSendMailCommand<WelcomeMessage>(sender, message))
-                    .ConfigureAwait(false);
+                return commandQueue.AddAsync(new NotificationSendMailCommand<WelcomeMessage>(sender, message));
             }
         }
     }
