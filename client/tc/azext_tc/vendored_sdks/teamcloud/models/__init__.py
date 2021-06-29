@@ -7,6 +7,11 @@
 # --------------------------------------------------------------------------
 
 try:
+    from ._models_py3 import AdapterInformation
+    from ._models_py3 import AdapterInformationListDataResult
+    from ._models_py3 import CommandAuditEntity
+    from ._models_py3 import CommandAuditEntityDataResult
+    from ._models_py3 import CommandAuditEntityListDataResult
     from ._models_py3 import Component
     from ._models_py3 import ComponentDataResult
     from ._models_py3 import ComponentDefinition
@@ -53,12 +58,18 @@ try:
     from ._models_py3 import ScheduleListDataResult
     from ._models_py3 import StatusResult
     from ._models_py3 import StringDictionaryDataResult
+    from ._models_py3 import StringListDataResult
     from ._models_py3 import User
     from ._models_py3 import UserDataResult
     from ._models_py3 import UserDefinition
     from ._models_py3 import UserListDataResult
     from ._models_py3 import ValidationError
 except (SyntaxError, ImportError):
+    from ._models import AdapterInformation  # type: ignore
+    from ._models import AdapterInformationListDataResult  # type: ignore
+    from ._models import CommandAuditEntity  # type: ignore
+    from ._models import CommandAuditEntityDataResult  # type: ignore
+    from ._models import CommandAuditEntityListDataResult  # type: ignore
     from ._models import Component  # type: ignore
     from ._models import ComponentDataResult  # type: ignore
     from ._models import ComponentDefinition  # type: ignore
@@ -105,6 +116,7 @@ except (SyntaxError, ImportError):
     from ._models import ScheduleListDataResult  # type: ignore
     from ._models import StatusResult  # type: ignore
     from ._models import StringDictionaryDataResult  # type: ignore
+    from ._models import StringListDataResult  # type: ignore
     from ._models import User  # type: ignore
     from ._models import UserDataResult  # type: ignore
     from ._models import UserDefinition  # type: ignore
@@ -112,12 +124,17 @@ except (SyntaxError, ImportError):
     from ._models import ValidationError  # type: ignore
 
 from ._team_cloud_client_enums import (
+    AdapterInformationType,
+    CommandAuditEntityRuntimeStatus,
     ComponentResourceState,
     ComponentTaskResourceState,
     ComponentTaskTemplateType,
     ComponentTaskType,
     ComponentTemplateType,
     ComponentType,
+    DeploymentScopeComponentTypesItem,
+    DeploymentScopeDefinitionType,
+    DeploymentScopeType,
     OrganizationResourceState,
     ProjectMembershipRole,
     ProjectResourceState,
@@ -131,6 +148,11 @@ from ._team_cloud_client_enums import (
 )
 
 __all__ = [
+    'AdapterInformation',
+    'AdapterInformationListDataResult',
+    'CommandAuditEntity',
+    'CommandAuditEntityDataResult',
+    'CommandAuditEntityListDataResult',
     'Component',
     'ComponentDataResult',
     'ComponentDefinition',
@@ -177,17 +199,23 @@ __all__ = [
     'ScheduleListDataResult',
     'StatusResult',
     'StringDictionaryDataResult',
+    'StringListDataResult',
     'User',
     'UserDataResult',
     'UserDefinition',
     'UserListDataResult',
     'ValidationError',
+    'AdapterInformationType',
+    'CommandAuditEntityRuntimeStatus',
     'ComponentResourceState',
     'ComponentTaskResourceState',
     'ComponentTaskTemplateType',
     'ComponentTaskType',
     'ComponentTemplateType',
     'ComponentType',
+    'DeploymentScopeComponentTypesItem',
+    'DeploymentScopeDefinitionType',
+    'DeploymentScopeType',
     'OrganizationResourceState',
     'ProjectMembershipRole',
     'ProjectResourceState',

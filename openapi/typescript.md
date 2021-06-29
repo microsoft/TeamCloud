@@ -22,7 +22,7 @@ The remainder of this file is configuration details used by AutoRest.
 ### Inputs
 
 ``` yaml
-use: '@microsoft.azure/autorest.typescript@https://github.com/Azure/autorest.typescript/releases/download/v6.0.0-dev.20210223.1/autorest-typescript-6.0.0-dev.20210223.1.tgz'
+use: '@microsoft.azure/autorest.typescript@https://github.com/Azure/autorest.typescript/releases/download/v6.0.0-alpha.20210527.9/autorest-typescript-6.0.0-alpha.20210527.9.tgz'
 package-name: teamcloud
 input-file: openapi.yaml
 add-credentials: true

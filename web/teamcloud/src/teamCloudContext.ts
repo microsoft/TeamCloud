@@ -6,13 +6,11 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 
-import * as coreHttp from "@azure/core-http";
+import * as coreClient from "@azure/core-client";
+import * as coreAuth from "@azure/core-auth";
 import { TeamCloudOptionalParams } from "./models";
 
-const packageName = "teamcloud";
-const packageVersion = "1.0.0";
-
-export class TeamCloudContext extends coreHttp.ServiceClient {
+export class TeamCloudContext extends coreClient.ServiceClient {
   $host: string;
 
   /**
@@ -22,7 +20,7 @@ export class TeamCloudContext extends coreHttp.ServiceClient {
    * @param options The parameter options
    */
   constructor(
-    credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials,
+    credentials: coreAuth.TokenCredential,
     $host: string,
     options?: TeamCloudOptionalParams
   ) {
@@ -37,22 +35,19 @@ export class TeamCloudContext extends coreHttp.ServiceClient {
     if (!options) {
       options = {};
     }
-
-    if (!options.userAgent) {
-      const defaultUserAgent = coreHttp.getDefaultUserAgentValue();
-      options.userAgent = `${packageName}/${packageVersion} ${defaultUserAgent}`;
-    }
-
+    const defaults: TeamCloudOptionalParams = {
+      requestContentType: "application/json; charset=utf-8",
+      credential: credentials
+    };
     if (!options.credentialScopes) {
       options.credentialScopes = ["openid"];
     }
-
-    super(credentials, options);
-
-    this.requestContentType = "application/json; charset=utf-8";
-
-    this.baseUri = options.endpoint || "{$host}";
-
+    const optionsWithDefaults = {
+      ...defaults,
+      ...options,
+      baseUri: options.endpoint || "{$host}"
+    };
+    super(optionsWithDefaults);
     // Parameter assignments
     this.$host = $host;
   }

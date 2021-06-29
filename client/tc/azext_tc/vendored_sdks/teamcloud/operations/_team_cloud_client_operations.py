@@ -16,12 +16,64 @@ from .. import models as _models
 
 if TYPE_CHECKING:
     # pylint: disable=unused-import,ungrouped-imports
-    from typing import Any, Callable, Dict, Generic, Optional, TypeVar, Union
+    from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
 
     T = TypeVar('T')
     ClsType = Optional[Callable[[PipelineResponse[HttpRequest, HttpResponse], T, Dict[str, Any]], Any]]
 
 class TeamCloudClientOperationsMixin(object):
+
+    def get_adapters(
+        self,
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.AdapterInformationListDataResult", "_models.ErrorResult"]]
+        """Gets all Adapters.
+
+        Gets all Adapters.
+
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: AdapterInformationListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.AdapterInformationListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.AdapterInformationListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_adapters.metadata['url']  # type: ignore
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('AdapterInformationListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_adapters.metadata = {'url': '/adapters'}  # type: ignore
 
     def get_components(
         self,
@@ -821,7 +873,7 @@ class TeamCloudClientOperationsMixin(object):
 
     def get_deployment_scope(
         self,
-        id,  # type: str
+        deployment_scope_id,  # type: str
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
@@ -830,8 +882,8 @@ class TeamCloudClientOperationsMixin(object):
 
         Gets a Deployment Scope.
 
-        :param id:
-        :type id: str
+        :param deployment_scope_id:
+        :type deployment_scope_id: str
         :param organization_id:
         :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -849,7 +901,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.get_deployment_scope.metadata['url']  # type: ignore
         path_format_arguments = {
-            'id': self._serialize.url("id", id, 'str'),
+            'deploymentScopeId': self._serialize.url("deployment_scope_id", deployment_scope_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -883,11 +935,11 @@ class TeamCloudClientOperationsMixin(object):
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{id}'}  # type: ignore
+    get_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{deploymentScopeId}'}  # type: ignore
 
     def update_deployment_scope(
         self,
-        id,  # type: str
+        deployment_scope_id,  # type: str
         organization_id,  # type: str
         body=None,  # type: Optional["_models.DeploymentScope"]
         **kwargs  # type: Any
@@ -897,8 +949,8 @@ class TeamCloudClientOperationsMixin(object):
 
         Updates an existing Deployment Scope.
 
-        :param id:
-        :type id: str
+        :param deployment_scope_id:
+        :type deployment_scope_id: str
         :param organization_id:
         :type organization_id: str
         :param body:
@@ -919,7 +971,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.update_deployment_scope.metadata['url']  # type: ignore
         path_format_arguments = {
-            'id': self._serialize.url("id", id, 'str'),
+            'deploymentScopeId': self._serialize.url("deployment_scope_id", deployment_scope_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -960,11 +1012,11 @@ class TeamCloudClientOperationsMixin(object):
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    update_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{id}'}  # type: ignore
+    update_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{deploymentScopeId}'}  # type: ignore
 
     def delete_deployment_scope(
         self,
-        id,  # type: str
+        deployment_scope_id,  # type: str
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
@@ -973,8 +1025,8 @@ class TeamCloudClientOperationsMixin(object):
 
         Deletes a Deployment Scope.
 
-        :param id:
-        :type id: str
+        :param deployment_scope_id:
+        :type deployment_scope_id: str
         :param organization_id:
         :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -992,7 +1044,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.delete_deployment_scope.metadata['url']  # type: ignore
         path_format_arguments = {
-            'id': self._serialize.url("id", id, 'str'),
+            'deploymentScopeId': self._serialize.url("deployment_scope_id", deployment_scope_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
@@ -1026,7 +1078,84 @@ class TeamCloudClientOperationsMixin(object):
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    delete_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{id}'}  # type: ignore
+    delete_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{deploymentScopeId}'}  # type: ignore
+
+    def authorize_deployment_scope(
+        self,
+        deployment_scope_id,  # type: str
+        organization_id,  # type: str
+        body=None,  # type: Optional["_models.DeploymentScope"]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]
+        """Authorize an existing Deployment Scope.
+
+        Authorize an existing Deployment Scope.
+
+        :param deployment_scope_id:
+        :type deployment_scope_id: str
+        :param organization_id:
+        :type organization_id: str
+        :param body:
+        :type body: ~teamcloud.models.DeploymentScope
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: DeploymentScopeDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        content_type = kwargs.pop("content_type", "application/json-patch+json")
+        accept = "application/json"
+
+        # Construct URL
+        url = self.authorize_deployment_scope.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'deploymentScopeId': self._serialize.url("deployment_scope_id", deployment_scope_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Content-Type'] = self._serialize.header("content_type", content_type, 'str')
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        body_content_kwargs = {}  # type: Dict[str, Any]
+        if body is not None:
+            body_content = self._serialize.body(body, 'DeploymentScope')
+        else:
+            body_content = None
+        body_content_kwargs['content'] = body_content
+        request = self._client.put(url, query_parameters, header_parameters, **body_content_kwargs)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('DeploymentScopeDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    authorize_deployment_scope.metadata = {'url': '/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize'}  # type: ignore
 
     def negotiate_signal_r(
         self,
@@ -1080,6 +1209,211 @@ class TeamCloudClientOperationsMixin(object):
             return cls(pipeline_response, None, {})
 
     negotiate_signal_r.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/negotiate'}  # type: ignore
+
+    def get_audit_entries(
+        self,
+        organization_id,  # type: str
+        time_range=None,  # type: Optional[str]
+        commands=None,  # type: Optional[List[str]]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.CommandAuditEntityListDataResult", "_models.ErrorResult"]]
+        """Gets all audit entries.
+
+        Gets all audit entries.
+
+        :param organization_id:
+        :type organization_id: str
+        :param time_range:
+        :type time_range: str
+        :param commands:
+        :type commands: list[str]
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: CommandAuditEntityListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.CommandAuditEntityListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.CommandAuditEntityListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_audit_entries.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+        if time_range is not None:
+            query_parameters['timeRange'] = self._serialize.query("time_range", time_range, 'str')
+        if commands is not None:
+            query_parameters['commands'] = self._serialize.query("commands", commands, '[str]')
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('CommandAuditEntityListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_audit_entries.metadata = {'url': '/orgs/{organizationId}/audit'}  # type: ignore
+
+    def get_audit_entry(
+        self,
+        command_id,  # type: str
+        organization_id,  # type: str
+        expand=False,  # type: Optional[bool]
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.CommandAuditEntityDataResult", "_models.ErrorResult"]]
+        """Gets an audit entry.
+
+        Gets an audit entry.
+
+        :param command_id:
+        :type command_id: str
+        :param organization_id:
+        :type organization_id: str
+        :param expand:
+        :type expand: bool
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: CommandAuditEntityDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.CommandAuditEntityDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.CommandAuditEntityDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_audit_entry.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'commandId': self._serialize.url("command_id", command_id, 'str'),
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+        if expand is not None:
+            query_parameters['expand'] = self._serialize.query("expand", expand, 'bool')
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('CommandAuditEntityDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_audit_entry.metadata = {'url': '/orgs/{organizationId}/audit/{commandId}'}  # type: ignore
+
+    def get_audit_commands(
+        self,
+        organization_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.StringListDataResult", "_models.ErrorResult"]]
+        """Gets all auditable commands.
+
+        Gets all auditable commands.
+
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: StringListDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StringListDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringListDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.get_audit_commands.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.get(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('StringListDataResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    get_audit_commands.metadata = {'url': '/orgs/{organizationId}/audit/commands'}  # type: ignore
 
     def get_organizations(
         self,

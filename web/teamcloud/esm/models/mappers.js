@@ -1867,13 +1867,6 @@ export var User = {
                     }
                 }
             },
-            alternateIdentities: {
-                serializedName: "alternateIdentities",
-                type: {
-                    name: "Composite",
-                    className: "UserAlternateIdentities"
-                }
-            },
             properties: {
                 serializedName: "properties",
                 nullable: true,
@@ -1917,50 +1910,6 @@ export var ProjectMembership = {
                 type: {
                     name: "Dictionary",
                     value: { type: { name: "String" } }
-                }
-            }
-        }
-    }
-};
-export var UserAlternateIdentities = {
-    type: {
-        name: "Composite",
-        className: "UserAlternateIdentities",
-        modelProperties: {
-            azureResourceManager: {
-                serializedName: "AzureResourceManager",
-                type: {
-                    name: "Composite",
-                    className: "AlternateIdentity"
-                }
-            },
-            azureDevOps: {
-                serializedName: "AzureDevOps",
-                type: {
-                    name: "Composite",
-                    className: "AlternateIdentity"
-                }
-            },
-            gitHub: {
-                serializedName: "GitHub",
-                type: {
-                    name: "Composite",
-                    className: "AlternateIdentity"
-                }
-            }
-        }
-    }
-};
-export var AlternateIdentity = {
-    type: {
-        name: "Composite",
-        className: "AlternateIdentity",
-        modelProperties: {
-            login: {
-                serializedName: "login",
-                nullable: true,
-                type: {
-                    name: "String"
                 }
             }
         }
@@ -2149,21 +2098,6 @@ export var Project = {
             },
             vaultId: {
                 serializedName: "vaultId",
-                readOnly: true,
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
-            sharedVaultId: {
-                serializedName: "sharedVaultId",
-                nullable: true,
-                type: {
-                    name: "String"
-                }
-            },
-            secretsVaultId: {
-                serializedName: "secretsVaultId",
                 nullable: true,
                 type: {
                     name: "String"

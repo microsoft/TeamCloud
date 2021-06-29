@@ -6,7 +6,7 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 import { __extends } from "tslib";
-import * as coreHttp from "@azure/core-http";
+import * as coreClient from "@azure/core-client";
 import * as Parameters from "./models/parameters";
 import * as Mappers from "./models/mappers";
 import { TeamCloudContext } from "./teamCloudContext";
@@ -26,10 +26,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getAdapters = function (options) {
-        var operationArguments = {
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getAdaptersOperationSpec);
+        return this.sendOperationRequest({ options: options }, getAdaptersOperationSpec);
     };
     /**
      * Gets all Components for a Project.
@@ -38,12 +35,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getComponents = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getComponentsOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, getComponentsOperationSpec);
     };
     /**
      * Creates a new Project Component.
@@ -52,12 +44,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createComponent = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createComponentOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, createComponentOperationSpec);
     };
     /**
      * Gets a Project Component.
@@ -67,13 +54,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getComponent = function (componentId, organizationId, projectId, options) {
-        var operationArguments = {
-            componentId: componentId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getComponentOperationSpec);
+        return this.sendOperationRequest({ componentId: componentId, organizationId: organizationId, projectId: projectId, options: options }, getComponentOperationSpec);
     };
     /**
      * Deletes an existing Project Component.
@@ -83,13 +64,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteComponent = function (componentId, organizationId, projectId, options) {
-        var operationArguments = {
-            componentId: componentId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteComponentOperationSpec);
+        return this.sendOperationRequest({ componentId: componentId, organizationId: organizationId, projectId: projectId, options: options }, deleteComponentOperationSpec);
     };
     /**
      * Gets all Component Tasks.
@@ -99,13 +74,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getComponentTasks = function (organizationId, projectId, componentId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            componentId: componentId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getComponentTasksOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, componentId: componentId, options: options }, getComponentTasksOperationSpec);
     };
     /**
      * Creates a new Project Component Task.
@@ -115,13 +84,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createComponentTask = function (organizationId, projectId, componentId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            componentId: componentId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createComponentTaskOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, componentId: componentId, options: options }, createComponentTaskOperationSpec);
     };
     /**
      * Gets the Component Task.
@@ -132,14 +95,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getComponentTask = function (id, organizationId, projectId, componentId, options) {
-        var operationArguments = {
-            id: id,
-            organizationId: organizationId,
-            projectId: projectId,
-            componentId: componentId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getComponentTaskOperationSpec);
+        return this.sendOperationRequest({ id: id, organizationId: organizationId, projectId: projectId, componentId: componentId, options: options }, getComponentTaskOperationSpec);
     };
     /**
      * Gets all Component Templates for a Project.
@@ -148,12 +104,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getComponentTemplates = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getComponentTemplatesOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, getComponentTemplatesOperationSpec);
     };
     /**
      * Gets the Component Template.
@@ -163,13 +114,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getComponentTemplate = function (id, organizationId, projectId, options) {
-        var operationArguments = {
-            id: id,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getComponentTemplateOperationSpec);
+        return this.sendOperationRequest({ id: id, organizationId: organizationId, projectId: projectId, options: options }, getComponentTemplateOperationSpec);
     };
     /**
      * Gets all Deployment Scopes.
@@ -177,11 +122,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getDeploymentScopes = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getDeploymentScopesOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getDeploymentScopesOperationSpec);
     };
     /**
      * Creates a new Deployment Scope.
@@ -189,11 +130,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createDeploymentScope = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createDeploymentScopeOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, createDeploymentScopeOperationSpec);
     };
     /**
      * Gets a Deployment Scope.
@@ -202,12 +139,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getDeploymentScope = function (deploymentScopeId, organizationId, options) {
-        var operationArguments = {
-            deploymentScopeId: deploymentScopeId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getDeploymentScopeOperationSpec);
+        return this.sendOperationRequest({ deploymentScopeId: deploymentScopeId, organizationId: organizationId, options: options }, getDeploymentScopeOperationSpec);
     };
     /**
      * Updates an existing Deployment Scope.
@@ -216,12 +148,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateDeploymentScope = function (deploymentScopeId, organizationId, options) {
-        var operationArguments = {
-            deploymentScopeId: deploymentScopeId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateDeploymentScopeOperationSpec);
+        return this.sendOperationRequest({ deploymentScopeId: deploymentScopeId, organizationId: organizationId, options: options }, updateDeploymentScopeOperationSpec);
     };
     /**
      * Deletes a Deployment Scope.
@@ -230,12 +157,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteDeploymentScope = function (deploymentScopeId, organizationId, options) {
-        var operationArguments = {
-            deploymentScopeId: deploymentScopeId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteDeploymentScopeOperationSpec);
+        return this.sendOperationRequest({ deploymentScopeId: deploymentScopeId, organizationId: organizationId, options: options }, deleteDeploymentScopeOperationSpec);
     };
     /**
      * Authorize an existing Deployment Scope.
@@ -244,12 +166,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.authorizeDeploymentScope = function (deploymentScopeId, organizationId, options) {
-        var operationArguments = {
-            deploymentScopeId: deploymentScopeId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, authorizeDeploymentScopeOperationSpec);
+        return this.sendOperationRequest({ deploymentScopeId: deploymentScopeId, organizationId: organizationId, options: options }, authorizeDeploymentScopeOperationSpec);
     };
     /**
      * Negotiates the SignalR connection.
@@ -258,12 +175,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.negotiateSignalR = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, negotiateSignalROperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, negotiateSignalROperationSpec);
     };
     /**
      * Gets all audit entries.
@@ -271,11 +183,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getAuditEntries = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getAuditEntriesOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getAuditEntriesOperationSpec);
     };
     /**
      * Gets an audit entry.
@@ -284,12 +192,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getAuditEntry = function (commandId, organizationId, options) {
-        var operationArguments = {
-            commandId: commandId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getAuditEntryOperationSpec);
+        return this.sendOperationRequest({ commandId: commandId, organizationId: organizationId, options: options }, getAuditEntryOperationSpec);
     };
     /**
      * Gets all auditable commands.
@@ -297,31 +200,21 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getAuditCommands = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getAuditCommandsOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getAuditCommandsOperationSpec);
     };
     /**
      * Gets all Organizations.
      * @param options The options parameters.
      */
     TeamCloud.prototype.getOrganizations = function (options) {
-        var operationArguments = {
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getOrganizationsOperationSpec);
+        return this.sendOperationRequest({ options: options }, getOrganizationsOperationSpec);
     };
     /**
      * Creates a new Organization.
      * @param options The options parameters.
      */
     TeamCloud.prototype.createOrganization = function (options) {
-        var operationArguments = {
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createOrganizationOperationSpec);
+        return this.sendOperationRequest({ options: options }, createOrganizationOperationSpec);
     };
     /**
      * Gets an Organization.
@@ -329,11 +222,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getOrganization = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getOrganizationOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getOrganizationOperationSpec);
     };
     /**
      * Deletes an existing Organization.
@@ -341,11 +230,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteOrganization = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteOrganizationOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, deleteOrganizationOperationSpec);
     };
     /**
      * Gets all Users.
@@ -353,11 +238,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getOrganizationUsers = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getOrganizationUsersOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getOrganizationUsersOperationSpec);
     };
     /**
      * Creates a new User.
@@ -365,11 +246,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createOrganizationUser = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createOrganizationUserOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, createOrganizationUserOperationSpec);
     };
     /**
      * Gets a User.
@@ -378,12 +255,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getOrganizationUser = function (userId, organizationId, options) {
-        var operationArguments = {
-            userId: userId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getOrganizationUserOperationSpec);
+        return this.sendOperationRequest({ userId: userId, organizationId: organizationId, options: options }, getOrganizationUserOperationSpec);
     };
     /**
      * Updates an existing User.
@@ -392,12 +264,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateOrganizationUser = function (userId, organizationId, options) {
-        var operationArguments = {
-            userId: userId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateOrganizationUserOperationSpec);
+        return this.sendOperationRequest({ userId: userId, organizationId: organizationId, options: options }, updateOrganizationUserOperationSpec);
     };
     /**
      * Deletes an existing User.
@@ -406,12 +273,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteOrganizationUser = function (userId, organizationId, options) {
-        var operationArguments = {
-            userId: userId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteOrganizationUserOperationSpec);
+        return this.sendOperationRequest({ userId: userId, organizationId: organizationId, options: options }, deleteOrganizationUserOperationSpec);
     };
     /**
      * Gets a User A User matching the current authenticated user.
@@ -419,11 +281,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getOrganizationUserMe = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getOrganizationUserMeOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getOrganizationUserMeOperationSpec);
     };
     /**
      * Updates an existing User.
@@ -431,11 +289,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateOrganizationUserMe = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateOrganizationUserMeOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, updateOrganizationUserMeOperationSpec);
     };
     /**
      * Gets all Projects.
@@ -443,11 +297,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjects = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectsOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getProjectsOperationSpec);
     };
     /**
      * Creates a new Project.
@@ -455,11 +305,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createProject = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createProjectOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, createProjectOperationSpec);
     };
     /**
      * Gets a Project.
@@ -468,12 +314,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProject = function (projectId, organizationId, options) {
-        var operationArguments = {
-            projectId: projectId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectOperationSpec);
+        return this.sendOperationRequest({ projectId: projectId, organizationId: organizationId, options: options }, getProjectOperationSpec);
     };
     /**
      * Deletes a Project.
@@ -482,12 +323,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteProject = function (projectId, organizationId, options) {
-        var operationArguments = {
-            projectId: projectId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteProjectOperationSpec);
+        return this.sendOperationRequest({ projectId: projectId, organizationId: organizationId, options: options }, deleteProjectOperationSpec);
     };
     /**
      * Gets all Project Identities.
@@ -496,12 +332,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectIdentities = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectIdentitiesOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, getProjectIdentitiesOperationSpec);
     };
     /**
      * Creates a new Project Identity.
@@ -510,12 +341,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createProjectIdentity = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createProjectIdentityOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, createProjectIdentityOperationSpec);
     };
     /**
      * Gets a Project Identity.
@@ -525,13 +351,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectIdentity = function (projectIdentityId, organizationId, projectId, options) {
-        var operationArguments = {
-            projectIdentityId: projectIdentityId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectIdentityOperationSpec);
+        return this.sendOperationRequest({ projectIdentityId: projectIdentityId, organizationId: organizationId, projectId: projectId, options: options }, getProjectIdentityOperationSpec);
     };
     /**
      * Updates an existing Project Identity.
@@ -541,13 +361,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateProjectIdentity = function (projectIdentityId, organizationId, projectId, options) {
-        var operationArguments = {
-            projectIdentityId: projectIdentityId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateProjectIdentityOperationSpec);
+        return this.sendOperationRequest({ projectIdentityId: projectIdentityId, organizationId: organizationId, projectId: projectId, options: options }, updateProjectIdentityOperationSpec);
     };
     /**
      * Deletes a Project Identity.
@@ -557,13 +371,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteProjectIdentity = function (projectIdentityId, organizationId, projectId, options) {
-        var operationArguments = {
-            projectIdentityId: projectIdentityId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteProjectIdentityOperationSpec);
+        return this.sendOperationRequest({ projectIdentityId: projectIdentityId, organizationId: organizationId, projectId: projectId, options: options }, deleteProjectIdentityOperationSpec);
     };
     /**
      * Gets all Tags for a Project.
@@ -572,12 +380,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectTags = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectTagsOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, getProjectTagsOperationSpec);
     };
     /**
      * Creates a new Project Tag.
@@ -586,12 +389,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createProjectTag = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createProjectTagOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, createProjectTagOperationSpec);
     };
     /**
      * Updates an existing Project Tag.
@@ -600,12 +398,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateProjectTag = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateProjectTagOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, updateProjectTagOperationSpec);
     };
     /**
      * Gets a Project Tag by Key.
@@ -615,13 +408,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectTagByKey = function (tagKey, organizationId, projectId, options) {
-        var operationArguments = {
-            tagKey: tagKey,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectTagByKeyOperationSpec);
+        return this.sendOperationRequest({ tagKey: tagKey, organizationId: organizationId, projectId: projectId, options: options }, getProjectTagByKeyOperationSpec);
     };
     /**
      * Deletes an existing Project Tag.
@@ -631,13 +418,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteProjectTag = function (tagKey, organizationId, projectId, options) {
-        var operationArguments = {
-            tagKey: tagKey,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteProjectTagOperationSpec);
+        return this.sendOperationRequest({ tagKey: tagKey, organizationId: organizationId, projectId: projectId, options: options }, deleteProjectTagOperationSpec);
     };
     /**
      * Gets all Project Templates.
@@ -645,11 +426,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectTemplates = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectTemplatesOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getProjectTemplatesOperationSpec);
     };
     /**
      * Creates a new Project Template.
@@ -657,11 +434,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createProjectTemplate = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createProjectTemplateOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, createProjectTemplateOperationSpec);
     };
     /**
      * Gets a Project Template.
@@ -670,12 +443,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectTemplate = function (projectTemplateId, organizationId, options) {
-        var operationArguments = {
-            projectTemplateId: projectTemplateId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectTemplateOperationSpec);
+        return this.sendOperationRequest({ projectTemplateId: projectTemplateId, organizationId: organizationId, options: options }, getProjectTemplateOperationSpec);
     };
     /**
      * Updates an existing Project Template.
@@ -684,12 +452,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateProjectTemplate = function (projectTemplateId, organizationId, options) {
-        var operationArguments = {
-            projectTemplateId: projectTemplateId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateProjectTemplateOperationSpec);
+        return this.sendOperationRequest({ projectTemplateId: projectTemplateId, organizationId: organizationId, options: options }, updateProjectTemplateOperationSpec);
     };
     /**
      * Deletes a Project Template.
@@ -698,12 +461,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteProjectTemplate = function (projectTemplateId, organizationId, options) {
-        var operationArguments = {
-            projectTemplateId: projectTemplateId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteProjectTemplateOperationSpec);
+        return this.sendOperationRequest({ projectTemplateId: projectTemplateId, organizationId: organizationId, options: options }, deleteProjectTemplateOperationSpec);
     };
     /**
      * Gets all Users for a Project.
@@ -712,12 +470,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectUsers = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectUsersOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, getProjectUsersOperationSpec);
     };
     /**
      * Creates a new Project User
@@ -726,12 +479,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createProjectUser = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createProjectUserOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, createProjectUserOperationSpec);
     };
     /**
      * Gets a Project User by ID or email address.
@@ -741,13 +489,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectUser = function (userId, organizationId, projectId, options) {
-        var operationArguments = {
-            userId: userId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectUserOperationSpec);
+        return this.sendOperationRequest({ userId: userId, organizationId: organizationId, projectId: projectId, options: options }, getProjectUserOperationSpec);
     };
     /**
      * Updates an existing Project User.
@@ -757,13 +499,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateProjectUser = function (userId, organizationId, projectId, options) {
-        var operationArguments = {
-            userId: userId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateProjectUserOperationSpec);
+        return this.sendOperationRequest({ userId: userId, organizationId: organizationId, projectId: projectId, options: options }, updateProjectUserOperationSpec);
     };
     /**
      * Deletes an existing Project User.
@@ -773,13 +509,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.deleteProjectUser = function (userId, organizationId, projectId, options) {
-        var operationArguments = {
-            userId: userId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, deleteProjectUserOperationSpec);
+        return this.sendOperationRequest({ userId: userId, organizationId: organizationId, projectId: projectId, options: options }, deleteProjectUserOperationSpec);
     };
     /**
      * Gets a Project User for the calling user.
@@ -788,12 +518,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectUserMe = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectUserMeOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, getProjectUserMeOperationSpec);
     };
     /**
      * Updates an existing Project User.
@@ -802,12 +527,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateProjectUserMe = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateProjectUserMeOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, updateProjectUserMeOperationSpec);
     };
     /**
      * Gets all Schedule.
@@ -816,12 +536,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getSchedules = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getSchedulesOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, getSchedulesOperationSpec);
     };
     /**
      * Creates a new Project Schedule.
@@ -830,12 +545,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.createSchedule = function (organizationId, projectId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, createScheduleOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, projectId: projectId, options: options }, createScheduleOperationSpec);
     };
     /**
      * Gets the Schedule.
@@ -845,13 +555,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getSchedule = function (scheduleId, organizationId, projectId, options) {
-        var operationArguments = {
-            scheduleId: scheduleId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getScheduleOperationSpec);
+        return this.sendOperationRequest({ scheduleId: scheduleId, organizationId: organizationId, projectId: projectId, options: options }, getScheduleOperationSpec);
     };
     /**
      * Updates a Project Schedule.
@@ -861,13 +565,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.updateSchedule = function (scheduleId, organizationId, projectId, options) {
-        var operationArguments = {
-            scheduleId: scheduleId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, updateScheduleOperationSpec);
+        return this.sendOperationRequest({ scheduleId: scheduleId, organizationId: organizationId, projectId: projectId, options: options }, updateScheduleOperationSpec);
     };
     /**
      * Runs a Project Schedule.
@@ -877,13 +575,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.runSchedule = function (scheduleId, organizationId, projectId, options) {
-        var operationArguments = {
-            scheduleId: scheduleId,
-            organizationId: organizationId,
-            projectId: projectId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, runScheduleOperationSpec);
+        return this.sendOperationRequest({ scheduleId: scheduleId, organizationId: organizationId, projectId: projectId, options: options }, runScheduleOperationSpec);
     };
     /**
      * Gets the status of a long-running operation.
@@ -892,12 +584,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getStatus = function (trackingId, organizationId, options) {
-        var operationArguments = {
-            trackingId: trackingId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getStatusOperationSpec);
+        return this.sendOperationRequest({ trackingId: trackingId, organizationId: organizationId, options: options }, getStatusOperationSpec);
     };
     /**
      * Gets the status of a long-running operation.
@@ -907,13 +594,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getProjectStatus = function (projectId, trackingId, organizationId, options) {
-        var operationArguments = {
-            projectId: projectId,
-            trackingId: trackingId,
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getProjectStatusOperationSpec);
+        return this.sendOperationRequest({ projectId: projectId, trackingId: trackingId, organizationId: organizationId, options: options }, getProjectStatusOperationSpec);
     };
     /**
      * Gets all Projects for a User.
@@ -922,12 +603,7 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getUserProjects = function (organizationId, userId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            userId: userId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getUserProjectsOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, userId: userId, options: options }, getUserProjectsOperationSpec);
     };
     /**
      * Gets all Projects for a User.
@@ -935,17 +611,13 @@ var TeamCloud = /** @class */ (function (_super) {
      * @param options The options parameters.
      */
     TeamCloud.prototype.getUserProjectsMe = function (organizationId, options) {
-        var operationArguments = {
-            organizationId: organizationId,
-            options: coreHttp.operationOptionsToRequestOptionsBase(options || {})
-        };
-        return this.sendOperationRequest(operationArguments, getUserProjectsMeOperationSpec);
+        return this.sendOperationRequest({ organizationId: organizationId, options: options }, getUserProjectsMeOperationSpec);
     };
     return TeamCloud;
 }(TeamCloudContext));
 export { TeamCloud };
 // Operation Specifications
-var serializer = new coreHttp.Serializer(Mappers, /* isXml */ false);
+var serializer = coreClient.createSerializer(Mappers, /* isXml */ false);
 var getAdaptersOperationSpec = {
     path: "/adapters",
     httpMethod: "GET",
@@ -1577,9 +1249,6 @@ var updateOrganizationUserOperationSpec = {
     path: "/orgs/{organizationId}/users/{userId}",
     httpMethod: "PUT",
     responses: {
-        200: {
-            bodyMapper: Mappers.UserDataResult
-        },
         202: {
             bodyMapper: Mappers.StatusResult
         },
@@ -1608,9 +1277,6 @@ var deleteOrganizationUserOperationSpec = {
     responses: {
         202: {
             bodyMapper: Mappers.StatusResult
-        },
-        204: {
-            bodyMapper: Mappers.UserDataResult
         },
         401: {},
         403: {},
@@ -1650,9 +1316,6 @@ var updateOrganizationUserMeOperationSpec = {
     path: "/orgs/{organizationId}/me",
     httpMethod: "PUT",
     responses: {
-        200: {
-            bodyMapper: Mappers.UserDataResult
-        },
         202: {
             bodyMapper: Mappers.StatusResult
         },

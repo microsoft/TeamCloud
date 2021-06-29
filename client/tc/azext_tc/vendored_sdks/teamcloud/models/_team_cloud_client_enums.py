@@ -26,6 +26,23 @@ class _CaseInsensitiveEnumMeta(EnumMeta):
             raise AttributeError(name)
 
 
+class AdapterInformationType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    AZURE_RESOURCE_MANAGER = "AzureResourceManager"
+    AZURE_DEV_OPS = "AzureDevOps"
+    GIT_HUB = "GitHub"
+
+class CommandAuditEntityRuntimeStatus(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    UNKNOWN = "Unknown"
+    RUNNING = "Running"
+    COMPLETED = "Completed"
+    CONTINUED_AS_NEW = "ContinuedAsNew"
+    FAILED = "Failed"
+    CANCELED = "Canceled"
+    TERMINATED = "Terminated"
+    PENDING = "Pending"
+
 class ComponentResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     PENDING = "Pending"
@@ -44,29 +61,42 @@ class ComponentTaskResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, E
 
 class ComponentTaskTemplateType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
+    CUSTOM = "Custom"
     CREATE = "Create"
     DELETE = "Delete"
-    CUSTOM = "Custom"
 
 class ComponentTaskType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
+    CUSTOM = "Custom"
     CREATE = "Create"
     DELETE = "Delete"
-    CUSTOM = "Custom"
 
 class ComponentTemplateType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
-    CUSTOM = "Custom"
-    AZURE_RESOURCE = "AzureResource"
     ENVIRONMENT = "Environment"
-    GIT_REPOSITORY = "GitRepository"
+    REPOSITORY = "Repository"
 
 class ComponentType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
-    CUSTOM = "Custom"
-    AZURE_RESOURCE = "AzureResource"
     ENVIRONMENT = "Environment"
-    GIT_REPOSITORY = "GitRepository"
+    REPOSITORY = "Repository"
+
+class DeploymentScopeComponentTypesItem(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    ENVIRONMENT = "Environment"
+    REPOSITORY = "Repository"
+
+class DeploymentScopeDefinitionType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    AZURE_RESOURCE_MANAGER = "AzureResourceManager"
+    AZURE_DEV_OPS = "AzureDevOps"
+    GIT_HUB = "GitHub"
+
+class DeploymentScopeType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+
+    AZURE_RESOURCE_MANAGER = "AzureResourceManager"
+    AZURE_DEV_OPS = "AzureDevOps"
+    GIT_HUB = "GitHub"
 
 class OrganizationResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
@@ -145,6 +175,6 @@ class UserRole(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 class UserType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     USER = "User"
+    GROUP = "Group"
     SYSTEM = "System"
-    PROVIDER = "Provider"
-    APPLICATION = "Application"
+    SERVICE = "Service"
