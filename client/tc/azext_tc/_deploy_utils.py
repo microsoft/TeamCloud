@@ -8,8 +8,10 @@ from knack.util import CLIError
 from knack.log import get_logger
 from azure.cli.core.commands import LongRunningOperation
 from azure.cli.core.profiles import ResourceType, get_sdk
-from azure.cli.core.util import (
-    can_launch_browser, open_page_in_browser, in_cloud_console, should_disable_connection_verify)
+from azure.cli.core.util import (can_launch_browser, open_page_in_browser, in_cloud_console,
+                                 random_string, sdk_no_wait, should_disable_connection_verify)
+
+from ._client_factory import (resource_client_factory, web_client_factory)
 
 
 ERR_TMPL_PRDR_INDEX = 'Unable to get provider index.\n'
@@ -74,7 +76,6 @@ def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
 
 
 def get_resource_group_by_name(cli_ctx, resource_group_name):
-    from ._client_factory import resource_client_factory
 
     try:
         resource_client = resource_client_factory(cli_ctx).resource_groups
@@ -87,7 +88,6 @@ def get_resource_group_by_name(cli_ctx, resource_group_name):
 
 
 def create_resource_group_name(cli_ctx, resource_group_name, location, tags=None):
-    from ._client_factory import resource_client_factory
 
     ResourceGroup = get_sdk(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES,
                             'ResourceGroup', mod='models')
@@ -127,8 +127,6 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
     import requests
     import urllib3
 
-    from ._client_factory import web_client_factory
-
     web_client = web_client_factory(cli_ctx).web_apps
 
     #  work around until the timeout limits issue for linux is investigated & fixed
@@ -139,7 +137,7 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
         scm_url = _get_scm_url(cli_ctx, resource_group_name, name,
                                slot=slot, app_instance=app_instance)
     except ValueError:
-        raise CLIError('Failed to fetch scm url for azure app service app')
+        raise CLIError('Failed to fetch scm url for azure app service app')  # pylint: disable=raise-missing-from
 
     zipdeploy_url = scm_url + '/api/zipdeploy?isAsync=true'
     deployment_status_url = scm_url + '/api/deployments/latest'
@@ -162,14 +160,14 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
 
     return response
 
+# pylint: disable=inconsistent-return-statements
+
 
 def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, template_file=None,
                                           template_uri=None, parameters=None, no_wait=False):
-    from azure.cli.core.util import random_string, sdk_no_wait
     from azure.cli.command_modules.resource.custom import _prepare_deployment_properties_unmodified
-    from ._client_factory import resource_client_factory
 
-    properties = _prepare_deployment_properties_unmodified(cmd, template_file=template_file,
+    properties = _prepare_deployment_properties_unmodified(cmd, 'resourceGroup', template_file=template_file,
                                                            template_uri=template_uri, parameters=parameters,
                                                            mode='Incremental')
 
@@ -205,7 +203,7 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
                 if '(ServiceUnavailable)' not in message:
                     raise err
             except:
-                raise err
+                raise err from err
             import time
             time.sleep(5)
             continue
@@ -231,12 +229,12 @@ def get_index(index_url):
             raise CLIError(msg)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as err:
             msg = ERR_TMPL_NO_NETWORK.format(str(err))
-            raise CLIError(msg)
+            raise CLIError(msg) from err
         except ValueError as err:
             # Indicates that url is not redirecting properly to intended index url, we stop retrying after TRIES calls
             if try_number == TRIES - 1:
                 msg = ERR_TMPL_BAD_JSON.format(str(err))
-                raise CLIError(msg)
+                raise CLIError(msg) from err
             import time
             time.sleep(0.5)
             continue
@@ -323,7 +321,7 @@ def get_app_name(url):
     except IndexError:
         pass
 
-    if name is None or '':
+    if name is None:
         raise CLIError('Unable to get app name from url.')
 
     return name
@@ -347,10 +345,10 @@ def get_app_info(cmd, url):
 def get_arm_output(outputs, key, raise_on_error=True):
     try:
         value = outputs[key]['value']
-    except KeyError:
+    except KeyError as e:
         if raise_on_error:
             raise CLIError(
-                "A value for '{}' was not provided in the ARM template outputs".format(key))
+                "A value for '{}' was not provided in the ARM template outputs".format(key)) from e
         value = None
 
     return value
@@ -432,7 +430,6 @@ def _configure_default_logging(cli_ctx, resource_group_name, name, slot=None, ap
                                      http_logs=http_logs, failed_requests_tracing=None,
                                      detailed_error_messages=None)
 
-    from ._client_factory import web_client_factory
     web_client = web_client_factory(cli_ctx).web_apps
 
     return web_client.update_diagnostic_logs_config(resource_group_name, name, site_log_config)
@@ -450,7 +447,6 @@ def _get_scm_url(cli_ctx, resource_group_name, name, slot=None, app_instance=Non
 def _get_webapp(cli_ctx, resource_group_name, name, slot=None, app_instance=None):
     webapp = app_instance
     if not app_instance:
-        from ._client_factory import web_client_factory
         web_client = web_client_factory(cli_ctx).web_apps
         webapp = web_client.get(resource_group_name, name)
     if not webapp:

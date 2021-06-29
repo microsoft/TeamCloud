@@ -2,16 +2,21 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
+# pylint: disable=unused-argument, protected-access
 
 from re import match
 from uuid import UUID
-from azure.cli.core.util import CLIError
 from knack.log import get_logger
+from azure.cli.core.util import CLIError
+from azure.cli.core.commands.validators import validate_tags
+
+from ._client_factory import web_client_factory, teamcloud_client_factory
+from ._deploy_utils import github_release_version_exists
+
 from .vendored_sdks.teamcloud.models import ErrorResult
 
-logger = get_logger(__name__)
 
-# pylint: disable=unused-argument, protected-access
+logger = get_logger(__name__)
 
 
 def _ensure_base_url(client, base_url):
@@ -40,13 +45,10 @@ def tc_deploy_validator(cmd, ns):
             raise CLIError(
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
-        from ._deploy_utils import github_release_version_exists
-
         if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
             raise CLIError('--version/-v {} does not exist'.format(ns.version))
 
     if ns.tags:
-        from azure.cli.core.commands.validators import validate_tags
         validate_tags(ns)
 
     if ns.index_url:
@@ -65,8 +67,6 @@ def tc_deploy_validator(cmd, ns):
         if ns.skip_name_validation:
             logger.warning('IMPORTANT: --skip-name-validation prevented unique name validation.')
         else:
-            from ._client_factory import web_client_factory
-
             web_client = web_client_factory(cmd.cli_ctx)
             availability = web_client.check_name_availability(ns.name, 'Site')
             if not availability.name_available:
@@ -91,15 +91,13 @@ def org_name_or_id_validator(cmd, ns):
             raise CLIError(
                 '--org should be a valid uuid or a org name string with length [2,31]')
 
-        from ._client_factory import teamcloud_client_factory
-
         client = teamcloud_client_factory(cmd.cli_ctx)
         _ensure_base_url(client, ns.base_url)
         result = client.get_organization(ns.org)
 
-        if isinstance(result, ErrorResult):
+        if result is None or isinstance(result, ErrorResult):
             raise CLIError(
-                '--org no org found matching provided org name')
+                '--org no org found matching provided org name or id')
         try:
             ns.org = result.data.id
         except AttributeError:
@@ -194,8 +192,6 @@ def teamcloud_source_version_validator(cmd, ns):
             raise CLIError(
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
-        from ._deploy_utils import github_release_version_exists
-
         if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
             raise CLIError('--version/-v {} does not exist'.format(ns.version))
 
@@ -212,8 +208,6 @@ def teamcloud_cli_source_version_validator(cmd, ns):
             raise CLIError(
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
-        from ._deploy_utils import github_release_version_exists
-
         if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
             raise CLIError('--version/-v {} does not exist'.format(ns.version))
 
@@ -229,8 +223,6 @@ def providers_source_version_validator(cmd, ns):
         if not _is_valid_version(ns.version):
             raise CLIError(
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
-
-        from ._deploy_utils import github_release_version_exists
 
         if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud-Providers'):
             raise CLIError('--version/-v {} does not exist'.format(ns.version))

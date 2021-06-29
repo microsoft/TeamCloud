@@ -26,12 +26,12 @@ pushd $tcdir > /dev/null
     echo ""
 
     echo "Running Linter on TeamCloud CLI source"
-    echo "!!! temporarily disabled !!!"
-    # azdev linter tc
+    azdev linter tc
     echo ""
 
     echo "Running Style Checks on TeamCloud CLI source"
     echo "!!! temporarily disabled !!!"
+    # https://github.com/Azure/azure-cli-dev-tools/pull/306
     # azdev style tc
     echo ""
 

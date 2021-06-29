@@ -1,7 +1,7 @@
 import argparse
 from re import search
 from pathlib import Path
-from packaging.version import parse
+from packaging.version import parse # pylint: disable=unresolved-import
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--major', action='store_true', help='bump major version')
