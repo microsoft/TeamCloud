@@ -3,7 +3,7 @@
 Release History
 ===============
 
-0.3.2
+0.3.3
 ++++++
 * Preview release
 * Add scope arg app deploy
