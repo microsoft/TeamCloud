@@ -4,6 +4,9 @@
 # --------------------------------------------------------------------------------------------
 # pylint: disable=unused-argument, protected-access, too-many-lines
 
+import json
+import requests
+
 from knack.util import CLIError
 from knack.log import get_logger
 from azure.cli.core.commands import LongRunningOperation
@@ -32,8 +35,6 @@ logger = get_logger(__name__)
 
 
 def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=False):
-    import requests
-
     if version and prerelease:
         raise CLIError(
             'usage error: can only use one of --version/-v | --pre')
@@ -69,8 +70,6 @@ def get_github_latest_release_version(cli_ctx, repo, org='microsoft', prerelease
 
 
 def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
-    import requests
-
     version_url = 'https://api.github.com/repos/{}/{}/releases/tags/{}'.format(org, repo, version)
     version_res = requests.get(version_url, verify=not should_disable_connection_verify())
     return version_res.status_code < 400
@@ -124,43 +123,6 @@ def create_resource_manager_sp(cmd, app_name):
     return sp
 
 
-def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_instance=None, timeout=None):
-    import requests
-    import urllib3
-
-    web_client = web_client_factory(cli_ctx).web_apps
-
-    creds_poller = web_client.begin_list_publishing_credentials(resource_group_name, name)
-    creds = LongRunningOperation(cli_ctx, start_msg='Getting publishing credentials',
-                                 finish_msg='Finished getting publishing credentials')(creds_poller)
-
-    try:
-        scm_url = _get_scm_url(cli_ctx, resource_group_name, name,
-                               slot=slot, app_instance=app_instance)
-    except ValueError:
-        raise CLIError('Failed to fetch scm url for azure app service app')  # pylint: disable=raise-missing-from
-
-    zipdeploy_url = scm_url + '/api/zipdeploy?isAsync=true'
-    deployment_status_url = scm_url + '/api/deployments/latest'
-
-    authorization = urllib3.util.make_headers(basic_auth='{}:{}'.format(
-        creds.publishing_user_name, creds.publishing_password))
-
-    res = requests.put(zipdeploy_url, headers=authorization,
-                       json={'packageUri': zip_url}, verify=not should_disable_connection_verify())
-
-    # check if there's an ongoing process
-    if res.status_code == 409:
-        raise CLIError('There may be an ongoing deployment or your app setting has WEBSITE_RUN_FROM_PACKAGE. '
-                       'Please track your deployment in {} and ensure the WEBSITE_RUN_FROM_PACKAGE app setting '
-                       'is removed.'.format(deployment_status_url))
-
-    # check the status of async deployment
-    response = _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
-                                            authorization, slot=slot, app_instance=app_instance, timeout=timeout)
-
-    return response
-
 # pylint: disable=inconsistent-return-statements
 
 
@@ -195,7 +157,6 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
                 raise err
             try:
                 response = getattr(err, 'response', None)
-                import json
                 message = json.loads(response.text)['error']['details'][0]['message']
                 if '(ServiceUnavailable)' not in message:
                     raise err
@@ -216,7 +177,6 @@ def open_url_in_browser(url):
 
 
 def get_index(index_url):
-    import requests
     for try_number in range(TRIES):
         try:
             response = requests.get(index_url, verify=(not should_disable_connection_verify()))
@@ -351,10 +311,45 @@ def get_arm_output(outputs, key, raise_on_error=True):
     return value
 
 
+def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_instance=None, timeout=None):
+    import urllib3
+
+    web_client = web_client_factory(cli_ctx).web_apps
+
+    creds_poller = web_client.begin_list_publishing_credentials(resource_group_name, name)
+    creds = LongRunningOperation(cli_ctx, start_msg='Getting publishing credentials',
+                                 finish_msg='Finished getting publishing credentials')(creds_poller)
+
+    try:
+        scm_url = _get_scm_url(cli_ctx, resource_group_name, name,
+                               slot=slot, app_instance=app_instance)
+    except ValueError:
+        raise CLIError('Failed to fetch scm url for azure app service app')  # pylint: disable=raise-missing-from
+
+    zipdeploy_url = scm_url + '/api/zipdeploy?isAsync=true'
+    deployment_status_url = scm_url + '/api/deployments/latest'
+
+    authorization = urllib3.util.make_headers(basic_auth='{}:{}'.format(
+        creds.publishing_user_name, creds.publishing_password))
+
+    res = requests.put(zipdeploy_url, headers=authorization,
+                       json={'packageUri': zip_url}, verify=not should_disable_connection_verify())
+
+    # check if there's an ongoing process
+    if res.status_code == 409:
+        raise CLIError('There may be an ongoing deployment or your app setting has WEBSITE_RUN_FROM_PACKAGE. '
+                       'Please track your deployment in {} and ensure the WEBSITE_RUN_FROM_PACKAGE app setting '
+                       'is removed.'.format(deployment_status_url))
+
+    # check the status of async deployment
+    response = _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
+                                            authorization, slot=slot, app_instance=app_instance, timeout=timeout)
+
+    return response
+
+
 def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
                                  authorization, slot=None, app_instance=None, timeout=None):
-    import json
-    import requests
     from time import sleep
 
     total_trials = (int(timeout) // 2) if timeout else 450
@@ -377,13 +372,18 @@ def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_
         if res_dict.get('status', 0) == 3:
             _configure_default_logging(cli_ctx, resource_group_name, name,
                                        slot=slot, app_instance=app_instance)
-            raise CLIError('Zip deployment failed. {}. Please run the command az webapp log tail -n {} -g {}'.format(
-                res_dict, name, resource_group_name))
+
+            deploment_detail_messages = _get_deployment_details(res_dict, deployment_status_url, authorization)
+
+            raise CLIError('Zip deployment failed. {}. Please run the command az webapp log tail -n {} -g {} \n{}'.format(
+                res_dict, name, resource_group_name, '\n'.join(deploment_detail_messages)))
+
         if res_dict.get('status', 0) == 4:
             break
         if 'progress' in res_dict:
             # show only in debug mode, customers seem to find this confusing
             logger.info(res_dict['progress'])
+
     # if the deployment is taking longer than expected
     if res_dict.get('status', 0) != 4:
         _configure_default_logging(cli_ctx, resource_group_name, name,
@@ -394,7 +394,48 @@ def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_
     return res_dict
 
 
+def _get_deployment_details(res_dict, deployment_status_url, authorization):
+    deploment_detail_messages = []
+
+    deploment_id = res_dict.get('id', None)
+
+    if deploment_id is not None:
+        deploment_log_url = deployment_status_url.replace('latest', deploment_id)
+        deploment_log_response = requests.get(deploment_log_url, headers=authorization,
+                                              verify=not should_disable_connection_verify())
+        try:
+            deploment_log_dict = deploment_log_response.json()
+            deploment_details = next((log for log in deploment_log_dict if log['details_url'].startswith('https')), None)
+
+            if deploment_details is not None:
+
+                deploment_details_url = deploment_details['details_url']
+                deploment_details_response = requests.get(deploment_details_url, headers=authorization,
+                                                          verify=not should_disable_connection_verify())
+                try:
+                    deploment_details_dict = deploment_details_response.json()
+
+                    logger.warning('Zip deployment failed with logs:')
+                    logger.warning('')
+
+                    for deploment_detail in deploment_details_dict:
+                        deploment_detail_message = deploment_detail.get('message', '')
+                        logger.warning(deploment_detail_message)
+                        deploment_detail_messages.append(deploment_detail_message)
+
+                except json.decoder.JSONDecodeError:
+                    logger.warning("Deployment status endpoint %s returned malformed data. Retrying...",
+                                   deploment_details_url)
+
+        except json.decoder.JSONDecodeError:
+            logger.warning("Deployment status endpoint %s returned malformed data. Retrying...",
+                           deploment_log_url)
+
+    return deploment_detail_messages
+
 # TODO: expose new blob suport
+
+
 def _configure_default_logging(cli_ctx, resource_group_name, name, slot=None, app_instance=None, level=None,
                                web_server_logging='filesystem', docker_container_logging='true'):
     from azure.mgmt.web.models import (FileSystemApplicationLogsConfig, ApplicationLogsConfig,
