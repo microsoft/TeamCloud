@@ -36,7 +36,7 @@ pushd $tcdir > /dev/null
     echo ""
 
     echo "Building TeamCloud CLI"
-    azdev extension build tc
+    azdev extension build tc --dist-dir ./release_assets
     echo ""
 
     echo "Deactivating virtual environment"
