@@ -149,7 +149,7 @@ export const MemberForm: React.FC<IMemberFormProps> = (props) => {
             onRenderFooterContent={_onRenderPanelFooterContent}>
             <Stack tokens={{ childrenGap: '12px' }}>
                 <Stack.Item>
-                    <UserPersona user={props.graphUser} large />
+                    <UserPersona principal={props.graphUser} large />
                 </Stack.Item>
                 <Stack.Item>
                     <TextField

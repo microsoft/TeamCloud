@@ -27,10 +27,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
+using TeamCloud.Adapters;
+using TeamCloud.Adapters.AzureDevOps;
+using TeamCloud.Adapters.AzureResourceManager;
+using TeamCloud.Adapters.GitHub;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
+using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
@@ -45,6 +50,7 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 
 namespace TeamCloud.API
@@ -112,7 +118,9 @@ namespace TeamCloud.API
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
-                .AddTeamCloudHttp();
+                .AddTeamCloudAudit()
+                .AddTeamCloudHttp()
+                .AddTeamCloudSecrets();
 
             if (string.IsNullOrEmpty(Configuration.GetValue<string>("Cache:Configuration")))
             {
@@ -151,13 +159,6 @@ namespace TeamCloud.API
             }
 
             services
-                .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
-                .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
-                .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
-                .AddSingleton<IDocumentExpander, ComponentExpander>()
-                .AddSingleton<IDocumentExpander, UserExpander>();
-
-            services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
@@ -168,8 +169,9 @@ namespace TeamCloud.API
                 .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
                 .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
                 .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
+                .AddSingleton<IScheduleRepository, CosmosDbScheduleRepository>()
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
-                .AddSingleton<Orchestrator>()
+                .AddSingleton<OrchestratorService>()
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
                 .AddScoped<EnsureTeamCloudModelMiddleware>();
@@ -178,6 +180,20 @@ namespace TeamCloud.API
                 .AddSingleton<RecyclableMemoryStreamManager>()
                 .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
                 .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
+
+            services
+                .AddTeamCloudAdapterFramework()
+                .AddTeamCloudAdapter<AzureResourceManagerAdapter>()
+                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
+                .AddTeamCloudAdapter<GitHubAdapter>();
+
+            services
+                .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
+                .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
+                .AddSingleton<IDocumentExpander, DeploymentScopeExpander>()
+                .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
+                .AddSingleton<IDocumentExpander, ComponentExpander>()
+                .AddSingleton<IDocumentExpander, UserExpander>();
 
             ConfigureAuthentication(services);
             ConfigureAuthorization(services);
@@ -193,6 +209,8 @@ namespace TeamCloud.API
                     options.ConstraintMap.Add("organizationId", typeof(OrganizationIdentifierRouteConstraint));
                     options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
                     options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("deploymentScopeId", typeof(DeploymentScopeIdentifierConstraint));
+                    options.ConstraintMap.Add("commandId", typeof(CommandIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()

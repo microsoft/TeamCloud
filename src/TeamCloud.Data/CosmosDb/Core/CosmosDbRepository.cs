@@ -49,7 +49,6 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public Type ContainerDocumentType { get; } = typeof(T);
 
-
         protected QueryRequestOptions GetQueryRequestOptions(PartitionKey partitionKey)
             => new QueryRequestOptions { PartitionKey = partitionKey };
 
@@ -184,13 +183,13 @@ namespace TeamCloud.Data.CosmosDb.Core
             return Task.FromResult(document);
         }
 
-        public virtual async Task<T> ExpandAsync(T document)
+        public virtual async Task<T> ExpandAsync(T document, bool includeOptional = false)
         {
-            if (document is null)
-                throw new ArgumentNullException(nameof(document));
-
-            foreach (var expander in expanderProvider.GetExpanders(document))
-                document = (T)await expander.ExpandAsync(document).ConfigureAwait(false);
+            if (document != null)
+            {
+                foreach (var expander in expanderProvider.GetExpanders(document, includeOptional))
+                    document = (T)await expander.ExpandAsync(document).ConfigureAwait(false);
+            }
 
             return document;
         }
@@ -199,7 +198,7 @@ namespace TeamCloud.Data.CosmosDb.Core
         {
             public static readonly IDocumentExpanderProvider Instance = new NullExpanderProvider();
 
-            public IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument containerDocument)
+            public IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument containerDocument, bool includeOptional)
                 => Enumerable.Empty<IDocumentExpander>();
         }
 

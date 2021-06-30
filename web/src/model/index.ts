@@ -3,6 +3,8 @@
 
 export * from './AzureRegions'
 export * from './Common'
+export * from './DaysOfWeek'
+export * from './Extensions'
 export * from './GraphUser'
 export * from './ManagementGroup'
 export * from './Member'

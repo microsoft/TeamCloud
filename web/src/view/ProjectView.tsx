@@ -2,19 +2,24 @@
 // Licensed under the MIT License.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { useQueryClient } from 'react-query';
-import { ComponentTaskMenu, ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview } from '../components';
-import { useAddProjectMembers, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers } from '../hooks';
+import { ComponentTaskMenu, ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview, ScheduleForm, ScheduleList } from '../components';
+import { useAddProjectMembers, useOrg, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers, useProjectSchedule, useProjectSchedules } from '../hooks';
 import { startSignalR, stopSignalR } from '../API';
 import { Message } from '../model';
 
 export const ProjectView: React.FC = () => {
 
+    const history = useHistory();
+    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+
     const [favorite, setFavorate] = useState(false);
 
     const { data: component } = useProjectComponent();
+
+    const { isLoading: orgIsLoading } = useOrg();
 
     const { data: project, isLoading: projectIsLoading } = useProject();
     const { data: members, isLoading: membersIsLoading } = useProjectMembers();
@@ -22,6 +27,8 @@ export const ProjectView: React.FC = () => {
 
     const { isLoading: componentsIsLoading } = useProjectComponents();
     const { isLoading: templatesIsLoading } = useProjectComponentTemplates();
+    const { isLoading: schedulesIsLoading } = useProjectSchedules();
+    const { isLoading: scheduleIsLoading } = useProjectSchedule();
 
     const queryClient = useQueryClient();
 
@@ -130,13 +137,11 @@ export const ProjectView: React.FC = () => {
     }, [project, handleMessage])
 
 
-
-
     return (
         <Stack>
             <Switch>
                 <Route exact path='/orgs/:orgId/projects/:projectId'>
-                    <ContentProgress progressHidden={!projectIsLoading && !componentsIsLoading && !membersIsLoading} />
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !componentsIsLoading && !membersIsLoading} />
                     <ContentHeader title={project?.displayName} coin>
                         <IconButton toggle checked={favorite} onClick={() => setFavorate(!favorite)}
                             iconProps={{ iconName: favorite ? 'FavoriteStarFill' : 'FavoriteStar', color: 'yellow' }} />
@@ -149,14 +154,14 @@ export const ProjectView: React.FC = () => {
                     <ComponentForm />
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/components'>
-                    <ContentProgress progressHidden={!projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
                     <ContentHeader title='Components' />
                     <ContentContainer>
                         <ComponentList />
                     </ContentContainer>
                 </Route>
                 <Route exact path={['/orgs/:orgId/projects/:projectId/components/:itemId', '/orgs/:orgId/projects/:projectId/components/:itemId/tasks/:subitemId']}>
-                    <ContentProgress progressHidden={!projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
                     <ContentHeader title={component?.displayName ?? undefined}>
                         <ComponentTaskMenu />
                     </ContentHeader>
@@ -165,17 +170,44 @@ export const ProjectView: React.FC = () => {
                     </ContentContainer>
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/members'>
-                    <ContentProgress progressHidden={!projectIsLoading && !membersIsLoading} />
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading} />
                     <ContentHeader title='Members' />
                     <ContentContainer>
                         <MemberList {...{ project: project, members: members, addMembers: addMembers }} />
                     </ContentContainer>
                 </Route>
                 <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
-                    <ContentProgress progressHidden={!projectIsLoading && !membersIsLoading} />
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading} />
                     <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Settings') : 'Settings')}`} coin={project?.displayName !== undefined} />
                     <ContentContainer>
                         <ProjectSettingsOverview />
+                    </ContentContainer>
+                </Route>
+                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules'>
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !schedulesIsLoading} />
+                    <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Schedules') : 'Schedules')}`} coin={project?.displayName !== undefined} />
+                    <ContentContainer>
+                        <ScheduleList />
+                    </ContentContainer>
+                </Route>
+                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules/new'>
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading && !componentsIsLoading && !templatesIsLoading} />
+                    <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - New Schedule') : 'New Schedule')}`} coin={project?.displayName !== undefined} >
+                        <IconButton iconProps={{ iconName: 'ChromeClose' }}
+                            onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules`)} />
+                    </ContentHeader>
+                    <ContentContainer>
+                        <ScheduleForm />
+                    </ContentContainer>
+                </Route>
+                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules/:itemId'>
+                    <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading && !componentsIsLoading && !templatesIsLoading && !scheduleIsLoading} />
+                    <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Schedule') : 'Schedule')}`} coin={project?.displayName !== undefined} >
+                        <IconButton iconProps={{ iconName: 'ChromeClose' }}
+                            onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules`)} />
+                    </ContentHeader>
+                    <ContentContainer>
+                        <ScheduleForm />
                     </ContentContainer>
                 </Route>
             </Switch>

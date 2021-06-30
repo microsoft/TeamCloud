@@ -30,6 +30,8 @@ export const ContentRouter: React.FC = () => (
             '/orgs/:orgId/projects/:projectId',
             '/orgs/:orgId/projects/:projectId/settings',
             '/orgs/:orgId/projects/:projectId/settings/:settingId',
+            '/orgs/:orgId/projects/:projectId/settings/:settingId/new',
+            '/orgs/:orgId/projects/:projectId/settings/:settingId/:itemId',
             '/orgs/:orgId/projects/:projectId/:navId',
             '/orgs/:orgId/projects/:projectId/:navId/new',
             '/orgs/:orgId/projects/:projectId/:navId/:itemId',

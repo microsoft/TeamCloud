@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
@@ -21,14 +21,13 @@ using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
-using TeamCloud.Serialization;
 
 namespace TeamCloud.API.Controllers
 {
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/identities")]
     [Produces("application/json")]
-    public class ProjectIdentitiesController : ApiController
+    public class ProjectIdentitiesController : TeamCloudController
     {
         private readonly IProjectIdentityRepository projectIdentityRepository;
 
@@ -43,17 +42,17 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProjectIdentities", Summary = "Gets all Project Identities.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Identities.", typeof(DataResult<List<ProjectIdentity>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
+        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudProjectContext>(async context =>
         {
             var identities = await projectIdentityRepository
-                .ListAsync(project.Id)
+                .ListAsync(context.Project.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
             return DataResult<List<ProjectIdentity>>
                 .Ok(identities)
                 .ToActionResult();
-        }));
+        });
 
 
         [HttpGet("{projectIdentityId}")]
@@ -63,20 +62,16 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectIdentity with the projectIdentityId provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get(string projectIdentityId) => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
+        public Task<IActionResult> Get(string projectIdentityId) => ExecuteAsync<TeamCloudProjectContext>(async context =>
         {
             var projectIdentity = await projectIdentityRepository
-                .GetAsync(project.Id, projectIdentityId)
+                .GetAsync(context.Project.Id, projectIdentityId)
                 .ConfigureAwait(false);
 
-            var result = DataResult<ProjectIdentity>
+            return DataResult<ProjectIdentity>
                 .Ok(projectIdentity)
                 .ToActionResult();
-
-            var resultJson = TeamCloudSerialize.SerializeObject(result);
-
-            return result;
-        }));
+        });
 
 
         [HttpPost]
@@ -86,7 +81,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status201Created, "The new Project Identity was created.", typeof(DataResult<ProjectIdentity>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Identity already exists with the ID provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ProjectIdentityDefinition projectIdentityDefinition) => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
+        public Task<IActionResult> Post([FromBody] ProjectIdentityDefinition projectIdentityDefinition) => ExecuteAsync<TeamCloudProjectContext>(async context =>
         {
             if (projectIdentityDefinition is null)
                 return ErrorResult
@@ -96,18 +91,19 @@ namespace TeamCloud.API.Controllers
             var projectIdentity = new ProjectIdentity
             {
                 Id = Guid.NewGuid().ToString(),
-                Organization = organization.Id,
-                ProjectId = project.Id,
+                Organization = context.Organization.Id,
+                ProjectId = context.Project.Id,
                 DisplayName = projectIdentityDefinition.DisplayName,
                 DeploymentScopeId = projectIdentityDefinition.DeploymentScopeId
             };
 
-            var command = new ProjectIdentityCreateCommand(user, projectIdentity);
+            var command = new ProjectIdentityCreateCommand(context.ContextUser, projectIdentity);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
-        }));
+        });
+
 
         [HttpPut("{projectIdentityId}")]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
@@ -116,7 +112,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Project Identity. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Identity with the key provided in the request body was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Put([FromRoute] string projectIdentityId, [FromBody] ProjectIdentity projectIdentity) => ExecuteAsync(new Func<User, Organization, Project, ProjectIdentity, Task<IActionResult>>(async (user, organization, project, projectIdentityExisting) =>
+        public Task<IActionResult> Put([FromRoute] string projectIdentityId, [FromBody] ProjectIdentity projectIdentity) => ExecuteAsync<TeamCloudProjectIdentityContext>(async context =>
         {
             if (projectIdentity is null)
                 throw new ArgumentNullException(nameof(projectIdentity));
@@ -135,14 +131,15 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "id", Message = $"Project Identity's id does match the identifier provided in the path." })
                     .ToActionResult();
 
-            projectIdentityExisting.RedirectUrls = projectIdentity.RedirectUrls;
+            context.ProjectIdentity.RedirectUrls = projectIdentity.RedirectUrls;
 
-            var command = new ProjectIdentityUpdateCommand(user, projectIdentityExisting);
+            var command = new ProjectIdentityUpdateCommand(context.ContextUser, context.ProjectIdentity);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
-        }));
+        });
+
 
         [HttpDelete("{projectIdentityId}")]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
@@ -151,13 +148,13 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A ProjectIdentity with the projectIdentityId provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string projectIdentityId) => ExecuteAsync(new Func<User, Organization, Project, ProjectIdentity, Task<IActionResult>>(async (user, organization, project, projectIdentity) =>
+        public Task<IActionResult> Delete([FromRoute] string projectIdentityId) => ExecuteAsync<TeamCloudProjectIdentityContext>(async context =>
         {
-            var command = new ProjectIdentityDeleteCommand(user, projectIdentity);
+            var command = new ProjectIdentityDeleteCommand(context.ContextUser, context.ProjectIdentity);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
                 .ConfigureAwait(false);
-        }));
+        });
     }
 }

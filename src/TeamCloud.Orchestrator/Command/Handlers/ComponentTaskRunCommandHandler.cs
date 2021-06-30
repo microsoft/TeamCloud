@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Command.Activities.Adapters;
 using TeamCloud.Orchestrator.Command.Activities.Components;
 using TeamCloud.Orchestrator.Command.Activities.ComponentTasks;
 using TeamCloud.Orchestrator.Command.Activities.Organizations;
@@ -21,13 +23,12 @@ using TeamCloud.Orchestrator.Command.Entities;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ComponentTaskRunCommandHandler : CommandHandler,
-        ICommandHandler<ComponentTaskRunCommand>
+    public sealed class ComponentTaskRunCommandHandler : CommandHandler<ComponentTaskRunCommand>
     {
         public ComponentTaskRunCommandHandler() : base(true)
         { }
 
-        public async Task<ICommandResult> HandleAsync(ComponentTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public override async Task<ICommandResult> HandleAsync(ComponentTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
 
         {
             if (command is null)
@@ -59,9 +60,13 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .ConfigureAwait(true);
 
                 if (!organization.ResourceState.IsFinal())
+                {
                     orchestrationContext.ContinueAsNew(command, false);
+                }
                 else if (organization.ResourceState == ResourceState.Failed)
+                {
                     throw new NotSupportedException("Can't process task when organization resource state is 'Failed'");
+                }
             }
 
             var project = await orchestrationContext
@@ -75,9 +80,13 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .ConfigureAwait(true);
 
                 if (!project.ResourceState.IsFinal())
+                {
                     orchestrationContext.ContinueAsNew(command, false);
+                }
                 else if (project.ResourceState == ResourceState.Failed)
+                {
                     throw new NotSupportedException("Can't process task when project resource state is 'Failed'");
+                }
             }
 
             var component = await orchestrationContext
@@ -104,12 +113,22 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                                 .ConfigureAwait(true);
                         }
 
-                        component = await orchestrationContext
-                            .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureIdentityActivity), new ComponentEnsureIdentityActivity.Input() { Component = component })
-                            .ConfigureAwait(true);
+                        if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var _))
+                        {
+                            // ensure every component has an identity assigned that can be used
+                            // as the identity of the task runner container to access azure or
+                            // call back into teamcloud using the azure cli extension
+
+                            component = await orchestrationContext
+                                .CallActivityWithRetryAsync<Component>(nameof(ComponentIdentityActivity), new ComponentIdentityActivity.Input() { Component = component })
+                                .ConfigureAwait(true);
+
+                            component = await UpdateComponentAsync(component, ResourceState.Provisioning)
+                                .ConfigureAwait(true);
+                        }
 
                         component = await orchestrationContext
-                            .CallActivityWithRetryAsync<Component>(nameof(ComponentEnsureContainerActivity), new ComponentEnsureContainerActivity.Input() { Component = component })
+                            .CallActivityWithRetryAsync<Component>(nameof(AdapterCreateComponentActivity), new AdapterCreateComponentActivity.Input() { Component = component, User = command.User })
                             .ConfigureAwait(true);
 
                         component = await UpdateComponentAsync(component, ResourceState.Succeeded)

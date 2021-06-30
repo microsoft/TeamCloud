@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from 'react-query'
 import { useHistory, useParams } from 'react-router-dom';
-import { ComponentTaskDefinition } from 'teamcloud';
+import { ComponentTaskDefinition, ErrorResult } from 'teamcloud';
 import { api } from '../API';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks } from '.';
 
@@ -24,7 +24,13 @@ export const useCreateProjectComponentTask = () => {
         if (!project) throw Error('No project')
         if (!component) throw Error('No component')
 
-        const { data } = await api.createComponentTask(project.organization, project.id, component.id, { body: componentTaskDef });
+        const { data, code, _response } = await api.createComponentTask(project.organization, project.id, component.id, { body: componentTaskDef });
+
+        if (code && code >= 400) {
+            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
+            throw error;
+        }
+
         return data;
     }, {
         onSuccess: data => {

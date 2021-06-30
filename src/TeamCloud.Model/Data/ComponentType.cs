@@ -11,9 +11,7 @@ namespace TeamCloud.Model.Data
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ComponentType
     {
-        Custom,
-        AzureResource,
         Environment,
-        GitRepository
+        Repository
     }
 }

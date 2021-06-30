@@ -13,14 +13,11 @@ namespace TeamCloud.Orchestrator.Command
 {
     public interface ICommandHandler
     {
-        public const string ProcessorQueue = "command-processor";
-        public const string MonitorQueue = "command-monitor";
+        bool Orchestration { get; }
 
-        public bool Orchestration { get; }
+        bool CanHandle(ICommand command);
 
-        public bool CanHandle(ICommand command);
-
-        public Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
+        Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
     }
 
     public interface ICommandHandler<T> : ICommandHandler

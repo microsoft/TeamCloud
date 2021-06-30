@@ -11,6 +11,8 @@ export interface IContentListProps<T> {
     noCheck?: boolean;
     noHeader?: boolean;
     filterPlaceholder?: string;
+    onRenderBeforeSearchBox?: () => JSX.Element;
+    onRenderAfterSearchBox?: () => JSX.Element;
     applyFilter?: (item: T, filter: string) => boolean;
     onItemInvoked?: (item: T) => void;
     buttonText?: string;
@@ -48,53 +50,25 @@ export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) 
 
     const items: T[] = props.items ? (itemFilter && props.applyFilter !== undefined) ? props.items.filter(i => props.applyFilter!(i, itemFilter)) : props.items : [];
 
-    if (props.items === undefined)
-        return (<></>);
+    const _renderDataArea = (): JSX.Element => {
 
-    if (props.items.length === 0)
-        return (
-            <NoData
+        if (props.items === undefined) {
+
+            return (<></>);
+
+        } else if (props.items.length === 0) {
+
+            return (<NoData
                 title={props.noDataTitle ?? 'No data'}
                 image={props.noDataImage}
                 description={props.noDataDescription}
                 buttonText={props.noDataButtonText}
                 buttonIcon={props.noDataButtonIcon}
-                onButtonClick={props.onNoDataButtonClick} />)
+                onButtonClick={props.onNoDataButtonClick} />);
 
-    return (
-        <Stack tokens={{ childrenGap: '20px' }}>
-            { props.applyFilter && (
-                <Stack styles={{
-                    root: {
-                        padding: '10px 16px 10px 6px',
-                        borderRadius: theme.effects.roundedCorner4,
-                        boxShadow: theme.effects.elevation4,
-                        backgroundColor: theme.palette.white
-                    }
-                }} >
-                    <SearchBox
-                        placeholder={props.filterPlaceholder ?? 'Filter members'}
-                        iconProps={{ iconName: 'Filter' }}
-                        onChange={(_ev, val) => setItemFilter(val)}
-                        styles={{
-                            root: {
-                                border: 'none !important', selectors: {
-                                    '::after': { border: 'none !important' },
-                                    ':hover .ms-SearchBox-iconContainer': { color: theme.palette.neutralTertiary }
-                                }
-                            },
-                            iconContainer: { color: theme.palette.neutralTertiary, },
-                            field: { border: 'none !important' }
-                        }} />
-                </Stack>
-            )}
-            <Stack styles={{
-                root: {
-                    borderRadius: theme.effects.roundedCorner4,
-                    boxShadow: theme.effects.elevation4,
-                    backgroundColor: theme.palette.white
-                }
-            }} >
+        } else {
+
+            return (<>
                 {!(props.noHeader ?? false) && (
                     <Stack horizontal verticalFill verticalAlign='baseline' horizontalAlign='space-between'
                         styles={{ root: { padding: '16px 16px 0px 16px', } }}>
@@ -126,6 +100,58 @@ export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) 
                     checkboxVisibility={(props.noCheck ?? false) ? CheckboxVisibility.hidden : CheckboxVisibility.always}
                     selectionPreservedOnEmptyClick={true}
                     onItemInvoked={props.onItemInvoked} />
+            </>);
+
+        }
+    };
+
+    return (
+        <Stack tokens={{ childrenGap: '20px' }}>
+            { (props.applyFilter) && (
+                <Stack tokens={{ childrenGap: '20px' }} horizontal styles={{
+                    root: {
+                        padding: '10px 16px 10px 0px',
+                        borderRadius: theme.effects.roundedCorner4,
+                        boxShadow: theme.effects.elevation4,
+                        backgroundColor: theme.palette.white
+                    }
+                }} >
+                    { props.onRenderBeforeSearchBox && (
+                        <Stack.Item>
+                            {props.onRenderBeforeSearchBox()}
+                        </Stack.Item>
+                    )}
+                    <Stack.Item grow>
+                        <SearchBox
+                            placeholder={props.filterPlaceholder ?? 'Filter items'}
+                            iconProps={{ iconName: 'Filter' }}
+                            onChange={(_ev, val) => setItemFilter(val)}
+                            styles={{
+                                root: {
+                                    border: 'none !important', selectors: {
+                                        '::after': { border: 'none !important' },
+                                        ':hover .ms-SearchBox-iconContainer': { color: theme.palette.neutralTertiary }
+                                    }
+                                },
+                                iconContainer: { color: theme.palette.neutralTertiary, },
+                                field: { border: 'none !important' }
+                            }} />
+                    </Stack.Item>
+                    { props.onRenderAfterSearchBox && (
+                        <Stack.Item>
+                            {props.onRenderAfterSearchBox()}
+                        </Stack.Item>
+                    )}
+                </Stack>
+            )}
+            <Stack styles={{
+                root: {
+                    borderRadius: theme.effects.roundedCorner4,
+                    boxShadow: theme.effects.elevation4,
+                    backgroundColor: theme.palette.white
+                }
+            }}>
+                {_renderDataArea()}
             </Stack>
         </Stack>
     );

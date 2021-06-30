@@ -3,14 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using TeamCloud.Data.CosmosDb.Serialization;
 using TeamCloud.Serialization;
 
@@ -24,8 +21,7 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public CosmosDbSerializer(IDataProtectionProvider dataProtectionProvider = null)
         {
-            SerializerSettings = TeamCloudSerializerSettings
-                .Create(new CosmosDbContractResolver(dataProtectionProvider));
+            SerializerSettings = new TeamCloudSerializerSettings(new CosmosDbContractResolver(dataProtectionProvider));
         }
 
         public override T FromStream<T>(Stream stream)
@@ -35,8 +31,6 @@ namespace TeamCloud.Data.CosmosDb.Core
 
             try
             {
-                TraceStream(stream);
-
                 using var streamReader = new StreamReader(stream, DefaultEncoding, true, 1024, leaveOpen: true);
                 using var jsonReader = new JsonTextReader(streamReader);
 
@@ -67,25 +61,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 stream.Position = 0;
             }
 
-            TraceStream(stream);
-
             return stream;
-        }
-
-        [Conditional("DEBUG")]
-        private static void TraceStream(Stream stream, [CallerMemberName] string memberName = default)
-        {
-            try
-            {
-                using var streamReader = new StreamReader(stream, DefaultEncoding, true, 1024, leaveOpen: true);
-                using var jsonReader = new JsonTextReader(streamReader);
-
-                Debug.WriteLine($"{memberName ?? "UNKNOWN"}: {JObject.ReadFrom(jsonReader).ToString(Formatting.None)}");
-            }
-            finally
-            {
-                stream.Position = 0;
-            }
         }
     }
 }

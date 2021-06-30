@@ -42,7 +42,7 @@ namespace TeamCloud.Http.Telemetry
         {
             const string headerPrefix = "x-ms-ratelimit";
 
-            if (!string.IsNullOrEmpty(telemetryConfiguration?.InstrumentationKey))
+            if (!string.IsNullOrWhiteSpace(telemetryConfiguration?.InstrumentationKey))
             {
                 var telemetryClient = new TelemetryClient(telemetryConfiguration)
                 {

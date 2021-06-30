@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { FontIcon, getTheme, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
+import { getTheme, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm'
 import { FuiForm } from '@rjsf/fluent-ui';
@@ -12,7 +12,7 @@ import { ProjectMember } from '../model';
 import { ComponentTaskList, UserPersona, ComponentLink, ComponentTemplateLink } from '.';
 import { useDeploymentScopes, useProjectComponent, useProjectComponentTemplates, useProjectMembers } from '../hooks';
 
-export const ComponentOverview: React.FC = (props) => {
+export const ComponentOverview: React.FC = () => {
 
     const theme = getTheme();
 
@@ -52,19 +52,6 @@ export const ComponentOverview: React.FC = (props) => {
         }
     }, [component, scope, scopes])
 
-
-    const _getTypeIcon = (template?: ComponentTemplate) => {
-        if (template?.type)
-            switch (template.type) { // VisualStudioIDELogo32
-                case 'Custom': return 'Link'; // Link12, FileSymlink, OpenInNewWindow, VSTSLogo
-                case 'Readme': return 'PageList'; // Preview, Copy, FileHTML, FileCode, MarkDownLanguage, Document
-                case 'Environment': return 'AzureLogo'; // Processing, Settings, Globe, Repair
-                case 'AzureResource': return 'AzureLogo'; // AzureServiceEndpoint
-                case 'GitRepository': return 'OpenSource';
-                default: return undefined;
-            }
-    };
-
     return (
         <Stack styles={{ root: { height: '100%', } }} tokens={{ childrenGap: '40px' }}>
             <Stack.Item>
@@ -81,14 +68,8 @@ export const ComponentOverview: React.FC = (props) => {
                             backgroundColor: theme.palette.white
                         }
                     }}>
-                    <ComponentOverviewHeaderSection grow title='Type'>
-                        {/* <Stack horizontal styles={{ root: { color: theme.palette.blue } }}> */}
-                        <Stack horizontal>
-                            <FontIcon iconName={_getTypeIcon(template)} className='component-type-icon' />
-                            <Text styles={{ root: { paddingLeft: '4px' } }}>{template?.type}</Text>
-                        </Stack>
-                    </ComponentOverviewHeaderSection>
-                    <ComponentOverviewHeaderSection grow title='Link'>
+
+                    <ComponentOverviewHeaderSection grow title='Resource'>
                         <ComponentLink component={component} />
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection grow title='Template'>
@@ -101,7 +82,7 @@ export const ComponentOverview: React.FC = (props) => {
                         <Text>{component?.resourceState}</Text>
                     </ComponentOverviewHeaderSection>
                     <ComponentOverviewHeaderSection title='Creator'>
-                        <UserPersona user={creator?.graphUser} showSecondaryText styles={{ root: { minWidth: '220px' } }} />
+                        <UserPersona principal={creator?.graphPrincipal} showSecondaryText styles={{ root: { minWidth: '220px' } }} />
                     </ComponentOverviewHeaderSection>
                 </Stack>
             </Stack.Item>

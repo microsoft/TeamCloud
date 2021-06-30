@@ -78,6 +78,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                             // container instance was terminated without exit code
                             componentDeployment.ResourceState = ResourceState.Failed;
                         }
+
+                        if (componentDeployment.ResourceState == ResourceState.Failed)
+                        {
+                            var log = await runner
+                                .GetLogContentAsync(container.Name)
+                                .ConfigureAwait(false);
+                        }
                     }
 
                     componentDeployment = await componentTaskRepository

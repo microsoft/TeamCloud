@@ -3,8 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
 using System;
+using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
@@ -13,7 +13,7 @@ namespace TeamCloud.Model.Data
 {
     [SoftDelete(60 * 60 * 24)] // 24 hours
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
+    public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext, IDeploymentScopeContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
     {
         /// <summary>
         /// Gets or sets a browsable link pointing to the component resource.
@@ -73,9 +73,14 @@ namespace TeamCloud.Model.Data
         public ComponentType Type { get; set; }
 
         /// <summary>
-        /// Get or set the Azure resource ID (subscription or resource group) this component is linked to
+        /// Get or set the resource ID this component is linked to.
         /// </summary>
         public string ResourceId { get; set; }
+
+        /// <summary>
+        /// Get or set the URL of the component when opened in a browser.
+        /// </summary>
+        public string ResourceUrl { get; set; }
 
         /// <summary>
         /// Gets or sets the state of the resource.
@@ -102,12 +107,18 @@ namespace TeamCloud.Model.Data
         /// </summary>
         public int? TTL { get; set; }
 
+        private string slug;
+
         /// <summary>
         /// Gets the slug of the current component base on its display name.
         /// </summary>
         [UniqueKey]
         [JsonProperty(Required = Required.Always)]
-        public string Slug => (this as ISlug).GetSlug();
+        public string Slug
+        {
+            get => slug ?? ISlug.CreateSlug(this);
+            set => slug = value;
+        }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.

@@ -11,6 +11,7 @@ export interface ICalloutLabelProps {
     styles?: IStackStyles;
     titleStyles?: ITextStyles;
     calloutStyles?: ITextStyles;
+    calloutBackground?: string;
 }
 
 export const CalloutLabel: React.FunctionComponent<ICalloutLabelProps> = (props) => {
@@ -47,7 +48,7 @@ export const CalloutLabel: React.FunctionComponent<ICalloutLabelProps> = (props)
                 fontSize: '11px',
                 fontWeight: FontWeights.regular,
                 color: 'rgb(102, 102, 102)',
-                backgroundColor: theme.palette.neutralLighter,
+                backgroundColor: props.calloutBackground ?? theme.palette.neutralLighter,
                 padding: '2px 9px',
                 borderRadius: '14px',
             }

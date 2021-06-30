@@ -14,12 +14,6 @@ namespace TeamCloud.Notification.Smtp
 {
     public static class NotificationSmtpExtensions
     {
-        internal static bool IsGuid(this string value)
-            => Guid.TryParse(value, out var _);
-
-        internal static bool IsEMail(this string value)
-            => new EmailAddressAttribute().IsValid(value);
-
         public static IServiceCollection AddTeamCloudNotificationSmtpSender(this IServiceCollection services, INotificationSmtpOptions options = null)
         {
             if (services is null)

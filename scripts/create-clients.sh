@@ -5,7 +5,7 @@ cdir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 
 apiDll=${1:-"bin/Debug/netcoreapp3.1/TeamCloud.API.dll"}
 
-echo "TeamCloud Python Client Generator"
+echo "TeamCloud Python & Typescript Client Generator"
 echo ""
 
 # echo $apiDll
@@ -34,6 +34,10 @@ pushd $cdir/../src/TeamCloud.API > /dev/null
     echo "Generating openapi.yaml"
     dotnet swagger tofile --yaml --output ../../openapi/openapi.yaml $apiDll v1
     echo ""
+
+    if [ "$CI" = true ] ; then
+        cp ../../openapi/openapi.json ../../openapi/openapi.yaml ../../release_assets
+    fi
 
 popd > /dev/null
 

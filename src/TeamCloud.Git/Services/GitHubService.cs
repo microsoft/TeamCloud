@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 using Octokit;
 using Octokit.Internal;
 using TeamCloud.Git.Caching;
-using TeamCloud.Git.Data;
+using TeamCloud.Git.Converter;
 using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace TeamCloud.Git.Services
 {
@@ -25,7 +25,6 @@ namespace TeamCloud.Git.Services
         private static readonly string ProductHeaderVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         private readonly GitHubClient client;
-        private readonly IDeserializer yamlDeserializer;
 
         internal GitHubService(IRepositoryCache cache)
         {
@@ -34,10 +33,6 @@ namespace TeamCloud.Git.Services
                 new GitHubCache(new HttpClientAdapter(HttpMessageHandlerFactory.CreateDefault), cache));
 
             client = new GitHubClient(connection);
-
-            yamlDeserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         }
 
         internal async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)
@@ -50,22 +45,52 @@ namespace TeamCloud.Git.Services
             if (!string.IsNullOrEmpty(repository.Token))
                 client.Credentials = new Credentials(repository.Token);
 
-            var projectYamlFile = await client.Repository.Content
+            var projectYamlFiles = await client.Repository.Content
                 .GetAllContents(repository.Organization, repository.Repository, Constants.ProjectYaml)
                 .ConfigureAwait(false);
 
-            var projectYaml = yamlDeserializer.Deserialize<ProjectYaml>(projectYamlFile.First().Content);
+            var projectYamlFile = projectYamlFiles.First();
+            var projectYaml = projectYamlFile.Content;
+            var projectJson = new Deserializer().ToJson(projectYaml);
+
+            projectTemplate = TeamCloudSerialize.DeserializeObject<ProjectTemplate>(projectJson, new ProjectTemplateConverter(projectTemplate, projectYamlFile.Url));
 
             var result = await client.Git.Tree
                 .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
                 .ConfigureAwait(false);
 
-            projectYaml.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, projectYaml.Description)
+            projectTemplate.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, projectTemplate.Description)
                 .ConfigureAwait(false);
 
-            return projectTemplate.UpdateFromYaml(projectYaml);
+            return projectTemplate;
         }
 
+        internal async Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId)
+        {
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
+
+            if (!Guid.TryParse(templateId, out var templateIdParsed))
+                return null;
+
+            var repository = projectTemplate.Repository;
+
+            if (!string.IsNullOrEmpty(repository.Token))
+                client.Credentials = new Credentials(repository.Token);
+
+            var result = await client.Git.Tree
+                .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
+                .ConfigureAwait(false);
+
+            var componentTreeItem = result.Tree
+                .FirstOrDefault(ti => ti.Url.ToGuid().Equals(templateIdParsed));
+
+            if (componentTreeItem is null)
+                return null;
+
+            return await ResolveComponentTemplateAsync(projectTemplate, repository, result, componentTreeItem)
+                .ConfigureAwait(false);
+        }
 
         internal async IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
         {
@@ -81,31 +106,45 @@ namespace TeamCloud.Git.Services
                 .GetRecursive(repository.Organization, repository.Repository, repository.Ref)
                 .ConfigureAwait(false);
 
-            var componentTemplates = result.Tree
+            var componentTemplateTasks = result.Tree
                 .Where(ti => ti.Path.EndsWith(Constants.ComponentYaml, StringComparison.Ordinal))
-                .Select(ti => ResolveComponentTemplate(ti))
-                .ToAsyncEnumerable();
+                .Select(ti => ResolveComponentTemplateAsync(projectTemplate, repository, result, ti))
+                .ToList();
 
-            await foreach (var componentTemplate in componentTemplates)
-                yield return componentTemplate;
-
-            async Task<ComponentTemplate> ResolveComponentTemplate(TreeItem componentItem)
+            while (componentTemplateTasks.Any())
             {
-                var componentFiles = await client.Repository.Content
-                    .GetAllContents(repository.Organization, repository.Repository, componentItem.Path)
+                var componentTemplateTask = await Task
+                    .WhenAny(componentTemplateTasks)
                     .ConfigureAwait(false);
 
-                var componentYaml = yamlDeserializer.Deserialize<ComponentYaml>(componentFiles.First().Content);
-
-                var folder = Regex.Replace(componentItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
-
-                componentYaml.Description = await CheckAndPopulateFileContentAsync(repository, result.Tree, componentYaml.Description, folder)
-                    .ConfigureAwait(false);
-
-                return componentYaml.ToTemplate(projectTemplate, folder);
+                try
+                {
+                    yield return await componentTemplateTask.ConfigureAwait(false);
+                }
+                finally
+                {
+                    componentTemplateTasks.Remove(componentTemplateTask);
+                }
             }
         }
 
+        private async Task<ComponentTemplate> ResolveComponentTemplateAsync(ProjectTemplate projectTemplate, RepositoryReference repository, TreeResponse tree, TreeItem treeItem)
+        {
+            var componentYamlFiles = await client.Repository.Content
+                .GetAllContents(repository.Organization, repository.Repository, treeItem.Path)
+                .ConfigureAwait(false);
+
+            var componentYamlFile = componentYamlFiles.First();
+            var componentYaml = componentYamlFile.Content;
+            var componentJson = new Deserializer().ToJson(componentYaml);
+
+            var componentTemplate = TeamCloudSerialize.DeserializeObject<ComponentTemplate>(componentJson, new ComponentTemplateConverter(projectTemplate, treeItem.Url));
+
+            componentTemplate.Folder = Regex.Replace(treeItem.Path, $"/{Constants.ComponentYaml}$", string.Empty, RegexOptions.IgnoreCase);
+            componentTemplate.Description = await CheckAndPopulateFileContentAsync(repository, tree.Tree, componentTemplate.Description, componentTemplate.Folder).ConfigureAwait(false);
+
+            return componentTemplate;
+        }
 
         private async Task<string> CheckAndPopulateFileContentAsync(RepositoryReference repo, IReadOnlyList<TreeItem> tree, string value, string folder = null)
         {

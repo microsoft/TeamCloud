@@ -48,7 +48,7 @@ export const MembersCard: React.FC<IMembersCardProps> = (props) => {
         <>
             <DetailCard
                 title='Members'
-                callout={members?.length}
+                callout={members?.filter(m => m.graphPrincipal)?.length}
                 commandBarItems={_getCommandBarItems()}>
                 <MemberFacepile
                     members={members}

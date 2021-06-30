@@ -78,7 +78,7 @@ export const OrgSettingsOverview: React.FC = () => {
                         <Text variant='xLarge' >Organization owner</Text>
                     </Stack.Item>
                     <Stack.Item>
-                        <UserPersona user={owner?.graphUser} showSecondaryText />
+                        <UserPersona principal={owner?.graphPrincipal} showSecondaryText />
                     </Stack.Item>
                     <Stack.Item>
                         <DefaultButton

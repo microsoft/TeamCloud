@@ -2,29 +2,34 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { FontIcon, Link, Stack } from '@fluentui/react';
+import { FontIcon, Link, Stack, Text } from '@fluentui/react';
 import { Component } from 'teamcloud';
-import { useOrg } from '../hooks';
 
 export interface IComponentLinkProps {
+    text?: string;
     component?: Component;
 }
 
 export const ComponentLink: React.FunctionComponent<IComponentLinkProps> = (props) => {
 
-    const { data: org } = useOrg();
-    const { component } = props;
+    const { text, component } = props;
 
-    return org && component?.resourceId ? (
+    return component?.resourceUrl ? (
 
         <Stack horizontal tokens={{ childrenGap: '4px' }} >
             <Link
                 target='_blank'
-                href={`https://portal.azure.com/#@${org?.tenant}/resource${component?.resourceId}`}>
-                Azure Portal
+                href={component.resourceUrl}>
+                { text ?? component?.type ?? 'Component' }
             </Link>
             <FontIcon iconName='NavigateExternalInline' className='component-link-icon' />
         </Stack>
 
-    ) : <></>;
+    ) : (
+    
+        <Stack horizontal tokens={{ childrenGap: '4px' }} >
+            <Text>{ text ?? component?.type ?? 'Component' }</Text>
+        </Stack>
+
+    );
 }

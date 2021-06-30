@@ -124,10 +124,17 @@ namespace TeamCloud.Azure
 
         public async Task<Guid> GetTenantIdAsync()
         {
-            var identity = await GetIdentityAsync()
-                .ConfigureAwait(false);
+            if (Guid.TryParse(azureSessionOptions.TenantId, out var tenantId))
+            {
+                return tenantId;
+            }
+            else
+            {
+                var identity = await GetIdentityAsync()
+                    .ConfigureAwait(false);
 
-            return identity.TenantId;
+                return identity.TenantId;
+            }
         }
 
         public async Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)

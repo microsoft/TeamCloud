@@ -16,7 +16,7 @@ namespace TeamCloud.Data.Expanders
     {
         private readonly IAzureDirectoryService azureDirectoryService;
 
-        public ProjectIdentityExpander(IAzureDirectoryService azureDirectoryService)
+        public ProjectIdentityExpander(IAzureDirectoryService azureDirectoryService) : base(true)
         {
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
         }

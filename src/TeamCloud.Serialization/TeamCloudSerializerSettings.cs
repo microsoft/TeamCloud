@@ -3,30 +3,39 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
 
 namespace TeamCloud.Serialization
 {
     public sealed class TeamCloudSerializerSettings : JsonSerializerSettings
     {
-        public static readonly TeamCloudSerializerSettings Default = Create();
+        public static readonly TeamCloudSerializerSettings Default = new TeamCloudSerializerSettings();
 
-        public static TeamCloudSerializerSettings Create(IContractResolver contractResolver = null)
-            => new TeamCloudSerializerSettings(contractResolver ?? new TeamCloudContractResolver());
+        public static TeamCloudSerializerSettings Create<TContractResolver>()
+            where TContractResolver : class, IContractResolver, new()
+            => new TeamCloudSerializerSettings(Activator.CreateInstance<TContractResolver>());
 
-        public static TeamCloudSerializerSettings Create<T>()
-            where T : class, IContractResolver, new()
-            => Create(Activator.CreateInstance<T>());
+        public TeamCloudSerializerSettings(IContractResolver contractResolver) : this()
+        {
+            ContractResolver = contractResolver ?? throw new ArgumentNullException(nameof(contractResolver));
+        }
 
-        private TeamCloudSerializerSettings(IContractResolver contractResolver)
+        public TeamCloudSerializerSettings(JsonConverter converter, params JsonConverter[] additionalConverters) : this()
+        {
+            Converters = additionalConverters.Prepend(converter ?? throw new ArgumentNullException(nameof(converter))).ToList();
+            ContractResolver = new TeamCloudContractResolver(converters: Converters);
+        }
+
+        public TeamCloudSerializerSettings()
         {
             TraceWriter = new TeamCloudSerializerTraceWriter();
             TypeNameHandling = TypeNameHandling.Auto;
             NullValueHandling = NullValueHandling.Ignore;
-            ContractResolver = contractResolver ?? throw new ArgumentNullException(nameof(contractResolver));
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            ContractResolver = new TeamCloudContractResolver();
         }
     }
 }

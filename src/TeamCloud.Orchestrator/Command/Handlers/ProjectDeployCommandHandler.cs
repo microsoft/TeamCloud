@@ -21,13 +21,12 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ProjectDeployCommandHandler : CommandHandler,
-        ICommandHandler<ProjectDeployCommand>
+    public sealed class ProjectDeployCommandHandler : CommandHandler<ProjectDeployCommand>
     {
         public ProjectDeployCommandHandler() : base(true)
         { }
 
-        public async Task<ICommandResult> HandleAsync(ProjectDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public override async Task<ICommandResult> HandleAsync(ProjectDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));

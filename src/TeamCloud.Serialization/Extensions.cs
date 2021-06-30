@@ -3,10 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
+using System.IO;
 using System.Reflection;
+using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Serialization
 {
@@ -32,6 +35,16 @@ namespace TeamCloud.Serialization
             serializableException = (isSerializable ? null : new SerializableException(exception));
 
             return isSerializable;
+        }
+
+        public static bool TrySelectToken(this JToken instance, string path, out JToken token)
+        {
+            if (instance is null)
+                throw new ArgumentNullException(nameof(instance));
+
+            token = instance.SelectToken(path);
+
+            return token != null;
         }
 
         public static Exception AsSerializable(this Exception exception)
@@ -73,5 +86,21 @@ namespace TeamCloud.Serialization
             return jsonSerializer;
         }
 
+        public static string ToString(this JToken token, Formatting formatting)
+        {
+            if (token is null)
+            {
+                throw new ArgumentNullException(nameof(token));
+            }
+
+            var sb = new StringBuilder();
+
+            using var sw = new StringWriter(sb);
+            using var jw = new JsonTextWriter(sw) { Formatting = formatting };
+
+            token.WriteTo(jw);
+
+            return sb.ToString();
+        }
     }
 }

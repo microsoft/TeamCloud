@@ -23,7 +23,9 @@ export const NavRouter: React.FC = () => (
         </Route>
         <Route exact path={[
             '/orgs/:orgId/projects/:projectId/settings',
-            '/orgs/:orgId/projects/:projectId/settings/:settingId'
+            '/orgs/:orgId/projects/:projectId/settings/:settingId',
+            '/orgs/:orgId/projects/:projectId/settings/:settingId/new',
+            '/orgs/:orgId/projects/:projectId/settings/:settingId/:itemId',
         ]}>
             <ProjectSettingsNav {...{}} />
         </Route>

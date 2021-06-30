@@ -21,8 +21,13 @@ namespace TeamCloud.Model.Data
 
         public string InputJsonSchema { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
-        public ComponentTaskType Type { get; set; }
+        private ComponentTaskType type = ComponentTaskType.Custom;
+
+        public ComponentTaskType Type
+        {
+            get => Enum.TryParse<ComponentTaskType>(this.Id, true, out var typeParsed) ? typeParsed : ComponentTaskType.Custom;
+            set => type = value;
+        }
 
         public string TypeName
             => Type == ComponentTaskType.Custom ? Id : default;

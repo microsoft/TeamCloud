@@ -16,18 +16,18 @@ using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Command.Activities.Organizations;
+
 using TeamCloud.Orchestrator.Command.Entities;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class OrganizationDeployCommandHandler : CommandHandler,
-        ICommandHandler<OrganizationDeployCommand>
+    public sealed class OrganizationDeployCommandHandler : CommandHandler<OrganizationDeployCommand>
     {
         public OrganizationDeployCommandHandler() : base(true)
         { }
 
-        public async Task<ICommandResult> HandleAsync(OrganizationDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public override async Task<ICommandResult> HandleAsync(OrganizationDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));

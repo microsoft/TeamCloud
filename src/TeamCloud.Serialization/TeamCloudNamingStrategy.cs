@@ -7,8 +7,10 @@ using Newtonsoft.Json.Serialization;
 
 namespace TeamCloud.Serialization
 {
-    public class TeamCloudNamingStrategy : CamelCaseNamingStrategy
+    public sealed class TeamCloudNamingStrategy : CamelCaseNamingStrategy
     {
+        public static TeamCloudNamingStrategy Default = new TeamCloudNamingStrategy();
+
         public TeamCloudNamingStrategy()
             : base(processDictionaryKeys: false, overrideSpecifiedNames: true)
         { }

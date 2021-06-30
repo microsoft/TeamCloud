@@ -12,8 +12,20 @@ using TeamCloud.Model.Commands.Core;
 
 namespace TeamCloud.Orchestrator.Command
 {
+    public abstract class CommandHandler<TCommand> : CommandHandler, ICommandHandler<TCommand>
+        where TCommand : class, ICommand
+    {
+        public CommandHandler(bool orchestration = false) : base(orchestration)
+        { }
+
+        public abstract Task<ICommandResult> HandleAsync(TCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
+    }
+
     public abstract class CommandHandler : ICommandHandler
     {
+        public const string ProcessorQueue = "command-processor";
+        public const string MonitorQueue = "command-monitor";
+
         public CommandHandler(bool orchestration = false)
         {
             Orchestration = orchestration;

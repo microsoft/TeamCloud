@@ -3,7 +3,7 @@
 
 import { useHistory } from 'react-router-dom';
 import { useMutation, useQueryClient } from 'react-query'
-import { DeploymentScopeDefinition, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
+import { DeploymentScopeDefinition, ErrorResult, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { api } from '../API';
 
 export const useCreateOrg = () => {
@@ -18,6 +18,11 @@ export const useCreateOrg = () => {
         const newOrg = orgResponse.data;
         console.log(`+ createOrg`);
 
+        if (orgResponse.code && orgResponse.code >= 400) {
+            const error = (JSON.parse(orgResponse._response.bodyAsText) as ErrorResult);
+            throw error;
+        }
+
         let scope, template;
 
         if (newOrg?.id) {
@@ -26,12 +31,20 @@ export const useCreateOrg = () => {
                 const scopeResponse = await api.createDeploymentScope(newOrg.id, { body: def.scopeDef });
                 scope = scopeResponse.data;
                 console.log(`+ createDeploymentScope`);
+                if (scopeResponse.code && scopeResponse.code >= 400) {
+                    const error = (JSON.parse(scopeResponse._response.bodyAsText) as ErrorResult);
+                    throw error;
+                }
             }
             if (def.templateDef) {
                 console.log(`- createProjectTemplate`);
                 const templateResponse = await api.createProjectTemplate(newOrg.id, { body: def.templateDef });
                 template = templateResponse.data;
                 console.log(`+ createProjectTemplate`);
+                if (templateResponse.code && templateResponse.code >= 400) {
+                    const error = (JSON.parse(templateResponse._response.bodyAsText) as ErrorResult);
+                    throw error;
+                }
             }
         }
 

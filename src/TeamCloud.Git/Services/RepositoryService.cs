@@ -56,11 +56,19 @@ namespace TeamCloud.Git.Services
         } ?? throw new ArgumentNullException(nameof(projectTemplate));
 
 
+        public Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId) => projectTemplate?.Repository?.Provider switch
+        {
+            RepositoryProvider.DevOps => devops.GetComponentTemplateAsync(projectTemplate, templateId),
+            RepositoryProvider.GitHub => github.GetComponentTemplateAsync(projectTemplate, templateId),
+            _ => throw new NotSupportedException("Only GitHub and Azure DevOps git repositories are supported. Generic git repositories are not supported.")
+        } ?? throw new ArgumentNullException(nameof(projectTemplate));
+
         public IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate) => projectTemplate?.Repository?.Provider switch
         {
             RepositoryProvider.DevOps => devops.GetComponentTemplatesAsync(projectTemplate),
             RepositoryProvider.GitHub => github.GetComponentTemplatesAsync(projectTemplate),
             _ => throw new NotSupportedException("Only GitHub and Azure DevOps git repositories are supported. Generic git repositories are not supported.")
         } ?? throw new ArgumentNullException(nameof(projectTemplate));
+
     }
 }

@@ -11,6 +11,29 @@ info:
     url: https://github.com/microsoft/TeamCloud/blob/main/LICENSE
   version: v1
 paths:
+  /adapters:
+    get:
+      tags:
+        - Adapter
+      summary: Gets all Adapters.
+      operationId: GetAdapters
+      responses:
+        '200':
+          description: Returns all Adapters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdapterInformationListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   '/orgs/{organizationId}/projects/{projectId}/components':
     get:
       tags:
@@ -112,14 +135,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{id}':
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}':
     get:
       tags:
         - Components
       summary: Gets a Project Component.
       operationId: GetComponent
       parameters:
-        - name: id
+        - name: componentId
           in: path
           required: true
           schema:
@@ -164,7 +187,7 @@ paths:
       summary: Deletes an existing Project Component.
       operationId: DeleteComponent
       parameters:
-        - name: id
+        - name: componentId
           in: path
           required: true
           schema:
@@ -520,14 +543,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/scopes/{id}':
+  '/orgs/{organizationId}/scopes/{deploymentScopeId}':
     get:
       tags:
         - DeploymentScopes
       summary: Gets a Deployment Scope.
       operationId: GetDeploymentScope
       parameters:
-        - name: id
+        - name: deploymentScopeId
           in: path
           required: true
           schema:
@@ -567,7 +590,7 @@ paths:
       summary: Updates an existing Deployment Scope.
       operationId: UpdateDeploymentScope
       parameters:
-        - name: id
+        - name: deploymentScopeId
           in: path
           required: true
           schema:
@@ -612,7 +635,7 @@ paths:
       summary: Deletes a Deployment Scope.
       operationId: DeleteDeploymentScope
       parameters:
-        - name: id
+        - name: deploymentScopeId
           in: path
           required: true
           schema:
@@ -626,6 +649,61 @@ paths:
       responses:
         '204':
           description: The DeploymentScope was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentScopeDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A DeploymentScope with the id provided was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize':
+    put:
+      tags:
+        - DeploymentScopes
+      summary: Authorize an existing Deployment Scope.
+      operationId: AuthorizeDeploymentScope
+      parameters:
+        - name: deploymentScopeId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/DeploymentScope'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentScope'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentScope'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DeploymentScope'
+      responses:
+        '200':
+          description: The DeploymentScope was updated.
           content:
             application/json:
               schema:
@@ -666,6 +744,134 @@ paths:
       responses:
         '200':
           description: Success
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/audit':
+    get:
+      tags:
+        - OrganizationAudit
+      summary: Gets all audit entries.
+      operationId: GetAuditEntries
+      parameters:
+        - name: timeRange
+          in: query
+          schema:
+            type: string
+            nullable: true
+        - name: commands
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns audit entries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAuditEntityListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The Organization was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/audit/{commandId}':
+    get:
+      tags:
+        - OrganizationAudit
+      summary: Gets an audit entry.
+      operationId: GetAuditEntry
+      parameters:
+        - name: commandId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: expand
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns an audit entry.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandAuditEntityDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The Organization was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/audit/commands':
+    get:
+      tags:
+        - OrganizationAudit
+      summary: Gets all auditable commands.
+      operationId: GetAuditCommands
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all auditable commands.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StringListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: The Organization was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
         '401':
           description: Unauthorized
         '403':
@@ -947,6 +1153,12 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: The user was successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '202':
           description: Starts updating the User. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -993,6 +1205,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResult'
+        '204':
+          description: The user was successfully deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '404':
           description: A User with the identifier provided was not found.
           content:
@@ -1055,6 +1273,12 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: The user was successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '202':
           description: Starts updating the User. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -2209,6 +2433,238 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules':
+    get:
+      tags:
+        - Schedule
+      summary: Gets all Schedule.
+      operationId: GetSchedules
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns all Schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleListDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    post:
+      tags:
+        - Schedule
+      summary: Creates a new Project Schedule.
+      operationId: CreateSchedule
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleDefinition'
+      responses:
+        '201':
+          description: The created Project Schedule.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Schedule already exists with the id provided in the request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}':
+    get:
+      tags:
+        - Schedule
+      summary: Gets the Schedule.
+      operationId: GetSchedule
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns a Schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Schedule with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+    put:
+      tags:
+        - Schedule
+      summary: Updates a Project Schedule.
+      operationId: UpdateSchedule
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '200':
+          description: The updated Project Schedule.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '409':
+          description: A Project Schedule id provided in the could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run':
+    post:
+      tags:
+        - Schedule
+      summary: Runs a Project Schedule.
+      operationId: RunSchedule
+      parameters:
+        - name: scheduleId
+          in: path
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The Project Schedule run.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleDataResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project with the provided projectId was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
   '/orgs/{organizationId}/status/{trackingId}':
     get:
       tags:
@@ -2398,79 +2854,26 @@ paths:
           description: Forbidden
 components:
   schemas:
-    Component:
-      required:
-        - creator
-        - id
-        - organization
-        - projectId
-        - slug
-        - templateId
-        - type
+    AdapterInformation:
       type: object
       properties:
-        href:
-          type: string
-          nullable: true
-        organization:
-          type: string
-        templateId:
-          type: string
-        projectId:
-          type: string
-        creator:
+        type:
+          enum:
+            - AzureResourceManager
+            - AzureDevOps
+            - GitHub
           type: string
         displayName:
           type: string
           nullable: true
-        description:
+        inputDataSchema:
           type: string
           nullable: true
-        inputJson:
+        inputDataForm:
           type: string
           nullable: true
-        valueJson:
-          type: string
-          nullable: true
-        type:
-          enum:
-            - Custom
-            - AzureResource
-            - Environment
-            - GitRepository
-          type: string
-        resourceId:
-          type: string
-          nullable: true
-        resourceState:
-          enum:
-            - Pending
-            - Initializing
-            - Provisioning
-            - Succeeded
-            - Failed
-          type: string
-        deploymentScopeId:
-          type: string
-          nullable: true
-        identityId:
-          type: string
-          nullable: true
-        deleted:
-          type: string
-          format: date-time
-          nullable: true
-        ttl:
-          type: integer
-          format: int32
-          nullable: true
-        slug:
-          type: string
-          readOnly: true
-        id:
-          type: string
       additionalProperties: false
-    ComponentListDataResult:
+    AdapterInformationListDataResult:
       type: object
       properties:
         code:
@@ -2482,7 +2885,7 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Component'
+            $ref: '#/components/schemas/AdapterInformation'
           nullable: true
           readOnly: true
         location:
@@ -2535,6 +2938,97 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ResultError'
+          nullable: true
+      additionalProperties: false
+    Component:
+      required:
+        - creator
+        - id
+        - organization
+        - projectId
+        - slug
+        - templateId
+        - type
+      type: object
+      properties:
+        href:
+          type: string
+          nullable: true
+        organization:
+          type: string
+        templateId:
+          type: string
+        projectId:
+          type: string
+        creator:
+          type: string
+        displayName:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        inputJson:
+          type: string
+          nullable: true
+        valueJson:
+          type: string
+          nullable: true
+        type:
+          enum:
+            - Environment
+            - Repository
+          type: string
+        resourceId:
+          type: string
+          nullable: true
+        resourceUrl:
+          type: string
+          nullable: true
+        resourceState:
+          enum:
+            - Pending
+            - Initializing
+            - Provisioning
+            - Succeeded
+            - Failed
+          type: string
+        deploymentScopeId:
+          type: string
+          nullable: true
+        identityId:
+          type: string
+          nullable: true
+        deleted:
+          type: string
+          format: date-time
+          nullable: true
+        ttl:
+          type: integer
+          format: int32
+          nullable: true
+        slug:
+          type: string
+        id:
+          type: string
+      additionalProperties: false
+    ComponentListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Component'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
           nullable: true
       additionalProperties: false
     ComponentDefinition:
@@ -2614,13 +3108,15 @@ components:
         requestedBy:
           type: string
           nullable: true
+        scheduleId:
+          type: string
+          nullable: true
         type:
           enum:
-            - 0
-            - 1
-            - 2
-          type: integer
-          format: int32
+            - Custom
+            - Create
+            - Delete
+          type: string
         typeName:
           type: string
           nullable: true
@@ -2752,8 +3248,6 @@ components:
           nullable: true
       additionalProperties: false
     ComponentTaskTemplate:
-      required:
-        - type
       type: object
       properties:
         id:
@@ -2770,11 +3264,10 @@ components:
           nullable: true
         type:
           enum:
-            - 0
-            - 1
-            - 2
-          type: integer
-          format: int32
+            - Custom
+            - Create
+            - Delete
+          type: string
         typeName:
           type: string
           nullable: true
@@ -2845,13 +3338,13 @@ components:
           $ref: '#/components/schemas/ComponentTaskRunner'
         type:
           enum:
-            - Custom
-            - AzureResource
             - Environment
-            - GitRepository
+            - Repository
           type: string
         folder:
           type: string
+          nullable: true
+        configuration:
           nullable: true
         id:
           type: string
@@ -2897,17 +3390,29 @@ components:
         - isDefault
         - organization
         - slug
+        - type
       type: object
       properties:
         organization:
           type: string
-        slug:
-          type: string
-          readOnly: true
         displayName:
+          type: string
+        slug:
           type: string
         isDefault:
           type: boolean
+        type:
+          enum:
+            - AzureResourceManager
+            - AzureDevOps
+            - GitHub
+          type: string
+        inputDataSchema:
+          type: string
+          nullable: true
+        inputData:
+          type: string
+          nullable: true
         managementGroupId:
           type: string
           nullable: true
@@ -2916,6 +3421,21 @@ components:
           items:
             type: string
             format: uuid
+          nullable: true
+        authorizable:
+          type: boolean
+        authorized:
+          type: boolean
+        authorizeUrl:
+          type: string
+          nullable: true
+        componentTypes:
+          type: array
+          items:
+            enum:
+              - Environment
+              - Repository
+            type: string
           nullable: true
         id:
           type: string
@@ -2942,25 +3462,26 @@ components:
     DeploymentScopeDefinition:
       required:
         - displayName
+        - type
       type: object
       properties:
+        displayName:
+          type: string
+        type:
+          enum:
+            - AzureResourceManager
+            - AzureDevOps
+            - GitHub
+          type: string
         slug:
           type: string
           nullable: true
           readOnly: true
-        displayName:
+        inputData:
           type: string
+          nullable: true
         isDefault:
           type: boolean
-        managementGroupId:
-          type: string
-          nullable: true
-        subscriptionIds:
-          type: array
-          items:
-            type: string
-            format: uuid
-          nullable: true
       additionalProperties: false
     DeploymentScopeDataResult:
       type: object
@@ -2973,6 +3494,121 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/DeploymentScope'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CommandAuditEntity:
+      type: object
+      properties:
+        commandId:
+          type: string
+          nullable: true
+          readOnly: true
+        organizationId:
+          type: string
+          nullable: true
+          readOnly: true
+        commandJson:
+          type: string
+          nullable: true
+        resultJson:
+          type: string
+          nullable: true
+        projectId:
+          type: string
+          nullable: true
+          readOnly: true
+        userId:
+          type: string
+          nullable: true
+          readOnly: true
+        parentId:
+          type: string
+          nullable: true
+          readOnly: true
+        command:
+          type: string
+          nullable: true
+        componentTask:
+          type: string
+          nullable: true
+          readOnly: true
+        runtimeStatus:
+          enum:
+            - Unknown
+            - Running
+            - Completed
+            - ContinuedAsNew
+            - Failed
+            - Canceled
+            - Terminated
+            - Pending
+          type: string
+        customStatus:
+          type: string
+          nullable: true
+        errors:
+          type: string
+          nullable: true
+        created:
+          type: string
+          format: date-time
+          nullable: true
+        updated:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    CommandAuditEntityListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandAuditEntity'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    CommandAuditEntityDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/CommandAuditEntity'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    StringListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            type: string
+          nullable: true
+          readOnly: true
         location:
           type: string
           nullable: true
@@ -2991,7 +3627,6 @@ components:
           type: string
         slug:
           type: string
-          readOnly: true
         displayName:
           type: string
         subscriptionId:
@@ -3099,6 +3734,13 @@ components:
             type: string
           nullable: true
       additionalProperties: false
+    AlternateIdentity:
+      type: object
+      properties:
+        login:
+          type: string
+          nullable: true
+      additionalProperties: false
     User:
       required:
         - id
@@ -3109,12 +3751,21 @@ components:
       properties:
         organization:
           type: string
+        displayName:
+          type: string
+          nullable: true
+        loginName:
+          type: string
+          nullable: true
+        mailAddress:
+          type: string
+          nullable: true
         userType:
           enum:
             - User
+            - Group
             - System
-            - Provider
-            - Application
+            - Service
           type: string
         role:
           enum:
@@ -3127,6 +3778,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProjectMembership'
+          nullable: true
+        alternateIdentities:
+          type: object
+          properties:
+            AzureResourceManager:
+              $ref: '#/components/schemas/AlternateIdentity'
+            AzureDevOps:
+              $ref: '#/components/schemas/AlternateIdentity'
+            GitHub:
+              $ref: '#/components/schemas/AlternateIdentity'
           nullable: true
         properties:
           type: object
@@ -3199,7 +3860,6 @@ components:
           type: string
         slug:
           type: string
-          readOnly: true
         displayName:
           type: string
         template:
@@ -3229,6 +3889,14 @@ components:
             - Failed
           type: string
         vaultId:
+          type: string
+          nullable: true
+          readOnly: true
+          deprecated: true
+        sharedVaultId:
+          type: string
+          nullable: true
+        secretsVaultId:
           type: string
           nullable: true
         storageId:
@@ -3409,7 +4077,6 @@ components:
           type: string
         slug:
           type: string
-          readOnly: true
         name:
           type: string
           nullable: true
@@ -3488,6 +4155,143 @@ components:
           nullable: true
         data:
           $ref: '#/components/schemas/ProjectTemplate'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComponentTaskReference:
+      type: object
+      properties:
+        componentId:
+          type: string
+          nullable: true
+        componentTaskTemplateId:
+          type: string
+          nullable: true
+        inputJson:
+          type: string
+          nullable: true
+      additionalProperties: false
+    Schedule:
+      required:
+        - id
+        - organization
+        - projectId
+      type: object
+      properties:
+        organization:
+          type: string
+        projectId:
+          type: string
+        enabled:
+          type: boolean
+        recurring:
+          type: boolean
+        daysOfWeek:
+          type: array
+          items:
+            enum:
+              - Sunday
+              - Monday
+              - Tuesday
+              - Wednesday
+              - Thursday
+              - Friday
+              - Saturday
+            type: string
+          nullable: true
+        utcHour:
+          type: integer
+          format: int32
+        utcMinute:
+          type: integer
+          format: int32
+        creator:
+          type: string
+          nullable: true
+        created:
+          type: string
+          format: date-time
+        lastUpdatedBy:
+          type: string
+          nullable: true
+        lastUpdated:
+          type: string
+          format: date-time
+        lastRun:
+          type: string
+          format: date-time
+          nullable: true
+        componentTasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTaskReference'
+          nullable: true
+        id:
+          type: string
+      additionalProperties: false
+    ScheduleListDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Schedule'
+          nullable: true
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ScheduleDefinition:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        recurring:
+          type: boolean
+        daysOfWeek:
+          type: array
+          items:
+            enum:
+              - Sunday
+              - Monday
+              - Tuesday
+              - Wednesday
+              - Thursday
+              - Friday
+              - Saturday
+            type: string
+          nullable: true
+        utcHour:
+          type: integer
+          format: int32
+        utcMinute:
+          type: integer
+          format: int32
+        componentTasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentTaskReference'
+          nullable: true
+      additionalProperties: false
+    ScheduleDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/Schedule'
         location:
           type: string
           nullable: true

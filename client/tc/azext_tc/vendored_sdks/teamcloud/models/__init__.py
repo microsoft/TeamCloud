@@ -7,6 +7,11 @@
 # --------------------------------------------------------------------------
 
 try:
+    from ._models_py3 import AdapterInformation
+    from ._models_py3 import AdapterInformationListDataResult
+    from ._models_py3 import CommandAuditEntity
+    from ._models_py3 import CommandAuditEntityDataResult
+    from ._models_py3 import CommandAuditEntityListDataResult
     from ._models_py3 import Component
     from ._models_py3 import ComponentDataResult
     from ._models_py3 import ComponentDefinition
@@ -15,6 +20,7 @@ try:
     from ._models_py3 import ComponentTaskDataResult
     from ._models_py3 import ComponentTaskDefinition
     from ._models_py3 import ComponentTaskListDataResult
+    from ._models_py3 import ComponentTaskReference
     from ._models_py3 import ComponentTaskRunner
     from ._models_py3 import ComponentTaskTemplate
     from ._models_py3 import ComponentTemplate
@@ -46,14 +52,24 @@ try:
     from ._models_py3 import RepositoryDefinition
     from ._models_py3 import RepositoryReference
     from ._models_py3 import ResultError
+    from ._models_py3 import Schedule
+    from ._models_py3 import ScheduleDataResult
+    from ._models_py3 import ScheduleDefinition
+    from ._models_py3 import ScheduleListDataResult
     from ._models_py3 import StatusResult
     from ._models_py3 import StringDictionaryDataResult
+    from ._models_py3 import StringListDataResult
     from ._models_py3 import User
     from ._models_py3 import UserDataResult
     from ._models_py3 import UserDefinition
     from ._models_py3 import UserListDataResult
     from ._models_py3 import ValidationError
 except (SyntaxError, ImportError):
+    from ._models import AdapterInformation  # type: ignore
+    from ._models import AdapterInformationListDataResult  # type: ignore
+    from ._models import CommandAuditEntity  # type: ignore
+    from ._models import CommandAuditEntityDataResult  # type: ignore
+    from ._models import CommandAuditEntityListDataResult  # type: ignore
     from ._models import Component  # type: ignore
     from ._models import ComponentDataResult  # type: ignore
     from ._models import ComponentDefinition  # type: ignore
@@ -62,6 +78,7 @@ except (SyntaxError, ImportError):
     from ._models import ComponentTaskDataResult  # type: ignore
     from ._models import ComponentTaskDefinition  # type: ignore
     from ._models import ComponentTaskListDataResult  # type: ignore
+    from ._models import ComponentTaskReference  # type: ignore
     from ._models import ComponentTaskRunner  # type: ignore
     from ._models import ComponentTaskTemplate  # type: ignore
     from ._models import ComponentTemplate  # type: ignore
@@ -93,8 +110,13 @@ except (SyntaxError, ImportError):
     from ._models import RepositoryDefinition  # type: ignore
     from ._models import RepositoryReference  # type: ignore
     from ._models import ResultError  # type: ignore
+    from ._models import Schedule  # type: ignore
+    from ._models import ScheduleDataResult  # type: ignore
+    from ._models import ScheduleDefinition  # type: ignore
+    from ._models import ScheduleListDataResult  # type: ignore
     from ._models import StatusResult  # type: ignore
     from ._models import StringDictionaryDataResult  # type: ignore
+    from ._models import StringListDataResult  # type: ignore
     from ._models import User  # type: ignore
     from ._models import UserDataResult  # type: ignore
     from ._models import UserDefinition  # type: ignore
@@ -102,22 +124,35 @@ except (SyntaxError, ImportError):
     from ._models import ValidationError  # type: ignore
 
 from ._team_cloud_client_enums import (
+    AdapterInformationType,
+    CommandAuditEntityRuntimeStatus,
     ComponentResourceState,
     ComponentTaskResourceState,
+    ComponentTaskTemplateType,
+    ComponentTaskType,
     ComponentTemplateType,
     ComponentType,
-    Enum3,
+    DeploymentScopeComponentTypesItem,
+    DeploymentScopeDefinitionType,
+    DeploymentScopeType,
     OrganizationResourceState,
     ProjectMembershipRole,
     ProjectResourceState,
     RepositoryReferenceProvider,
     RepositoryReferenceType,
     ResultErrorCode,
+    ScheduleDaysOfWeekItem,
+    ScheduleDefinitionDaysOfWeekItem,
     UserRole,
     UserType,
 )
 
 __all__ = [
+    'AdapterInformation',
+    'AdapterInformationListDataResult',
+    'CommandAuditEntity',
+    'CommandAuditEntityDataResult',
+    'CommandAuditEntityListDataResult',
     'Component',
     'ComponentDataResult',
     'ComponentDefinition',
@@ -126,6 +161,7 @@ __all__ = [
     'ComponentTaskDataResult',
     'ComponentTaskDefinition',
     'ComponentTaskListDataResult',
+    'ComponentTaskReference',
     'ComponentTaskRunner',
     'ComponentTaskTemplate',
     'ComponentTemplate',
@@ -157,24 +193,37 @@ __all__ = [
     'RepositoryDefinition',
     'RepositoryReference',
     'ResultError',
+    'Schedule',
+    'ScheduleDataResult',
+    'ScheduleDefinition',
+    'ScheduleListDataResult',
     'StatusResult',
     'StringDictionaryDataResult',
+    'StringListDataResult',
     'User',
     'UserDataResult',
     'UserDefinition',
     'UserListDataResult',
     'ValidationError',
+    'AdapterInformationType',
+    'CommandAuditEntityRuntimeStatus',
     'ComponentResourceState',
     'ComponentTaskResourceState',
+    'ComponentTaskTemplateType',
+    'ComponentTaskType',
     'ComponentTemplateType',
     'ComponentType',
-    'Enum3',
+    'DeploymentScopeComponentTypesItem',
+    'DeploymentScopeDefinitionType',
+    'DeploymentScopeType',
     'OrganizationResourceState',
     'ProjectMembershipRole',
     'ProjectResourceState',
     'RepositoryReferenceProvider',
     'RepositoryReferenceType',
     'ResultErrorCode',
+    'ScheduleDaysOfWeekItem',
+    'ScheduleDefinitionDaysOfWeekItem',
     'UserRole',
     'UserType',
 ]

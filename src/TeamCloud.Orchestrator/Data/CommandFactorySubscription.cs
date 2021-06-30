@@ -26,7 +26,7 @@ namespace TeamCloud.Orchestrator.Data
                 {
                     var queue = storageAccount
                         .CreateCloudQueueClient()
-                        .GetQueueReference(ICommandHandler.ProcessorQueue);
+                        .GetQueueReference(CommandHandler.ProcessorQueue);
 
                     _ = await queue
                         .CreateIfNotExistsAsync()

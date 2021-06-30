@@ -7,17 +7,261 @@
 # --------------------------------------------------------------------------
 
 import datetime
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import msrest.serialization
 
 from ._team_cloud_client_enums import *
 
 
-class Component(msrest.serialization.Model):
-    """Component.
+class AdapterInformation(msrest.serialization.Model):
+    """AdapterInformation.
+
+    :param type:  Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub".
+    :type type: str or ~teamcloud.models.AdapterInformationType
+    :param display_name:
+    :type display_name: str
+    :param input_data_schema:
+    :type input_data_schema: str
+    :param input_data_form:
+    :type input_data_form: str
+    """
+
+    _attribute_map = {
+        'type': {'key': 'type', 'type': 'str'},
+        'display_name': {'key': 'displayName', 'type': 'str'},
+        'input_data_schema': {'key': 'inputDataSchema', 'type': 'str'},
+        'input_data_form': {'key': 'inputDataForm', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        type: Optional[Union[str, "AdapterInformationType"]] = None,
+        display_name: Optional[str] = None,
+        input_data_schema: Optional[str] = None,
+        input_data_form: Optional[str] = None,
+        **kwargs
+    ):
+        super(AdapterInformation, self).__init__(**kwargs)
+        self.type = type
+        self.display_name = display_name
+        self.input_data_schema = input_data_schema
+        self.input_data_form = input_data_form
+
+
+class AdapterInformationListDataResult(msrest.serialization.Model):
+    """AdapterInformationListDataResult.
 
     Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.AdapterInformation]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[AdapterInformation]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(AdapterInformationListDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = None
+        self.location = location
+
+
+class CommandAuditEntity(msrest.serialization.Model):
+    """CommandAuditEntity.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :ivar command_id:
+    :vartype command_id: str
+    :ivar organization_id:
+    :vartype organization_id: str
+    :param command_json:
+    :type command_json: str
+    :param result_json:
+    :type result_json: str
+    :ivar project_id:
+    :vartype project_id: str
+    :ivar user_id:
+    :vartype user_id: str
+    :ivar parent_id:
+    :vartype parent_id: str
+    :param command:
+    :type command: str
+    :ivar component_task:
+    :vartype component_task: str
+    :param runtime_status:  Possible values include: "Unknown", "Running", "Completed",
+     "ContinuedAsNew", "Failed", "Canceled", "Terminated", "Pending".
+    :type runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
+    :param custom_status:
+    :type custom_status: str
+    :param errors:
+    :type errors: str
+    :param created:
+    :type created: ~datetime.datetime
+    :param updated:
+    :type updated: ~datetime.datetime
+    """
+
+    _validation = {
+        'command_id': {'readonly': True},
+        'organization_id': {'readonly': True},
+        'project_id': {'readonly': True},
+        'user_id': {'readonly': True},
+        'parent_id': {'readonly': True},
+        'component_task': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'command_id': {'key': 'commandId', 'type': 'str'},
+        'organization_id': {'key': 'organizationId', 'type': 'str'},
+        'command_json': {'key': 'commandJson', 'type': 'str'},
+        'result_json': {'key': 'resultJson', 'type': 'str'},
+        'project_id': {'key': 'projectId', 'type': 'str'},
+        'user_id': {'key': 'userId', 'type': 'str'},
+        'parent_id': {'key': 'parentId', 'type': 'str'},
+        'command': {'key': 'command', 'type': 'str'},
+        'component_task': {'key': 'componentTask', 'type': 'str'},
+        'runtime_status': {'key': 'runtimeStatus', 'type': 'str'},
+        'custom_status': {'key': 'customStatus', 'type': 'str'},
+        'errors': {'key': 'errors', 'type': 'str'},
+        'created': {'key': 'created', 'type': 'iso-8601'},
+        'updated': {'key': 'updated', 'type': 'iso-8601'},
+    }
+
+    def __init__(
+        self,
+        *,
+        command_json: Optional[str] = None,
+        result_json: Optional[str] = None,
+        command: Optional[str] = None,
+        runtime_status: Optional[Union[str, "CommandAuditEntityRuntimeStatus"]] = None,
+        custom_status: Optional[str] = None,
+        errors: Optional[str] = None,
+        created: Optional[datetime.datetime] = None,
+        updated: Optional[datetime.datetime] = None,
+        **kwargs
+    ):
+        super(CommandAuditEntity, self).__init__(**kwargs)
+        self.command_id = None
+        self.organization_id = None
+        self.command_json = command_json
+        self.result_json = result_json
+        self.project_id = None
+        self.user_id = None
+        self.parent_id = None
+        self.command = command
+        self.component_task = None
+        self.runtime_status = runtime_status
+        self.custom_status = custom_status
+        self.errors = errors
+        self.created = created
+        self.updated = updated
+
+
+class CommandAuditEntityDataResult(msrest.serialization.Model):
+    """CommandAuditEntityDataResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.CommandAuditEntity
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'CommandAuditEntity'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        data: Optional["CommandAuditEntity"] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(CommandAuditEntityDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = data
+        self.location = location
+
+
+class CommandAuditEntityListDataResult(msrest.serialization.Model):
+    """CommandAuditEntityListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.CommandAuditEntity]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[CommandAuditEntity]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(CommandAuditEntityListDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = None
+        self.location = location
+
+
+class Component(msrest.serialization.Model):
+    """Component.
 
     All required parameters must be populated in order to send to Azure.
 
@@ -39,11 +283,12 @@ class Component(msrest.serialization.Model):
     :type input_json: str
     :param value_json:
     :type value_json: str
-    :param type: Required.  Possible values include: "Custom", "AzureResource", "Environment",
-     "GitRepository".
+    :param type: Required.  Possible values include: "Environment", "Repository".
     :type type: str or ~teamcloud.models.ComponentType
     :param resource_id:
     :type resource_id: str
+    :param resource_url:
+    :type resource_url: str
     :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
      "Succeeded", "Failed".
     :type resource_state: str or ~teamcloud.models.ComponentResourceState
@@ -55,8 +300,8 @@ class Component(msrest.serialization.Model):
     :type deleted: ~datetime.datetime
     :param ttl:
     :type ttl: int
-    :ivar slug: Required.
-    :vartype slug: str
+    :param slug: Required.
+    :type slug: str
     :param id: Required.
     :type id: str
     """
@@ -67,7 +312,7 @@ class Component(msrest.serialization.Model):
         'project_id': {'required': True},
         'creator': {'required': True},
         'type': {'required': True},
-        'slug': {'required': True, 'readonly': True},
+        'slug': {'required': True},
         'id': {'required': True},
     }
 
@@ -83,6 +328,7 @@ class Component(msrest.serialization.Model):
         'value_json': {'key': 'valueJson', 'type': 'str'},
         'type': {'key': 'type', 'type': 'str'},
         'resource_id': {'key': 'resourceId', 'type': 'str'},
+        'resource_url': {'key': 'resourceUrl', 'type': 'str'},
         'resource_state': {'key': 'resourceState', 'type': 'str'},
         'deployment_scope_id': {'key': 'deploymentScopeId', 'type': 'str'},
         'identity_id': {'key': 'identityId', 'type': 'str'},
@@ -100,6 +346,7 @@ class Component(msrest.serialization.Model):
         project_id: str,
         creator: str,
         type: Union[str, "ComponentType"],
+        slug: str,
         id: str,
         href: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -107,6 +354,7 @@ class Component(msrest.serialization.Model):
         input_json: Optional[str] = None,
         value_json: Optional[str] = None,
         resource_id: Optional[str] = None,
+        resource_url: Optional[str] = None,
         resource_state: Optional[Union[str, "ComponentResourceState"]] = None,
         deployment_scope_id: Optional[str] = None,
         identity_id: Optional[str] = None,
@@ -126,12 +374,13 @@ class Component(msrest.serialization.Model):
         self.value_json = value_json
         self.type = type
         self.resource_id = resource_id
+        self.resource_url = resource_url
         self.resource_state = resource_state
         self.deployment_scope_id = deployment_scope_id
         self.identity_id = identity_id
         self.deleted = deleted
         self.ttl = ttl
-        self.slug = None
+        self.slug = slug
         self.id = id
 
 
@@ -268,8 +517,10 @@ class ComponentTask(msrest.serialization.Model):
     :type project_id: str
     :param requested_by:
     :type requested_by: str
-    :param type:  Possible values include: 0, 1, 2.
-    :type type: str or ~teamcloud.models.Enum3
+    :param schedule_id:
+    :type schedule_id: str
+    :param type:  Possible values include: "Custom", "Create", "Delete".
+    :type type: str or ~teamcloud.models.ComponentTaskType
     :param type_name:
     :type type_name: str
     :param created:
@@ -305,7 +556,8 @@ class ComponentTask(msrest.serialization.Model):
         'component_id': {'key': 'componentId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
         'requested_by': {'key': 'requestedBy', 'type': 'str'},
-        'type': {'key': 'type', 'type': 'int'},
+        'schedule_id': {'key': 'scheduleId', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
         'type_name': {'key': 'typeName', 'type': 'str'},
         'created': {'key': 'created', 'type': 'iso-8601'},
         'started': {'key': 'started', 'type': 'iso-8601'},
@@ -326,7 +578,8 @@ class ComponentTask(msrest.serialization.Model):
         project_id: str,
         id: str,
         requested_by: Optional[str] = None,
-        type: Optional[Union[int, "Enum3"]] = None,
+        schedule_id: Optional[str] = None,
+        type: Optional[Union[str, "ComponentTaskType"]] = None,
         type_name: Optional[str] = None,
         created: Optional[datetime.datetime] = None,
         started: Optional[datetime.datetime] = None,
@@ -343,6 +596,7 @@ class ComponentTask(msrest.serialization.Model):
         self.component_id = component_id
         self.project_id = project_id
         self.requested_by = requested_by
+        self.schedule_id = schedule_id
         self.type = type
         self.type_name = type_name
         self.created = created
@@ -465,6 +719,37 @@ class ComponentTaskListDataResult(msrest.serialization.Model):
         self.location = location
 
 
+class ComponentTaskReference(msrest.serialization.Model):
+    """ComponentTaskReference.
+
+    :param component_id:
+    :type component_id: str
+    :param component_task_template_id:
+    :type component_task_template_id: str
+    :param input_json:
+    :type input_json: str
+    """
+
+    _attribute_map = {
+        'component_id': {'key': 'componentId', 'type': 'str'},
+        'component_task_template_id': {'key': 'componentTaskTemplateId', 'type': 'str'},
+        'input_json': {'key': 'inputJson', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        component_id: Optional[str] = None,
+        component_task_template_id: Optional[str] = None,
+        input_json: Optional[str] = None,
+        **kwargs
+    ):
+        super(ComponentTaskReference, self).__init__(**kwargs)
+        self.component_id = component_id
+        self.component_task_template_id = component_task_template_id
+        self.input_json = input_json
+
+
 class ComponentTaskRunner(msrest.serialization.Model):
     """ComponentTaskRunner.
 
@@ -496,8 +781,6 @@ class ComponentTaskTemplate(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    All required parameters must be populated in order to send to Azure.
-
     :param id:
     :type id: str
     :param display_name:
@@ -506,14 +789,13 @@ class ComponentTaskTemplate(msrest.serialization.Model):
     :type description: str
     :param input_json_schema:
     :type input_json_schema: str
-    :param type: Required.  Possible values include: 0, 1, 2.
-    :type type: str or ~teamcloud.models.Enum3
+    :param type:  Possible values include: "Custom", "Create", "Delete".
+    :type type: str or ~teamcloud.models.ComponentTaskTemplateType
     :ivar type_name:
     :vartype type_name: str
     """
 
     _validation = {
-        'type': {'required': True},
         'type_name': {'readonly': True},
     }
 
@@ -522,18 +804,18 @@ class ComponentTaskTemplate(msrest.serialization.Model):
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
         'input_json_schema': {'key': 'inputJsonSchema', 'type': 'str'},
-        'type': {'key': 'type', 'type': 'int'},
+        'type': {'key': 'type', 'type': 'str'},
         'type_name': {'key': 'typeName', 'type': 'str'},
     }
 
     def __init__(
         self,
         *,
-        type: Union[int, "Enum3"],
         id: Optional[str] = None,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         input_json_schema: Optional[str] = None,
+        type: Optional[Union[str, "ComponentTaskTemplateType"]] = None,
         **kwargs
     ):
         super(ComponentTaskTemplate, self).__init__(**kwargs)
@@ -568,11 +850,12 @@ class ComponentTemplate(msrest.serialization.Model):
     :type tasks: list[~teamcloud.models.ComponentTaskTemplate]
     :param task_runner:
     :type task_runner: ~teamcloud.models.ComponentTaskRunner
-    :param type: Required.  Possible values include: "Custom", "AzureResource", "Environment",
-     "GitRepository".
+    :param type: Required.  Possible values include: "Environment", "Repository".
     :type type: str or ~teamcloud.models.ComponentTemplateType
     :param folder:
     :type folder: str
+    :param configuration: Anything.
+    :type configuration: any
     :param id: Required.
     :type id: str
     """
@@ -597,6 +880,7 @@ class ComponentTemplate(msrest.serialization.Model):
         'task_runner': {'key': 'taskRunner', 'type': 'ComponentTaskRunner'},
         'type': {'key': 'type', 'type': 'str'},
         'folder': {'key': 'folder', 'type': 'str'},
+        'configuration': {'key': 'configuration', 'type': 'object'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -615,6 +899,7 @@ class ComponentTemplate(msrest.serialization.Model):
         tasks: Optional[List["ComponentTaskTemplate"]] = None,
         task_runner: Optional["ComponentTaskRunner"] = None,
         folder: Optional[str] = None,
+        configuration: Optional[Any] = None,
         **kwargs
     ):
         super(ComponentTemplate, self).__init__(**kwargs)
@@ -629,6 +914,7 @@ class ComponentTemplate(msrest.serialization.Model):
         self.task_runner = task_runner
         self.type = type
         self.folder = folder
+        self.configuration = configuration
         self.id = id
 
 
@@ -748,41 +1034,62 @@ class ComponentTemplatePermissions(msrest.serialization.Model):
 class DeploymentScope(msrest.serialization.Model):
     """DeploymentScope.
 
-    Variables are only populated by the server, and will be ignored when sending a request.
-
     All required parameters must be populated in order to send to Azure.
 
     :param organization: Required.
     :type organization: str
-    :ivar slug: Required.
-    :vartype slug: str
     :param display_name: Required.
     :type display_name: str
+    :param slug: Required.
+    :type slug: str
     :param is_default: Required.
     :type is_default: bool
+    :param type: Required.  Possible values include: "AzureResourceManager", "AzureDevOps",
+     "GitHub".
+    :type type: str or ~teamcloud.models.DeploymentScopeType
+    :param input_data_schema:
+    :type input_data_schema: str
+    :param input_data:
+    :type input_data: str
     :param management_group_id:
     :type management_group_id: str
     :param subscription_ids:
     :type subscription_ids: list[str]
+    :param authorizable:
+    :type authorizable: bool
+    :param authorized:
+    :type authorized: bool
+    :param authorize_url:
+    :type authorize_url: str
+    :param component_types:
+    :type component_types: list[str or ~teamcloud.models.DeploymentScopeComponentTypesItem]
     :param id: Required.
     :type id: str
     """
 
     _validation = {
         'organization': {'required': True},
-        'slug': {'required': True, 'readonly': True},
         'display_name': {'required': True},
+        'slug': {'required': True},
         'is_default': {'required': True},
+        'type': {'required': True},
         'id': {'required': True},
     }
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
-        'slug': {'key': 'slug', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
+        'slug': {'key': 'slug', 'type': 'str'},
         'is_default': {'key': 'isDefault', 'type': 'bool'},
+        'type': {'key': 'type', 'type': 'str'},
+        'input_data_schema': {'key': 'inputDataSchema', 'type': 'str'},
+        'input_data': {'key': 'inputData', 'type': 'str'},
         'management_group_id': {'key': 'managementGroupId', 'type': 'str'},
         'subscription_ids': {'key': 'subscriptionIds', 'type': '[str]'},
+        'authorizable': {'key': 'authorizable', 'type': 'bool'},
+        'authorized': {'key': 'authorized', 'type': 'bool'},
+        'authorize_url': {'key': 'authorizeUrl', 'type': 'str'},
+        'component_types': {'key': 'componentTypes', 'type': '[str]'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -791,19 +1098,34 @@ class DeploymentScope(msrest.serialization.Model):
         *,
         organization: str,
         display_name: str,
+        slug: str,
         is_default: bool,
+        type: Union[str, "DeploymentScopeType"],
         id: str,
+        input_data_schema: Optional[str] = None,
+        input_data: Optional[str] = None,
         management_group_id: Optional[str] = None,
         subscription_ids: Optional[List[str]] = None,
+        authorizable: Optional[bool] = None,
+        authorized: Optional[bool] = None,
+        authorize_url: Optional[str] = None,
+        component_types: Optional[List[Union[str, "DeploymentScopeComponentTypesItem"]]] = None,
         **kwargs
     ):
         super(DeploymentScope, self).__init__(**kwargs)
         self.organization = organization
-        self.slug = None
         self.display_name = display_name
+        self.slug = slug
         self.is_default = is_default
+        self.type = type
+        self.input_data_schema = input_data_schema
+        self.input_data = input_data
         self.management_group_id = management_group_id
         self.subscription_ids = subscription_ids
+        self.authorizable = authorizable
+        self.authorized = authorized
+        self.authorize_url = authorize_url
+        self.component_types = component_types
         self.id = id
 
 
@@ -850,46 +1172,48 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :ivar slug:
-    :vartype slug: str
     :param display_name: Required.
     :type display_name: str
+    :param type: Required.  Possible values include: "AzureResourceManager", "AzureDevOps",
+     "GitHub".
+    :type type: str or ~teamcloud.models.DeploymentScopeDefinitionType
+    :ivar slug:
+    :vartype slug: str
+    :param input_data:
+    :type input_data: str
     :param is_default:
     :type is_default: bool
-    :param management_group_id:
-    :type management_group_id: str
-    :param subscription_ids:
-    :type subscription_ids: list[str]
     """
 
     _validation = {
-        'slug': {'readonly': True},
         'display_name': {'required': True},
+        'type': {'required': True},
+        'slug': {'readonly': True},
     }
 
     _attribute_map = {
-        'slug': {'key': 'slug', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
+        'type': {'key': 'type', 'type': 'str'},
+        'slug': {'key': 'slug', 'type': 'str'},
+        'input_data': {'key': 'inputData', 'type': 'str'},
         'is_default': {'key': 'isDefault', 'type': 'bool'},
-        'management_group_id': {'key': 'managementGroupId', 'type': 'str'},
-        'subscription_ids': {'key': 'subscriptionIds', 'type': '[str]'},
     }
 
     def __init__(
         self,
         *,
         display_name: str,
+        type: Union[str, "DeploymentScopeDefinitionType"],
+        input_data: Optional[str] = None,
         is_default: Optional[bool] = None,
-        management_group_id: Optional[str] = None,
-        subscription_ids: Optional[List[str]] = None,
         **kwargs
     ):
         super(DeploymentScopeDefinition, self).__init__(**kwargs)
-        self.slug = None
         self.display_name = display_name
+        self.type = type
+        self.slug = None
+        self.input_data = input_data
         self.is_default = is_default
-        self.management_group_id = management_group_id
-        self.subscription_ids = subscription_ids
 
 
 class DeploymentScopeListDataResult(msrest.serialization.Model):
@@ -967,14 +1291,12 @@ class ErrorResult(msrest.serialization.Model):
 class Organization(msrest.serialization.Model):
     """Organization.
 
-    Variables are only populated by the server, and will be ignored when sending a request.
-
     All required parameters must be populated in order to send to Azure.
 
     :param tenant: Required.
     :type tenant: str
-    :ivar slug: Required.
-    :vartype slug: str
+    :param slug: Required.
+    :type slug: str
     :param display_name: Required.
     :type display_name: str
     :param subscription_id: Required.
@@ -1000,7 +1322,7 @@ class Organization(msrest.serialization.Model):
 
     _validation = {
         'tenant': {'required': True},
-        'slug': {'required': True, 'readonly': True},
+        'slug': {'required': True},
         'display_name': {'required': True},
         'subscription_id': {'required': True},
         'location': {'required': True},
@@ -1026,6 +1348,7 @@ class Organization(msrest.serialization.Model):
         self,
         *,
         tenant: str,
+        slug: str,
         display_name: str,
         subscription_id: str,
         location: str,
@@ -1040,7 +1363,7 @@ class Organization(msrest.serialization.Model):
     ):
         super(Organization, self).__init__(**kwargs)
         self.tenant = tenant
-        self.slug = None
+        self.slug = slug
         self.display_name = display_name
         self.subscription_id = subscription_id
         self.location = location
@@ -1179,14 +1502,12 @@ class OrganizationListDataResult(msrest.serialization.Model):
 class Project(msrest.serialization.Model):
     """Project.
 
-    Variables are only populated by the server, and will be ignored when sending a request.
-
     All required parameters must be populated in order to send to Azure.
 
     :param organization: Required.
     :type organization: str
-    :ivar slug: Required.
-    :vartype slug: str
+    :param slug: Required.
+    :type slug: str
     :param display_name: Required.
     :type display_name: str
     :param template: Required.
@@ -1212,7 +1533,7 @@ class Project(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
-        'slug': {'required': True, 'readonly': True},
+        'slug': {'required': True},
         'display_name': {'required': True},
         'template': {'required': True},
         'id': {'required': True},
@@ -1237,6 +1558,7 @@ class Project(msrest.serialization.Model):
         self,
         *,
         organization: str,
+        slug: str,
         display_name: str,
         template: str,
         id: str,
@@ -1251,7 +1573,7 @@ class Project(msrest.serialization.Model):
     ):
         super(Project, self).__init__(**kwargs)
         self.organization = organization
-        self.slug = None
+        self.slug = slug
         self.display_name = display_name
         self.template = template
         self.template_input = template_input
@@ -1619,14 +1941,12 @@ class ProjectMembership(msrest.serialization.Model):
 class ProjectTemplate(msrest.serialization.Model):
     """ProjectTemplate.
 
-    Variables are only populated by the server, and will be ignored when sending a request.
-
     All required parameters must be populated in order to send to Azure.
 
     :param organization: Required.
     :type organization: str
-    :ivar slug: Required.
-    :vartype slug: str
+    :param slug: Required.
+    :type slug: str
     :param name:
     :type name: str
     :param display_name: Required.
@@ -1647,7 +1967,7 @@ class ProjectTemplate(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
-        'slug': {'required': True, 'readonly': True},
+        'slug': {'required': True},
         'display_name': {'required': True},
         'repository': {'required': True},
         'is_default': {'required': True},
@@ -1671,6 +1991,7 @@ class ProjectTemplate(msrest.serialization.Model):
         self,
         *,
         organization: str,
+        slug: str,
         display_name: str,
         repository: "RepositoryReference",
         is_default: bool,
@@ -1683,7 +2004,7 @@ class ProjectTemplate(msrest.serialization.Model):
     ):
         super(ProjectTemplate, self).__init__(**kwargs)
         self.organization = organization
-        self.slug = None
+        self.slug = slug
         self.name = name
         self.display_name = display_name
         self.components = components
@@ -1952,6 +2273,223 @@ class ResultError(msrest.serialization.Model):
         self.errors = errors
 
 
+class Schedule(msrest.serialization.Model):
+    """Schedule.
+
+    All required parameters must be populated in order to send to Azure.
+
+    :param organization: Required.
+    :type organization: str
+    :param project_id: Required.
+    :type project_id: str
+    :param enabled:
+    :type enabled: bool
+    :param recurring:
+    :type recurring: bool
+    :param days_of_week:
+    :type days_of_week: list[str or ~teamcloud.models.ScheduleDaysOfWeekItem]
+    :param utc_hour:
+    :type utc_hour: int
+    :param utc_minute:
+    :type utc_minute: int
+    :param creator:
+    :type creator: str
+    :param created:
+    :type created: ~datetime.datetime
+    :param last_updated_by:
+    :type last_updated_by: str
+    :param last_updated:
+    :type last_updated: ~datetime.datetime
+    :param last_run:
+    :type last_run: ~datetime.datetime
+    :param component_tasks:
+    :type component_tasks: list[~teamcloud.models.ComponentTaskReference]
+    :param id: Required.
+    :type id: str
+    """
+
+    _validation = {
+        'organization': {'required': True},
+        'project_id': {'required': True},
+        'id': {'required': True},
+    }
+
+    _attribute_map = {
+        'organization': {'key': 'organization', 'type': 'str'},
+        'project_id': {'key': 'projectId', 'type': 'str'},
+        'enabled': {'key': 'enabled', 'type': 'bool'},
+        'recurring': {'key': 'recurring', 'type': 'bool'},
+        'days_of_week': {'key': 'daysOfWeek', 'type': '[str]'},
+        'utc_hour': {'key': 'utcHour', 'type': 'int'},
+        'utc_minute': {'key': 'utcMinute', 'type': 'int'},
+        'creator': {'key': 'creator', 'type': 'str'},
+        'created': {'key': 'created', 'type': 'iso-8601'},
+        'last_updated_by': {'key': 'lastUpdatedBy', 'type': 'str'},
+        'last_updated': {'key': 'lastUpdated', 'type': 'iso-8601'},
+        'last_run': {'key': 'lastRun', 'type': 'iso-8601'},
+        'component_tasks': {'key': 'componentTasks', 'type': '[ComponentTaskReference]'},
+        'id': {'key': 'id', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        organization: str,
+        project_id: str,
+        id: str,
+        enabled: Optional[bool] = None,
+        recurring: Optional[bool] = None,
+        days_of_week: Optional[List[Union[str, "ScheduleDaysOfWeekItem"]]] = None,
+        utc_hour: Optional[int] = None,
+        utc_minute: Optional[int] = None,
+        creator: Optional[str] = None,
+        created: Optional[datetime.datetime] = None,
+        last_updated_by: Optional[str] = None,
+        last_updated: Optional[datetime.datetime] = None,
+        last_run: Optional[datetime.datetime] = None,
+        component_tasks: Optional[List["ComponentTaskReference"]] = None,
+        **kwargs
+    ):
+        super(Schedule, self).__init__(**kwargs)
+        self.organization = organization
+        self.project_id = project_id
+        self.enabled = enabled
+        self.recurring = recurring
+        self.days_of_week = days_of_week
+        self.utc_hour = utc_hour
+        self.utc_minute = utc_minute
+        self.creator = creator
+        self.created = created
+        self.last_updated_by = last_updated_by
+        self.last_updated = last_updated
+        self.last_run = last_run
+        self.component_tasks = component_tasks
+        self.id = id
+
+
+class ScheduleDataResult(msrest.serialization.Model):
+    """ScheduleDataResult.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :param data:
+    :type data: ~teamcloud.models.Schedule
+    :param location:
+    :type location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'Schedule'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        data: Optional["Schedule"] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(ScheduleDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = data
+        self.location = location
+
+
+class ScheduleDefinition(msrest.serialization.Model):
+    """ScheduleDefinition.
+
+    :param enabled:
+    :type enabled: bool
+    :param recurring:
+    :type recurring: bool
+    :param days_of_week:
+    :type days_of_week: list[str or ~teamcloud.models.ScheduleDefinitionDaysOfWeekItem]
+    :param utc_hour:
+    :type utc_hour: int
+    :param utc_minute:
+    :type utc_minute: int
+    :param component_tasks:
+    :type component_tasks: list[~teamcloud.models.ComponentTaskReference]
+    """
+
+    _attribute_map = {
+        'enabled': {'key': 'enabled', 'type': 'bool'},
+        'recurring': {'key': 'recurring', 'type': 'bool'},
+        'days_of_week': {'key': 'daysOfWeek', 'type': '[str]'},
+        'utc_hour': {'key': 'utcHour', 'type': 'int'},
+        'utc_minute': {'key': 'utcMinute', 'type': 'int'},
+        'component_tasks': {'key': 'componentTasks', 'type': '[ComponentTaskReference]'},
+    }
+
+    def __init__(
+        self,
+        *,
+        enabled: Optional[bool] = None,
+        recurring: Optional[bool] = None,
+        days_of_week: Optional[List[Union[str, "ScheduleDefinitionDaysOfWeekItem"]]] = None,
+        utc_hour: Optional[int] = None,
+        utc_minute: Optional[int] = None,
+        component_tasks: Optional[List["ComponentTaskReference"]] = None,
+        **kwargs
+    ):
+        super(ScheduleDefinition, self).__init__(**kwargs)
+        self.enabled = enabled
+        self.recurring = recurring
+        self.days_of_week = days_of_week
+        self.utc_hour = utc_hour
+        self.utc_minute = utc_minute
+        self.component_tasks = component_tasks
+
+
+class ScheduleListDataResult(msrest.serialization.Model):
+    """ScheduleListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[~teamcloud.models.Schedule]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[Schedule]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(ScheduleListDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = None
+        self.location = location
+
+
 class StatusResult(msrest.serialization.Model):
     """StatusResult.
 
@@ -2049,6 +2587,47 @@ class StringDictionaryDataResult(msrest.serialization.Model):
         self.location = location
 
 
+class StringListDataResult(msrest.serialization.Model):
+    """StringListDataResult.
+
+    Variables are only populated by the server, and will be ignored when sending a request.
+
+    :param code:
+    :type code: int
+    :param status:
+    :type status: str
+    :ivar data:
+    :vartype data: list[str]
+    :param location:
+    :type location: str
+    """
+
+    _validation = {
+        'data': {'readonly': True},
+    }
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': '[str]'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        code: Optional[int] = None,
+        status: Optional[str] = None,
+        location: Optional[str] = None,
+        **kwargs
+    ):
+        super(StringListDataResult, self).__init__(**kwargs)
+        self.code = code
+        self.status = status
+        self.data = None
+        self.location = location
+
+
 class User(msrest.serialization.Model):
     """User.
 
@@ -2056,8 +2635,13 @@ class User(msrest.serialization.Model):
 
     :param organization: Required.
     :type organization: str
-    :param user_type: Required.  Possible values include: "User", "System", "Provider",
-     "Application".
+    :param display_name:
+    :type display_name: str
+    :param login_name:
+    :type login_name: str
+    :param mail_address:
+    :type mail_address: str
+    :param user_type: Required.  Possible values include: "User", "Group", "System", "Service".
     :type user_type: str or ~teamcloud.models.UserType
     :param role: Required.  Possible values include: "None", "Member", "Admin", "Owner".
     :type role: str or ~teamcloud.models.UserRole
@@ -2078,6 +2662,9 @@ class User(msrest.serialization.Model):
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'display_name': {'key': 'displayName', 'type': 'str'},
+        'login_name': {'key': 'loginName', 'type': 'str'},
+        'mail_address': {'key': 'mailAddress', 'type': 'str'},
         'user_type': {'key': 'userType', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
         'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
@@ -2092,12 +2679,18 @@ class User(msrest.serialization.Model):
         user_type: Union[str, "UserType"],
         role: Union[str, "UserRole"],
         id: str,
+        display_name: Optional[str] = None,
+        login_name: Optional[str] = None,
+        mail_address: Optional[str] = None,
         project_memberships: Optional[List["ProjectMembership"]] = None,
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
         super(User, self).__init__(**kwargs)
         self.organization = organization
+        self.display_name = display_name
+        self.login_name = login_name
+        self.mail_address = mail_address
         self.user_type = user_type
         self.role = role
         self.project_memberships = project_memberships

@@ -3,11 +3,13 @@
 
 import React from 'react';
 import { IPersonaStyleProps, IPersonaStyles, IStyleFunctionOrObject, Persona, PersonaSize } from '@fluentui/react';
-import { GraphUser } from '../model';
+import { GraphPrincipal } from '../model/GraphPrincipal';
+import { isPrincipalGroup, isPrincipalServicePrincipal, isPrincipalUser } from '../MSGraph';
 
 export interface IUserPersonaProps {
     size?: PersonaSize;
-    user?: GraphUser;
+    // user?: GraphUser;
+    principal?: GraphPrincipal;
     large?: boolean;
     showSecondaryText?: boolean;
     hidePersonaDetails?: boolean;
@@ -17,18 +19,34 @@ export interface IUserPersonaProps {
 
 export const UserPersona: React.FunctionComponent<IUserPersonaProps> = (props) => {
 
-    const text = props.user?.displayName;
+    const text = props.principal?.displayName;
 
-    const mail = props.user?.mail ?? (props.user?.otherMails?.length ?? 0) > 0 ? props.user!.otherMails![0] : props.user?.userPrincipalName;
+    const secondaryText = 
+        isPrincipalUser(props.principal) ? (props.large ? props.principal?.jobTitle : props.principal?.mail ?? (props.principal?.otherMails?.length ?? 0) > 0 ? props.principal!.otherMails![0] : props.principal?.userPrincipalName) :
+        isPrincipalGroup(props.principal) ? undefined :
+        isPrincipalServicePrincipal(props.principal) ? undefined :
+        undefined;
 
-    const secondaryText = props.large ? props.user?.jobTitle : mail;
+    const tertiaryText = 
+        isPrincipalUser(props.principal) ? (props.large ? props.principal?.department : undefined) :
+        isPrincipalGroup(props.principal) ? undefined :
+        isPrincipalServicePrincipal(props.principal) ? undefined :
+        undefined;
 
-    const tertiaryText = props.large ? props.user?.department : undefined;
+    const imageUrl = 
+        isPrincipalUser(props.principal) ? props.principal?.imageUrl :
+        isPrincipalGroup(props.principal) ? undefined :
+        isPrincipalServicePrincipal(props.principal) ? undefined :
+        undefined;
 
-    const imageUrl = props.user?.imageUrl;
+    // console.log(JSON.stringify({
+    //     text: text,
+    //     secondaryText: secondaryText,
+    //     tertiaryText: tertiaryText,
+    //     imageUrl: imageUrl
+    // }));
 
-    return (
-        <Persona
+    return <Persona
             hidePersonaDetails={props.hidePersonaDetails}
             showSecondaryText={props.showSecondaryText}
             text={text}
@@ -37,6 +55,5 @@ export const UserPersona: React.FunctionComponent<IUserPersonaProps> = (props) =
             imageUrl={imageUrl}
             styles={props.styles}
             onClick={props.onClick}
-            size={props.size ? props.size : (props.large ? PersonaSize.size72 : PersonaSize.size32)} />
-    );
+            size={props.size ? props.size : (props.large ? PersonaSize.size72 : PersonaSize.size32)} />;
 }

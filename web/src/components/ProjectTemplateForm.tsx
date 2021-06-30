@@ -7,7 +7,7 @@ import { DefaultButton, PrimaryButton, Stack, TextField } from '@fluentui/react'
 import { ProjectTemplateDefinition } from 'teamcloud';
 
 export interface IProjectTemplateFormProps {
-    embedded?: boolean,
+    embedded?: boolean;
     onTemplateChange?: (template?: ProjectTemplateDefinition) => void;
     createProjectTemplate?: (template: ProjectTemplateDefinition) => Promise<void>;
 }

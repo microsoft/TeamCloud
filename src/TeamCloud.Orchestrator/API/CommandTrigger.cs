@@ -19,9 +19,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using TeamCloud.Adapters;
 using TeamCloud.Audit;
+using TeamCloud.Data;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Validation;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Serialization;
@@ -31,21 +34,25 @@ namespace TeamCloud.Orchestrator.API
     public class CommandTrigger
     {
         private readonly ICommandHandler[] commandHandlers;
+        private readonly IAdapter[] adapters;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ICommandAuditWriter commandAuditWriter;
+        private readonly IDeploymentScopeRepository deploymentScopeRepository;
 
-        public CommandTrigger(ICommandHandler[] commandHandlers, IHttpContextAccessor httpContextAccessor, ICommandAuditWriter commandAuditWriter)
+        public CommandTrigger(ICommandHandler[] commandHandlers, IAdapter[] adapters, IHttpContextAccessor httpContextAccessor, ICommandAuditWriter commandAuditWriter, IDeploymentScopeRepository deploymentScopeRepository)
         {
             this.commandHandlers = commandHandlers ?? throw new ArgumentNullException(nameof(commandHandlers));
+            this.adapters = adapters ?? throw new ArgumentNullException(nameof(adapters));
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.commandAuditWriter = commandAuditWriter ?? throw new ArgumentNullException(nameof(commandAuditWriter));
+            this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         }
 
         [FunctionName(nameof(CommandTrigger) + nameof(Receive))]
         public async Task<IActionResult> Receive(
             [HttpTrigger(AuthorizationLevel.Function, "post", "get", Route = "command/{commandId:guid?}")] HttpRequestMessage requestMessage,
-            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandProcessor,
-            [Queue(ICommandHandler.MonitorQueue)] IAsyncCollector<string> commandMonitor,
+            [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandProcessor,
+            [Queue(CommandHandler.MonitorQueue)] IAsyncCollector<string> commandMonitor,
             [DurableClient] IDurableClient durableClient,
             string commandId,
             ILogger log)
@@ -90,9 +97,9 @@ namespace TeamCloud.Orchestrator.API
 
         [FunctionName(nameof(CommandTrigger) + nameof(Dequeue))]
         public async Task Dequeue(
-            [QueueTrigger(ICommandHandler.ProcessorQueue)] CloudQueueMessage commandMessage,
-            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
-            [Queue(ICommandHandler.MonitorQueue)] IAsyncCollector<string> commandMonitor,
+            [QueueTrigger(CommandHandler.ProcessorQueue)] CloudQueueMessage commandMessage,
+            [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
+            [Queue(CommandHandler.MonitorQueue)] IAsyncCollector<string> commandMonitor,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
@@ -130,9 +137,9 @@ namespace TeamCloud.Orchestrator.API
 
         [FunctionName(nameof(CommandTrigger) + nameof(Monitor))]
         public async Task Monitor(
-            [QueueTrigger(ICommandHandler.MonitorQueue)] CloudQueueMessage commandMessage,
-            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
-            [Queue(ICommandHandler.MonitorQueue)] CloudQueue commandMonitor,
+            [QueueTrigger(CommandHandler.MonitorQueue)] CloudQueueMessage commandMessage,
+            [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
+            [Queue(CommandHandler.MonitorQueue)] CloudQueue commandMonitor,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
@@ -169,7 +176,7 @@ namespace TeamCloud.Orchestrator.API
                             .ConfigureAwait(false);
 
                         await commandAuditWriter
-                            .AuditAsync(command, commandResult)
+                            .WriteAsync(command, commandResult)
                             .ConfigureAwait(false);
 
                         if (commandResult?.RuntimeStatus.IsActive() ?? false)
@@ -226,7 +233,7 @@ namespace TeamCloud.Orchestrator.API
 
         private async Task<IActionResult> ProcessCommandAsync(IDurableClient durableClient, ICommand command, IAsyncCollector<ICommand> commandQueue, IAsyncCollector<string> commandMonitor, ILogger log)
         {
-            var commandHandler = commandHandlers.SingleOrDefault(handler => handler.CanHandle(command));
+            var commandHandler = commandHandlers.FirstOrDefault(handler => handler.CanHandle(command));
             var commandCollector = new CommandCollector(commandQueue, command);
 
             if (commandHandler is null)
@@ -240,7 +247,7 @@ namespace TeamCloud.Orchestrator.API
                 try
                 {
                     await commandAuditWriter
-                        .AuditAsync(command)
+                        .WriteAsync(command)
                         .ConfigureAwait(false);
 
                     if (commandHandler.Orchestration)
@@ -294,7 +301,7 @@ namespace TeamCloud.Orchestrator.API
                     if (commandResult.RuntimeStatus.IsFinal())
                     {
                         await commandAuditWriter
-                            .AuditAsync(command, commandResult)
+                            .WriteAsync(command, commandResult)
                             .ConfigureAwait(false);
                     }
                     else

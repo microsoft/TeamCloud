@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data.Results;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
@@ -21,12 +22,14 @@ namespace TeamCloud.API.Controllers
     [ApiController]
     [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/templates")]
     [Produces("application/json")]
-    public class ComponentTemplatesController : ApiController
+    public class ComponentTemplatesController : TeamCloudController
     {
+        private readonly IProjectTemplateRepository projectTemplateRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ComponentTemplatesController(IComponentTemplateRepository componentTemplateRepository) : base()
+        public ComponentTemplatesController(IProjectTemplateRepository projectTemplateRepository, IComponentTemplateRepository componentTemplateRepository) : base()
         {
+            this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
 
@@ -37,17 +40,17 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Component Templates", typeof(DataResult<List<ComponentTemplate>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Component Templates with the provided projectId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync(new Func<User, Organization, Project, Task<IActionResult>>(async (user, organization, project) =>
+        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudProjectContext>(async context =>
         {
             var componenetTemplates = await componentTemplateRepository
-                .ListAsync(project.Organization, ProjectId)
+                .ListAsync(context.Project.Organization, ProjectId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
             return DataResult<List<ComponentTemplate>>
                 .Ok(componenetTemplates.OrderBy(ct => ct.DisplayName).ToList())
                 .ToActionResult();
-        }));
+        });
 
 
         [HttpGet("{id}")]
@@ -56,25 +59,29 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Template with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string id) => ExecuteAsync(new Func<User, Organization, Project, ProjectTemplate, Task<IActionResult>>(async (user, organization, project, projectTemplate) =>
+        public Task<IActionResult> Get([FromRoute] string id) => ExecuteAsync<TeamCloudProjectContext>(async context =>
         {
             if (string.IsNullOrWhiteSpace(id))
                 return ErrorResult
                     .BadRequest($"The id provided in the url path is invalid. Must be a non-empty string.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
+            var projectTemplate = await projectTemplateRepository
+                .GetAsync(context.Project.Organization, context.Project.Template)
+                .ConfigureAwait(false);
+
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(organization.Id, project.Id, id)
+                .GetAsync(context.Organization.Id, context.Project.Id, id)
                 .ConfigureAwait(false);
 
             if (!(componentTemplate?.ParentId?.Equals(projectTemplate.Id, StringComparison.Ordinal) ?? false))
                 return ErrorResult
-                    .NotFound($"A Component Template with the id '{id}' could not be found for Project {project.Id}.")
+                    .NotFound($"A Component Template with the id '{id}' could not be found for Project {context.Project.Id}.")
                     .ToActionResult();
 
             return DataResult<ComponentTemplate>
                 .Ok(componentTemplate)
                 .ToActionResult();
-        }));
+        });
     }
 }

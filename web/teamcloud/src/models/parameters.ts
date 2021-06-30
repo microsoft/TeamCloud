@@ -10,7 +10,7 @@ import {
   OperationParameter,
   OperationURLParameter,
   OperationQueryParameter
-} from "@azure/core-http";
+} from "@azure/core-client";
 import {
   ComponentDefinition as ComponentDefinitionMapper,
   ComponentTaskDefinition as ComponentTaskDefinitionMapper,
@@ -23,7 +23,9 @@ import {
   ProjectIdentityDefinition as ProjectIdentityDefinitionMapper,
   ProjectIdentity as ProjectIdentityMapper,
   ProjectTemplateDefinition as ProjectTemplateDefinitionMapper,
-  ProjectTemplate as ProjectTemplateMapper
+  ProjectTemplate as ProjectTemplateMapper,
+  ScheduleDefinition as ScheduleDefinitionMapper,
+  Schedule as ScheduleMapper
 } from "../models/mappers";
 
 export const accept: OperationParameter = {
@@ -99,17 +101,6 @@ export const body: OperationParameter = {
   mapper: ComponentDefinitionMapper
 };
 
-export const id: OperationURLParameter = {
-  parameterPath: "id",
-  mapper: {
-    serializedName: "id",
-    required: true,
-    type: {
-      name: "String"
-    }
-  }
-};
-
 export const componentId: OperationURLParameter = {
   parameterPath: "componentId",
   mapper: {
@@ -126,14 +117,94 @@ export const body1: OperationParameter = {
   mapper: ComponentTaskDefinitionMapper
 };
 
+export const id: OperationURLParameter = {
+  parameterPath: "id",
+  mapper: {
+    serializedName: "id",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const body2: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: DeploymentScopeDefinitionMapper
 };
 
+export const deploymentScopeId: OperationURLParameter = {
+  parameterPath: "deploymentScopeId",
+  mapper: {
+    serializedName: "deploymentScopeId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const body3: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: DeploymentScopeMapper
+};
+
+export const contentType1: OperationParameter = {
+  parameterPath: ["options", "contentType"],
+  mapper: {
+    defaultValue: "application/json-patch+json",
+    isConstant: true,
+    serializedName: "Content-Type",
+    type: {
+      name: "String"
+    }
+  }
+};
+
+export const timeRange: OperationQueryParameter = {
+  parameterPath: ["options", "timeRange"],
+  mapper: {
+    serializedName: "timeRange",
+    type: {
+      name: "String"
+    }
+  }
+};
+
+export const commands: OperationQueryParameter = {
+  parameterPath: ["options", "commands"],
+  mapper: {
+    serializedName: "commands",
+    type: {
+      name: "Sequence",
+      element: {
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const commandId: OperationURLParameter = {
+  parameterPath: "commandId",
+  mapper: {
+    serializedName: "commandId",
+    required: true,
+    type: {
+      name: "Uuid"
+    }
+  }
+};
+
+export const expand: OperationQueryParameter = {
+  parameterPath: ["options", "expand"],
+  mapper: {
+    serializedName: "expand",
+    type: {
+      name: "Boolean"
+    }
+  }
 };
 
 export const body4: OperationParameter = {
@@ -229,6 +300,27 @@ export const projectTemplateId: OperationURLParameter = {
 export const body12: OperationParameter = {
   parameterPath: ["options", "body"],
   mapper: ProjectTemplateMapper
+};
+
+export const body13: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: ScheduleDefinitionMapper
+};
+
+export const scheduleId: OperationURLParameter = {
+  parameterPath: "scheduleId",
+  mapper: {
+    serializedName: "scheduleId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
+export const body14: OperationParameter = {
+  parameterPath: ["options", "body"],
+  mapper: ScheduleMapper
 };
 
 export const trackingId: OperationURLParameter = {

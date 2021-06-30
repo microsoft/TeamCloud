@@ -28,7 +28,7 @@ namespace TeamCloud.Orchestrator.Command
         public async Task Execute(
             [OrchestrationTrigger] IDurableOrchestrationContext orchestratorContext,
             [DurableClient] IDurableClient orchestratorClient,
-            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
+            [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
             ILogger log)
         {
             if (orchestratorClient is null)

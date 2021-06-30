@@ -12,24 +12,26 @@
     "@fluentui/react": "^7.126.3",
     "@microsoft/microsoft-graph-client": "^2.0.0",
     "@microsoft/signalr": "^5.0.4",
-    "@rjsf/core": "^2.4.2",
-    "@rjsf/fluent-ui": "^2.4.2",
+    "@rjsf/core": "^2.5.1",
+    "@rjsf/fluent-ui": "^2.5.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "@types/jest": "^24.9.1",
+    "@types/lodash": "^4.14.152",
     "@types/node": "^12.12.54",
     "@types/react": "^16.9.46",
     "@types/react-dom": "^16.9.8",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-json-pretty": "^2.2.0",
     "react-markdown": "^5.0.2",
     "react-query": "^3.13.3",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "remark-gfm": "^1.0.0",
     "teamcloud": "file:teamcloud",
-    "typescript": "^3.9.7"
+    "typescript": "4.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -54,6 +56,8 @@
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^1.14.1",
-    "@types/react-router-dom": "^5.1.5"
+    "@types/react-router-dom": "^5.1.5",
+    "lodash": "^4.17.15",
+    "lodash-es": "^4.17.15"
   }
 }

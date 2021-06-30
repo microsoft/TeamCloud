@@ -18,7 +18,7 @@ namespace TeamCloud.Orchestrator.Command.Activities
         [FunctionName(nameof(CommandCollectActivity))]
         public async Task RunActivity(
             [ActivityTrigger] IDurableActivityContext activityContext,
-            [Queue(ICommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandCollector,
+            [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandCollector,
             ILogger log)
         {
             if (activityContext is null)

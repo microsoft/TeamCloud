@@ -6,7 +6,7 @@
 from ._client_factory import teamcloud_client_factory
 from ._transformers import (transform_output, transform_org_table_output, transform_template_table_output,
                             transform_scope_table_output)
-from azext_tc._validators import tc_deploy_validator
+from ._validators import tc_deploy_validator
 
 
 def load_command_table(self, _):  # pylint: disable=too-many-statements
@@ -19,7 +19,7 @@ def load_command_table(self, _):  # pylint: disable=too-many-statements
     with self.command_group('tc', client_factory=teamcloud_client_factory) as g:
         g.custom_command('deploy', 'teamcloud_deploy', validator=tc_deploy_validator)
         g.custom_command('update', 'teamcloud_update')
-        # g.custom_command('test', 'teamcloud_test')
+        # g.custom_command('test', 'teamcloud_test', transform=transform_output)
 
     with self.command_group('tc app', client_factory=teamcloud_client_factory) as g:
         g.custom_command('deploy', 'teamcloud_app_deploy')

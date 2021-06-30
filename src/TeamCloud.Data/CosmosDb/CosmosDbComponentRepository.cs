@@ -59,11 +59,8 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<Component>(id, GetPartitionKey(projectId))
                     .ConfigureAwait(false);
 
-                var expandTask = expand
-                    ? ExpandAsync(response.Resource)
-                    : Task.FromResult(response.Resource);
-
-                return await expandTask.ConfigureAwait(false);
+                return await ExpandAsync(response.Resource, expand)
+                    .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
@@ -78,7 +75,8 @@ namespace TeamCloud.Data.CosmosDb
                         .ReadNextAsync()
                         .ConfigureAwait(false);
 
-                    return queryResults.FirstOrDefault();
+                    return await ExpandAsync(queryResults.FirstOrDefault())
+                        .ConfigureAwait(false);
                 }
             }
 
@@ -100,6 +98,45 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'";
+
+            if (!includeDeleted)
+                queryString += " AND NOT IS_DEFINED(c.deleted)";
+
+            var query = new QueryDefinition(queryString);
+
+            var queryIterator = container
+                .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(projectId));
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var queryResult in queryResponse)
+                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
+            }
+        }
+
+
+        public IAsyncEnumerable<Component> ListAsync(string projectId, IEnumerable<string> identifiers)
+            => ListAsync(projectId, identifiers, includeDeleted: false);
+
+        public async IAsyncEnumerable<Component> ListAsync(string projectId, IEnumerable<string> identifiers, bool includeDeleted)
+        {
+            if (projectId is null)
+                throw new ArgumentNullException(nameof(projectId));
+
+            if (!Guid.TryParse(projectId, out var projectIdParsed))
+                throw new ArgumentException("Value is not a valid GUID", nameof(projectId));
+
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var search = "'" + string.Join("', '", identifiers) + "'";
+            var searchLower = "'" + string.Join("', '", identifiers.Select(i => i.ToLowerInvariant())) + "'";
+
+            var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}' AND (c.id IN ({search}) OR c.slug IN ({searchLower}))";
 
             if (!includeDeleted)
                 queryString += " AND NOT IS_DEFINED(c.deleted)";

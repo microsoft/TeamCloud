@@ -4,15 +4,16 @@
 import React, { useState } from 'react';
 import { DefaultButton, Stack, Panel, getTheme, Separator, PrimaryButton } from '@fluentui/react';
 import { auth } from '../API';
-import { UserPersona } from '.';
-import { useGraphUser } from '../hooks';
+import { UserForm, UserPersona } from '.';
+import { useGraphUser, useUser } from '../hooks';
 
 export const UserInfo: React.FC = () => {
 
     const [panelOpen, setPanelOpen] = useState(false);
-    // const [editPanelOpen, setEditPanelOpen] = useState(false);
+    const [editPanelOpen, setEditPanelOpen] = useState(false);
 
     const { data: graphUser } = useGraphUser();
+    const { data: user } = useUser();
 
     const theme = getTheme();
 
@@ -50,7 +51,7 @@ export const UserInfo: React.FC = () => {
         <>
             <UserPersona
                 hidePersonaDetails
-                user={graphUser}
+                principal={graphUser}
                 styles={personaStyles}
                 onClick={() => setPanelOpen(true)} />
             <Panel
@@ -60,22 +61,22 @@ export const UserInfo: React.FC = () => {
                 hasCloseButton={false}
                 onDismiss={() => setPanelOpen(false)} >
                 <Stack>
-                    <UserPersona user={graphUser} large />
+                    <UserPersona principal={graphUser} large />
                     <Separator />
                     <Stack tokens={{ childrenGap: '8px' }}>
-                        <PrimaryButton text='Edit' onClick={() => { }} />
-                        {/* <PrimaryButton text='Edit' onClick={() => setEditPanelOpen(true)} /> */}
+                        {/* <PrimaryButton text='Edit' onClick={() => { }} /> */}
+                        <PrimaryButton text='Edit' onClick={() => setEditPanelOpen(true)} />
                         <DefaultButton text='Sign out' onClick={() => auth.logout()} />
                         {/* <DefaultButton text='Sign out' onClick={() => props.onSignOut()} /> */}
                     </Stack>
                 </Stack>
             </Panel>
-            {/* <UserForm
+            <UserForm
                 me={true}
-                user={props.user}
+                user={user}
                 graphUser={graphUser}
                 panelIsOpen={editPanelOpen}
-                onFormClose={() => setEditPanelOpen(false)} /> */}
+                onFormClose={() => setEditPanelOpen(false)} />
         </>
     ) : <></>;
 }

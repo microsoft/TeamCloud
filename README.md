@@ -12,6 +12,28 @@ There are several components that make up the TeamCloud solution.
 
 The [TeamCloud CLI](docs/CLI.md) is an [extension](https://docs.microsoft.com/en-us/cli/azure/azure-cli-extensions-overview?view=azure-cli-latest) for the [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/?view=azure-cli-latest).  It can be used by application development teams to create and manage Projects, and by TeamCloud admins to create new TeamCloud instances or manage existing instances.
 
+### Install TeamCloud CLI
+
+To install the Azure CLI TeamCloud extension, simply run the following command:
+
+```sh
+az extension add --source https://github.com/microsoft/TeamCloud/releases/latest/download/tc-0.4.0-py2.py3-none-any.whl -y
+```
+
+### Update TeamCloud CLI
+
+To update Azure CLI TeamCloud extension to the latest version:
+
+```sh
+az tc update
+```
+
+or for the latest pre-release version:
+
+```sh
+az tc update --pre
+```
+
 ## TeamCloud Instance
 
 At the center of the tool is a TeamCloud instance (the source code in this repository). An enterprise deploys a single TeamCloud instance, along with one or more Providers, to an Azure subscription managed by its IT organization.

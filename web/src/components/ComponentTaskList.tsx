@@ -3,7 +3,7 @@
 
 import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, SelectionMode, Stack, Text } from '@fluentui/react';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
 import { ComponentTaskConsole } from '.';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
@@ -54,13 +54,26 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                     horizontal
                     verticalAlign='center'
                     horizontalAlign='space-between'
-                    tokens={{ childrenGap: '20px' }}
+                    tokens={{ childrenGap: '24px' }}
                     styles={{ root: { padding: '5px' } }}>
-                    <Stack tokens={{ childrenGap: '6px' }}>
-                        <Text styles={{ root: { color: theme.palette.neutralPrimary } }} variant='medium'>{_getTaskName(t)}</Text>
-                        <Text styles={{ root: { color: theme.palette.neutralSecondary } }} variant='small'>{_getTaskStatus(t)}</Text>
+                    <Stack grow tokens={{ childrenGap: '6px' }}>
+                        <Stack.Item>
+                            <Text styles={{ root: { color: theme.palette.neutralPrimary } }} variant='medium'>{_getTaskName(t)}</Text>
+                        </Stack.Item>
+                        <Stack.Item>
+                            <Text styles={{ root: { color: theme.palette.neutralSecondary } }} variant='small'>{_getTaskStatus(t)}</Text>
+                        </Stack.Item>
                     </Stack>
-                    <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.resourceState?.toLowerCase() ?? 'pending'}`} />
+                    {(t.scheduleId ?? false) &&
+                        (<Stack.Item>
+                            <Link onClick={() => history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/settings/schedules/${t.scheduleId}`)}>
+                                <FontIcon iconName='ScheduleEventAction' className='component-task-icon' />
+                            </Link>
+                        </Stack.Item>)
+                    }
+                    <Stack.Item>
+                        <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.resourceState?.toLowerCase() ?? 'pending'}`} />
+                    </Stack.Item>
                 </Stack>
             )
         }

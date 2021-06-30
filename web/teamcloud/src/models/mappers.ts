@@ -6,9 +6,181 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 
-import * as coreHttp from "@azure/core-http";
+import * as coreClient from "@azure/core-client";
 
-export const ComponentListDataResult: coreHttp.CompositeMapper = {
+export const AdapterInformationListDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "AdapterInformationListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "AdapterInformation"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const AdapterInformation: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "AdapterInformation",
+    modelProperties: {
+      type: {
+        serializedName: "type",
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputDataSchema: {
+        serializedName: "inputDataSchema",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputDataForm: {
+        serializedName: "inputDataForm",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ErrorResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ErrorResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      errors: {
+        serializedName: "errors",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ResultError"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export const ResultError: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ResultError",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "String"
+        }
+      },
+      message: {
+        serializedName: "message",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      errors: {
+        serializedName: "errors",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ValidationError"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export const ValidationError: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ValidationError",
+    modelProperties: {
+      field: {
+        serializedName: "field",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      message: {
+        serializedName: "message",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentListDataResult",
@@ -51,7 +223,7 @@ export const ComponentListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Component: coreHttp.CompositeMapper = {
+export const Component: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "Component",
@@ -133,6 +305,13 @@ export const Component: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      resourceUrl: {
+        serializedName: "resourceUrl",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       resourceState: {
         serializedName: "resourceState",
         type: {
@@ -170,7 +349,6 @@ export const Component: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -186,100 +364,7 @@ export const Component: coreHttp.CompositeMapper = {
   }
 };
 
-export const ErrorResult: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ErrorResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      errors: {
-        serializedName: "errors",
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "ResultError"
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
-export const ResultError: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ResultError",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "String"
-        }
-      },
-      message: {
-        serializedName: "message",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      errors: {
-        serializedName: "errors",
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Composite",
-              className: "ValidationError"
-            }
-          }
-        }
-      }
-    }
-  }
-};
-
-export const ValidationError: coreHttp.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "ValidationError",
-    modelProperties: {
-      field: {
-        serializedName: "field",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      message: {
-        serializedName: "message",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const ComponentDefinition: coreHttp.CompositeMapper = {
+export const ComponentDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentDefinition",
@@ -316,7 +401,7 @@ export const ComponentDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentDataResult: coreHttp.CompositeMapper = {
+export const ComponentDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentDataResult",
@@ -352,7 +437,7 @@ export const ComponentDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const StatusResult: coreHttp.CompositeMapper = {
+export const StatusResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "StatusResult",
@@ -416,7 +501,7 @@ export const StatusResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskListDataResult: coreHttp.CompositeMapper = {
+export const ComponentTaskListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskListDataResult",
@@ -459,7 +544,7 @@ export const ComponentTaskListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTask: coreHttp.CompositeMapper = {
+export const ComponentTask: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTask",
@@ -492,10 +577,17 @@ export const ComponentTask: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      scheduleId: {
+        serializedName: "scheduleId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       type: {
         serializedName: "type",
         type: {
-          name: "Number"
+          name: "String"
         }
       },
       typeName: {
@@ -570,7 +662,7 @@ export const ComponentTask: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskDefinition: coreHttp.CompositeMapper = {
+export const ComponentTaskDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskDefinition",
@@ -593,7 +685,7 @@ export const ComponentTaskDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskDataResult: coreHttp.CompositeMapper = {
+export const ComponentTaskDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskDataResult",
@@ -629,7 +721,7 @@ export const ComponentTaskDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
+export const ComponentTemplateListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplateListDataResult",
@@ -672,7 +764,7 @@ export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplate: coreHttp.CompositeMapper = {
+export const ComponentTemplate: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplate",
@@ -760,6 +852,13 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
+      configuration: {
+        serializedName: "configuration",
+        nullable: true,
+        type: {
+          name: "any"
+        }
+      },
       id: {
         serializedName: "id",
         required: true,
@@ -771,7 +870,7 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
   }
 };
 
-export const RepositoryReference: coreHttp.CompositeMapper = {
+export const RepositoryReference: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "RepositoryReference",
@@ -857,7 +956,7 @@ export const RepositoryReference: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplatePermissions: coreHttp.CompositeMapper = {
+export const ComponentTemplatePermissions: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplatePermissions",
@@ -910,7 +1009,7 @@ export const ComponentTemplatePermissions: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
+export const ComponentTaskTemplate: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskTemplate",
@@ -945,9 +1044,8 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
       },
       type: {
         serializedName: "type",
-        required: true,
         type: {
-          name: "Number"
+          name: "String"
         }
       },
       typeName: {
@@ -962,7 +1060,7 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskRunner: coreHttp.CompositeMapper = {
+export const ComponentTaskRunner: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskRunner",
@@ -986,7 +1084,7 @@ export const ComponentTaskRunner: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
+export const ComponentTemplateDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplateDataResult",
@@ -1022,7 +1120,7 @@ export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
+export const DeploymentScopeListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScopeListDataResult",
@@ -1065,7 +1163,7 @@ export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const DeploymentScope: coreHttp.CompositeMapper = {
+export const DeploymentScope: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScope",
@@ -1077,16 +1175,15 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      slug: {
-        serializedName: "slug",
+      displayName: {
+        serializedName: "displayName",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
       },
-      displayName: {
-        serializedName: "displayName",
+      slug: {
+        serializedName: "slug",
         required: true,
         type: {
           name: "String"
@@ -1097,6 +1194,27 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
         required: true,
         type: {
           name: "Boolean"
+        }
+      },
+      type: {
+        serializedName: "type",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputDataSchema: {
+        serializedName: "inputDataSchema",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputData: {
+        serializedName: "inputData",
+        nullable: true,
+        type: {
+          name: "String"
         }
       },
       managementGroupId: {
@@ -1114,6 +1232,37 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
           element: {
             type: {
               name: "Uuid"
+            }
+          }
+        }
+      },
+      authorizable: {
+        serializedName: "authorizable",
+        type: {
+          name: "Boolean"
+        }
+      },
+      authorized: {
+        serializedName: "authorized",
+        type: {
+          name: "Boolean"
+        }
+      },
+      authorizeUrl: {
+        serializedName: "authorizeUrl",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      componentTypes: {
+        serializedName: "componentTypes",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
             }
           }
         }
@@ -1129,11 +1278,25 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
   }
 };
 
-export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
+export const DeploymentScopeDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScopeDefinition",
     modelProperties: {
+      displayName: {
+        serializedName: "displayName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      type: {
+        serializedName: "type",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       slug: {
         serializedName: "slug",
         readOnly: true,
@@ -1142,9 +1305,9 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
           name: "String"
         }
       },
-      displayName: {
-        serializedName: "displayName",
-        required: true,
+      inputData: {
+        serializedName: "inputData",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1154,31 +1317,12 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
         type: {
           name: "Boolean"
         }
-      },
-      managementGroupId: {
-        serializedName: "managementGroupId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      subscriptionIds: {
-        serializedName: "subscriptionIds",
-        nullable: true,
-        type: {
-          name: "Sequence",
-          element: {
-            type: {
-              name: "Uuid"
-            }
-          }
-        }
       }
     }
   }
 };
 
-export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
+export const DeploymentScopeDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScopeDataResult",
@@ -1214,7 +1358,240 @@ export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const OrganizationListDataResult: coreHttp.CompositeMapper = {
+export const CommandAuditEntityListDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "CommandAuditEntityListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "CommandAuditEntity"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const CommandAuditEntity: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "CommandAuditEntity",
+    modelProperties: {
+      commandId: {
+        serializedName: "commandId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      organizationId: {
+        serializedName: "organizationId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      commandJson: {
+        serializedName: "commandJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resultJson: {
+        serializedName: "resultJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectId: {
+        serializedName: "projectId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      userId: {
+        serializedName: "userId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      parentId: {
+        serializedName: "parentId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      command: {
+        serializedName: "command",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      componentTask: {
+        serializedName: "componentTask",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      runtimeStatus: {
+        serializedName: "runtimeStatus",
+        type: {
+          name: "String"
+        }
+      },
+      customStatus: {
+        serializedName: "customStatus",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      errors: {
+        serializedName: "errors",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      created: {
+        serializedName: "created",
+        nullable: true,
+        type: {
+          name: "DateTime"
+        }
+      },
+      updated: {
+        serializedName: "updated",
+        nullable: true,
+        type: {
+          name: "DateTime"
+        }
+      }
+    }
+  }
+};
+
+export const CommandAuditEntityDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "CommandAuditEntityDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "CommandAuditEntity"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const StringListDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "StringListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const OrganizationListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "OrganizationListDataResult",
@@ -1257,7 +1634,7 @@ export const OrganizationListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Organization: coreHttp.CompositeMapper = {
+export const Organization: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "Organization",
@@ -1272,7 +1649,6 @@ export const Organization: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -1351,7 +1727,7 @@ export const Organization: coreHttp.CompositeMapper = {
   }
 };
 
-export const OrganizationDefinition: coreHttp.CompositeMapper = {
+export const OrganizationDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "OrganizationDefinition",
@@ -1389,7 +1765,7 @@ export const OrganizationDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const OrganizationDataResult: coreHttp.CompositeMapper = {
+export const OrganizationDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "OrganizationDataResult",
@@ -1425,7 +1801,7 @@ export const OrganizationDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const UserListDataResult: coreHttp.CompositeMapper = {
+export const UserListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "UserListDataResult",
@@ -1468,7 +1844,7 @@ export const UserListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const User: coreHttp.CompositeMapper = {
+export const User: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "User",
@@ -1476,6 +1852,27 @@ export const User: coreHttp.CompositeMapper = {
       organization: {
         serializedName: "organization",
         required: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      loginName: {
+        serializedName: "loginName",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      mailAddress: {
+        serializedName: "mailAddress",
+        nullable: true,
         type: {
           name: "String"
         }
@@ -1526,7 +1923,7 @@ export const User: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectMembership: coreHttp.CompositeMapper = {
+export const ProjectMembership: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectMembership",
@@ -1557,7 +1954,7 @@ export const ProjectMembership: coreHttp.CompositeMapper = {
   }
 };
 
-export const UserDefinition: coreHttp.CompositeMapper = {
+export const UserDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "UserDefinition",
@@ -1588,7 +1985,7 @@ export const UserDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const UserDataResult: coreHttp.CompositeMapper = {
+export const UserDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "UserDataResult",
@@ -1624,7 +2021,7 @@ export const UserDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectListDataResult: coreHttp.CompositeMapper = {
+export const ProjectListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectListDataResult",
@@ -1667,7 +2064,7 @@ export const ProjectListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Project: coreHttp.CompositeMapper = {
+export const Project: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "Project",
@@ -1682,7 +2079,6 @@ export const Project: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -1767,7 +2163,7 @@ export const Project: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectDefinition: coreHttp.CompositeMapper = {
+export const ProjectDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectDefinition",
@@ -1818,7 +2214,7 @@ export const ProjectDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectDataResult: coreHttp.CompositeMapper = {
+export const ProjectDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectDataResult",
@@ -1854,7 +2250,7 @@ export const ProjectDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentityListDataResult: coreHttp.CompositeMapper = {
+export const ProjectIdentityListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentityListDataResult",
@@ -1897,7 +2293,7 @@ export const ProjectIdentityListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentity: coreHttp.CompositeMapper = {
+export const ProjectIdentity: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentity",
@@ -1978,7 +2374,7 @@ export const ProjectIdentity: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentityDefinition: coreHttp.CompositeMapper = {
+export const ProjectIdentityDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentityDefinition",
@@ -2001,7 +2397,7 @@ export const ProjectIdentityDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentityDataResult: coreHttp.CompositeMapper = {
+export const ProjectIdentityDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentityDataResult",
@@ -2037,7 +2433,7 @@ export const ProjectIdentityDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
+export const StringDictionaryDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "StringDictionaryDataResult",
@@ -2075,7 +2471,7 @@ export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplateListDataResult: coreHttp.CompositeMapper = {
+export const ProjectTemplateListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplateListDataResult",
@@ -2118,7 +2514,7 @@ export const ProjectTemplateListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplate: coreHttp.CompositeMapper = {
+export const ProjectTemplate: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplate",
@@ -2133,7 +2529,6 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
       slug: {
         serializedName: "slug",
         required: true,
-        readOnly: true,
         type: {
           name: "String"
         }
@@ -2203,7 +2598,7 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplateDefinition: coreHttp.CompositeMapper = {
+export const ProjectTemplateDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplateDefinition",
@@ -2226,7 +2621,7 @@ export const ProjectTemplateDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const RepositoryDefinition: coreHttp.CompositeMapper = {
+export const RepositoryDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "RepositoryDefinition",
@@ -2256,7 +2651,7 @@ export const RepositoryDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
+export const ProjectTemplateDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplateDataResult",
@@ -2279,6 +2674,285 @@ export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
         type: {
           name: "Composite",
           className: "ProjectTemplate"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ScheduleListDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ScheduleListDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "Schedule"
+            }
+          }
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const Schedule: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "Schedule",
+    modelProperties: {
+      organization: {
+        serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectId: {
+        serializedName: "projectId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      enabled: {
+        serializedName: "enabled",
+        type: {
+          name: "Boolean"
+        }
+      },
+      recurring: {
+        serializedName: "recurring",
+        type: {
+          name: "Boolean"
+        }
+      },
+      daysOfWeek: {
+        serializedName: "daysOfWeek",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      utcHour: {
+        serializedName: "utcHour",
+        type: {
+          name: "Number"
+        }
+      },
+      utcMinute: {
+        serializedName: "utcMinute",
+        type: {
+          name: "Number"
+        }
+      },
+      creator: {
+        serializedName: "creator",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      created: {
+        serializedName: "created",
+        type: {
+          name: "DateTime"
+        }
+      },
+      lastUpdatedBy: {
+        serializedName: "lastUpdatedBy",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      lastUpdated: {
+        serializedName: "lastUpdated",
+        type: {
+          name: "DateTime"
+        }
+      },
+      lastRun: {
+        serializedName: "lastRun",
+        nullable: true,
+        type: {
+          name: "DateTime"
+        }
+      },
+      componentTasks: {
+        serializedName: "componentTasks",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ComponentTaskReference"
+            }
+          }
+        }
+      },
+      id: {
+        serializedName: "id",
+        required: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ComponentTaskReference: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ComponentTaskReference",
+    modelProperties: {
+      componentId: {
+        serializedName: "componentId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      componentTaskTemplateId: {
+        serializedName: "componentTaskTemplateId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      inputJson: {
+        serializedName: "inputJson",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const ScheduleDefinition: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ScheduleDefinition",
+    modelProperties: {
+      enabled: {
+        serializedName: "enabled",
+        type: {
+          name: "Boolean"
+        }
+      },
+      recurring: {
+        serializedName: "recurring",
+        type: {
+          name: "Boolean"
+        }
+      },
+      daysOfWeek: {
+        serializedName: "daysOfWeek",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      utcHour: {
+        serializedName: "utcHour",
+        type: {
+          name: "Number"
+        }
+      },
+      utcMinute: {
+        serializedName: "utcMinute",
+        type: {
+          name: "Number"
+        }
+      },
+      componentTasks: {
+        serializedName: "componentTasks",
+        nullable: true,
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "Composite",
+              className: "ComponentTaskReference"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export const ScheduleDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "ScheduleDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "Schedule"
         }
       },
       location: {
