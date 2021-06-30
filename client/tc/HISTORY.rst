@@ -3,6 +3,10 @@
 Release History
 ===============
 
+0.4.1
+++++++
++ Use az cli built-in extension update logic
+
 0.4.0
 ++++++
 + Renamed default tc-base-url -> tc-url

@@ -23,12 +23,6 @@ def _ensure_base_url(client, base_url):
 
 
 def teamcloud_update(cmd, version=None, prerelease=False):
-    import os
-    import tempfile
-    import shutil
-    from azure.cli.core import CommandIndex
-    from azure.cli.core.extension import get_extension
-    from azure.cli.core.extension.operations import _add_whl_ext, _augment_telemetry_with_ext_info
     from azure.cli.core.extension.operations import update_extension
     from ._deploy_utils import get_github_release
 
@@ -46,46 +40,6 @@ def teamcloud_update(cmd, version=None, prerelease=False):
             'or use latest prerelease with --pre'.format(release['tag_name']))
 
     update_extension(cmd, extension_name='tc', index_url=index_url)
-
-    # asset = next((a for a in release['assets']
-    #               if 'py3-none-any.whl' in a['browser_download_url']), None)
-
-    # download_url = asset['browser_download_url'] if asset else None
-
-    # logger.warning(index_url)
-    # return index_url
-
-    # if not download_url:
-    #     raise CLIError(
-    #         'Could not find extension .whl asset on release {}. '
-    #         'Specify a specific prerelease version with --version '
-    #         'or use latest prerelease with --pre'.format(release['tag_name']))
-
-    # extension_name = 'tc'
-    # ext = get_extension(extension_name)
-    # cur_version = ext.get_version()
-    # # Copy current version of extension to tmp directory in case we need to restore it after a failed install.
-    # backup_dir = os.path.join(tempfile.mkdtemp(), extension_name)
-    # extension_path = ext.path
-    # logger.debug('Backing up the current extension: %s to %s', extension_path, backup_dir)
-    # shutil.copytree(extension_path, backup_dir)
-    # # Remove current version of the extension
-    # shutil.rmtree(extension_path)
-    # # Install newer version
-    # try:
-    #     _add_whl_ext(cli_ctx=cmd.cli_ctx, source=download_url)
-    #     logger.debug('Deleting backup of old extension at %s', backup_dir)
-    #     shutil.rmtree(backup_dir)
-    #     # This gets the metadata for the extension *after* the update
-    #     _augment_telemetry_with_ext_info(extension_name)
-    # except Exception as err:
-    #     logger.error('An error occurred whilst updating.')
-    #     logger.error(err)
-    #     logger.debug('Copying %s to %s', backup_dir, extension_path)
-    #     shutil.copytree(backup_dir, extension_path)
-    #     raise CLIError('Failed to update. Rolled {} back to {}.'.format(
-    #         extension_name, cur_version)) from err
-    # CommandIndex().invalidate()
 
 
 def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='TeamCloud',
