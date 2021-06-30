@@ -3,36 +3,20 @@
 
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
+import { ProjectMember } from '../model';
+import { useProject, useProjectUsers } from '.';
 import { getGraphPrincipal } from '../MSGraph';
-import { api } from '../API';
-import { useProject } from '.';
-import { ErrorResult } from 'teamcloud';
 
 export const useProjectMembers = () => {
 
     const isAuthenticated = useIsAuthenticated();
 
     const { data: project } = useProject();
+    const { data: users } = useProjectUsers();
 
-    return useQuery(['org', project?.organization, 'project', project?.id, 'user'], async () => {
-
-        let _users = await api.getProjectUsers(project!.organization, project!.id);
-
-        if (_users.code && _users.code >= 400) {
-            const error = JSON.parse(_users._response.bodyAsText) as ErrorResult;
-            throw error;
-        }
-
-        if (_users.data) {
-            let _members = await Promise.all(_users.data.map(async u => ({
-                user: u,
-                graphPrincipal: await getGraphPrincipal(u),
-                projectMembership: u.projectMemberships!.find(m => m.projectId === project!.id)!
-            })));
-            return _members;
-        }
-        return [];
-    }, {
-        enabled: isAuthenticated && !!project?.id
-    });
+    return useQuery(['org', project?.organization, 'project', project?.id, 'members'],
+        async () => await Promise.all(users!.map(async u => new ProjectMember(u, await getGraphPrincipal(u), project!.id))),
+        {
+            enabled: isAuthenticated && !!project?.id && !!users && users.length > 0
+        });
 }

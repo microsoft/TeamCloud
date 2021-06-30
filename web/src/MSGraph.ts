@@ -24,7 +24,7 @@ export enum PhotoSize {
 const Client = GraphClient;
 const client = Client.initWithMiddleware({ authProvider: auth });
 
-const _userSelect = ['id', 'userPrincipalName', 'displayName', 'givenName', 'sirname', 'mail', 'otherMails', 'companyName', 'jobTitle', 'preferredLanguage', 'userType', 'department']
+const _userSelect = ['id', 'userPrincipalName', 'displayName', 'givenName', 'surname', 'mail', 'otherMails', 'companyName', 'jobTitle', 'preferredLanguage', 'userType', 'department']
 const _groupSelect = ['id', 'displayName', 'mail'];
 const _servicePrincipalSelect = ['id', 'displayName', 'appId', 'appDisplayName'];
 
@@ -53,9 +53,8 @@ export const getMe = async (): Promise<GraphUser> => {
 }
 
 export const getGraphPrincipal = async (user?: User): Promise<GraphPrincipal> => {
-    switch (user?.userType?.toLowerCase())
-    {
-        case 'user': 
+    switch (user?.userType?.toLowerCase()) {
+        case 'user':
             return (await getGraphUser(user.id)) as GraphPrincipal;
         case 'group':
             return (await getGraphGroup(user.id)) as GraphPrincipal;
@@ -65,7 +64,7 @@ export const getGraphPrincipal = async (user?: User): Promise<GraphPrincipal> =>
     return undefined as any;
 }
 
-export const getGraphGroup = async (id: string): Promise<GraphGroup|null> => {
+export const getGraphGroup = async (id: string): Promise<GraphGroup | null> => {
     try {
         let response = await client
             .api('/groups/' + id)
@@ -77,7 +76,7 @@ export const getGraphGroup = async (id: string): Promise<GraphGroup|null> => {
         return group;
     } catch (error) {
         let graphError = error as GraphError;
-        if(graphError.statusCode === 404) {
+        if (graphError.statusCode === 404) {
             console.warn(graphError);
             return null;
         } else {
@@ -87,13 +86,14 @@ export const getGraphGroup = async (id: string): Promise<GraphGroup|null> => {
     }
 }
 
-export const getGraphUser = async (id: string): Promise<GraphUser|null> => {
+export const getGraphUser = async (id: string): Promise<GraphUser | null> => {
     try {
         let response = await client
             .api('/users/' + id)
             .select(_userSelect)
             // .header('X-PeopleQuery-QuerySources', 'Directory')
             .get();
+        console.warn(response)
         let user = response as GraphUser;
         user.type = 'User';
         if (user.userType?.toLowerCase() === 'member')
@@ -101,7 +101,7 @@ export const getGraphUser = async (id: string): Promise<GraphUser|null> => {
         return user;
     } catch (error) {
         let graphError = error as GraphError;
-        if(graphError.statusCode === 404) {
+        if (graphError.statusCode === 404) {
             console.warn(graphError);
             return null;
         } else {
@@ -111,7 +111,7 @@ export const getGraphUser = async (id: string): Promise<GraphUser|null> => {
     }
 }
 
-export const getGraphServicePrincipal = async (id: string): Promise<GraphServicePrincipal|null> => {
+export const getGraphServicePrincipal = async (id: string): Promise<GraphServicePrincipal | null> => {
     try {
         let response = await client
             .api('/servicePrincipals/' + id)
@@ -123,7 +123,7 @@ export const getGraphServicePrincipal = async (id: string): Promise<GraphService
         return servicePrincipal;
     } catch (error) {
         let graphError = error as GraphError;
-        if(graphError.statusCode === 404) {
+        if (graphError.statusCode === 404) {
             console.warn(graphError);
             return null;
         } else {

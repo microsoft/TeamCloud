@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PrimaryButton, DefaultButton, Stack, TextField, Dropdown, Spinner, IconButton, Pivot, PivotItem, IColumn, DetailsList, DetailsListLayoutMode, CheckboxVisibility, Text, SelectionMode } from '@fluentui/react';
-import { AlternateIdentity, ErrorResult, User, UserRole } from 'teamcloud';
+import { AlternateIdentity, User, UserRole } from 'teamcloud';
 import { GraphUser } from '../model'
 import { api } from '../API'
 import { UserPersona } from '.';
@@ -88,13 +88,14 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
 
                 setFormEnabled(false);
 
-                const { code, _response } = await api.updateOrganizationUserMe(formUser!.organization, { body: formUser });
+                const { code } = await api.updateOrganizationUserMe(formUser!.organization, {
+                    body: formUser,
+                    onResponse: (raw, flat) => {
+                        if (raw.status >= 400)
+                            throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+                    }
+                });
 
-                if (code && code >= 400) {
-                    const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-                    throw error;
-                }  
-                
                 queryClient.invalidateQueries(['org', formUser!.organization, 'user', 'me']);
 
                 _resetAndCloseForm();

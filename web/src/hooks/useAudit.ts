@@ -5,7 +5,6 @@ import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api } from '../API';
 import { useOrg } from '.';
-import { ErrorResult } from 'teamcloud';
 
 export const useAuditEntries = (timeRange?: string, commands?: string[]) => {
 
@@ -15,15 +14,14 @@ export const useAuditEntries = (timeRange?: string, commands?: string[]) => {
 
     return useQuery(['org', org?.id, 'audit'], async () => {
 
-        const { data, code, _response } = await api.getAuditEntries(org!.id, {
+        const { data } = await api.getAuditEntries(org!.id, {
             timeRange: timeRange,
-            commands: commands
+            commands: commands,
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
         });
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
 
         return data;
     }, {
@@ -39,12 +37,12 @@ export const useAuditCommands = () => {
 
     return useQuery(['org', org?.id, 'audit', 'commands'], async () => {
 
-        const { data, code, _response } = await api.getAuditCommands(org!.id);
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
+        const { data } = await api.getAuditCommands(org!.id, {
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
 
         return data;
     }, {
