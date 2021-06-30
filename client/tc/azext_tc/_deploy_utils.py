@@ -130,9 +130,9 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
 
     web_client = web_client_factory(cli_ctx).web_apps
 
-    #  work around until the timeout limits issue for linux is investigated & fixed
-    creds = web_client.list_publishing_credentials(resource_group_name, name)
-    creds = creds.result()
+    creds_poller = web_client.begin_list_publishing_credentials(resource_group_name, name)
+    creds = LongRunningOperation(cli_ctx, start_msg='Getting publishing credentials',
+                                 finish_msg='Finished getting publishing credentials')(creds_poller)
 
     try:
         scm_url = _get_scm_url(cli_ctx, resource_group_name, name,
