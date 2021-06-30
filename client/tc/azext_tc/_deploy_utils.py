@@ -7,6 +7,7 @@
 from knack.util import CLIError
 from knack.log import get_logger
 from azure.cli.core.commands import LongRunningOperation
+from azure.cli.core.commands.client_factory import get_subscription_id
 from azure.cli.core.profiles import ResourceType, get_sdk
 from azure.cli.core.util import (can_launch_browser, open_page_in_browser, in_cloud_console,
                                  random_string, sdk_no_wait, should_disable_connection_verify)
@@ -76,24 +77,24 @@ def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
 
 
 def get_resource_group_by_name(cli_ctx, resource_group_name):
-
+    subscription_id = get_subscription_id(cli_ctx)
     try:
         resource_client = resource_client_factory(cli_ctx).resource_groups
-        return resource_client.get(resource_group_name), resource_client.config.subscription_id
+        return resource_client.get(resource_group_name), subscription_id
     except Exception as ex:  # pylint: disable=broad-except
         error = getattr(ex, 'Azure Error', ex)
         if error != 'ResourceGroupNotFound':
-            return None, resource_client.config.subscription_id
+            return None, subscription_id
         raise
 
 
 def create_resource_group_name(cli_ctx, resource_group_name, location, tags=None):
-
+    subscription_id = get_subscription_id(cli_ctx)
     ResourceGroup = get_sdk(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES,
                             'ResourceGroup', mod='models')
     resource_client = resource_client_factory(cli_ctx).resource_groups
     parameters = ResourceGroup(location=location.lower(), tags=tags)
-    return resource_client.create_or_update(resource_group_name, parameters), resource_client.config.subscription_id
+    return resource_client.create_or_update(resource_group_name, parameters), subscription_id
 
 
 def set_appconfig_keys(cmd, appconfig_conn_string, kvs):
