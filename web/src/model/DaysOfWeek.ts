@@ -20,6 +20,8 @@ export const shiftToUtc = (daysOfWeek: number[] | string[], date: Date): { indic
 
     let days: number[] = (typeof day === 'string' ? (daysOfWeek as string[]).map(d => DaysOfWeekNames.indexOf(d)) : daysOfWeek) as number[];
 
+    days.sort();
+
     if (localDate > utcDate) {
         days = days.map(d => d === 0 ? 6 : d - 1);
     } else if (localDate < utcDate) {
@@ -41,6 +43,8 @@ export const shiftToLocal = (daysOfWeek: number[] | string[], date: Date): { ind
 
     let days: number[] = (typeof day === 'string' ? (daysOfWeek as string[]).map(d => DaysOfWeekNames.indexOf(d)) : daysOfWeek) as number[];
 
+    days.sort();
+
     if (localDate < utcDate) {
         days = days.map(d => d === 0 ? 6 : d - 1);
     } else if (localDate > utcDate) {
@@ -49,68 +53,3 @@ export const shiftToLocal = (daysOfWeek: number[] | string[], date: Date): { ind
 
     return { indices: days, names: days.map(d => DaysOfWeekNames[d]) };
 }
-
-// export const shiftToLocal = (daysOfWeek: string[], utcHour: number, utcMinute: number): number[] => {
-
-//     const days = daysOfWeek.map(d => DaysOfWeekNames.indexOf(d) );
-
-//     return shiftToLocal(days, utcHour, utcMinute);
-// }
-
-// export enum DaysOfWeek {
-//     Sunday = 0,
-//     Monday = 1,
-//     Tuesday = 2,
-//     Wednesday = 3,
-//     Thursday = 4,
-//     Friday = 5,
-//     Saturday = 6
-// }
-
-// export class DaysOfWeekUtil {
-
-//     static DayStrings: string[] = [
-//         'Sunday',
-//         'Monday',
-//         'Tuesday',
-//         'Wednesday',
-//         'Thursday',
-//         'Friday',
-//         'Saturday'
-//     ]
-
-//     static All: DaysOfWeek[] = [
-//         DaysOfWeek.Sunday,
-//         DaysOfWeek.Monday,
-//         DaysOfWeek.Tuesday,
-//         DaysOfWeek.Wednesday,
-//         DaysOfWeek.Thursday,
-//         DaysOfWeek.Friday,
-//         DaysOfWeek.Saturday
-//     ]
-
-//     // static
-// }
-
-// export class DaysOfWeek {
-//     const enum Days {
-//     Sunday = 0,
-//     Monday = 1,
-//     Tuesday = 2,
-//     Wednesday = 3,
-//     Thursday = 4,
-//     Friday = 5,
-//     Saturday = 6
-// }
-
-//     const days: DaysOfWeek[] = { }
-//     // const All = enum {
-//     //     Sunday = 0,
-//     //     Monday = 1,
-//     //     Tuesday = 2,
-//     //     Wednesday = 3,
-//     //     Thursday = 4,
-//     //     Friday = 5,
-//     //     Saturday = 6
-//     // }
-// }
