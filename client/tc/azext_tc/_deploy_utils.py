@@ -166,6 +166,7 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
 
 def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, template_file=None,
                                           template_uri=None, parameters=None, no_wait=False):
+
     from azure.cli.command_modules.resource.custom import _prepare_deployment_properties_unmodified
 
     properties = _prepare_deployment_properties_unmodified(cmd, 'resourceGroup', template_file=template_file,
@@ -178,16 +179,11 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
         try:
             deployment_name = random_string(length=14, force_lower=True) + str(try_number)
 
-            if cmd.supported_api_version(min_api='2019-10-01', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES):
-                Deployment = cmd.get_models(
-                    'Deployment', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES)
+            Deployment = cmd.get_models('Deployment', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES)
+            deployment = Deployment(properties=properties)
 
-                deployment = Deployment(properties=properties)
-                deploy_poll = sdk_no_wait(no_wait, client.create_or_update, resource_group_name,
-                                          deployment_name, deployment)
-            else:
-                deploy_poll = sdk_no_wait(no_wait, client.create_or_update, resource_group_name,
-                                          deployment_name, properties)
+            deploy_poll = sdk_no_wait(no_wait, client.begin_create_or_update, resource_group_name,
+                                      deployment_name, deployment)
 
             result = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
                                           finish_msg='Finished deploying ARM template')(deploy_poll)
