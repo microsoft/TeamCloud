@@ -126,7 +126,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
     hook.end(message=' ')
     logger.warning(' ')
     logger.warning('TeamCloud instance successfully created at: %s', api_url)
-    logger.warning('Use `az configure --defaults tc-base-url=%s`property_nameure '
+    logger.warning('Use `az configure -d tc-url=%s` to set '
                    'this as your default TeamCloud instance', api_url)
 
     result = {
