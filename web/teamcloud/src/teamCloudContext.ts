@@ -39,12 +39,22 @@ export class TeamCloudContext extends coreClient.ServiceClient {
       requestContentType: "application/json; charset=utf-8",
       credential: credentials
     };
+
+    const packageDetails = `azsdk-js-teamcloud/1.0.0-beta.1`;
+    const userAgentPrefix =
+      options.userAgentOptions && options.userAgentOptions.userAgentPrefix
+        ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
+        : `${packageDetails}`;
+
     if (!options.credentialScopes) {
       options.credentialScopes = ["openid"];
     }
     const optionsWithDefaults = {
       ...defaults,
       ...options,
+      userAgentOptions: {
+        userAgentPrefix
+      },
       baseUri: options.endpoint || "{$host}"
     };
     super(optionsWithDefaults);

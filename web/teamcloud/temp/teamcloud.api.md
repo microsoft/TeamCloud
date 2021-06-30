@@ -34,6 +34,12 @@ export interface AdapterInformationListDataResult {
 export type AdapterInformationType = string;
 
 // @public (undocumented)
+export interface AlternateIdentity {
+    // (undocumented)
+    login?: string;
+}
+
+// @public (undocumented)
 export interface CommandAuditEntity {
     // (undocumented)
     command?: string;
@@ -775,6 +781,10 @@ export interface Project {
     // (undocumented)
     resourceState?: ProjectResourceState;
     // (undocumented)
+    secretsVaultId?: string;
+    // (undocumented)
+    sharedVaultId?: string;
+    // (undocumented)
     slug: string;
     // (undocumented)
     storageId?: string;
@@ -787,8 +797,7 @@ export interface Project {
     templateInput?: string;
     // (undocumented)
     users?: User[];
-    // (undocumented)
-    vaultId?: string;
+    readonly vaultId?: string;
 }
 
 // @public (undocumented)
@@ -1654,7 +1663,7 @@ export interface TeamCloudUpdateOrganizationUserMeOptionalParams extends coreCli
 }
 
 // @public
-export type TeamCloudUpdateOrganizationUserMeResponse = StatusResult;
+export type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult;
 
 // @public
 export interface TeamCloudUpdateOrganizationUserOptionalParams extends coreClient.OperationOptions {
@@ -1663,7 +1672,7 @@ export interface TeamCloudUpdateOrganizationUserOptionalParams extends coreClien
 }
 
 // @public
-export type TeamCloudUpdateOrganizationUserResponse = StatusResult;
+export type TeamCloudUpdateOrganizationUserResponse = UserDataResult;
 
 // @public
 export interface TeamCloudUpdateProjectIdentityOptionalParams extends coreClient.OperationOptions {
@@ -1723,6 +1732,8 @@ export type TeamCloudUpdateScheduleResponse = ScheduleDataResult;
 // @public (undocumented)
 export interface User {
     // (undocumented)
+    alternateIdentities?: UserAlternateIdentities;
+    // (undocumented)
     displayName?: string;
     // (undocumented)
     id: string;
@@ -1741,6 +1752,16 @@ export interface User {
     role: UserRole;
     // (undocumented)
     userType: UserType;
+}
+
+// @public (undocumented)
+export interface UserAlternateIdentities {
+    // (undocumented)
+    azureDevOps?: AlternateIdentity;
+    // (undocumented)
+    azureResourceManager?: AlternateIdentity;
+    // (undocumented)
+    gitHub?: AlternateIdentity;
 }
 
 // @public (undocumented)
