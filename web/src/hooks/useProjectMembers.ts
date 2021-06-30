@@ -4,8 +4,8 @@
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
 import { ProjectMember } from '../model';
-import { useProject, useProjectUsers } from '.';
 import { getGraphPrincipal } from '../MSGraph';
+import { useProject, useProjectUsers } from '.';
 
 export const useProjectMembers = () => {
 
