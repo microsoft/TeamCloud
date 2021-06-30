@@ -3,6 +3,7 @@
 
 export * from './common'
 export * from './nav'
+export * from './AuditList'
 export * from './ComponentForm'
 export * from './ComponentLink'
 export * from './ComponentList'

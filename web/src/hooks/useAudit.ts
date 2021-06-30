@@ -7,7 +7,7 @@ import { api } from '../API';
 import { useOrg } from '.';
 import { ErrorResult } from 'teamcloud';
 
-export const useAuditEntries = (timeRange?:string, commands?:string[]) => {
+export const useAuditEntries = (timeRange?: string, commands?: string[]) => {
 
     const { data: org } = useOrg();
 

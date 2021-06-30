@@ -45,7 +45,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     }
 
     const queryClient = useQueryClient();
-    
+
     const { data: projects } = useProjects();
 
     const [newPropertyKey, setNewPropertyKey] = useState<string>();
@@ -65,8 +65,8 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
         }
     }, [props.user]);
 
-    useEffect(() => {    
-        if (formUser && formUser.properties) {   
+    useEffect(() => {
+        if (formUser && formUser.properties) {
 
             var sanitized: string = (newPropertyKey ?? '').trim();
             var enabled: boolean = (sanitized.length > 0 && (!Object.keys(formUser.properties).includes(sanitized) ?? false));
@@ -85,7 +85,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
             console.log(`Submitting: ${JSON.stringify(formUser)}`);
 
             try {
-                
+
                 setFormEnabled(false);
 
                 const { code, _response } = await api.updateOrganizationUserMe(formUser!.organization, { body: formUser });
@@ -116,7 +116,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
 
     const _resetAndCloseForm = () => {
         setFormEnabled(true);
-        setFormUser(undefined);       
+        setFormUser(undefined);
         props.onFormClose();
     };
 
@@ -128,8 +128,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     const _onPropertyAdd = (newValue?: string) => {
         if (formUser?.properties && newValue) {
             let sanitized = newValue.trim();
-            if (!Object.keys(formUser.properties).includes(sanitized))
-            {
+            if (!Object.keys(formUser.properties).includes(sanitized)) {
                 formUser.properties[sanitized] = '';
                 setNewPropertyKey('');
             }
@@ -139,8 +138,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     const _onPropertyUpdate = (key: string, newValue?: string) => {
         if (formUser?.properties) {
             let sanitized = key.trim();
-            if (Object.keys(formUser.properties).includes(sanitized))
-            {
+            if (Object.keys(formUser.properties).includes(sanitized)) {
                 formUser.properties[sanitized] = newValue || '';
                 setFormUser({ ...formUser });
             }
@@ -150,8 +148,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     const _onPropertyDelete = (key: string) => {
         if (formUser?.properties) {
             let sanitized = key.trim();
-            if (Object.keys(formUser.properties).includes(sanitized))
-            {
+            if (Object.keys(formUser.properties).includes(sanitized)) {
                 delete formUser.properties[sanitized];
                 setFormUser({ ...formUser });
             }
@@ -159,39 +156,39 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     }
     const _renderPropertyKeyColumn = (item?: PropertyItem, index?: number, column?: IColumn) => {
         if (!item) return undefined;
-        return (<Stack><Text style={detailsListTextStyle}>{ item.key }</Text></Stack>);
+        return (<Stack><Text style={detailsListTextStyle}>{item.key}</Text></Stack>);
     }
 
     const _renderPropertyValueColumn = (item?: PropertyItem, index?: number, column?: IColumn) => {
         if (!item) return undefined;
         return (
             <Stack horizontal>
-                <TextField 
-                    value={item.value} 
+                <TextField
+                    value={item.value}
                     styles={{ root: { width: '100%' } }}
                     onChange={(_ev, val) => _onPropertyUpdate(item.key, val)} />
-                <IconButton 
-                    iconProps={{ iconName: 'Delete' }} 
-                    style={{ backgroundColor: 'transparent'}}
+                <IconButton
+                    iconProps={{ iconName: 'Delete' }}
+                    style={{ backgroundColor: 'transparent' }}
                     onClick={() => _onPropertyDelete(item.key)} />
             </Stack>);
     }
 
     const propertiesColums: IColumn[] = [
-        { 
-            key: 'key', name: 'Key', 
-            minWidth: 100, maxWidth: 200, isResizable: false, 
-            onRender: _renderPropertyKeyColumn 
+        {
+            key: 'key', name: 'Key',
+            minWidth: 100, maxWidth: 200, isResizable: false,
+            onRender: _renderPropertyKeyColumn
         },
         {
-            key: 'value', name: 'Value', 
-            minWidth: 400, 
-            onRender: _renderPropertyValueColumn 
+            key: 'value', name: 'Value',
+            minWidth: 400,
+            onRender: _renderPropertyValueColumn
         }
     ];
 
     const _renderPropertiesPivot = () => {
-        let items:PropertyItem[] = [];
+        let items: PropertyItem[] = [];
 
         if (formUser?.properties) {
             for (const key in formUser.properties) {
@@ -201,27 +198,27 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                 } as PropertyItem);
             }
         }
-        
+
         return (
             <Stack>
                 <DetailsList
                     columns={propertiesColums}
-                    items={items} 
+                    items={items}
                     layoutMode={DetailsListLayoutMode.justified}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.none}
                     selectionPreservedOnEmptyClick={true}
-                    />
-                <Stack horizontal style={{marginTop: '10px'}}>
-                    <TextField 
-                        value={newPropertyKey} 
+                />
+                <Stack horizontal style={{ marginTop: '10px' }}>
+                    <TextField
+                        value={newPropertyKey}
                         placeholder='Create a new property'
                         onKeyDown={(_ev) => { if (_ev.keyCode === 13) _onPropertyAdd(newPropertyKey) }}
                         onChange={(_ev, val) => setNewPropertyKey(val)} />
-                    <IconButton 
-                        iconProps={{ iconName: 'AddTo' }} 
+                    <IconButton
+                        iconProps={{ iconName: 'AddTo' }}
                         disabled={!newPropertyAddEnabled}
-                        style={{ backgroundColor: 'transparent'}}
+                        style={{ backgroundColor: 'transparent' }}
                         onClick={() => _onPropertyAdd(newPropertyKey)} />
                 </Stack>
             </Stack>)
@@ -277,21 +274,21 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     };
 
     const membershipColums: IColumn[] = [
-        { 
-            key: 'project', name: 'Project', fieldName: 'project', 
-            minWidth: 100, maxWidth: 200, isResizable: false, 
-            onRender: _renderMembershipValueColumn 
+        {
+            key: 'project', name: 'Project', fieldName: 'project',
+            minWidth: 100, maxWidth: 200, isResizable: false,
+            onRender: _renderMembershipValueColumn
         },
-        { 
-            key: 'role', name: 'Role', fieldName: 'role', 
-            minWidth: 400, 
+        {
+            key: 'role', name: 'Role', fieldName: 'role',
+            minWidth: 400,
             onRender: _renderMembershipValueColumn
         }
     ];
 
     const _renderMembershipPivot = () => {
 
-        let items:MembershipItem[] = [];
+        let items: MembershipItem[] = [];
 
         if (projects && formUser?.projectMemberships) {
             items = formUser.projectMemberships.map((membership) => ({
@@ -303,7 +300,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
         return (
             <DetailsList
                 columns={membershipColums}
-                items={items} 
+                items={items}
                 layoutMode={DetailsListLayoutMode.justified}
                 checkboxVisibility={CheckboxVisibility.hidden}
                 selectionPreservedOnEmptyClick={true} />
@@ -313,7 +310,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
     const _renderAlternateIdentityServiceColumn = (item?: AlternateIdentityItem, index?: number, column?: IColumn) => {
         if (!item) return undefined;
         return <Stack verticalAlign='center'>
-            <Text style={detailsListTextStyle}>{ item.title }</Text>
+            <Text style={detailsListTextStyle}>{item.title}</Text>
         </Stack>
     };
 
@@ -327,29 +324,29 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
         }
     }
 
-    const _renderAlternateIdentityLoginColumn =(item?: AlternateIdentityItem, index?: number, column?: IColumn) => {
+    const _renderAlternateIdentityLoginColumn = (item?: AlternateIdentityItem, index?: number, column?: IColumn) => {
         if (!item || !item.identity) return undefined
-        return <TextField 
-            value={item.identity.login ?? undefined} 
+        return <TextField
+            value={item.identity.login ?? undefined}
             onChange={(_ev, val) => _onAlternateIdentityLoginChange(item.key, val)} />;
     };
 
     const alternateIdentitiesColums: IColumn[] = [
-        { 
-            key: 'title', name: 'Service', 
-            minWidth: 100, maxWidth: 200, isResizable: false, 
-            onRender: _renderAlternateIdentityServiceColumn 
+        {
+            key: 'title', name: 'Service',
+            minWidth: 100, maxWidth: 200, isResizable: false,
+            onRender: _renderAlternateIdentityServiceColumn
         },
-        { 
-            key: 'login', name: 'Login', 
-            minWidth: 400, 
-            onRender: _renderAlternateIdentityLoginColumn 
+        {
+            key: 'login', name: 'Login',
+            minWidth: 400,
+            onRender: _renderAlternateIdentityLoginColumn
         }
     ];
 
     const _renderAlternateIdentitiesPivot = () => {
-        
-        let items:AlternateIdentityItem[] = [];
+
+        let items: AlternateIdentityItem[] = [];
 
         if (formUser?.alternateIdentities) {
             items = Object.getOwnPropertyNames(formUser.alternateIdentities).map((name) => ({
@@ -362,7 +359,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
         return (
             <DetailsList
                 columns={alternateIdentitiesColums}
-                items={items} 
+                items={items}
                 layoutMode={DetailsListLayoutMode.justified}
                 checkboxVisibility={CheckboxVisibility.hidden}
                 selectionPreservedOnEmptyClick={true} />

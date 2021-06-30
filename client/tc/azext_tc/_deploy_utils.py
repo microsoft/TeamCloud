@@ -376,8 +376,9 @@ def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_
 
             deploment_detail_messages = _get_deployment_details(res_dict, deployment_status_url, authorization)
 
-            raise CLIError('Zip deployment failed. {}. \n\nLogs:\n\n{}'.format(
-                res_dict, '\n'.join(deploment_detail_messages)))
+            raise CLIError('Zip deployment failed.\n\n{}.\n\n===================\n| Deployment Logs '
+                           '|\n===================\n\n{}'.format(
+                               res_dict, '\n'.join(deploment_detail_messages)))
 
         if res_dict.get('status', 0) == 4:
             break
