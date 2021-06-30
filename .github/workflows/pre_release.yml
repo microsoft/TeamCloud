@@ -88,8 +88,8 @@ jobs:
       - name: Compile Bicep Templates to ARM
         run: |
           pushd deploy/bicep
-            az bicep build main.bicep --outfile ../../release_assets/azuredeploy.json
-            az bicep build webUI.bicep --outfile ../../release_assets/azuredeploy.web.json
+            az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
+            az bicep build -f webUI.bicep --outfile ../../release_assets/azuredeploy.web.json
           popd
 
       - name: Create OpenAPI & Python Client
