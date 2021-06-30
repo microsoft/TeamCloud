@@ -1153,6 +1153,12 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: The user was successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '202':
           description: Starts updating the User. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -1199,6 +1205,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResult'
+        '204':
+          description: The user was successfully deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '404':
           description: A User with the identifier provided was not found.
           content:
@@ -1261,6 +1273,12 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
+        '200':
+          description: The user was successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResult'
         '202':
           description: Starts updating the User. Returns a StatusResult object that can be used to track progress of the long-running operation.
           content:
@@ -3716,6 +3734,13 @@ components:
             type: string
           nullable: true
       additionalProperties: false
+    AlternateIdentity:
+      type: object
+      properties:
+        login:
+          type: string
+          nullable: true
+      additionalProperties: false
     User:
       required:
         - id
@@ -3753,6 +3778,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProjectMembership'
+          nullable: true
+        alternateIdentities:
+          type: object
+          properties:
+            AzureResourceManager:
+              $ref: '#/components/schemas/AlternateIdentity'
+            AzureDevOps:
+              $ref: '#/components/schemas/AlternateIdentity'
+            GitHub:
+              $ref: '#/components/schemas/AlternateIdentity'
           nullable: true
         properties:
           type: object
@@ -3854,6 +3889,14 @@ components:
             - Failed
           type: string
         vaultId:
+          type: string
+          nullable: true
+          readOnly: true
+          deprecated: true
+        sharedVaultId:
+          type: string
+          nullable: true
+        secretsVaultId:
           type: string
           nullable: true
         storageId:
