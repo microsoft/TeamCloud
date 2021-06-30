@@ -91,6 +91,27 @@ class AdapterInformationListDataResult(msrest.serialization.Model):
         self.location = location
 
 
+class AlternateIdentity(msrest.serialization.Model):
+    """AlternateIdentity.
+
+    :param login:
+    :type login: str
+    """
+
+    _attribute_map = {
+        'login': {'key': 'login', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        *,
+        login: Optional[str] = None,
+        **kwargs
+    ):
+        super(AlternateIdentity, self).__init__(**kwargs)
+        self.login = login
+
+
 class CommandAuditEntity(msrest.serialization.Model):
     """CommandAuditEntity.
 
@@ -1502,6 +1523,8 @@ class OrganizationListDataResult(msrest.serialization.Model):
 class Project(msrest.serialization.Model):
     """Project.
 
+    Variables are only populated by the server, and will be ignored when sending a request.
+
     All required parameters must be populated in order to send to Azure.
 
     :param organization: Required.
@@ -1523,8 +1546,12 @@ class Project(msrest.serialization.Model):
     :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
      "Succeeded", "Failed".
     :type resource_state: str or ~teamcloud.models.ProjectResourceState
-    :param vault_id:
-    :type vault_id: str
+    :ivar vault_id:
+    :vartype vault_id: str
+    :param shared_vault_id:
+    :type shared_vault_id: str
+    :param secrets_vault_id:
+    :type secrets_vault_id: str
     :param storage_id:
     :type storage_id: str
     :param id: Required.
@@ -1536,6 +1563,7 @@ class Project(msrest.serialization.Model):
         'slug': {'required': True},
         'display_name': {'required': True},
         'template': {'required': True},
+        'vault_id': {'readonly': True},
         'id': {'required': True},
     }
 
@@ -1550,6 +1578,8 @@ class Project(msrest.serialization.Model):
         'resource_id': {'key': 'resourceId', 'type': 'str'},
         'resource_state': {'key': 'resourceState', 'type': 'str'},
         'vault_id': {'key': 'vaultId', 'type': 'str'},
+        'shared_vault_id': {'key': 'sharedVaultId', 'type': 'str'},
+        'secrets_vault_id': {'key': 'secretsVaultId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
@@ -1567,7 +1597,8 @@ class Project(msrest.serialization.Model):
         tags: Optional[Dict[str, str]] = None,
         resource_id: Optional[str] = None,
         resource_state: Optional[Union[str, "ProjectResourceState"]] = None,
-        vault_id: Optional[str] = None,
+        shared_vault_id: Optional[str] = None,
+        secrets_vault_id: Optional[str] = None,
         storage_id: Optional[str] = None,
         **kwargs
     ):
@@ -1581,7 +1612,9 @@ class Project(msrest.serialization.Model):
         self.tags = tags
         self.resource_id = resource_id
         self.resource_state = resource_state
-        self.vault_id = vault_id
+        self.vault_id = None
+        self.shared_vault_id = shared_vault_id
+        self.secrets_vault_id = secrets_vault_id
         self.storage_id = storage_id
         self.id = id
 
@@ -2647,6 +2680,8 @@ class User(msrest.serialization.Model):
     :type role: str or ~teamcloud.models.UserRole
     :param project_memberships:
     :type project_memberships: list[~teamcloud.models.ProjectMembership]
+    :param alternate_identities:
+    :type alternate_identities: ~teamcloud.models.UserAlternateIdentities
     :param properties: Dictionary of :code:`<string>`.
     :type properties: dict[str, str]
     :param id: Required.
@@ -2668,6 +2703,7 @@ class User(msrest.serialization.Model):
         'user_type': {'key': 'userType', 'type': 'str'},
         'role': {'key': 'role', 'type': 'str'},
         'project_memberships': {'key': 'projectMemberships', 'type': '[ProjectMembership]'},
+        'alternate_identities': {'key': 'alternateIdentities', 'type': 'UserAlternateIdentities'},
         'properties': {'key': 'properties', 'type': '{str}'},
         'id': {'key': 'id', 'type': 'str'},
     }
@@ -2683,6 +2719,7 @@ class User(msrest.serialization.Model):
         login_name: Optional[str] = None,
         mail_address: Optional[str] = None,
         project_memberships: Optional[List["ProjectMembership"]] = None,
+        alternate_identities: Optional["UserAlternateIdentities"] = None,
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
@@ -2694,8 +2731,40 @@ class User(msrest.serialization.Model):
         self.user_type = user_type
         self.role = role
         self.project_memberships = project_memberships
+        self.alternate_identities = alternate_identities
         self.properties = properties
         self.id = id
+
+
+class UserAlternateIdentities(msrest.serialization.Model):
+    """UserAlternateIdentities.
+
+    :param azure_resource_manager:
+    :type azure_resource_manager: ~teamcloud.models.AlternateIdentity
+    :param azure_dev_ops:
+    :type azure_dev_ops: ~teamcloud.models.AlternateIdentity
+    :param git_hub:
+    :type git_hub: ~teamcloud.models.AlternateIdentity
+    """
+
+    _attribute_map = {
+        'azure_resource_manager': {'key': 'AzureResourceManager', 'type': 'AlternateIdentity'},
+        'azure_dev_ops': {'key': 'AzureDevOps', 'type': 'AlternateIdentity'},
+        'git_hub': {'key': 'GitHub', 'type': 'AlternateIdentity'},
+    }
+
+    def __init__(
+        self,
+        *,
+        azure_resource_manager: Optional["AlternateIdentity"] = None,
+        azure_dev_ops: Optional["AlternateIdentity"] = None,
+        git_hub: Optional["AlternateIdentity"] = None,
+        **kwargs
+    ):
+        super(UserAlternateIdentities, self).__init__(**kwargs)
+        self.azure_resource_manager = azure_resource_manager
+        self.azure_dev_ops = azure_dev_ops
+        self.git_hub = git_hub
 
 
 class UserDataResult(msrest.serialization.Model):

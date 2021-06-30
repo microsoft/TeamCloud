@@ -5,11 +5,10 @@ import React, { useState } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud';
-import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm, NoData } from '../components';
+import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm, NoData, AuditList } from '../components';
 import { useOrg, useAzureSubscriptions, useMembers, useDeploymentScopes, useProjectTemplates, useCreateDeploymentScope, useCreateProjectTemplate, useAddMembers } from '../hooks';
 
 import business from '../img/MSC17_business_001_noBG.png'
-import { AuditList } from '../components/AuditList';
 
 export const OrgSettingsView: React.FC = () => {
 

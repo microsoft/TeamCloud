@@ -256,7 +256,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!AdapterInformationType:type",
-          "docComment": "/**\n * Defines values for AdapterInformationType. \\ {@link KnownAdapterInformationType} can be used interchangeably with AdapterInformationType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
+          "docComment": "/**\n * Defines values for AdapterInformationType. \\ {@link KnownAdapterInformationType} can be used interchangeably with AdapterInformationType, this enum contains the known values that the service supports. ### Known values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -277,6 +277,47 @@
             "startIndex": 1,
             "endIndex": 2
           }
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!AlternateIdentity:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface AlternateIdentity "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "AlternateIdentity",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!AlternateIdentity#login:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "login?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "login",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
         },
         {
           "kind": "Interface",
@@ -888,7 +929,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!CommandAuditEntityRuntimeStatus:type",
-          "docComment": "/**\n * Defines values for CommandAuditEntityRuntimeStatus. \\ {@link KnownCommandAuditEntityRuntimeStatus} can be used interchangeably with CommandAuditEntityRuntimeStatus, this enum contains the known values that the service supports. ### Know values supported by the service **Unknown** \\ **Running** \\ **Completed** \\ **ContinuedAsNew** \\ **Failed** \\ **Canceled** \\ **Terminated** \\ **Pending**\n */\n",
+          "docComment": "/**\n * Defines values for CommandAuditEntityRuntimeStatus. \\ {@link KnownCommandAuditEntityRuntimeStatus} can be used interchangeably with CommandAuditEntityRuntimeStatus, this enum contains the known values that the service supports. ### Known values supported by the service **Unknown** \\ **Running** \\ **Completed** \\ **ContinuedAsNew** \\ **Failed** \\ **Canceled** \\ **Terminated** \\ **Pending**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1761,7 +1802,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentResourceState:type",
-          "docComment": "/**\n * Defines values for ComponentResourceState. \\ {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentResourceState. \\ {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2602,7 +2643,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTaskResourceState:type",
-          "docComment": "/**\n * Defines values for ComponentTaskResourceState. \\ {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTaskResourceState. \\ {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2860,7 +2901,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTaskTemplateType:type",
-          "docComment": "/**\n * Defines values for ComponentTaskTemplateType. \\ {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTaskTemplateType. \\ {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType, this enum contains the known values that the service supports. ### Known values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2885,7 +2926,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTaskType:type",
-          "docComment": "/**\n * Defines values for ComponentTaskType. \\ {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType, this enum contains the known values that the service supports. ### Know values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTaskType. \\ {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType, this enum contains the known values that the service supports. ### Known values supported by the service **Custom** \\ **Create** \\ **Delete**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2923,7 +2964,7 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTemplate#configuration:member",
-              "docComment": "/**\n * Any object\n */\n",
+              "docComment": "/**\n * Anything\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
@@ -3614,7 +3655,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTemplateType:type",
-          "docComment": "/**\n * Defines values for ComponentTemplateType. \\ {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTemplateType. \\ {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType, this enum contains the known values that the service supports. ### Known values supported by the service **Environment** \\ **Repository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3639,7 +3680,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentType:type",
-          "docComment": "/**\n * Defines values for ComponentType. \\ {@link KnownComponentType} can be used interchangeably with ComponentType, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentType. \\ {@link KnownComponentType} can be used interchangeably with ComponentType, this enum contains the known values that the service supports. ### Known values supported by the service **Environment** \\ **Repository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -4036,7 +4077,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!DeploymentScopeComponentTypesItem:type",
-          "docComment": "/**\n * Defines values for DeploymentScopeComponentTypesItem. \\ {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem, this enum contains the known values that the service supports. ### Know values supported by the service **Environment** \\ **Repository**\n */\n",
+          "docComment": "/**\n * Defines values for DeploymentScopeComponentTypesItem. \\ {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem, this enum contains the known values that the service supports. ### Known values supported by the service **Environment** \\ **Repository**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -4320,7 +4361,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!DeploymentScopeDefinitionType:type",
-          "docComment": "/**\n * Defines values for DeploymentScopeDefinitionType. \\ {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
+          "docComment": "/**\n * Defines values for DeploymentScopeDefinitionType. \\ {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType, this enum contains the known values that the service supports. ### Known values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -4466,7 +4507,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!DeploymentScopeType:type",
-          "docComment": "/**\n * Defines values for DeploymentScopeType. \\ {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType, this enum contains the known values that the service supports. ### Know values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
+          "docComment": "/**\n * Defines values for DeploymentScopeType. \\ {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType, this enum contains the known values that the service supports. ### Known values supported by the service **AzureResourceManager** \\ **AzureDevOps** \\ **GitHub**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -7463,7 +7504,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!OrganizationResourceState:type",
-          "docComment": "/**\n * Defines values for OrganizationResourceState. \\ {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for OrganizationResourceState. \\ {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -7619,6 +7660,56 @@
               ],
               "releaseTag": "Public",
               "name": "resourceState",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#secretsVaultId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "secretsVaultId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "secretsVaultId",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#sharedVaultId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sharedVaultId?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "sharedVaultId",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -7782,11 +7873,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Project#vaultId:member",
-              "docComment": "",
+              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "vaultId?: "
+                  "text": "readonly vaultId?: "
                 },
                 {
                   "kind": "Content",
@@ -8856,7 +8947,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ProjectMembershipRole:type",
-          "docComment": "/**\n * Defines values for ProjectMembershipRole. \\ {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole, this enum contains the known values that the service supports. ### Know values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
+          "docComment": "/**\n * Defines values for ProjectMembershipRole. \\ {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole, this enum contains the known values that the service supports. ### Known values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -8881,7 +8972,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ProjectResourceState:type",
-          "docComment": "/**\n * Defines values for ProjectResourceState. \\ {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState, this enum contains the known values that the service supports. ### Know values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for ProjectResourceState. \\ {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -9862,7 +9953,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!RepositoryReferenceProvider:type",
-          "docComment": "/**\n * Defines values for RepositoryReferenceProvider. \\ {@link KnownRepositoryReferenceProvider} can be used interchangeably with RepositoryReferenceProvider, this enum contains the known values that the service supports. ### Know values supported by the service **Unknown** \\ **GitHub** \\ **DevOps**\n */\n",
+          "docComment": "/**\n * Defines values for RepositoryReferenceProvider. \\ {@link KnownRepositoryReferenceProvider} can be used interchangeably with RepositoryReferenceProvider, this enum contains the known values that the service supports. ### Known values supported by the service **Unknown** \\ **GitHub** \\ **DevOps**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -9887,7 +9978,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!RepositoryReferenceType:type",
-          "docComment": "/**\n * Defines values for RepositoryReferenceType. \\ {@link KnownRepositoryReferenceType} can be used interchangeably with RepositoryReferenceType, this enum contains the known values that the service supports. ### Know values supported by the service **Unknown** \\ **Tag** \\ **Branch** \\ **Hash**\n */\n",
+          "docComment": "/**\n * Defines values for RepositoryReferenceType. \\ {@link KnownRepositoryReferenceType} can be used interchangeably with RepositoryReferenceType, this enum contains the known values that the service supports. ### Known values supported by the service **Unknown** \\ **Tag** \\ **Branch** \\ **Hash**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -10009,7 +10100,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ResultErrorCode:type",
-          "docComment": "/**\n * Defines values for ResultErrorCode. \\ {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode, this enum contains the known values that the service supports. ### Know values supported by the service **Unknown** \\ **Failed** \\ **Conflict** \\ **NotFound** \\ **ServerError** \\ **ValidationError** \\ **Unauthorized** \\ **Forbidden**\n */\n",
+          "docComment": "/**\n * Defines values for ResultErrorCode. \\ {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode, this enum contains the known values that the service supports. ### Known values supported by the service **Unknown** \\ **Failed** \\ **Conflict** \\ **NotFound** \\ **ServerError** \\ **ValidationError** \\ **Unauthorized** \\ **Forbidden**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -10530,7 +10621,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ScheduleDaysOfWeekItem:type",
-          "docComment": "/**\n * Defines values for ScheduleDaysOfWeekItem. \\ {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem, this enum contains the known values that the service supports. ### Know values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
+          "docComment": "/**\n * Defines values for ScheduleDaysOfWeekItem. \\ {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem, this enum contains the known values that the service supports. ### Known values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -10731,7 +10822,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ScheduleDefinitionDaysOfWeekItem:type",
-          "docComment": "/**\n * Defines values for ScheduleDefinitionDaysOfWeekItem. \\ {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem, this enum contains the known values that the service supports. ### Know values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
+          "docComment": "/**\n * Defines values for ScheduleDefinitionDaysOfWeekItem. \\ {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem, this enum contains the known values that the service supports. ### Known values supported by the service **Sunday** \\ **Monday** \\ **Tuesday** \\ **Wednesday** \\ **Thursday** \\ **Friday** \\ **Saturday**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -21336,8 +21427,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -21422,8 +21513,8 @@
             },
             {
               "kind": "Reference",
-              "text": "StatusResult",
-              "canonicalReference": "teamcloud!StatusResult:interface"
+              "text": "UserDataResult",
+              "canonicalReference": "teamcloud!UserDataResult:interface"
             },
             {
               "kind": "Content",
@@ -21967,6 +22058,32 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!User#alternateIdentities:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "alternateIdentities?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "UserAlternateIdentities",
+                  "canonicalReference": "teamcloud!UserAlternateIdentities:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "alternateIdentities",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!User#displayName:member",
               "docComment": "",
               "excerptTokens": [
@@ -22192,6 +22309,100 @@
               ],
               "releaseTag": "Public",
               "name": "userType",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!UserAlternateIdentities:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface UserAlternateIdentities "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "UserAlternateIdentities",
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!UserAlternateIdentities#azureDevOps:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "azureDevOps?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AlternateIdentity",
+                  "canonicalReference": "teamcloud!AlternateIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "azureDevOps",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!UserAlternateIdentities#azureResourceManager:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "azureResourceManager?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AlternateIdentity",
+                  "canonicalReference": "teamcloud!AlternateIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "azureResourceManager",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!UserAlternateIdentities#gitHub:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "gitHub?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "AlternateIdentity",
+                  "canonicalReference": "teamcloud!AlternateIdentity:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "gitHub",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -22532,7 +22743,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!UserRole:type",
-          "docComment": "/**\n * Defines values for UserRole. \\ {@link KnownUserRole} can be used interchangeably with UserRole, this enum contains the known values that the service supports. ### Know values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
+          "docComment": "/**\n * Defines values for UserRole. \\ {@link KnownUserRole} can be used interchangeably with UserRole, this enum contains the known values that the service supports. ### Known values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -22557,7 +22768,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!UserType:type",
-          "docComment": "/**\n * Defines values for UserType. \\ {@link KnownUserType} can be used interchangeably with UserType, this enum contains the known values that the service supports. ### Know values supported by the service **User** \\ **Group** \\ **System** \\ **Service**\n */\n",
+          "docComment": "/**\n * Defines values for UserType. \\ {@link KnownUserType} can be used interchangeably with UserType, this enum contains the known values that the service supports. ### Known values supported by the service **User** \\ **Group** \\ **System** \\ **Service**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

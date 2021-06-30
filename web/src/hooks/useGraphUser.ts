@@ -9,7 +9,7 @@ export const useGraphUser = () => {
 
     const isAuthenticated = useIsAuthenticated();
 
-    return useQuery('graphUser', async () => await getMe(), {
+    return useQuery(['graphUser', 'me'], async () => await getMe(), {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
         staleTime: 1000 * 60 * 5,

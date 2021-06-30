@@ -35,6 +35,8 @@ export declare const OrganizationDataResult: coreClient.CompositeMapper;
 export declare const UserListDataResult: coreClient.CompositeMapper;
 export declare const User: coreClient.CompositeMapper;
 export declare const ProjectMembership: coreClient.CompositeMapper;
+export declare const UserAlternateIdentities: coreClient.CompositeMapper;
+export declare const AlternateIdentity: coreClient.CompositeMapper;
 export declare const UserDefinition: coreClient.CompositeMapper;
 export declare const UserDataResult: coreClient.CompositeMapper;
 export declare const ProjectListDataResult: coreClient.CompositeMapper;

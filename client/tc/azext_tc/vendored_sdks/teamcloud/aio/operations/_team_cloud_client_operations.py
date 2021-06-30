@@ -1839,7 +1839,7 @@ class TeamCloudClientOperationsMixin:
         organization_id: str,
         body: Optional["_models.User"] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
         """Updates an existing User.
 
         Updates an existing User.
@@ -1851,11 +1851,11 @@ class TeamCloudClientOperationsMixin:
         :param body:
         :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1889,11 +1889,14 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [202, 400, 401, 403, 404]:
+        if response.status_code not in [200, 202, 400, 401, 403, 404]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
         deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
+
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
 
@@ -1914,7 +1917,7 @@ class TeamCloudClientOperationsMixin:
         user_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union["_models.StatusResult", "_models.UserDataResult", "_models.ErrorResult"]]:
         """Deletes an existing User.
 
         Deletes an existing User.
@@ -1924,11 +1927,11 @@ class TeamCloudClientOperationsMixin:
         :param organization_id:
         :type organization_id: str
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :return: StatusResult or UserDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -1954,13 +1957,16 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [202, 401, 403, 404]:
+        if response.status_code not in [202, 204, 401, 403, 404]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
         deserialized = None
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 204:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
 
         if response.status_code == 404:
             deserialized = self._deserialize('ErrorResult', pipeline_response)
@@ -2037,7 +2043,7 @@ class TeamCloudClientOperationsMixin:
         organization_id: str,
         body: Optional["_models.User"] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
         """Updates an existing User.
 
         Updates an existing User.
@@ -2047,11 +2053,11 @@ class TeamCloudClientOperationsMixin:
         :param body:
         :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: StatusResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
@@ -2084,11 +2090,14 @@ class TeamCloudClientOperationsMixin:
         pipeline_response = await self._client._pipeline.run(request, stream=False, **kwargs)
         response = pipeline_response.http_response
 
-        if response.status_code not in [202, 400, 401, 403, 404]:
+        if response.status_code not in [200, 202, 400, 401, 403, 404]:
             map_error(status_code=response.status_code, response=response, error_map=error_map)
             raise HttpResponseError(response=response)
 
         deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('UserDataResult', pipeline_response)
+
         if response.status_code == 202:
             deserialized = self._deserialize('StatusResult', pipeline_response)
 

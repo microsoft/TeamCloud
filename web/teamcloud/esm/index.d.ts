@@ -20,12 +20,16 @@ export declare interface AdapterInformationListDataResult {
  * Defines values for AdapterInformationType. \
  * {@link KnownAdapterInformationType} can be used interchangeably with AdapterInformationType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
  */
 export declare type AdapterInformationType = string;
+
+export declare interface AlternateIdentity {
+    login?: string;
+}
 
 export declare interface CommandAuditEntity {
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
@@ -69,7 +73,7 @@ export declare interface CommandAuditEntityListDataResult {
  * Defines values for CommandAuditEntityRuntimeStatus. \
  * {@link KnownCommandAuditEntityRuntimeStatus} can be used interchangeably with CommandAuditEntityRuntimeStatus,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Running** \
  * **Completed** \
@@ -129,7 +133,7 @@ export declare interface ComponentListDataResult {
  * Defines values for ComponentResourceState. \
  * {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -187,7 +191,7 @@ export declare interface ComponentTaskReference {
  * Defines values for ComponentTaskResourceState. \
  * {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -218,7 +222,7 @@ export declare interface ComponentTaskTemplate {
  * Defines values for ComponentTaskTemplateType. \
  * {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Custom** \
  * **Create** \
  * **Delete**
@@ -229,7 +233,7 @@ export declare type ComponentTaskTemplateType = string;
  * Defines values for ComponentTaskType. \
  * {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Custom** \
  * **Create** \
  * **Delete**
@@ -248,7 +252,7 @@ export declare interface ComponentTemplate {
     taskRunner?: ComponentTaskRunner;
     type: ComponentTemplateType;
     folder?: string;
-    /** Any object */
+    /** Anything */
     configuration?: any;
     id: string;
 }
@@ -279,7 +283,7 @@ export declare interface ComponentTemplatePermissions {
  * Defines values for ComponentTemplateType. \
  * {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -289,7 +293,7 @@ export declare type ComponentTemplateType = string;
  * Defines values for ComponentType. \
  * {@link KnownComponentType} can be used interchangeably with ComponentType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -316,7 +320,7 @@ export declare interface DeploymentScope {
  * Defines values for DeploymentScopeComponentTypesItem. \
  * {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -342,7 +346,7 @@ export declare interface DeploymentScopeDefinition {
  * Defines values for DeploymentScopeDefinitionType. \
  * {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -361,7 +365,7 @@ export declare interface DeploymentScopeListDataResult {
  * Defines values for DeploymentScopeType. \
  * {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -593,7 +597,7 @@ export declare interface OrganizationListDataResult {
  * Defines values for OrganizationResourceState. \
  * {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -615,7 +619,10 @@ export declare interface Project {
     };
     resourceId?: string;
     resourceState?: ProjectResourceState;
-    vaultId?: string;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly vaultId?: string;
+    sharedVaultId?: string;
+    secretsVaultId?: string;
     storageId?: string;
     id: string;
 }
@@ -690,7 +697,7 @@ export declare interface ProjectMembership {
  * Defines values for ProjectMembershipRole. \
  * {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **None** \
  * **Member** \
  * **Admin** \
@@ -702,7 +709,7 @@ export declare type ProjectMembershipRole = string;
  * Defines values for ProjectResourceState. \
  * {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -768,7 +775,7 @@ export declare interface RepositoryReference {
  * Defines values for RepositoryReferenceProvider. \
  * {@link KnownRepositoryReferenceProvider} can be used interchangeably with RepositoryReferenceProvider,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **GitHub** \
  * **DevOps**
@@ -779,7 +786,7 @@ export declare type RepositoryReferenceProvider = string;
  * Defines values for RepositoryReferenceType. \
  * {@link KnownRepositoryReferenceType} can be used interchangeably with RepositoryReferenceType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Tag** \
  * **Branch** \
@@ -797,7 +804,7 @@ export declare interface ResultError {
  * Defines values for ResultErrorCode. \
  * {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Failed** \
  * **Conflict** \
@@ -837,7 +844,7 @@ export declare interface ScheduleDataResult {
  * Defines values for ScheduleDaysOfWeekItem. \
  * {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Sunday** \
  * **Monday** \
  * **Tuesday** \
@@ -861,7 +868,7 @@ export declare interface ScheduleDefinition {
  * Defines values for ScheduleDefinitionDaysOfWeekItem. \
  * {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Sunday** \
  * **Monday** \
  * **Tuesday** \
@@ -1829,7 +1836,7 @@ export declare interface TeamCloudUpdateOrganizationUserMeOptionalParams extends
 }
 
 /** Contains response data for the updateOrganizationUserMe operation. */
-export declare type TeamCloudUpdateOrganizationUserMeResponse = StatusResult;
+export declare type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult;
 
 /** Optional parameters. */
 export declare interface TeamCloudUpdateOrganizationUserOptionalParams extends coreClient.OperationOptions {
@@ -1837,7 +1844,7 @@ export declare interface TeamCloudUpdateOrganizationUserOptionalParams extends c
 }
 
 /** Contains response data for the updateOrganizationUser operation. */
-export declare type TeamCloudUpdateOrganizationUserResponse = StatusResult;
+export declare type TeamCloudUpdateOrganizationUserResponse = UserDataResult;
 
 /** Optional parameters. */
 export declare interface TeamCloudUpdateProjectIdentityOptionalParams extends coreClient.OperationOptions {
@@ -1898,11 +1905,18 @@ export declare interface User {
     userType: UserType;
     role: UserRole;
     projectMemberships?: ProjectMembership[];
+    alternateIdentities?: UserAlternateIdentities;
     /** Dictionary of <string> */
     properties?: {
         [propertyName: string]: string;
     };
     id: string;
+}
+
+export declare interface UserAlternateIdentities {
+    azureResourceManager?: AlternateIdentity;
+    azureDevOps?: AlternateIdentity;
+    gitHub?: AlternateIdentity;
 }
 
 export declare interface UserDataResult {
@@ -1933,7 +1947,7 @@ export declare interface UserListDataResult {
  * Defines values for UserRole. \
  * {@link KnownUserRole} can be used interchangeably with UserRole,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **None** \
  * **Member** \
  * **Admin** \
@@ -1945,7 +1959,7 @@ export declare type UserRole = string;
  * Defines values for UserType. \
  * {@link KnownUserType} can be used interchangeably with UserType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **User** \
  * **Group** \
  * **System** \

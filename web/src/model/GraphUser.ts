@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { GraphPrincipal } from "./GraphPrincipal";
+import { GraphPrincipal } from '.';
 
 export interface GraphUser extends GraphPrincipal {
     type: 'User';

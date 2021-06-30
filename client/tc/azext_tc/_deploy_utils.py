@@ -337,6 +337,7 @@ def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_i
 
     # check if there's an ongoing process
     if res.status_code == 409:
+        logger.warning(res.json())
         raise CLIError('There may be an ongoing deployment or your app setting has WEBSITE_RUN_FROM_PACKAGE. '
                        'Please track your deployment in {} and ensure the WEBSITE_RUN_FROM_PACKAGE app setting '
                        'is removed.'.format(deployment_status_url))
@@ -375,8 +376,9 @@ def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_
 
             deploment_detail_messages = _get_deployment_details(res_dict, deployment_status_url, authorization)
 
-            raise CLIError('Zip deployment failed. {}. Please run the command az webapp log tail -n {} -g {} \n{}'.format(
-                res_dict, name, resource_group_name, '\n'.join(deploment_detail_messages)))
+            raise CLIError('Zip deployment failed.\n\n{}.\n\n===================\n| Deployment Logs '
+                           '|\n===================\n\n{}'.format(
+                               res_dict, '\n'.join(deploment_detail_messages)))
 
         if res_dict.get('status', 0) == 4:
             break
@@ -395,17 +397,20 @@ def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_
 
 
 def _get_deployment_details(res_dict, deployment_status_url, authorization):
+
     deploment_detail_messages = []
 
     deploment_id = res_dict.get('id', None)
 
     if deploment_id is not None:
-        deploment_log_url = deployment_status_url.replace('latest', deploment_id)
+        deploment_log_url = deployment_status_url.replace('latest', '{}/log'.format(deploment_id))
         deploment_log_response = requests.get(deploment_log_url, headers=authorization,
                                               verify=not should_disable_connection_verify())
         try:
             deploment_log_dict = deploment_log_response.json()
-            deploment_details = next((log for log in deploment_log_dict if log['details_url'].startswith('https')), None)
+
+            deploment_details = next((log for log in deploment_log_dict if log['details_url'] is not None
+                                      and log['details_url'].startswith('https')), None)
 
             if deploment_details is not None:
 
@@ -415,12 +420,9 @@ def _get_deployment_details(res_dict, deployment_status_url, authorization):
                 try:
                     deploment_details_dict = deploment_details_response.json()
 
-                    logger.warning('Zip deployment failed with logs:')
-                    logger.warning('')
-
                     for deploment_detail in deploment_details_dict:
                         deploment_detail_message = deploment_detail.get('message', '')
-                        logger.warning(deploment_detail_message)
+                        # logger.warning(deploment_detail_message)
                         deploment_detail_messages.append(deploment_detail_message)
 
                 except json.decoder.JSONDecodeError:

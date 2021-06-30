@@ -130,7 +130,7 @@ export interface ComponentTemplate {
     taskRunner?: ComponentTaskRunner;
     type: ComponentTemplateType;
     folder?: string;
-    /** Any object */
+    /** Anything */
     configuration?: any;
     id: string;
 }
@@ -306,6 +306,7 @@ export interface User {
     userType: UserType;
     role: UserRole;
     projectMemberships?: ProjectMembership[];
+    alternateIdentities?: UserAlternateIdentities;
     /** Dictionary of <string> */
     properties?: {
         [propertyName: string]: string;
@@ -319,6 +320,14 @@ export interface ProjectMembership {
     properties?: {
         [propertyName: string]: string;
     };
+}
+export interface UserAlternateIdentities {
+    azureResourceManager?: AlternateIdentity;
+    azureDevOps?: AlternateIdentity;
+    gitHub?: AlternateIdentity;
+}
+export interface AlternateIdentity {
+    login?: string;
 }
 export interface UserDefinition {
     identifier: string;
@@ -354,7 +363,10 @@ export interface Project {
     };
     resourceId?: string;
     resourceState?: ProjectResourceState;
-    vaultId?: string;
+    /** NOTE: This property will not be serialized. It can only be populated by the server. */
+    readonly vaultId?: string;
+    sharedVaultId?: string;
+    secretsVaultId?: string;
     storageId?: string;
     id: string;
 }
@@ -499,7 +511,7 @@ export declare const enum KnownAdapterInformationType {
  * Defines values for AdapterInformationType. \
  * {@link KnownAdapterInformationType} can be used interchangeably with AdapterInformationType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -520,7 +532,7 @@ export declare const enum KnownResultErrorCode {
  * Defines values for ResultErrorCode. \
  * {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Failed** \
  * **Conflict** \
@@ -540,7 +552,7 @@ export declare const enum KnownComponentType {
  * Defines values for ComponentType. \
  * {@link KnownComponentType} can be used interchangeably with ComponentType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -557,7 +569,7 @@ export declare const enum KnownComponentResourceState {
  * Defines values for ComponentResourceState. \
  * {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -575,7 +587,7 @@ export declare const enum KnownComponentTaskType {
  * Defines values for ComponentTaskType. \
  * {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Custom** \
  * **Create** \
  * **Delete**
@@ -593,7 +605,7 @@ export declare const enum KnownComponentTaskResourceState {
  * Defines values for ComponentTaskResourceState. \
  * {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -611,7 +623,7 @@ export declare const enum KnownRepositoryReferenceProvider {
  * Defines values for RepositoryReferenceProvider. \
  * {@link KnownRepositoryReferenceProvider} can be used interchangeably with RepositoryReferenceProvider,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **GitHub** \
  * **DevOps**
@@ -628,7 +640,7 @@ export declare const enum KnownRepositoryReferenceType {
  * Defines values for RepositoryReferenceType. \
  * {@link KnownRepositoryReferenceType} can be used interchangeably with RepositoryReferenceType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Tag** \
  * **Branch** \
@@ -645,7 +657,7 @@ export declare const enum KnownComponentTaskTemplateType {
  * Defines values for ComponentTaskTemplateType. \
  * {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Custom** \
  * **Create** \
  * **Delete**
@@ -660,7 +672,7 @@ export declare const enum KnownComponentTemplateType {
  * Defines values for ComponentTemplateType. \
  * {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -675,7 +687,7 @@ export declare const enum KnownDeploymentScopeType {
  * Defines values for DeploymentScopeType. \
  * {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -690,7 +702,7 @@ export declare const enum KnownDeploymentScopeComponentTypesItem {
  * Defines values for DeploymentScopeComponentTypesItem. \
  * {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -705,7 +717,7 @@ export declare const enum KnownDeploymentScopeDefinitionType {
  * Defines values for DeploymentScopeDefinitionType. \
  * {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -726,7 +738,7 @@ export declare const enum KnownCommandAuditEntityRuntimeStatus {
  * Defines values for CommandAuditEntityRuntimeStatus. \
  * {@link KnownCommandAuditEntityRuntimeStatus} can be used interchangeably with CommandAuditEntityRuntimeStatus,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Running** \
  * **Completed** \
@@ -749,7 +761,7 @@ export declare const enum KnownOrganizationResourceState {
  * Defines values for OrganizationResourceState. \
  * {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -768,7 +780,7 @@ export declare const enum KnownUserType {
  * Defines values for UserType. \
  * {@link KnownUserType} can be used interchangeably with UserType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **User** \
  * **Group** \
  * **System** \
@@ -786,7 +798,7 @@ export declare const enum KnownUserRole {
  * Defines values for UserRole. \
  * {@link KnownUserRole} can be used interchangeably with UserRole,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **None** \
  * **Member** \
  * **Admin** \
@@ -804,7 +816,7 @@ export declare const enum KnownProjectMembershipRole {
  * Defines values for ProjectMembershipRole. \
  * {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **None** \
  * **Member** \
  * **Admin** \
@@ -823,7 +835,7 @@ export declare const enum KnownProjectResourceState {
  * Defines values for ProjectResourceState. \
  * {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -845,7 +857,7 @@ export declare const enum KnownScheduleDaysOfWeekItem {
  * Defines values for ScheduleDaysOfWeekItem. \
  * {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Sunday** \
  * **Monday** \
  * **Tuesday** \
@@ -869,7 +881,7 @@ export declare const enum KnownScheduleDefinitionDaysOfWeekItem {
  * Defines values for ScheduleDefinitionDaysOfWeekItem. \
  * {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Sunday** \
  * **Monday** \
  * **Tuesday** \
@@ -1029,7 +1041,7 @@ export interface TeamCloudUpdateOrganizationUserOptionalParams extends coreClien
     body?: User;
 }
 /** Contains response data for the updateOrganizationUser operation. */
-export declare type TeamCloudUpdateOrganizationUserResponse = StatusResult;
+export declare type TeamCloudUpdateOrganizationUserResponse = UserDataResult;
 /** Optional parameters. */
 export interface TeamCloudDeleteOrganizationUserOptionalParams extends coreClient.OperationOptions {
 }
@@ -1045,7 +1057,7 @@ export interface TeamCloudUpdateOrganizationUserMeOptionalParams extends coreCli
     body?: User;
 }
 /** Contains response data for the updateOrganizationUserMe operation. */
-export declare type TeamCloudUpdateOrganizationUserMeResponse = StatusResult;
+export declare type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult;
 /** Optional parameters. */
 export interface TeamCloudGetProjectsOptionalParams extends coreClient.OperationOptions {
 }

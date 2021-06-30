@@ -1904,6 +1904,13 @@ export const User: coreClient.CompositeMapper = {
           }
         }
       },
+      alternateIdentities: {
+        serializedName: "alternateIdentities",
+        type: {
+          name: "Composite",
+          className: "UserAlternateIdentities"
+        }
+      },
       properties: {
         serializedName: "properties",
         nullable: true,
@@ -1948,6 +1955,52 @@ export const ProjectMembership: coreClient.CompositeMapper = {
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
+        }
+      }
+    }
+  }
+};
+
+export const UserAlternateIdentities: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "UserAlternateIdentities",
+    modelProperties: {
+      azureResourceManager: {
+        serializedName: "AzureResourceManager",
+        type: {
+          name: "Composite",
+          className: "AlternateIdentity"
+        }
+      },
+      azureDevOps: {
+        serializedName: "AzureDevOps",
+        type: {
+          name: "Composite",
+          className: "AlternateIdentity"
+        }
+      },
+      gitHub: {
+        serializedName: "GitHub",
+        type: {
+          name: "Composite",
+          className: "AlternateIdentity"
+        }
+      }
+    }
+  }
+};
+
+export const AlternateIdentity: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "AlternateIdentity",
+    modelProperties: {
+      login: {
+        serializedName: "login",
+        nullable: true,
+        type: {
+          name: "String"
         }
       }
     }
@@ -2140,6 +2193,21 @@ export const Project: coreClient.CompositeMapper = {
       },
       vaultId: {
         serializedName: "vaultId",
+        readOnly: true,
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      sharedVaultId: {
+        serializedName: "sharedVaultId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      secretsVaultId: {
+        serializedName: "secretsVaultId",
         nullable: true,
         type: {
           name: "String"

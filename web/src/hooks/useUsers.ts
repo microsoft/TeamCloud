@@ -1,23 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api } from '../API';
 import { useOrg } from '.';
 
-export const useProject = () => {
-
-    const { projectId } = useParams() as { projectId: string };
-
-    const isAuthenticated = useIsAuthenticated();
+export const useUsers = () => {
 
     const { data: org } = useOrg();
 
-    return useQuery(['org', org?.id, 'project', projectId], async () => {
+    const isAuthenticated = useIsAuthenticated();
 
-        const { data } = await api.getProject(projectId, org!.id, {
+    return useQuery(['org', org?.id, 'user'], async () => {
+
+        const { data } = await api.getOrganizationUsers(org!.id, {
             onResponse: (raw, flat) => {
                 if (raw.status >= 400)
                     throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
@@ -26,6 +23,6 @@ export const useProject = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!org?.id && !!projectId
+        enabled: isAuthenticated && !!org?.id
     });
 }

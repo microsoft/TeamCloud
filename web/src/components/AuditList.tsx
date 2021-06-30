@@ -7,7 +7,7 @@ import { ContentList, ContentProgress } from '.';
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import { useAuditCommands } from '../hooks/useAudit';
 import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, IDropdownStyles, IIconProps, Pivot, PivotItem, ScrollablePane, ScrollbarVisibility, Stack, Text } from '@fluentui/react';
-import { CommandAuditEntity, ErrorResult } from 'teamcloud';
+import { CommandAuditEntity } from 'teamcloud';
 import { api } from '../API';
 import { useParams } from 'react-router-dom';
 import JSONPretty from 'react-json-pretty';
@@ -27,7 +27,7 @@ export const AuditList: React.FC = () => {
         { key: '01:00:00', text: 'last hour' },
         { key: '12:00:00', text: 'last 12 hours' },
         { key: '1.00:00:00', text: 'last 24 hours' },
-        { key: '00:00:00', text: 'ALL' },        
+        { key: '00:00:00', text: 'ALL' },
     ];
 
     const [selectedTimeRange, setSelectedTimeRange] = useState<string>(_getTimeRangeOptions().find(o => (o.selected ?? false))?.key as string);
@@ -44,16 +44,15 @@ export const AuditList: React.FC = () => {
 
             setAuditEntriesLoading(true);
 
-            const { data, code, _response } = await api.getAuditEntries(orgId, {
+            const { data } = await api.getAuditEntries(orgId, {
                 timeRange: selectedTimeRange,
-                commands: selectedCommands
+                commands: selectedCommands,
+                onResponse: (raw, flat) => {
+                    if (raw.status >= 400)
+                        throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+                }
             }).finally(() => setAuditEntriesLoading(false));
-    
-            if (code && code >= 400) {
-                const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-                throw error;
-            }
-    
+
             var auditEntriesUpdate = data ?? [];
 
             console.log(JSON.stringify({
@@ -67,26 +66,25 @@ export const AuditList: React.FC = () => {
         })();
     }, [orgId, selectedTimeRange, selectedCommands, refreshKey]);
 
-    useEffect(()=> {
+    useEffect(() => {
         if (auditEntity) {
 
             (async () => {
                 setAuditEntriesLoading(true);
 
-                const { data, code, _response } = await api.getAuditEntry(auditEntity.commandId!, auditEntity.organizationId!, {
-                    expand: true
+                const { data } = await api.getAuditEntry(auditEntity.commandId!, auditEntity.organizationId!, {
+                    expand: true,
+                    onResponse: (raw, flat) => {
+                        if (raw.status >= 400)
+                            throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+                    }
                 }).finally(() => setAuditEntriesLoading(false));;
-
-                if (code && code >= 400) {
-                    const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-                    throw error;
-                }
 
                 auditEntity.commandJson = auditEntity.commandJson ?? data?.commandJson;
                 auditEntity.resultJson = auditEntity.resultJson ?? data?.resultJson;
             })();
 
-        } 
+        }
     }, [auditEntity])
 
     const onRenderDate = (date?: Date | null) =>
@@ -124,7 +122,7 @@ export const AuditList: React.FC = () => {
         setRefreshKey(refreshKey + 1);
     };
 
-    const _getCommandOptions = () : IDropdownOption[] => auditCommands
+    const _getCommandOptions = (): IDropdownOption[] => auditCommands
         ? auditCommands.map(ac => ({ text: ac } as IDropdownOption))
         : [];
 
@@ -197,7 +195,7 @@ export const AuditList: React.FC = () => {
             onClick={_onRefresh} />
     );
 
-   
+
     return (
         <>
             <ContentProgress progressHidden={!auditEntriesLoading} />

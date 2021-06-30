@@ -6,7 +6,7 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 import { ComponentDefinition as ComponentDefinitionMapper, ComponentTaskDefinition as ComponentTaskDefinitionMapper, DeploymentScopeDefinition as DeploymentScopeDefinitionMapper, DeploymentScope as DeploymentScopeMapper, OrganizationDefinition as OrganizationDefinitionMapper, UserDefinition as UserDefinitionMapper, User as UserMapper, ProjectDefinition as ProjectDefinitionMapper, ProjectIdentityDefinition as ProjectIdentityDefinitionMapper, ProjectIdentity as ProjectIdentityMapper, ProjectTemplateDefinition as ProjectTemplateDefinitionMapper, ProjectTemplate as ProjectTemplateMapper, ScheduleDefinition as ScheduleDefinitionMapper, Schedule as ScheduleMapper } from "../models/mappers";
-export var accept = {
+export const accept = {
     parameterPath: "accept",
     mapper: {
         defaultValue: "application/json",
@@ -17,7 +17,7 @@ export var accept = {
         }
     }
 };
-export var $host = {
+export const $host = {
     parameterPath: "$host",
     mapper: {
         serializedName: "$host",
@@ -28,7 +28,7 @@ export var $host = {
     },
     skipEncoding: true
 };
-export var deleted = {
+export const deleted = {
     parameterPath: ["options", "deleted"],
     mapper: {
         serializedName: "deleted",
@@ -37,7 +37,7 @@ export var deleted = {
         }
     }
 };
-export var organizationId = {
+export const organizationId = {
     parameterPath: "organizationId",
     mapper: {
         serializedName: "organizationId",
@@ -47,7 +47,7 @@ export var organizationId = {
         }
     }
 };
-export var projectId = {
+export const projectId = {
     parameterPath: "projectId",
     mapper: {
         serializedName: "projectId",
@@ -57,7 +57,7 @@ export var projectId = {
         }
     }
 };
-export var contentType = {
+export const contentType = {
     parameterPath: ["options", "contentType"],
     mapper: {
         defaultValue: "application/json",
@@ -68,11 +68,11 @@ export var contentType = {
         }
     }
 };
-export var body = {
+export const body = {
     parameterPath: ["options", "body"],
     mapper: ComponentDefinitionMapper
 };
-export var componentId = {
+export const componentId = {
     parameterPath: "componentId",
     mapper: {
         serializedName: "componentId",
@@ -82,11 +82,11 @@ export var componentId = {
         }
     }
 };
-export var body1 = {
+export const body1 = {
     parameterPath: ["options", "body"],
     mapper: ComponentTaskDefinitionMapper
 };
-export var id = {
+export const id = {
     parameterPath: "id",
     mapper: {
         serializedName: "id",
@@ -96,11 +96,11 @@ export var id = {
         }
     }
 };
-export var body2 = {
+export const body2 = {
     parameterPath: ["options", "body"],
     mapper: DeploymentScopeDefinitionMapper
 };
-export var deploymentScopeId = {
+export const deploymentScopeId = {
     parameterPath: "deploymentScopeId",
     mapper: {
         serializedName: "deploymentScopeId",
@@ -110,11 +110,11 @@ export var deploymentScopeId = {
         }
     }
 };
-export var body3 = {
+export const body3 = {
     parameterPath: ["options", "body"],
     mapper: DeploymentScopeMapper
 };
-export var contentType1 = {
+export const contentType1 = {
     parameterPath: ["options", "contentType"],
     mapper: {
         defaultValue: "application/json-patch+json",
@@ -125,7 +125,7 @@ export var contentType1 = {
         }
     }
 };
-export var timeRange = {
+export const timeRange = {
     parameterPath: ["options", "timeRange"],
     mapper: {
         serializedName: "timeRange",
@@ -134,7 +134,7 @@ export var timeRange = {
         }
     }
 };
-export var commands = {
+export const commands = {
     parameterPath: ["options", "commands"],
     mapper: {
         serializedName: "commands",
@@ -148,7 +148,7 @@ export var commands = {
         }
     }
 };
-export var commandId = {
+export const commandId = {
     parameterPath: "commandId",
     mapper: {
         serializedName: "commandId",
@@ -158,7 +158,7 @@ export var commandId = {
         }
     }
 };
-export var expand = {
+export const expand = {
     parameterPath: ["options", "expand"],
     mapper: {
         serializedName: "expand",
@@ -167,15 +167,15 @@ export var expand = {
         }
     }
 };
-export var body4 = {
+export const body4 = {
     parameterPath: ["options", "body"],
     mapper: OrganizationDefinitionMapper
 };
-export var body5 = {
+export const body5 = {
     parameterPath: ["options", "body"],
     mapper: UserDefinitionMapper
 };
-export var userId = {
+export const userId = {
     parameterPath: "userId",
     mapper: {
         serializedName: "userId",
@@ -185,19 +185,19 @@ export var userId = {
         }
     }
 };
-export var body6 = {
+export const body6 = {
     parameterPath: ["options", "body"],
     mapper: UserMapper
 };
-export var body7 = {
+export const body7 = {
     parameterPath: ["options", "body"],
     mapper: ProjectDefinitionMapper
 };
-export var body8 = {
+export const body8 = {
     parameterPath: ["options", "body"],
     mapper: ProjectIdentityDefinitionMapper
 };
-export var projectIdentityId = {
+export const projectIdentityId = {
     parameterPath: "projectIdentityId",
     mapper: {
         serializedName: "projectIdentityId",
@@ -207,11 +207,11 @@ export var projectIdentityId = {
         }
     }
 };
-export var body9 = {
+export const body9 = {
     parameterPath: ["options", "body"],
     mapper: ProjectIdentityMapper
 };
-export var body10 = {
+export const body10 = {
     parameterPath: ["options", "body"],
     mapper: {
         serializedName: "body",
@@ -221,7 +221,7 @@ export var body10 = {
         }
     }
 };
-export var tagKey = {
+export const tagKey = {
     parameterPath: "tagKey",
     mapper: {
         serializedName: "tagKey",
@@ -231,11 +231,11 @@ export var tagKey = {
         }
     }
 };
-export var body11 = {
+export const body11 = {
     parameterPath: ["options", "body"],
     mapper: ProjectTemplateDefinitionMapper
 };
-export var projectTemplateId = {
+export const projectTemplateId = {
     parameterPath: "projectTemplateId",
     mapper: {
         serializedName: "projectTemplateId",
@@ -245,15 +245,15 @@ export var projectTemplateId = {
         }
     }
 };
-export var body12 = {
+export const body12 = {
     parameterPath: ["options", "body"],
     mapper: ProjectTemplateMapper
 };
-export var body13 = {
+export const body13 = {
     parameterPath: ["options", "body"],
     mapper: ScheduleDefinitionMapper
 };
-export var scheduleId = {
+export const scheduleId = {
     parameterPath: "scheduleId",
     mapper: {
         serializedName: "scheduleId",
@@ -263,11 +263,11 @@ export var scheduleId = {
         }
     }
 };
-export var body14 = {
+export const body14 = {
     parameterPath: ["options", "body"],
     mapper: ScheduleMapper
 };
-export var trackingId = {
+export const trackingId = {
     parameterPath: "trackingId",
     mapper: {
         serializedName: "trackingId",
