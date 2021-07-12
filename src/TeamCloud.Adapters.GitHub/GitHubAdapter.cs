@@ -749,7 +749,6 @@ namespace TeamCloud.Adapters.GitHub
             var userIds = new HashSet<Guid>(await users
                 .ToAsyncEnumerable()
                 .SelectMany(user => ResolveUserIdsAsync(user))
-                .Distinct()
                 .ToArrayAsync()
                 .ConfigureAwait(false));
 
