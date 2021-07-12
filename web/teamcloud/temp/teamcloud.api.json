@@ -3575,6 +3575,31 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTemplatePermissions#adapter:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "adapter?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "adapter",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTemplatePermissions#admin:member",
               "docComment": "",
               "excerptTokens": [
@@ -5766,6 +5791,27 @@
           "releaseTag": "Public",
           "name": "KnownProjectMembershipRole",
           "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectMembershipRole.Adapter:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Adapter = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Adapter\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Adapter",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownProjectMembershipRole.Admin:member",
@@ -8971,7 +9017,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ProjectMembershipRole:type",
-          "docComment": "/**\n * Defines values for ProjectMembershipRole. \\ {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole, this enum contains the known values that the service supports. ### Know values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
+          "docComment": "/**\n * Defines values for ProjectMembershipRole. \\ {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole, this enum contains the known values that the service supports. ### Know values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner** \\ **Adapter**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

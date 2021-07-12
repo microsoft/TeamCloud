@@ -152,6 +152,7 @@ export interface ComponentTemplatePermissions {
     member?: string[];
     admin?: string[];
     owner?: string[];
+    adapter?: string[];
 }
 export interface ComponentTaskTemplate {
     id?: string | null;
@@ -810,7 +811,8 @@ export declare const enum KnownProjectMembershipRole {
     None = "None",
     Member = "Member",
     Admin = "Admin",
-    Owner = "Owner"
+    Owner = "Owner",
+    Adapter = "Adapter"
 }
 /**
  * Defines values for ProjectMembershipRole. \
@@ -820,7 +822,8 @@ export declare const enum KnownProjectMembershipRole {
  * **None** \
  * **Member** \
  * **Admin** \
- * **Owner**
+ * **Owner** \
+ * **Adapter**
  */
 export declare type ProjectMembershipRole = string;
 /** Known values of {@link ProjectResourceState} that the service accepts. */

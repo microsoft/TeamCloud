@@ -335,6 +335,8 @@ export interface ComponentTemplateListDataResult {
 // @public (undocumented)
 export interface ComponentTemplatePermissions {
     // (undocumented)
+    adapter?: string[];
+    // (undocumented)
     admin?: string[];
     // (undocumented)
     member?: string[];
@@ -575,6 +577,8 @@ export const enum KnownOrganizationResourceState {
 
 // @public
 export const enum KnownProjectMembershipRole {
+    // (undocumented)
+    Adapter = "Adapter",
     // (undocumented)
     Admin = "Admin",
     // (undocumented)

@@ -3325,6 +3325,10 @@ components:
               type: array
               items:
                 type: string
+            Adapter:
+              type: array
+              items:
+                type: string
           nullable: true
         inputJsonSchema:
           type: string
@@ -3727,6 +3731,7 @@ components:
             - Member
             - Admin
             - Owner
+            - Adapter
           type: string
         properties:
           type: object

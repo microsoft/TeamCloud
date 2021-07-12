@@ -178,6 +178,7 @@ export interface ComponentTemplatePermissions {
   member?: string[];
   admin?: string[];
   owner?: string[];
+  adapter?: string[];
 }
 
 export interface ComponentTaskTemplate {
@@ -898,7 +899,8 @@ export const enum KnownProjectMembershipRole {
   None = "None",
   Member = "Member",
   Admin = "Admin",
-  Owner = "Owner"
+  Owner = "Owner",
+  Adapter = "Adapter"
 }
 
 /**
@@ -909,7 +911,8 @@ export const enum KnownProjectMembershipRole {
  * **None** \
  * **Member** \
  * **Admin** \
- * **Owner**
+ * **Owner** \
+ * **Adapter**
  */
 export type ProjectMembershipRole = string;
 

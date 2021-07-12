@@ -984,6 +984,17 @@ export var ComponentTemplatePermissions = {
                         }
                     }
                 }
+            },
+            adapter: {
+                serializedName: "Adapter",
+                type: {
+                    name: "Sequence",
+                    element: {
+                        type: {
+                            name: "String"
+                        }
+                    }
+                }
             }
         }
     }
