@@ -62,6 +62,7 @@ namespace TeamCloud.Adapters.AzureDevOps
         private const string VisualStudioAuthUrl = "https://app.vssps.visualstudio.com/oauth2/authorize";
         private const string VisualStudioTokenUrl = "https://app.vssps.visualstudio.com/oauth2/token";
 
+        private readonly ILogger log;
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IUserRepository userRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
@@ -85,7 +86,8 @@ namespace TeamCloud.Adapters.AzureDevOps
             IAzureSessionService azureSessionService,
             IAzureResourceService azureResourceService,
             IAzureDirectoryService azureDirectoryService,
-            IFunctionsHost functionsHost = null)
+            IFunctionsHost functionsHost = null,
+            ILoggerFactory loggerFactory = null)
             : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository)
         {
             this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
@@ -95,6 +97,8 @@ namespace TeamCloud.Adapters.AzureDevOps
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
+
+            log = loggerFactory.CreateLogger(this.GetType());
         }
 
         public override DeploymentScopeType Type
@@ -137,7 +141,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             return SessionClient.SetAsync(new AzureDevOpsSession(deploymentScope));
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -147,9 +151,6 @@ namespace TeamCloud.Adapters.AzureDevOps
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             var authorizationSession = await SessionClient
                 .GetAsync<AzureDevOpsSession>(deploymentScope)
@@ -157,15 +158,15 @@ namespace TeamCloud.Adapters.AzureDevOps
 
             var task = requestMessage.Method switch
             {
-                HttpMethod m when m == HttpMethod.Get => HandleAuthorizeGetAsync(deploymentScope, authorizationSession, requestMessage, authorizationEndpoints, log),
-                HttpMethod m when m == HttpMethod.Post => HandleAuthorizePostAsync(deploymentScope, authorizationSession, requestMessage, authorizationEndpoints, log),
+                HttpMethod m when m == HttpMethod.Get => HandleAuthorizeGetAsync(deploymentScope, authorizationSession, requestMessage, authorizationEndpoints),
+                HttpMethod m when m == HttpMethod.Post => HandleAuthorizePostAsync(deploymentScope, authorizationSession, requestMessage, authorizationEndpoints),
                 _ => Task.FromException<IActionResult>(new NotImplementedException())
             };
 
             return await task.ConfigureAwait(false);
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -175,9 +176,6 @@ namespace TeamCloud.Adapters.AzureDevOps
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             var authorizationSession = await SessionClient
                 .GetAsync<AzureDevOpsSession>(deploymentScope)
@@ -270,7 +268,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
         }
 
-        private async Task<IActionResult> HandleAuthorizeGetAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        private async Task<IActionResult> HandleAuthorizeGetAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             var queryParams = Url.ParseQueryParams(requestMessage.RequestUri.Query);
             var queryError = queryParams.GetValueOrDefault("error", StringComparison.OrdinalIgnoreCase);
@@ -304,7 +302,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             };
         }
 
-        private async Task<IActionResult> HandleAuthorizePostAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        private async Task<IActionResult> HandleAuthorizePostAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             var payload = await requestMessage.Content
                 .ReadAsStringAsync()
@@ -354,8 +352,6 @@ namespace TeamCloud.Adapters.AzureDevOps
                     .SetQueryParam("succeeded")
                     .ToString();
             }
-
-            log.LogDebug($"Redirecting authorize POST response to {redirectUrl}");
 
             return new RedirectResult(redirectUrl);
         }
@@ -491,7 +487,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
         }
 
-        private async Task<Component> ExecuteAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log, bool ensureResourceExists, Func<Organization, DeploymentScope, Project, TeamProject, Task<Component>> callback)
+        private async Task<Component> ExecuteAsync(Component component, IAsyncCollector<ICommand> commandQueue, bool ensureResourceExists, Func<Organization, DeploymentScope, Project, TeamProject, Task<Component>> callback)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -635,7 +631,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             return component;
         }
 
-        public override Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, true, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
+        public override Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue) => ExecuteAsync(component, commandQueue, true, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
         {
             await using (var teamProjectLock = await AcquireLockAsync(nameof(AzureDevOpsAdapter), teamProject.Id.ToString()).ConfigureAwait(false))
             {
@@ -718,10 +714,10 @@ namespace TeamCloud.Adapters.AzureDevOps
                 }
             }
 
-            return await UpdateComponentAsync(component, commandUser, commandQueue, log).ConfigureAwait(false);
+            return await UpdateComponentAsync(component, commandUser, commandQueue).ConfigureAwait(false);
         });
 
-        public override Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, false, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
+        public override Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue) => ExecuteAsync(component, commandQueue, false, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
         {
             if (teamProject is null)
                 throw new ArgumentNullException(nameof(teamProject));
@@ -1189,7 +1185,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             return component;
         });
 
-        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log) => ExecuteAsync(component, commandQueue, log, false, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
+        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue) => ExecuteAsync(component, commandQueue, false, async (componentOrganization, componentDeploymentScope, componentProject, teamProject) =>
         {
             if (teamProject is null)
             {

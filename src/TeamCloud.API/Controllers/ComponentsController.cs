@@ -153,7 +153,11 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"Adapter of type {deploymentScope.Type} referenced by DeploymentScope with the id '{deploymentScope.Id}' does not exist.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!(await adapter.IsAuthorizedAsync(deploymentScope).ConfigureAwait(false)))
+            var adapterAuthorized = await adapter
+                .IsAuthorizedAsync(deploymentScope)
+                .ConfigureAwait(false);
+
+            if (!adapterAuthorized)
                 return ErrorResult
                     .BadRequest($"Adapter of type {deploymentScope.Type} referenced by DeploymentScope with the id '{deploymentScope.Id}' is not authorized.", ResultErrorCode.ValidationError)
                     .ToActionResult();

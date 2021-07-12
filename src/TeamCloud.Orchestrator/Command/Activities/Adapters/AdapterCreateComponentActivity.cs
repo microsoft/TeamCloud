@@ -71,13 +71,17 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             if (!adapters.TryGetAdapter(deploymentScope.Type, out var adapter))
                 throw new ArgumentException("Adapter for deployment scope not found", nameof(context));
 
-            if (!await adapter.IsAuthorizedAsync(deploymentScope).ConfigureAwait(false))
+            var adapterAuthorized = await adapter
+                .IsAuthorizedAsync(deploymentScope)
+                .ConfigureAwait(false);
+
+            if (!adapterAuthorized)
                 throw new ArgumentException("Adapter for deployment scope not authorized", nameof(context));
 
             try
             {
                 component = await adapter
-                    .CreateComponentAsync(component, context.GetInput<Input>().User, new CommandCollector(commandQueue), log)
+                    .CreateComponentAsync(component, context.GetInput<Input>().User, new CommandCollector(commandQueue))
                     .ConfigureAwait(false);
             }
             catch (Exception exc)

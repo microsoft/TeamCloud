@@ -87,20 +87,18 @@ namespace TeamCloud.Orchestrator.API
         public Task<IActionResult> Authorize(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "authorize/{organization}/{id}")] HttpRequestMessage requestMessage,
             string organization,
-            string id,
-            ILogger log) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
+            string id) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
             {
-                return authorizationAdapter.HandleAuthorizeAsync(deploymentScope, requestMessage, authorizationEndpoints, log);
+                return authorizationAdapter.HandleAuthorizeAsync(deploymentScope, requestMessage, authorizationEndpoints);
             });
 
         [FunctionName(nameof(Callback))]
         public Task<IActionResult> Callback(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "authorize/{organization}/{id}/callback")] HttpRequestMessage requestMessage,
             string organization,
-            string id,
-            ILogger log) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
+            string id) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
             {
-                return authorizationAdapter.HandleCallbackAsync(deploymentScope, requestMessage, authorizationEndpoints, log);
+                return authorizationAdapter.HandleCallbackAsync(deploymentScope, requestMessage, authorizationEndpoints);
             });
 
         private class AuthorizationEndpoints : IAuthorizationEndpoints

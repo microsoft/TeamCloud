@@ -131,11 +131,11 @@ namespace TeamCloud.Adapters
 
         public abstract Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
 
-        public abstract Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        public abstract Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue);
 
-        public abstract Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        public abstract Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue);
 
-        public abstract Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        public abstract Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue);
 
         protected async Task<AzureServicePrincipal> GetServicePrincipalAsync(DeploymentScope deploymentScope, Project project, bool withPassword = false)
         {

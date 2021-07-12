@@ -133,7 +133,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
         public override Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
             => azureSessionService.GetIdentityAsync().ContinueWith(identity => identity != null, TaskScheduler.Current);
 
-        public override async Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
+        public override async Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -156,10 +156,10 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     .ConfigureAwait(false);
             }
 
-            return await UpdateComponentAsync(component, commandUser, commandQueue, log).ConfigureAwait(false);
+            return await UpdateComponentAsync(component, commandUser, commandQueue).ConfigureAwait(false);
         }
 
-        public override async Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
+        public override async Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -255,7 +255,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
             }
         }
 
-        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
+        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
         {
             return Task.FromResult(component);
         }

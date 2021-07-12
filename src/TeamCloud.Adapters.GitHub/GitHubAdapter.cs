@@ -128,7 +128,7 @@ namespace TeamCloud.Adapters.GitHub
             return SessionClient.SetAsync<GitHubSession>(new GitHubSession(deploymentScope));
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -138,9 +138,6 @@ namespace TeamCloud.Adapters.GitHub
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             var queryParams = Flurl.Url.ParseQueryParams(requestMessage.RequestUri.Query);
             var queryState = queryParams.GetValueOrDefault("state", StringComparison.OrdinalIgnoreCase);
@@ -227,7 +224,7 @@ namespace TeamCloud.Adapters.GitHub
             };
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -237,9 +234,6 @@ namespace TeamCloud.Adapters.GitHub
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             var json = await requestMessage.Content
                 .ReadAsJsonAsync()
@@ -382,16 +376,16 @@ namespace TeamCloud.Adapters.GitHub
             return gitHubClient;
         }
 
-        private Task<Component> ExecuteAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log, Func<Organization, DeploymentScope, Project, GitHubClient, Octokit.User, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
+        private Task<Component> ExecuteAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, Func<Organization, DeploymentScope, Project, GitHubClient, Octokit.User, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
 
+            if (commandUser is null)
+                throw new ArgumentNullException(nameof(commandUser));
+
             if (commandQueue is null)
                 throw new ArgumentNullException(nameof(commandQueue));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             if (callback is null)
                 throw new ArgumentNullException(nameof(callback));
@@ -405,10 +399,11 @@ namespace TeamCloud.Adapters.GitHub
                 var client = await CreateClientAsync(token)
                     .ConfigureAwait(false);
 
-
                 var teams = await client.Organization.Team
                     .GetAll(token.Owner.Login)
                     .ConfigureAwait(false);
+
+                var tasks = new List<Task>();
 
                 var teamsByName = teams
                     .ToDictionary(k => k.Name, v => v);
@@ -454,10 +449,22 @@ namespace TeamCloud.Adapters.GitHub
 
                 }).ConfigureAwait(false);
 
+                var organizationOwners = await userRepository
+                    .ListOwnersAsync(component.Organization)
+                    .ToArrayAsync()
+                    .ConfigureAwait(false);
+
+                var organizationAdmins = await userRepository
+                    .ListAdminsAsync(component.Organization)
+                    .ToArrayAsync()
+                    .ConfigureAwait(false);
+                
                 await Task.WhenAll(
 
                     EnsurePermissionAsync(projectTeam, project, "write"),
-                    EnsurePermissionAsync(projectAdminsTeam, project, "admin")
+                    EnsurePermissionAsync(projectAdminsTeam, project, "admin"),
+
+                    SynchronizeTeamMembersAsync(client, organizationAdminTeam, Enumerable.Concat(organizationOwners, organizationAdmins).Distinct(), component, commandUser, commandQueue)
 
                     ).ConfigureAwait(false);
 
@@ -550,8 +557,8 @@ namespace TeamCloud.Adapters.GitHub
             });
         }
 
-        public override Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
-            => ExecuteAsync(component, commandQueue, log, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
+        public override Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
+            => ExecuteAsync(component, commandUser, commandQueue, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
         {
             var repositoryName = $"{componentProject.DisplayName} {component.DisplayName}";
             var repositoryDescription = $"Repository for TeamCloud project {componentProject.DisplayName}";
@@ -674,7 +681,7 @@ namespace TeamCloud.Adapters.GitHub
                 }
             }
 
-            return await UpdateComponentAsync(component, commandUser, commandQueue, log).ConfigureAwait(false);
+            return await UpdateComponentAsync(component, commandUser, commandQueue).ConfigureAwait(false);
 
             async Task<string> GetTemplateRepositoryUrlAsync()
             {
@@ -719,8 +726,8 @@ namespace TeamCloud.Adapters.GitHub
             }
         });
 
-        public override Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
-            => ExecuteAsync(component, commandQueue, log, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
+        public override Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
+            => ExecuteAsync(component, commandUser, commandQueue, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
         {
             var users = await userRepository
                 .ListAsync(component.Organization, component.ProjectId)
@@ -729,12 +736,55 @@ namespace TeamCloud.Adapters.GitHub
 
             await Task.WhenAll(
 
-                SynchronizeTeamMembersAsync(memberTeam, users.Where(user => user.IsMember())),
-                SynchronizeTeamMembersAsync(adminTeam, users.Where(user => user.IsAdmin()))
+                SynchronizeTeamMembersAsync(client, memberTeam, users.Where(user => user.IsMember()), component, commandUser, commandQueue),
+                SynchronizeTeamMembersAsync(client, adminTeam, users.Where(user => user.IsAdmin()), component, commandUser, commandQueue)
 
                 ).ConfigureAwait(false);
 
             return component;
+        });
+
+        private async Task SynchronizeTeamMembersAsync(GitHubClient client, Team team, IEnumerable<User> users, Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
+        {
+            var userIds = new HashSet<Guid>(await users
+                .ToAsyncEnumerable()
+                .SelectMany(user => ResolveUserIdsAsync(user))
+                .Distinct()
+                .ToArrayAsync()
+                .ConfigureAwait(false));
+
+            var teamUsers = await userIds
+                .Select(userId =>
+                {
+                    var user = users.SingleOrDefault(u => userId.Equals(Guid.Parse(u.Id)));
+                    return user is null ? EnsureUserAsync(userId) : InitializeUserAsync(user);
+                })
+                .WhenAll()
+                .ConfigureAwait(false);
+
+            var logins = teamUsers
+                .Select(user => user.AlternateIdentities.TryGetValue(this.Type, out var alternateIdentity) ? alternateIdentity.Login : null)
+                .Where(login => !string.IsNullOrWhiteSpace(login))
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            var members = await client.Organization.Team
+                .GetAllMembers(team.Id)
+                .ConfigureAwait(false);
+
+            var membershipTasks = new List<Task>();
+
+            membershipTasks.AddRange(logins
+                .Except(members.Select(m => m.Login), StringComparer.OrdinalIgnoreCase)
+                .Select(login => client.Organization.Team.AddOrEditMembership(team.Id, login, new UpdateTeamMembership(TeamRole.Member))));
+
+            membershipTasks.AddRange(members
+                .Select(m => m.Login)
+                .Except(logins, StringComparer.OrdinalIgnoreCase)
+                .Select(login => client.Organization.Team.RemoveMembership(team.Id, login)));
+
+            await membershipTasks
+                .WhenAll()
+                .ConfigureAwait(false);
 
             async Task<User> EnsureUserAsync(Guid userId)
             {
@@ -756,7 +806,7 @@ namespace TeamCloud.Adapters.GitHub
                         .AddAsync(new OrganizationUserCreateCommand(commandUser, user))
                         .ConfigureAwait(false);
                 }
-                else 
+                else
                 {
                     user = await InitializeUserAsync(user)
                         .ConfigureAwait(false);
@@ -777,54 +827,23 @@ namespace TeamCloud.Adapters.GitHub
                 return user;
             }
 
-            async Task SynchronizeTeamMembersAsync(Team team, IEnumerable<User> users)
+            IAsyncEnumerable<Guid> ResolveUserIdsAsync(User user) => user.UserType switch
             {
-                var userIds = new HashSet<Guid>(await users
-                    .ToAsyncEnumerable()
-                    .SelectMany(user => azureDirectoryService.GetGroupMembersAsync(user.Id))
-                    .ToArrayAsync()
-                    .ConfigureAwait(false));
+                // return the given user id as async enumeration
+                UserType.User => AsyncEnumerable.Repeat(new Guid(user.Id), 1),
 
-                var teamUsers = await userIds
-                    .Select(userId =>
-                    {
-                        var user = users.SingleOrDefault(u => userId.Equals(Guid.Parse(u.Id)));
-                        return user is null ? EnsureUserAsync(userId) : InitializeUserAsync(user);
+                // return user ids based on the given user that represents a group
+                UserType.Group => azureDirectoryService.GetGroupMembersAsync(user.Id, true),
 
-                    }).WhenAll()
-                    .ConfigureAwait(false);
+                // not supported user type 
+                _ => AsyncEnumerable.Empty<Guid>()
+            };
+        }
 
-                var logins = teamUsers
-                    .Select(user => user.AlternateIdentities.TryGetValue(this.Type, out var alternateIdentity) ? alternateIdentity.Login : null)
-                    .Where(login => !string.IsNullOrWhiteSpace(login))
-                    .Distinct(StringComparer.OrdinalIgnoreCase);
-
-                var members = await client.Organization.Team
-                    .GetAllMembers(team.Id)
-                    .ConfigureAwait(false);
-
-                var membershipTasks = new List<Task>();
-
-                membershipTasks.AddRange(logins
-                    .Except(members.Select(m => m.Login), StringComparer.OrdinalIgnoreCase)
-                    .Select(login => client.Organization.Team.AddOrEditMembership(team.Id, login, new UpdateTeamMembership(TeamRole.Member))));
-
-                membershipTasks.AddRange(members
-                    .Select(m => m.Login)
-                    .Except(logins, StringComparer.OrdinalIgnoreCase)
-                    .Select(login => client.Organization.Team.RemoveMembership(team.Id, login)));
-
-                await membershipTasks
-                    .WhenAll()
-                    .ConfigureAwait(false);
-            }
-        });
-
-        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
-            => ExecuteAsync(component, commandQueue, log, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
+        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
+            => ExecuteAsync(component, commandUser, commandQueue, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
         {
             return component;
-
         });
 
         public override async Task<NetworkCredential> GetServiceCredentialAsync(Component component)
