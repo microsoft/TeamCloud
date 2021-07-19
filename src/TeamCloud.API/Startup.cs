@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
@@ -33,6 +34,7 @@ using TeamCloud.Adapters.AzureResourceManager;
 using TeamCloud.Adapters.GitHub;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
+using TeamCloud.API.Options;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
 using TeamCloud.Audit;
@@ -122,18 +124,19 @@ namespace TeamCloud.API
                 .AddTeamCloudHttp()
                 .AddTeamCloudSecrets();
 
-            if (string.IsNullOrEmpty(Configuration.GetValue<string>("Cache:Configuration")))
-            {
-                services
-                    .AddDistributedMemoryCache()
-                    .AddSingleton<IRepositoryCache, RepositoryCache>();
-            }
-            else
-            {
-                services
-                    .AddDistributedRedisCache(options => Configuration.Bind("Cache", options))
-                    .AddSingleton<IRepositoryCache, RepositoryCache>();
-            }
+            var databaseOptions = services
+                .BuildServiceProvider()
+                .GetRequiredService<TeamCloudDatabaseOptions>();
+
+            services
+                .AddCosmosCache(options =>
+                {
+                    options.ClientBuilder = new CosmosClientBuilder(databaseOptions.ConnectionString);
+                    options.DatabaseName = $"{databaseOptions.DatabaseName}Cache";
+                    options.ContainerName = "DistributedCache";
+                    options.CreateIfNotExists = true;
+                })
+                .AddSingleton<IRepositoryCache, RepositoryCache>();
 
             if (Configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
             {

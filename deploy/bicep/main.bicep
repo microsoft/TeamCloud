@@ -20,12 +20,12 @@ module cosmos 'cosmosDb.bicep' = {
   }
 }
 
-module redis 'redis.bicep' = {
-  name: 'redis'
-  params: {
-    name: 'redis${suffix}'
-  }
-}
+// module redis 'redis.bicep' = {
+//   name: 'redis'
+//   params: {
+//     name: 'redis${suffix}'
+//   }
+// }
 
 module kv 'keyVault.bicep' = {
   name: 'keyVault'
@@ -142,8 +142,8 @@ output configServiceImport object = {
   'Endpoint:Api:Url': api.outputs.url
   'Endpoint:Orchestrator:Url': orchestrator.outputs.url
   'Endpoint:Orchestrator:AuthCode': orchestrator.outputs.key
-  'Cache:Configuration': redis.outputs.configuration
-  'Encryption:KeyStorage': storage_wj.outputs.connectionString  
+  // 'Cache:Configuration': redis.outputs.configuration
+  'Encryption:KeyStorage': storage_wj.outputs.connectionString
   'Audit:ConnectionString': storage_wj.outputs.connectionString
   'Adapter:Session:Storage:ConnectoinString': storage_wj.outputs.connectionString
   'Adapter:Token:Storage:ConnectionString': storage_wj.outputs.connectionString

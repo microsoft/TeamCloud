@@ -36,18 +36,18 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask.Analyzers" Version="0.3.2" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventGrid" Version="2.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.9" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.17" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Cosmos" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.17" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.17" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
     <PackageReference Include="System.Linq.Async" Version="4.1.1" />
     <PackageReference Include="Microsoft.Azure.SignalR" Version="1.8.0" />
     <PackageReference Include="Microsoft.Azure.SignalR.Management" Version="1.8.0" />
   </ItemGroup>
 
-  
+
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Adapters.AzureDevOps\TeamCloud.Adapters.AzureDevOps.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters.AzureResourceManager\TeamCloud.Adapters.AzureResourceManager.csproj" />
