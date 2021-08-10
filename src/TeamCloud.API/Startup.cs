@@ -124,14 +124,15 @@ namespace TeamCloud.API
                 .AddTeamCloudHttp()
                 .AddTeamCloudSecrets();
 
-            if (!Configuration.TryGetSection("Azure:CosmosDb", out var databaseOptions))
-                throw new Exception("Unable to find Azure:CosmosDb key in configuration opitons");
+            var databaseOptions = services
+                .BuildServiceProvider()
+                .GetRequiredService<TeamCloudDatabaseOptions>();
 
             services
                 .AddCosmosCache(options =>
                 {
-                    options.ClientBuilder = new CosmosClientBuilder(databaseOptions["ConnectionString"]);
-                    options.DatabaseName = $"{databaseOptions["DatabaseName"]}Cache";
+                    options.ClientBuilder = new CosmosClientBuilder(databaseOptions.ConnectionString);
+                    options.DatabaseName = $"{databaseOptions.DatabaseName}Cache";
                     options.ContainerName = "DistributedCache";
                     options.CreateIfNotExists = true;
                 })
@@ -157,9 +158,7 @@ namespace TeamCloud.API
                     throw new NotImplementedException();
                 }
 
-                EncryptedValueProvider.DefaultDataProtectionProvider = services
-                    .BuildServiceProvider()
-                    .GetDataProtectionProvider();
+                EncryptedValueProvider.DefaultDataProtectionProvider = services.BuildServiceProvider().GetDataProtectionProvider();
             }
 
             services
@@ -199,13 +198,7 @@ namespace TeamCloud.API
                 .AddSingleton<IDocumentExpander, ComponentExpander>()
                 .AddSingleton<IDocumentExpander, UserExpander>();
 
-
-            var tenantId = Configuration["Azure:ResourceManager:TenantId"];
-
-            if (string.IsNullOrEmpty(tenantId))
-                throw new Exception("Unable to find Azure:ResourceManager:TenantId key in configuration opitons");
-
-            ConfigureAuthentication(services, tenantId);
+            ConfigureAuthentication(services);
             ConfigureAuthorization(services);
 
             services
@@ -233,13 +226,17 @@ namespace TeamCloud.API
 
 #pragma warning restore CA1308 // Normalize strings to uppercase
 
-            ConfigureSwagger(services, tenantId);
+            ConfigureSwagger(services);
         }
 
 #pragma warning restore CA1822 // Mark members as static
 
-        private static void ConfigureSwagger(IServiceCollection services, string tenantId)
+        private static void ConfigureSwagger(IServiceCollection services)
         {
+            var resourceManagerOptions = services
+                .BuildServiceProvider()
+                .GetRequiredService<AzureResourceManagerOptions>();
+
             services
                 .AddSwaggerGen(options =>
                 {
@@ -272,8 +269,8 @@ namespace TeamCloud.API
                         {
                             AuthorizationCode = new OpenApiOAuthFlow
                             {
-                                TokenUrl = new Uri($"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token"),
-                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/authorize"),
+                                TokenUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/token"),
+                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
                                 Scopes = new Dictionary<string, string> {
                                     { "openid", "Sign you in" },
                                     { "http://TeamCloud.aztcclitestsix/user_impersonation", "Access the TeamCloud API" }
@@ -298,14 +295,18 @@ namespace TeamCloud.API
                 .AddSwaggerGenNewtonsoftSupport();
         }
 
-        private static void ConfigureAuthentication(IServiceCollection services, string tenantId)
+        private static void ConfigureAuthentication(IServiceCollection services)
         {
+            var resourceManagerOptions = services
+                .BuildServiceProvider()
+                .GetRequiredService<AzureResourceManagerOptions>();
+
             services
                 .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
                 .AddAzureADBearer(options =>
                 {
                     options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
-                    options.TenantId = tenantId;
+                    options.TenantId = resourceManagerOptions.TenantId;
                 });
 
             services
@@ -321,18 +322,18 @@ namespace TeamCloud.API
                     // The valid issuers can be based on Azure identity V1 or V2
                     options.TokenValidationParameters.ValidIssuers = new string[]
                     {
-                        $"https://login.microsoftonline.com/{tenantId}/v2.0",
-                        $"https://sts.windows.net/{tenantId}/"
+                        $"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/v2.0",
+                        $"https://sts.windows.net/{resourceManagerOptions.TenantId}/"
                     };
 
                     options.Events = new JwtBearerEvents()
                     {
                         OnTokenValidated = async (TokenValidatedContext context) =>
                         {
-                            var principalObjectId = context.Principal.GetObjectId();
-                            var principalTenantId = context.Principal.GetTenantId();
+                            var userId = context.Principal.GetObjectId();
+                            var tenantId = context.Principal.GetTenantId();
 
-                            var userClaims = await context.HttpContext.ResolveClaimsAsync(principalTenantId, principalObjectId).ConfigureAwait(false);
+                            var userClaims = await context.HttpContext.ResolveClaimsAsync(tenantId, userId).ConfigureAwait(false);
                             if (userClaims.Any()) context.Principal.AddIdentity(new ClaimsIdentity(userClaims));
                         }
                     };
