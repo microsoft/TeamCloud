@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Management.ManagementGroups;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
@@ -37,19 +36,19 @@ namespace TeamCloud.Adapters.AzureResourceManager
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
         public AzureResourceManagerAdapter(IAuthorizationSessionClient sessionClient,
-                                           IAuthorizationTokenClient tokenClient,
-                                           IDistributedLockManager distributedLockManager,
-                                           ISecretsStoreProvider secretsStoreProvider,
-                                           IAzureSessionService azureSessionService,
-                                           IAzureDirectoryService azureDirectoryService,
-                                           IAzureResourceService azureResourceService,
-                                           IOrganizationRepository organizationRepository,
-                                           IUserRepository userRepository,
-                                           IDeploymentScopeRepository deploymentScopeRepository,
-                                           IProjectRepository projectRepository,
-                                           IComponentRepository componentRepository,
-                                           IComponentTemplateRepository componentTemplateRepository)
-            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository)
+            IAuthorizationTokenClient tokenClient,
+            IDistributedLockManager distributedLockManager,
+            ISecretsStoreProvider secretsStoreProvider,
+            IAzureSessionService azureSessionService,
+            IAzureDirectoryService azureDirectoryService,
+            IAzureResourceService azureResourceService,
+            IOrganizationRepository organizationRepository,
+            IUserRepository userRepository,
+            IDeploymentScopeRepository deploymentScopeRepository,
+            IProjectRepository projectRepository,
+            IComponentRepository componentRepository,
+            IComponentTemplateRepository componentTemplateRepository)
+            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
@@ -133,7 +132,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
         public override Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
             => azureSessionService.GetIdentityAsync().ContinueWith(identity => identity != null, TaskScheduler.Current);
 
-        public override async Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
+        protected override async Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -156,10 +155,10 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     .ConfigureAwait(false);
             }
 
-            return await UpdateComponentAsync(component, commandUser, commandQueue).ConfigureAwait(false);
+            return await UpdateComponentAsync(component, contextUser, commandQueue).ConfigureAwait(false);
         }
 
-        public override async Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
+        protected override async Task<Component> UpdateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -255,7 +254,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
             }
         }
 
-        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue)
+        protected override Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
             return Task.FromResult(component);
         }
@@ -492,6 +491,5 @@ namespace TeamCloud.Adapters.AzureResourceManager
                 }
             }
         }
-
     }
 }

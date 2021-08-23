@@ -15,10 +15,12 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using Nito.AsyncEx;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Data;
+using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Secrets;
@@ -44,6 +46,7 @@ namespace TeamCloud.Adapters
         private readonly IOrganizationRepository organizationRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IProjectRepository projectRepository;
+        private readonly IUserRepository userRepository;
 
         protected Adapter(IAuthorizationSessionClient sessionClient,
                           IAuthorizationTokenClient tokenClient,
@@ -53,7 +56,8 @@ namespace TeamCloud.Adapters
                           IAzureDirectoryService azureDirectoryService,
                           IOrganizationRepository organizationRepository,
                           IDeploymentScopeRepository deploymentScopeRepository,
-                          IProjectRepository projectRepository)
+                          IProjectRepository projectRepository,
+                          IUserRepository userRepository)
         {
             this.sessionClient = sessionClient ?? throw new ArgumentNullException(nameof(sessionClient));
             this.tokenClient = tokenClient ?? throw new ArgumentNullException(nameof(tokenClient));
@@ -64,6 +68,7 @@ namespace TeamCloud.Adapters
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -131,25 +136,129 @@ namespace TeamCloud.Adapters
 
         public abstract Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
 
-        public abstract Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue);
-
-        public abstract Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue);
-
-        public abstract Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue);
-
-        protected async Task<AzureServicePrincipal> GetServicePrincipalAsync(DeploymentScope deploymentScope, Project project, bool withPassword = false)
+        public Task<Component> CreateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
-            if (deploymentScope is null)
-                throw new ArgumentNullException(nameof(deploymentScope));
+            if (component is null)
+                throw new ArgumentNullException(nameof(component));
 
-            if (project is null)
-                throw new ArgumentNullException(nameof(project));
+            if (contextUser is null)
+                throw new ArgumentNullException(nameof(contextUser));
 
-            if (deploymentScope.Organization != project.Organization)
-                throw new ArgumentException($"Deployment scope and project must belong to the same organization");
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
 
-            var servicePrincipalKey = Guid.Parse(deploymentScope.Organization)
-                .Combine(Guid.Parse(deploymentScope.Id), Guid.Parse(project.Id));
+            return ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
+            {
+                if (this is IAdapterIdentity)
+                {
+                    await EnsureServiceIdentityUserAsync(component, contextUser, commandQueue)
+                        .ConfigureAwait(false);
+                }
+
+                return await CreateComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue)
+                    .ConfigureAwait(false);
+            });
+        }
+
+        protected abstract Task<Component> CreateComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
+
+        public Task<Component> UpdateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
+        {
+            if (component is null)
+                throw new ArgumentNullException(nameof(component));
+
+            if (contextUser is null)
+                throw new ArgumentNullException(nameof(contextUser));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
+
+            return ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
+            {
+                if (this is IAdapterIdentity)
+                {
+                    await EnsureServiceIdentityUserAsync(component, contextUser, commandQueue)
+                        .ConfigureAwait(false);
+                }
+
+                return await UpdateComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue)
+                    .ConfigureAwait(false);
+            });
+        }
+
+        protected abstract Task<Component> UpdateComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
+
+        public Task<Component> DeleteComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
+        {
+            if (component is null)
+                throw new ArgumentNullException(nameof(component));
+
+            if (contextUser is null)
+                throw new ArgumentNullException(nameof(contextUser));
+
+            if (commandQueue is null)
+                throw new ArgumentNullException(nameof(commandQueue));
+
+            return ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
+            {
+                if (this is IAdapterIdentity)
+                {
+                    await EnsureServiceIdentityUserAsync(component, contextUser, commandQueue)
+                        .ConfigureAwait(false);
+                }
+
+                return await DeleteComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue)
+                    .ConfigureAwait(false);
+            });
+        }
+
+        protected abstract Task<Component> DeleteComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
+
+        private async Task EnsureServiceIdentityUserAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
+        {
+            var servicePrincipal = await GetServiceIdentityAsync(component)
+                .ConfigureAwait(false);
+
+            if (servicePrincipal != null)
+            {
+                await ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
+                {
+                    var servicePrincipalUser = await userRepository
+                        .GetAsync(component.Organization, servicePrincipal.ObjectId.ToString())
+                        .ConfigureAwait(false);
+
+                    if (servicePrincipalUser is null || servicePrincipalUser.ProjectMembership(componentProject.Id) is null)
+                    {
+                        var servicePrincipalUserIsNew = (servicePrincipalUser is null);
+
+                        servicePrincipalUser ??= new User
+                        {
+                            Id = servicePrincipal.ObjectId.ToString(),
+                            Role = OrganizationUserRole.None,
+                            UserType = Model.Data.UserType.Service,
+                            Organization = component.Organization
+                        };
+
+                        servicePrincipalUser.EnsureProjectMembership(componentProject.Id, ProjectUserRole.Adapter);
+
+                        var projectUserCommand = servicePrincipalUserIsNew
+                            ? (ICommand)new ProjectUserCreateCommand(contextUser, servicePrincipalUser, componentProject.Id)
+                            : (ICommand)new ProjectUserUpdateCommand(contextUser, servicePrincipalUser, componentProject.Id);
+
+                        await commandQueue
+                            .AddAsync(projectUserCommand)
+                            .ConfigureAwait(false);
+                    }
+
+                }).ConfigureAwait(false);
+            }
+        }
+
+        protected Task<AzureServicePrincipal> GetServiceIdentityAsync(Component component, bool withPassword = false)
+            => this is IAdapterIdentity ? ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
+        {
+            var servicePrincipalKey = Guid.Parse(componentDeploymentScope.Organization)
+                .Combine(Guid.Parse(componentDeploymentScope.Id), Guid.Parse(componentProject.Id));
 
             var servicePrincipalName = $"{this.GetType().Name}/{servicePrincipalKey}";
 
@@ -181,7 +290,7 @@ namespace TeamCloud.Adapters
             if (!string.IsNullOrEmpty(servicePrincipal.Password))
             {
                 var secretsStore = await secretsStoreProvider
-                    .GetSecretsStoreAsync(project)
+                    .GetSecretsStoreAsync(componentProject)
                     .ConfigureAwait(false);
 
                 servicePrincipal = await secretsStore
@@ -191,7 +300,7 @@ namespace TeamCloud.Adapters
             else if (withPassword)
             {
                 var secretsStore = await secretsStoreProvider
-                    .GetSecretsStoreAsync(project)
+                    .GetSecretsStoreAsync(componentProject)
                     .ConfigureAwait(false);
 
                 servicePrincipal = (await secretsStore
@@ -200,7 +309,8 @@ namespace TeamCloud.Adapters
             }
 
             return servicePrincipal;
-        }
+
+        }) : Task.FromResult(default(AzureServicePrincipal));
 
         protected async Task ExecuteAsync(Component component, Func<Organization, DeploymentScope, Project, Task> callback)
         {

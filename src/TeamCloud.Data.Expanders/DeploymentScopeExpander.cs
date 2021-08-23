@@ -16,11 +16,11 @@ namespace TeamCloud.Data.Expanders
     public sealed class DeploymentScopeExpander : DocumentExpander,
         IDocumentExpander<DeploymentScope>
     {
-        private readonly IEnumerable<IAdapter> adapters;
+        private readonly IAdapterProvider adapterProvider;
 
-        public DeploymentScopeExpander(IEnumerable<IAdapter> adapters) : base(false)
+        public DeploymentScopeExpander(IAdapterProvider adapterProvider) : base(false)
         {
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
         public async Task<DeploymentScope> ExpandAsync(DeploymentScope document)
@@ -28,7 +28,9 @@ namespace TeamCloud.Data.Expanders
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            if (adapters.TryGetAdapter(document.Type, out var adapter))
+            var adapter = adapterProvider.GetAdapter(document.Type);
+
+            if (adapter != null)
             {
                 document.InputDataSchema = await adapter
                     .GetInputDataSchemaAsync()

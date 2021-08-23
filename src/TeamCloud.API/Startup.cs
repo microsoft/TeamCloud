@@ -182,10 +182,13 @@ namespace TeamCloud.API
                 .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
 
             services
-                .AddTeamCloudAdapterFramework()
-                .AddTeamCloudAdapter<AzureResourceManagerAdapter>()
-                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
-                .AddTeamCloudAdapter<GitHubAdapter>();
+                .AddTeamCloudAdapters(configuration =>
+                {
+                    configuration
+                        .Register<AzureResourceManagerAdapter>()
+                        .Register<AzureDevOpsAdapter>()
+                        .Register<GitHubAdapter>();
+                });
 
             services
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))

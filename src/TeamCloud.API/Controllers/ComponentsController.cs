@@ -36,15 +36,15 @@ namespace TeamCloud.API.Controllers
         private readonly IComponentTemplateRepository componentTemplateRepository;
         private readonly IProjectTemplateRepository projectTemplateRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
-        private readonly IEnumerable<IAdapter> adapters;
+        private readonly IAdapterProvider adapterProvider;
 
-        public ComponentsController(IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository, IProjectTemplateRepository projectTemplateRepository, IDeploymentScopeRepository deploymentScopeRepository, IEnumerable<IAdapter> adapters) : base()
+        public ComponentsController(IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository, IProjectTemplateRepository projectTemplateRepository, IDeploymentScopeRepository deploymentScopeRepository, IAdapterProvider adapterProvider) : base()
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
             this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
         [HttpGet]
@@ -148,7 +148,9 @@ namespace TeamCloud.API.Controllers
                     .NotFound($"A DeploymentScope with the id '{componentDefinition.DeploymentScopeId}' could not be found for Project {context.Project.Id}.")
                     .ToActionResult();
 
-            if (!adapters.TryGetAdapter(deploymentScope.Type, out var adapter))
+            var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
+
+            if (adapter is null)
                 return ErrorResult
                     .BadRequest($"Adapter of type {deploymentScope.Type} referenced by DeploymentScope with the id '{deploymentScope.Id}' does not exist.", ResultErrorCode.ValidationError)
                     .ToActionResult();

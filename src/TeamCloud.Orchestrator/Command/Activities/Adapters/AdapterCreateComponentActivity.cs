@@ -25,17 +25,17 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
         private readonly IComponentRepository componentRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IAdapterInitializationLoggerFactory adapterInitializationLoggerFactory;
-        private readonly IEnumerable<IAdapter> adapters;
+        private readonly IAdapterProvider adapterProvider;
 
         public AdapterCreateComponentActivity(IComponentRepository componentRepository,
                                               IDeploymentScopeRepository deploymentScopeRepository,
                                               IAdapterInitializationLoggerFactory adapterInitializationLoggerFactory,
-                                              IEnumerable<IAdapter> adapters)
+                                              IAdapterProvider adapterProvider)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.adapterInitializationLoggerFactory = adapterInitializationLoggerFactory ?? throw new ArgumentNullException(nameof(adapterInitializationLoggerFactory));
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
         [FunctionName(nameof(AdapterCreateComponentActivity))]
@@ -68,7 +68,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             if (deploymentScope is null)
                 throw new ArgumentException("Deployment scope not found", nameof(context));
 
-            if (!adapters.TryGetAdapter(deploymentScope.Type, out var adapter))
+            var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
+
+            if (adapter is null)
                 throw new ArgumentException("Adapter for deployment scope not found", nameof(context));
 
             var adapterAuthorized = await adapter

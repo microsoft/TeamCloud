@@ -23,13 +23,17 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
     {
         private readonly IComponentRepository componentRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
+        private readonly IAdapterProvider adapterProvider;
         private readonly IEnumerable<IAdapter> adapters;
 
-        public AdapterUpdateComponentActivity(IComponentRepository componentRepository, IDeploymentScopeRepository deploymentScopeRepository, IEnumerable<IAdapter> adapters)
+        public AdapterUpdateComponentActivity(
+            IComponentRepository componentRepository,
+            IDeploymentScopeRepository deploymentScopeRepository,
+            IAdapterProvider adapterProvider)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
         [FunctionName(nameof(AdapterUpdateComponentActivity))]
@@ -62,7 +66,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             if (deploymentScope is null)
                 throw new ArgumentException("Deployment scope not found", nameof(context));
 
-            if (!adapters.TryGetAdapter(deploymentScope.Type, out var adapter))
+            var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
+
+            if (adapter is null)
                 throw new ArgumentException("Adapter for deployment scope not found", nameof(context));
 
             var adapterAuthorized = await adapter

@@ -1,13 +1,15 @@
-﻿using System.Threading.Tasks;
-using TeamCloud.Azure.Directory;
-using TeamCloud.Model.Data;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace TeamCloud.Adapters
 {
-    public interface IAdapterIdentity
+    public interface IAdapterIdentity : IAdapter
     {
-        DeploymentScopeType Type { get; }
-
-        Task<AzureServicePrincipal> GetIdentityAsync(DeploymentScope deploymentScope, Project project, bool withPassword = false);
     }
 }

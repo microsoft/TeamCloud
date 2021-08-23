@@ -1,8 +1,8 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "DurableFunctionsHubStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=tcmarkusdev;AccountKey=xl5Eju/F88tKU4PV8eOJWUgexrFPOHWhTGW5UgncAnfV+un+7+Y5ZiHIzSORUGA3/ICKPqxlHnQ4svwurrCgsg==;EndpointSuffix=core.windows.net",
+    "DurableFunctionsHubStorage": "DefaultEndpointsProtocol=https;AccountName=tcmarkusdev;AccountKey=xl5Eju/F88tKU4PV8eOJWUgexrFPOHWhTGW5UgncAnfV+un+7+Y5ZiHIzSORUGA3/ICKPqxlHnQ4svwurrCgsg==;EndpointSuffix=core.windows.net",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "AzureWebJobsSecretStorageType": "files",
     "APPINSIGHTS_INSTRUMENTATIONKEY": "00000000-0000-0000-0000-000000000000"
