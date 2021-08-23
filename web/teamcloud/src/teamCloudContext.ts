@@ -6,13 +6,11 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 
-import * as coreHttp from "@azure/core-http";
+import * as coreClient from "@azure/core-client";
+import * as coreAuth from "@azure/core-auth";
 import { TeamCloudOptionalParams } from "./models";
 
-const packageName = "teamcloud";
-const packageVersion = "1.0.0";
-
-export class TeamCloudContext extends coreHttp.ServiceClient {
+export class TeamCloudContext extends coreClient.ServiceClient {
   $host: string;
 
   /**
@@ -22,7 +20,7 @@ export class TeamCloudContext extends coreHttp.ServiceClient {
    * @param options The parameter options
    */
   constructor(
-    credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials,
+    credentials: coreAuth.TokenCredential,
     $host: string,
     options?: TeamCloudOptionalParams
   ) {
@@ -37,22 +35,29 @@ export class TeamCloudContext extends coreHttp.ServiceClient {
     if (!options) {
       options = {};
     }
+    const defaults: TeamCloudOptionalParams = {
+      requestContentType: "application/json; charset=utf-8",
+      credential: credentials
+    };
 
-    if (!options.userAgent) {
-      const defaultUserAgent = coreHttp.getDefaultUserAgentValue();
-      options.userAgent = `${packageName}/${packageVersion} ${defaultUserAgent}`;
-    }
+    const packageDetails = `azsdk-js-teamcloud/1.0.0-beta.1`;
+    const userAgentPrefix =
+      options.userAgentOptions && options.userAgentOptions.userAgentPrefix
+        ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
+        : `${packageDetails}`;
 
     if (!options.credentialScopes) {
       options.credentialScopes = ["openid"];
     }
-
-    super(credentials, options);
-
-    this.requestContentType = "application/json; charset=utf-8";
-
-    this.baseUri = options.endpoint || "{$host}";
-
+    const optionsWithDefaults = {
+      ...defaults,
+      ...options,
+      userAgentOptions: {
+        userAgentPrefix
+      },
+      baseUri: options.endpoint || "{$host}"
+    };
+    super(optionsWithDefaults);
     // Parameter assignments
     this.$host = $host;
   }

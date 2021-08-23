@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 # pylint: disable=unused-argument, protected-access, too-many-lines
+# pylint: disable=too-many-locals, too-many-statements
 
 from knack.util import CLIError
 from knack.log import get_logger
@@ -17,58 +18,31 @@ def _ensure_base_url(client, base_url):
 
 
 # def teamcloud_test(cmd, base_url):
-#     pass
+#     from azure.cli.core.extension import WheelExtension
+#     # return WheelExtension.
 
 
-def teamcloud_update(cmd, version=None, prerelease=False):  # pylint: disable=too-many-statements, too-many-locals
-    import os
-    import tempfile
-    import shutil
-    from azure.cli.core import CommandIndex
-    from azure.cli.core.extension import get_extension
-    from azure.cli.core.extension.operations import _add_whl_ext, _augment_telemetry_with_ext_info
+def teamcloud_update(cmd, version=None, prerelease=False):
+    from azure.cli.core.extension.operations import update_extension
     from ._deploy_utils import get_github_release
 
     release = get_github_release(cmd.cli_ctx, 'TeamCloud', version=version, prerelease=prerelease)
-    asset = next((a for a in release['assets']
-                  if 'py3-none-any.whl' in a['browser_download_url']), None)
 
-    download_url = asset['browser_download_url'] if asset else None
+    index = next((a for a in release['assets']
+                  if 'index.json' in a['browser_download_url']), None)
 
-    if not download_url:
+    index_url = index['browser_download_url'] if index else None
+
+    if not index_url:
         raise CLIError(
-            'Could not find extension .whl asset on release {}. '
+            'Could not find index.json asset on release {}. '
             'Specify a specific prerelease version with --version '
             'or use latest prerelease with --pre'.format(release['tag_name']))
 
-    extension_name = 'tc'
-    ext = get_extension(extension_name)
-    cur_version = ext.get_version()
-    # Copy current version of extension to tmp directory in case we need to restore it after a failed install.
-    backup_dir = os.path.join(tempfile.mkdtemp(), extension_name)
-    extension_path = ext.path
-    logger.debug('Backing up the current extension: %s to %s', extension_path, backup_dir)
-    shutil.copytree(extension_path, backup_dir)
-    # Remove current version of the extension
-    shutil.rmtree(extension_path)
-    # Install newer version
-    try:
-        _add_whl_ext(cli_ctx=cmd.cli_ctx, source=download_url)
-        logger.debug('Deleting backup of old extension at %s', backup_dir)
-        shutil.rmtree(backup_dir)
-        # This gets the metadata for the extension *after* the update
-        _augment_telemetry_with_ext_info(extension_name)
-    except Exception as err:
-        logger.error('An error occurred whilst updating.')
-        logger.error(err)
-        logger.debug('Copying %s to %s', backup_dir, extension_path)
-        shutil.copytree(backup_dir, extension_path)
-        raise CLIError('Failed to update. Rolled {} back to {}.'.format(
-            extension_name, cur_version))
-    CommandIndex().invalidate()
+    update_extension(cmd, extension_name='tc', index_url=index_url)
 
 
-def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='TeamCloud',  # pylint: disable=too-many-statements, too-many-locals
+def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='TeamCloud',
                      principal_name=None, principal_password=None, tags=None, version=None,
                      skip_app_deployment=False, skip_name_validation=False, prerelease=False,
                      index_url=None):
@@ -152,7 +126,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
     hook.end(message=' ')
     logger.warning(' ')
     logger.warning('TeamCloud instance successfully created at: %s', api_url)
-    logger.warning('Use `az configure --defaults tc-base-url=%s` to configure '
+    logger.warning('Use `az configure -d tc-url=%s` to set '
                    'this as your default TeamCloud instance', api_url)
 
     result = {
@@ -179,7 +153,7 @@ def teamcloud_deploy(cmd, client, name, location=None, resource_group_name='Team
     return result
 
 
-def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', version=None,  # pylint: disable=too-many-locals
+def teamcloud_app_deploy(cmd, client, base_url, client_id, app_type='Web', version=None,
                          scope=None, prerelease=False, index_url=None):
     from ._deploy_utils import (
         get_index_webapp, get_resource_group_by_name, create_resource_group_name,
@@ -267,10 +241,36 @@ def org_get(cmd, client, base_url, org):
 
 # Deployment Scopes
 
-def deployment_scope_create(cmd, client, base_url, org, scope, subscriptions, default=False):
-    from .vendored_sdks.teamcloud.models import DeploymentScopeDefinition
+def deployment_scope_create(cmd, client, base_url, org, scope, scope_type='AzureResourceManager', parameters=None):
+    _ensure_base_url(client, base_url)
 
-    payload = DeploymentScopeDefinition(display_name=scope, subscription_ids=subscriptions, is_default=default)
+    import json
+    from .vendored_sdks.teamcloud.models import DeploymentScopeDefinition
+    from ._input_utils import (_process_parameters, _get_missing_parameters, _prompt_for_parameters,
+                               _get_best_match_one_of)
+
+    if parameters is None:
+        parameters = []
+
+    adapters = client.get_adapters()
+
+    adapter = next((a for a in adapters.data if a.type == scope_type), None)
+    if adapter is None:
+        raise CLIError("Adapter not found of type '{}'".format(scope_type))
+
+    input_data_schema = json.loads(adapter.input_data_schema)
+    input_ui_schema = json.loads(adapter.input_data_form)
+
+    input_data_schema_one_of = input_data_schema.get('oneOf', None)
+    if input_data_schema_one_of is not None:
+        input_data_schema = _get_best_match_one_of(input_data_schema, parameters)
+
+    parameters = _process_parameters(input_data_schema, parameters) or {}
+    parameters = _get_missing_parameters(parameters, input_data_schema, _prompt_for_parameters, input_ui_schema)
+
+    parameters = json.loads(json.dumps(parameters))
+
+    payload = DeploymentScopeDefinition(display_name=scope, type=scope_type, input_date=parameters)
 
     return _create(cmd, client, base_url, client.create_deployment_scope, payload, org=org)
 
@@ -310,21 +310,29 @@ def project_template_get(cmd, client, base_url, org, template):
 
 # Common
 
-def _create(cmd, client, base_url, func, payload, org=None, project=None):
+def _create(cmd, client, base_url, func, payload, org=None, project=None, component=None):
     _ensure_base_url(client, base_url)
-    return func(org, project, payload) if org and project else func(org, payload) if org else func(payload)
+    return func(org, project, component, payload) if org and project and component \
+        else func(org, project, payload) if org and project \
+        else func(org, payload) if org else func(payload)
 
 
-def _delete(cmd, client, base_url, func, item, org=None, project=None):
+def _delete(cmd, client, base_url, func, item, org=None, project=None, component=None):
     _ensure_base_url(client, base_url)
-    return func(org, project, item) if org and project else func(org, item) if org else func(item)
+    return func(item, org, project, component) if org and project and component \
+        else func(item, org, project) if org and project \
+        else func(item, org) if org else func(item)
 
 
-def _list(cmd, client, base_url, func, org=None, project=None):
+def _list(cmd, client, base_url, func, org=None, project=None, component=None):
     _ensure_base_url(client, base_url)
-    return func(org, project) if org and project else func(org) if org else func()
+    return func(org, project, component) if org and project and component \
+        else func(org, project) if org and project \
+        else func(org) if org else func()
 
 
-def _get(cmd, client, base_url, func, item, org=None, project=None):
+def _get(cmd, client, base_url, func, item, org=None, project=None, component=None):
     _ensure_base_url(client, base_url)
-    return func(org, project, item) if org and project else func(org, item) if org else func(item)
+    return func(item, org, project, component) if org and project and component \
+        else func(item, org, project) if org and project \
+        else func(item, org) if org else func(item)

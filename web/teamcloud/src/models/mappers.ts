@@ -6,9 +6,9 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 
-import * as coreHttp from "@azure/core-http";
+import * as coreClient from "@azure/core-client";
 
-export const AdapterInformationListDataResult: coreHttp.CompositeMapper = {
+export const AdapterInformationListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "AdapterInformationListDataResult",
@@ -51,7 +51,7 @@ export const AdapterInformationListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const AdapterInformation: coreHttp.CompositeMapper = {
+export const AdapterInformation: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "AdapterInformation",
@@ -87,7 +87,7 @@ export const AdapterInformation: coreHttp.CompositeMapper = {
   }
 };
 
-export const ErrorResult: coreHttp.CompositeMapper = {
+export const ErrorResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ErrorResult",
@@ -122,7 +122,7 @@ export const ErrorResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ResultError: coreHttp.CompositeMapper = {
+export const ResultError: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ResultError",
@@ -157,7 +157,7 @@ export const ResultError: coreHttp.CompositeMapper = {
   }
 };
 
-export const ValidationError: coreHttp.CompositeMapper = {
+export const ValidationError: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ValidationError",
@@ -180,7 +180,7 @@ export const ValidationError: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentListDataResult: coreHttp.CompositeMapper = {
+export const ComponentListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentListDataResult",
@@ -223,7 +223,7 @@ export const ComponentListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Component: coreHttp.CompositeMapper = {
+export const Component: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "Component",
@@ -364,7 +364,7 @@ export const Component: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentDefinition: coreHttp.CompositeMapper = {
+export const ComponentDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentDefinition",
@@ -401,7 +401,7 @@ export const ComponentDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentDataResult: coreHttp.CompositeMapper = {
+export const ComponentDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentDataResult",
@@ -437,7 +437,7 @@ export const ComponentDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const StatusResult: coreHttp.CompositeMapper = {
+export const StatusResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "StatusResult",
@@ -501,7 +501,7 @@ export const StatusResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskListDataResult: coreHttp.CompositeMapper = {
+export const ComponentTaskListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskListDataResult",
@@ -544,7 +544,7 @@ export const ComponentTaskListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTask: coreHttp.CompositeMapper = {
+export const ComponentTask: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTask",
@@ -662,7 +662,7 @@ export const ComponentTask: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskDefinition: coreHttp.CompositeMapper = {
+export const ComponentTaskDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskDefinition",
@@ -685,7 +685,7 @@ export const ComponentTaskDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskDataResult: coreHttp.CompositeMapper = {
+export const ComponentTaskDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskDataResult",
@@ -721,7 +721,7 @@ export const ComponentTaskDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
+export const ComponentTemplateListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplateListDataResult",
@@ -764,7 +764,7 @@ export const ComponentTemplateListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplate: coreHttp.CompositeMapper = {
+export const ComponentTemplate: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplate",
@@ -870,7 +870,7 @@ export const ComponentTemplate: coreHttp.CompositeMapper = {
   }
 };
 
-export const RepositoryReference: coreHttp.CompositeMapper = {
+export const RepositoryReference: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "RepositoryReference",
@@ -956,7 +956,7 @@ export const RepositoryReference: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplatePermissions: coreHttp.CompositeMapper = {
+export const ComponentTemplatePermissions: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplatePermissions",
@@ -1020,7 +1020,7 @@ export const ComponentTemplatePermissions: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
+export const ComponentTaskTemplate: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskTemplate",
@@ -1071,7 +1071,7 @@ export const ComponentTaskTemplate: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskRunner: coreHttp.CompositeMapper = {
+export const ComponentTaskRunner: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskRunner",
@@ -1095,7 +1095,7 @@ export const ComponentTaskRunner: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
+export const ComponentTemplateDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTemplateDataResult",
@@ -1131,7 +1131,7 @@ export const ComponentTemplateDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
+export const DeploymentScopeListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScopeListDataResult",
@@ -1174,7 +1174,7 @@ export const DeploymentScopeListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const DeploymentScope: coreHttp.CompositeMapper = {
+export const DeploymentScope: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScope",
@@ -1289,7 +1289,7 @@ export const DeploymentScope: coreHttp.CompositeMapper = {
   }
 };
 
-export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
+export const DeploymentScopeDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScopeDefinition",
@@ -1333,7 +1333,7 @@ export const DeploymentScopeDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
+export const DeploymentScopeDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "DeploymentScopeDataResult",
@@ -1369,7 +1369,7 @@ export const DeploymentScopeDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const CommandAuditEntityListDataResult: coreHttp.CompositeMapper = {
+export const CommandAuditEntityListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "CommandAuditEntityListDataResult",
@@ -1412,7 +1412,7 @@ export const CommandAuditEntityListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const CommandAuditEntity: coreHttp.CompositeMapper = {
+export const CommandAuditEntity: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "CommandAuditEntity",
@@ -1524,7 +1524,7 @@ export const CommandAuditEntity: coreHttp.CompositeMapper = {
   }
 };
 
-export const CommandAuditEntityDataResult: coreHttp.CompositeMapper = {
+export const CommandAuditEntityDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "CommandAuditEntityDataResult",
@@ -1560,7 +1560,7 @@ export const CommandAuditEntityDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const StringListDataResult: coreHttp.CompositeMapper = {
+export const StringListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "StringListDataResult",
@@ -1602,7 +1602,7 @@ export const StringListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const OrganizationListDataResult: coreHttp.CompositeMapper = {
+export const OrganizationListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "OrganizationListDataResult",
@@ -1645,7 +1645,7 @@ export const OrganizationListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Organization: coreHttp.CompositeMapper = {
+export const Organization: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "Organization",
@@ -1738,7 +1738,7 @@ export const Organization: coreHttp.CompositeMapper = {
   }
 };
 
-export const OrganizationDefinition: coreHttp.CompositeMapper = {
+export const OrganizationDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "OrganizationDefinition",
@@ -1776,7 +1776,7 @@ export const OrganizationDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const OrganizationDataResult: coreHttp.CompositeMapper = {
+export const OrganizationDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "OrganizationDataResult",
@@ -1812,7 +1812,7 @@ export const OrganizationDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const UserListDataResult: coreHttp.CompositeMapper = {
+export const UserListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "UserListDataResult",
@@ -1855,7 +1855,7 @@ export const UserListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const User: coreHttp.CompositeMapper = {
+export const User: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "User",
@@ -1941,7 +1941,7 @@ export const User: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectMembership: coreHttp.CompositeMapper = {
+export const ProjectMembership: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectMembership",
@@ -1972,7 +1972,7 @@ export const ProjectMembership: coreHttp.CompositeMapper = {
   }
 };
 
-export const UserAlternateIdentities: coreHttp.CompositeMapper = {
+export const UserAlternateIdentities: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "UserAlternateIdentities",
@@ -2002,7 +2002,7 @@ export const UserAlternateIdentities: coreHttp.CompositeMapper = {
   }
 };
 
-export const AlternateIdentity: coreHttp.CompositeMapper = {
+export const AlternateIdentity: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "AlternateIdentity",
@@ -2018,7 +2018,7 @@ export const AlternateIdentity: coreHttp.CompositeMapper = {
   }
 };
 
-export const UserDefinition: coreHttp.CompositeMapper = {
+export const UserDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "UserDefinition",
@@ -2049,7 +2049,7 @@ export const UserDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const UserDataResult: coreHttp.CompositeMapper = {
+export const UserDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "UserDataResult",
@@ -2085,7 +2085,7 @@ export const UserDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectListDataResult: coreHttp.CompositeMapper = {
+export const ProjectListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectListDataResult",
@@ -2128,7 +2128,7 @@ export const ProjectListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Project: coreHttp.CompositeMapper = {
+export const Project: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "Project",
@@ -2242,7 +2242,7 @@ export const Project: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectDefinition: coreHttp.CompositeMapper = {
+export const ProjectDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectDefinition",
@@ -2293,7 +2293,7 @@ export const ProjectDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectDataResult: coreHttp.CompositeMapper = {
+export const ProjectDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectDataResult",
@@ -2329,7 +2329,7 @@ export const ProjectDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentityListDataResult: coreHttp.CompositeMapper = {
+export const ProjectIdentityListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentityListDataResult",
@@ -2372,7 +2372,7 @@ export const ProjectIdentityListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentity: coreHttp.CompositeMapper = {
+export const ProjectIdentity: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentity",
@@ -2453,7 +2453,7 @@ export const ProjectIdentity: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentityDefinition: coreHttp.CompositeMapper = {
+export const ProjectIdentityDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentityDefinition",
@@ -2476,7 +2476,7 @@ export const ProjectIdentityDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectIdentityDataResult: coreHttp.CompositeMapper = {
+export const ProjectIdentityDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectIdentityDataResult",
@@ -2512,7 +2512,7 @@ export const ProjectIdentityDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
+export const StringDictionaryDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "StringDictionaryDataResult",
@@ -2550,7 +2550,7 @@ export const StringDictionaryDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplateListDataResult: coreHttp.CompositeMapper = {
+export const ProjectTemplateListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplateListDataResult",
@@ -2593,7 +2593,7 @@ export const ProjectTemplateListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplate: coreHttp.CompositeMapper = {
+export const ProjectTemplate: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplate",
@@ -2677,7 +2677,7 @@ export const ProjectTemplate: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplateDefinition: coreHttp.CompositeMapper = {
+export const ProjectTemplateDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplateDefinition",
@@ -2700,7 +2700,7 @@ export const ProjectTemplateDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const RepositoryDefinition: coreHttp.CompositeMapper = {
+export const RepositoryDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "RepositoryDefinition",
@@ -2730,7 +2730,7 @@ export const RepositoryDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
+export const ProjectTemplateDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ProjectTemplateDataResult",
@@ -2766,7 +2766,7 @@ export const ProjectTemplateDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const ScheduleListDataResult: coreHttp.CompositeMapper = {
+export const ScheduleListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ScheduleListDataResult",
@@ -2809,7 +2809,7 @@ export const ScheduleListDataResult: coreHttp.CompositeMapper = {
   }
 };
 
-export const Schedule: coreHttp.CompositeMapper = {
+export const Schedule: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "Schedule",
@@ -2921,7 +2921,7 @@ export const Schedule: coreHttp.CompositeMapper = {
   }
 };
 
-export const ComponentTaskReference: coreHttp.CompositeMapper = {
+export const ComponentTaskReference: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ComponentTaskReference",
@@ -2951,7 +2951,7 @@ export const ComponentTaskReference: coreHttp.CompositeMapper = {
   }
 };
 
-export const ScheduleDefinition: coreHttp.CompositeMapper = {
+export const ScheduleDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ScheduleDefinition",
@@ -3009,7 +3009,7 @@ export const ScheduleDefinition: coreHttp.CompositeMapper = {
   }
 };
 
-export const ScheduleDataResult: coreHttp.CompositeMapper = {
+export const ScheduleDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
     className: "ScheduleDataResult",

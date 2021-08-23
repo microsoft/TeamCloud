@@ -7,7 +7,6 @@ import { useIsAuthenticated } from '@azure/msal-react';
 import { matchesRouteParam } from '../Utils';
 import { api } from '../API';
 import { useProject, useProjectComponent } from '.';
-import { ErrorResult } from 'teamcloud';
 
 export const useProjectComponentTasks = () => {
 
@@ -20,12 +19,12 @@ export const useProjectComponentTasks = () => {
 
     return useQuery(['org', project?.organization, 'project', project?.id, 'component', component?.id, 'componenttask'], async () => {
 
-        const { data, code, _response } = await api.getComponentTasks(project!.organization, project!.id, component!.id);
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
+        const { data } = await api.getComponentTasks(project!.organization, project!.id, component!.id, {
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
 
         return data;
     }, {

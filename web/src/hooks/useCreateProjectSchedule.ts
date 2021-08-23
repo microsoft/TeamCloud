@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from 'react-query'
 import { useHistory, useParams } from 'react-router-dom';
-import { ErrorResult, ScheduleDefinition } from 'teamcloud';
+import { ScheduleDefinition } from 'teamcloud';
 import { api } from '../API';
 import { useOrg, useProject, useProjectSchedules } from '.';
 
@@ -22,12 +22,13 @@ export const useCreateProjectSchedule = () => {
     return useMutation(async (scheduletDef: ScheduleDefinition) => {
         if (!project) throw Error('No project')
 
-        const { data, code, _response } = await api.createSchedule(project.organization, project.id, { body: scheduletDef });
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
+        const { data } = await api.createSchedule(project.organization, project.id, {
+            body: scheduletDef,
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
 
         return data;
     }, {

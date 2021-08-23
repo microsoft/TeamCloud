@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { useMutation, useQueryClient } from 'react-query'
-import { ErrorResult, ProjectTemplateDefinition } from 'teamcloud';
+import { ProjectTemplateDefinition } from 'teamcloud';
 import { api } from '../API';
 import { useOrg } from '.';
 
@@ -15,18 +15,24 @@ export const useCreateProjectTemplate = () => {
     return useMutation(async (templateDef: ProjectTemplateDefinition) => {
         if (!org) throw Error('No Org');
 
-        const { data, code, _response } = await api.createProjectTemplate(org.id, { body: templateDef });
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
-
+        const { data } = await api.createProjectTemplate(org.id, {
+            body: templateDef,
+            onResponse: (raw, flat) => {
+                console.warn(JSON.stringify(raw))
+                console.warn(JSON.stringify(flat))
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
+        console.warn(JSON.stringify(data))
         return data;
     }, {
         onSuccess: data => {
-            if (data)
-                queryClient.setQueryData(['org', org!.id, 'templates'], [data]);
+            console.warn('onsuccess')
+            if (data) {
+                queryClient.invalidateQueries(['org', org!.id, 'templates'])
+                queryClient.setQueryData(['org', org!.id, 'templates', data!.id], data);
+            }
         }
     }).mutateAsync
 }

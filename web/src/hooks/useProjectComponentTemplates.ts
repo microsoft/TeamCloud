@@ -5,7 +5,6 @@ import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api } from '../API';
 import { useProject } from '.';
-import { ErrorResult } from 'teamcloud';
 
 export const useProjectComponentTemplates = () => {
 
@@ -15,14 +14,14 @@ export const useProjectComponentTemplates = () => {
 
     return useQuery(['org', project?.organization, 'project', project?.id, 'componenttemplate'], async () => {
 
-        const { data, code, _response } = await api.getComponentTemplates(project!.organization, project!.id);
+        const { data } = await api.getComponentTemplates(project!.organization, project!.id, {
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
 
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
-
-        console.log(JSON.stringify(data));
+        // console.log(JSON.stringify(data));
         return data;
     }, {
         enabled: isAuthenticated && !!project?.id

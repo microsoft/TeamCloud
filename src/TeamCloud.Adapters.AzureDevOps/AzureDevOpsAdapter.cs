@@ -251,7 +251,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 
             return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("succeeded"));
 
-            async Task<string> GetErrorDescriptionAsync(HttpResponseMessage responseMessage)
+            static async Task<string> GetErrorDescriptionAsync(HttpResponseMessage responseMessage)
             {
                 try
                 {
@@ -443,7 +443,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
             else if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var error = await response
+                _ = await response
                     .GetBadRequestErrorDescriptionAsync()
                     .ConfigureAwait(false);
 
@@ -963,7 +963,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 
                         if (AzureResourceIdentifier.TryParse(componentProject.ResourceId, out var projectResourceId))
                         {
-                            // the corresponding TeamCloud project has already a resource group assigned and 
+                            // the corresponding TeamCloud project has already a resource group assigned and
                             // therefore has a 'home subscription' - so we are ready to create/update a service endpoint.
 
                             var projectResourceGroup = await azureResourceService
@@ -1143,7 +1143,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             if (teamProject is null)
             {
                 // as there is no AzDO project available
-                // we don't need to do any cleanup work 
+                // we don't need to do any cleanup work
 
                 return component;
             }

@@ -363,7 +363,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                         .Where(child => child.Type.Equals("/subscriptions", StringComparison.OrdinalIgnoreCase))
                         .Select(child => Guid.Parse(child.Name));
                 }
-                catch (Exception exc)
+                catch
                 {
                     subscriptionIds = Enumerable.Empty<Guid>();
                 }
@@ -384,7 +384,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                         .Where(subscription => deploymentScope.SubscriptionIds.Contains(Guid.Parse(subscription.SubscriptionId)))
                         .Select(subscription => Guid.Parse(subscription.SubscriptionId));
                 }
-                catch (Exception exc)
+                catch
                 {
                     subscriptionIds = Enumerable.Empty<Guid>();
                 }

@@ -4,12 +4,18 @@
 # --------------------------------------------------------------------------------------------
 # pylint: disable=unused-argument, protected-access, too-many-lines
 
+import json
+import requests
+
 from knack.util import CLIError
 from knack.log import get_logger
 from azure.cli.core.commands import LongRunningOperation
+from azure.cli.core.commands.client_factory import get_subscription_id
 from azure.cli.core.profiles import ResourceType, get_sdk
-from azure.cli.core.util import (
-    can_launch_browser, open_page_in_browser, in_cloud_console, should_disable_connection_verify)
+from azure.cli.core.util import (can_launch_browser, open_page_in_browser, in_cloud_console,
+                                 random_string, sdk_no_wait, should_disable_connection_verify)
+
+from ._client_factory import (resource_client_factory, web_client_factory)
 
 
 ERR_TMPL_PRDR_INDEX = 'Unable to get provider index.\n'
@@ -29,8 +35,6 @@ logger = get_logger(__name__)
 
 
 def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=False):
-    import requests
-
     if version and prerelease:
         raise CLIError(
             'usage error: can only use one of --version/-v | --pre')
@@ -66,34 +70,30 @@ def get_github_latest_release_version(cli_ctx, repo, org='microsoft', prerelease
 
 
 def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
-    import requests
-
     version_url = 'https://api.github.com/repos/{}/{}/releases/tags/{}'.format(org, repo, version)
     version_res = requests.get(version_url, verify=not should_disable_connection_verify())
     return version_res.status_code < 400
 
 
 def get_resource_group_by_name(cli_ctx, resource_group_name):
-    from ._client_factory import resource_client_factory
-
+    subscription_id = get_subscription_id(cli_ctx)
     try:
         resource_client = resource_client_factory(cli_ctx).resource_groups
-        return resource_client.get(resource_group_name), resource_client.config.subscription_id
+        return resource_client.get(resource_group_name), subscription_id
     except Exception as ex:  # pylint: disable=broad-except
         error = getattr(ex, 'Azure Error', ex)
         if error != 'ResourceGroupNotFound':
-            return None, resource_client.config.subscription_id
+            return None, subscription_id
         raise
 
 
 def create_resource_group_name(cli_ctx, resource_group_name, location, tags=None):
-    from ._client_factory import resource_client_factory
-
+    subscription_id = get_subscription_id(cli_ctx)
     ResourceGroup = get_sdk(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES,
                             'ResourceGroup', mod='models')
     resource_client = resource_client_factory(cli_ctx).resource_groups
     parameters = ResourceGroup(location=location.lower(), tags=tags)
-    return resource_client.create_or_update(resource_group_name, parameters), resource_client.config.subscription_id
+    return resource_client.create_or_update(resource_group_name, parameters), subscription_id
 
 
 def set_appconfig_keys(cmd, appconfig_conn_string, kvs):
@@ -123,53 +123,15 @@ def create_resource_manager_sp(cmd, app_name):
     return sp
 
 
-def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_instance=None, timeout=None):
-    import requests
-    import urllib3
-
-    from ._client_factory import web_client_factory
-
-    web_client = web_client_factory(cli_ctx).web_apps
-
-    #  work around until the timeout limits issue for linux is investigated & fixed
-    creds = web_client.list_publishing_credentials(resource_group_name, name)
-    creds = creds.result()
-
-    try:
-        scm_url = _get_scm_url(cli_ctx, resource_group_name, name,
-                               slot=slot, app_instance=app_instance)
-    except ValueError:
-        raise CLIError('Failed to fetch scm url for azure app service app')
-
-    zipdeploy_url = scm_url + '/api/zipdeploy?isAsync=true'
-    deployment_status_url = scm_url + '/api/deployments/latest'
-
-    authorization = urllib3.util.make_headers(basic_auth='{}:{}'.format(
-        creds.publishing_user_name, creds.publishing_password))
-
-    res = requests.put(zipdeploy_url, headers=authorization,
-                       json={'packageUri': zip_url}, verify=not should_disable_connection_verify())
-
-    # check if there's an ongoing process
-    if res.status_code == 409:
-        raise CLIError('There may be an ongoing deployment or your app setting has WEBSITE_RUN_FROM_PACKAGE. '
-                       'Please track your deployment in {} and ensure the WEBSITE_RUN_FROM_PACKAGE app setting '
-                       'is removed.'.format(deployment_status_url))
-
-    # check the status of async deployment
-    response = _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
-                                            authorization, slot=slot, app_instance=app_instance, timeout=timeout)
-
-    return response
+# pylint: disable=inconsistent-return-statements
 
 
 def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, template_file=None,
                                           template_uri=None, parameters=None, no_wait=False):
-    from azure.cli.core.util import random_string, sdk_no_wait
-    from azure.cli.command_modules.resource.custom import _prepare_deployment_properties_unmodified
-    from ._client_factory import resource_client_factory
 
-    properties = _prepare_deployment_properties_unmodified(cmd, template_file=template_file,
+    from azure.cli.command_modules.resource.custom import _prepare_deployment_properties_unmodified
+
+    properties = _prepare_deployment_properties_unmodified(cmd, 'resourceGroup', template_file=template_file,
                                                            template_uri=template_uri, parameters=parameters,
                                                            mode='Incremental')
 
@@ -179,16 +141,11 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
         try:
             deployment_name = random_string(length=14, force_lower=True) + str(try_number)
 
-            if cmd.supported_api_version(min_api='2019-10-01', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES):
-                Deployment = cmd.get_models(
-                    'Deployment', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES)
+            Deployment = cmd.get_models('Deployment', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES)
+            deployment = Deployment(properties=properties)
 
-                deployment = Deployment(properties=properties)
-                deploy_poll = sdk_no_wait(no_wait, client.create_or_update, resource_group_name,
-                                          deployment_name, deployment)
-            else:
-                deploy_poll = sdk_no_wait(no_wait, client.create_or_update, resource_group_name,
-                                          deployment_name, properties)
+            deploy_poll = sdk_no_wait(no_wait, client.begin_create_or_update, resource_group_name,
+                                      deployment_name, deployment)
 
             result = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
                                           finish_msg='Finished deploying ARM template')(deploy_poll)
@@ -200,12 +157,11 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
                 raise err
             try:
                 response = getattr(err, 'response', None)
-                import json
                 message = json.loads(response.text)['error']['details'][0]['message']
                 if '(ServiceUnavailable)' not in message:
                     raise err
             except:
-                raise err
+                raise err from err
             import time
             time.sleep(5)
             continue
@@ -221,7 +177,6 @@ def open_url_in_browser(url):
 
 
 def get_index(index_url):
-    import requests
     for try_number in range(TRIES):
         try:
             response = requests.get(index_url, verify=(not should_disable_connection_verify()))
@@ -231,12 +186,12 @@ def get_index(index_url):
             raise CLIError(msg)
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as err:
             msg = ERR_TMPL_NO_NETWORK.format(str(err))
-            raise CLIError(msg)
+            raise CLIError(msg) from err
         except ValueError as err:
             # Indicates that url is not redirecting properly to intended index url, we stop retrying after TRIES calls
             if try_number == TRIES - 1:
                 msg = ERR_TMPL_BAD_JSON.format(str(err))
-                raise CLIError(msg)
+                raise CLIError(msg) from err
             import time
             time.sleep(0.5)
             continue
@@ -323,7 +278,7 @@ def get_app_name(url):
     except IndexError:
         pass
 
-    if name is None or '':
+    if name is None:
         raise CLIError('Unable to get app name from url.')
 
     return name
@@ -347,19 +302,55 @@ def get_app_info(cmd, url):
 def get_arm_output(outputs, key, raise_on_error=True):
     try:
         value = outputs[key]['value']
-    except KeyError:
+    except KeyError as e:
         if raise_on_error:
             raise CLIError(
-                "A value for '{}' was not provided in the ARM template outputs".format(key))
+                "A value for '{}' was not provided in the ARM template outputs".format(key)) from e
         value = None
 
     return value
 
 
+def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_instance=None, timeout=None):
+    import urllib3
+
+    web_client = web_client_factory(cli_ctx).web_apps
+
+    creds_poller = web_client.begin_list_publishing_credentials(resource_group_name, name)
+    creds = LongRunningOperation(cli_ctx, start_msg='Getting publishing credentials',
+                                 finish_msg='Finished getting publishing credentials')(creds_poller)
+
+    try:
+        scm_url = _get_scm_url(cli_ctx, resource_group_name, name,
+                               slot=slot, app_instance=app_instance)
+    except ValueError:
+        raise CLIError('Failed to fetch scm url for azure app service app')  # pylint: disable=raise-missing-from
+
+    zipdeploy_url = scm_url + '/api/zipdeploy?isAsync=true'
+    deployment_status_url = scm_url + '/api/deployments/latest'
+
+    authorization = urllib3.util.make_headers(basic_auth='{}:{}'.format(
+        creds.publishing_user_name, creds.publishing_password))
+
+    res = requests.put(zipdeploy_url, headers=authorization,
+                       json={'packageUri': zip_url}, verify=not should_disable_connection_verify())
+
+    # check if there's an ongoing process
+    if res.status_code == 409:
+        logger.warning(res.json())
+        raise CLIError('There may be an ongoing deployment or your app setting has WEBSITE_RUN_FROM_PACKAGE. '
+                       'Please track your deployment in {} and ensure the WEBSITE_RUN_FROM_PACKAGE app setting '
+                       'is removed.'.format(deployment_status_url))
+
+    # check the status of async deployment
+    response = _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
+                                            authorization, slot=slot, app_instance=app_instance, timeout=timeout)
+
+    return response
+
+
 def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
                                  authorization, slot=None, app_instance=None, timeout=None):
-    import json
-    import requests
     from time import sleep
 
     total_trials = (int(timeout) // 2) if timeout else 450
@@ -382,13 +373,19 @@ def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_
         if res_dict.get('status', 0) == 3:
             _configure_default_logging(cli_ctx, resource_group_name, name,
                                        slot=slot, app_instance=app_instance)
-            raise CLIError('Zip deployment failed. {}. Please run the command az webapp log tail -n {} -g {}'.format(
-                res_dict, name, resource_group_name))
+
+            deploment_detail_messages = _get_deployment_details(res_dict, deployment_status_url, authorization)
+
+            raise CLIError('Zip deployment failed.\n\n{}.\n\n===================\n| Deployment Logs '
+                           '|\n===================\n\n{}'.format(
+                               res_dict, '\n'.join(deploment_detail_messages)))
+
         if res_dict.get('status', 0) == 4:
             break
         if 'progress' in res_dict:
             # show only in debug mode, customers seem to find this confusing
             logger.info(res_dict['progress'])
+
     # if the deployment is taking longer than expected
     if res_dict.get('status', 0) != 4:
         _configure_default_logging(cli_ctx, resource_group_name, name,
@@ -399,7 +396,48 @@ def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_
     return res_dict
 
 
+def _get_deployment_details(res_dict, deployment_status_url, authorization):
+
+    deploment_detail_messages = []
+
+    deploment_id = res_dict.get('id', None)
+
+    if deploment_id is not None:
+        deploment_log_url = deployment_status_url.replace('latest', '{}/log'.format(deploment_id))
+        deploment_log_response = requests.get(deploment_log_url, headers=authorization,
+                                              verify=not should_disable_connection_verify())
+        try:
+            deploment_log_dict = deploment_log_response.json()
+
+            deploment_details = next((log for log in deploment_log_dict if log['details_url'] is not None
+                                      and log['details_url'].startswith('https')), None)
+
+            if deploment_details is not None:
+
+                deploment_details_url = deploment_details['details_url']
+                deploment_details_response = requests.get(deploment_details_url, headers=authorization,
+                                                          verify=not should_disable_connection_verify())
+                try:
+                    deploment_details_dict = deploment_details_response.json()
+
+                    for deploment_detail in deploment_details_dict:
+                        deploment_detail_message = deploment_detail.get('message', '')
+                        # logger.warning(deploment_detail_message)
+                        deploment_detail_messages.append(deploment_detail_message)
+
+                except json.decoder.JSONDecodeError:
+                    logger.warning("Deployment status endpoint %s returned malformed data. Retrying...",
+                                   deploment_details_url)
+
+        except json.decoder.JSONDecodeError:
+            logger.warning("Deployment status endpoint %s returned malformed data. Retrying...",
+                           deploment_log_url)
+
+    return deploment_detail_messages
+
 # TODO: expose new blob suport
+
+
 def _configure_default_logging(cli_ctx, resource_group_name, name, slot=None, app_instance=None, level=None,
                                web_server_logging='filesystem', docker_container_logging='true'):
     from azure.mgmt.web.models import (FileSystemApplicationLogsConfig, ApplicationLogsConfig,
@@ -432,7 +470,6 @@ def _configure_default_logging(cli_ctx, resource_group_name, name, slot=None, ap
                                      http_logs=http_logs, failed_requests_tracing=None,
                                      detailed_error_messages=None)
 
-    from ._client_factory import web_client_factory
     web_client = web_client_factory(cli_ctx).web_apps
 
     return web_client.update_diagnostic_logs_config(resource_group_name, name, site_log_config)
@@ -450,7 +487,6 @@ def _get_scm_url(cli_ctx, resource_group_name, name, slot=None, app_instance=Non
 def _get_webapp(cli_ctx, resource_group_name, name, slot=None, app_instance=None):
     webapp = app_instance
     if not app_instance:
-        from ._client_factory import web_client_factory
         web_client = web_client_factory(cli_ctx).web_apps
         webapp = web_client.get(resource_group_name, name)
     if not webapp:

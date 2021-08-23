@@ -1,25 +1,26 @@
-import * as coreHttp from '@azure/core-http';
+import * as coreAuth from '@azure/core-auth';
+import * as coreClient from '@azure/core-client';
 
 export declare interface AdapterInformation {
     type?: AdapterInformationType;
-    displayName?: string | null;
-    inputDataSchema?: string | null;
-    inputDataForm?: string | null;
+    displayName?: string;
+    inputDataSchema?: string;
+    inputDataForm?: string;
 }
 
 export declare interface AdapterInformationListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: AdapterInformation[] | null;
-    location?: string | null;
+    readonly data?: AdapterInformation[];
+    location?: string;
 }
 
 /**
  * Defines values for AdapterInformationType. \
  * {@link KnownAdapterInformationType} can be used interchangeably with AdapterInformationType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -27,52 +28,52 @@ export declare interface AdapterInformationListDataResult {
 export declare type AdapterInformationType = string;
 
 export declare interface AlternateIdentity {
-    login?: string | null;
+    login?: string;
 }
 
 export declare interface CommandAuditEntity {
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly commandId?: string | null;
+    readonly commandId?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly organizationId?: string | null;
-    commandJson?: string | null;
-    resultJson?: string | null;
+    readonly organizationId?: string;
+    commandJson?: string;
+    resultJson?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly projectId?: string | null;
+    readonly projectId?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly userId?: string | null;
+    readonly userId?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly parentId?: string | null;
-    command?: string | null;
+    readonly parentId?: string;
+    command?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly componentTask?: string | null;
+    readonly componentTask?: string;
     runtimeStatus?: CommandAuditEntityRuntimeStatus;
-    customStatus?: string | null;
-    errors?: string | null;
-    created?: Date | null;
-    updated?: Date | null;
+    customStatus?: string;
+    errors?: string;
+    created?: Date;
+    updated?: Date;
 }
 
 export declare interface CommandAuditEntityDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: CommandAuditEntity;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface CommandAuditEntityListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: CommandAuditEntity[] | null;
-    location?: string | null;
+    readonly data?: CommandAuditEntity[];
+    location?: string;
 }
 
 /**
  * Defines values for CommandAuditEntityRuntimeStatus. \
  * {@link KnownCommandAuditEntityRuntimeStatus} can be used interchangeably with CommandAuditEntityRuntimeStatus,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Running** \
  * **Completed** \
@@ -85,54 +86,54 @@ export declare interface CommandAuditEntityListDataResult {
 export declare type CommandAuditEntityRuntimeStatus = string;
 
 export declare interface Component {
-    href?: string | null;
+    href?: string;
     organization: string;
     templateId: string;
     projectId: string;
     creator: string;
-    displayName?: string | null;
-    description?: string | null;
-    inputJson?: string | null;
-    valueJson?: string | null;
+    displayName?: string;
+    description?: string;
+    inputJson?: string;
+    valueJson?: string;
     type: ComponentType;
-    resourceId?: string | null;
-    resourceUrl?: string | null;
+    resourceId?: string;
+    resourceUrl?: string;
     resourceState?: ComponentResourceState;
-    deploymentScopeId?: string | null;
-    identityId?: string | null;
-    deleted?: Date | null;
-    ttl?: number | null;
+    deploymentScopeId?: string;
+    identityId?: string;
+    deleted?: Date;
+    ttl?: number;
     slug: string;
     id: string;
 }
 
 export declare interface ComponentDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: Component;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface ComponentDefinition {
     templateId: string;
     displayName: string;
-    inputJson?: string | null;
-    deploymentScopeId?: string | null;
+    inputJson?: string;
+    deploymentScopeId?: string;
 }
 
 export declare interface ComponentListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: Component[] | null;
-    location?: string | null;
+    readonly data?: Component[];
+    location?: string;
 }
 
 /**
  * Defines values for ComponentResourceState. \
  * {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -145,52 +146,52 @@ export declare interface ComponentTask {
     organization: string;
     componentId: string;
     projectId: string;
-    requestedBy?: string | null;
-    scheduleId?: string | null;
+    requestedBy?: string;
+    scheduleId?: string;
     type?: ComponentTaskType;
-    typeName?: string | null;
+    typeName?: string;
     created?: Date;
-    started?: Date | null;
-    finished?: Date | null;
-    inputJson?: string | null;
-    output?: string | null;
-    resourceId?: string | null;
+    started?: Date;
+    finished?: Date;
+    inputJson?: string;
+    output?: string;
+    resourceId?: string;
     resourceState?: ComponentTaskResourceState;
-    exitCode?: number | null;
+    exitCode?: number;
     id: string;
 }
 
 export declare interface ComponentTaskDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: ComponentTask;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface ComponentTaskDefinition {
     taskId: string;
-    inputJson?: string | null;
+    inputJson?: string;
 }
 
 export declare interface ComponentTaskListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: ComponentTask[] | null;
-    location?: string | null;
+    readonly data?: ComponentTask[];
+    location?: string;
 }
 
 export declare interface ComponentTaskReference {
-    componentId?: string | null;
-    componentTaskTemplateId?: string | null;
-    inputJson?: string | null;
+    componentId?: string;
+    componentTaskTemplateId?: string;
+    inputJson?: string;
 }
 
 /**
  * Defines values for ComponentTaskResourceState. \
  * {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -200,28 +201,28 @@ export declare interface ComponentTaskReference {
 export declare type ComponentTaskResourceState = string;
 
 export declare interface ComponentTaskRunner {
-    id?: string | null;
+    id?: string;
     /** Dictionary of <string> */
     with?: {
         [propertyName: string]: string;
-    } | null;
+    };
 }
 
 export declare interface ComponentTaskTemplate {
-    id?: string | null;
-    displayName?: string | null;
-    description?: string | null;
-    inputJsonSchema?: string | null;
+    id?: string;
+    displayName?: string;
+    description?: string;
+    inputJsonSchema?: string;
     type?: ComponentTaskTemplateType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly typeName?: string | null;
+    readonly typeName?: string;
 }
 
 /**
  * Defines values for ComponentTaskTemplateType. \
  * {@link KnownComponentTaskTemplateType} can be used interchangeably with ComponentTaskTemplateType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Custom** \
  * **Create** \
  * **Delete**
@@ -232,7 +233,7 @@ export declare type ComponentTaskTemplateType = string;
  * Defines values for ComponentTaskType. \
  * {@link KnownComponentTaskType} can be used interchangeably with ComponentTaskType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Custom** \
  * **Create** \
  * **Delete**
@@ -242,33 +243,33 @@ export declare type ComponentTaskType = string;
 export declare interface ComponentTemplate {
     organization: string;
     parentId: string;
-    displayName?: string | null;
-    description?: string | null;
+    displayName?: string;
+    description?: string;
     repository: RepositoryReference;
-    permissions?: ComponentTemplatePermissions | null;
-    inputJsonSchema?: string | null;
-    tasks?: ComponentTaskTemplate[] | null;
+    permissions?: ComponentTemplatePermissions;
+    inputJsonSchema?: string;
+    tasks?: ComponentTaskTemplate[];
     taskRunner?: ComponentTaskRunner;
     type: ComponentTemplateType;
-    folder?: string | null;
-    /** Any object */
-    configuration?: any | null;
+    folder?: string;
+    /** Anything */
+    configuration?: any;
     id: string;
 }
 
 export declare interface ComponentTemplateDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: ComponentTemplate;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface ComponentTemplateListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: ComponentTemplate[] | null;
-    location?: string | null;
+    readonly data?: ComponentTemplate[];
+    location?: string;
 }
 
 export declare interface ComponentTemplatePermissions {
@@ -283,7 +284,7 @@ export declare interface ComponentTemplatePermissions {
  * Defines values for ComponentTemplateType. \
  * {@link KnownComponentTemplateType} can be used interchangeably with ComponentTemplateType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -293,7 +294,7 @@ export declare type ComponentTemplateType = string;
  * Defines values for ComponentType. \
  * {@link KnownComponentType} can be used interchangeably with ComponentType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -305,14 +306,14 @@ export declare interface DeploymentScope {
     slug: string;
     isDefault: boolean;
     type: DeploymentScopeType;
-    inputDataSchema?: string | null;
-    inputData?: string | null;
-    managementGroupId?: string | null;
-    subscriptionIds?: string[] | null;
+    inputDataSchema?: string;
+    inputData?: string;
+    managementGroupId?: string;
+    subscriptionIds?: string[];
     authorizable?: boolean;
     authorized?: boolean;
-    authorizeUrl?: string | null;
-    componentTypes?: DeploymentScopeComponentTypesItem[] | null;
+    authorizeUrl?: string;
+    componentTypes?: DeploymentScopeComponentTypesItem[];
     id: string;
 }
 
@@ -320,7 +321,7 @@ export declare interface DeploymentScope {
  * Defines values for DeploymentScopeComponentTypesItem. \
  * {@link KnownDeploymentScopeComponentTypesItem} can be used interchangeably with DeploymentScopeComponentTypesItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Environment** \
  * **Repository**
  */
@@ -328,17 +329,17 @@ export declare type DeploymentScopeComponentTypesItem = string;
 
 export declare interface DeploymentScopeDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: DeploymentScope;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface DeploymentScopeDefinition {
     displayName: string;
     type: DeploymentScopeDefinitionType;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug?: string | null;
-    inputData?: string | null;
+    readonly slug?: string;
+    inputData?: string;
     isDefault?: boolean;
 }
 
@@ -346,7 +347,7 @@ export declare interface DeploymentScopeDefinition {
  * Defines values for DeploymentScopeDefinitionType. \
  * {@link KnownDeploymentScopeDefinitionType} can be used interchangeably with DeploymentScopeDefinitionType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -355,17 +356,17 @@ export declare type DeploymentScopeDefinitionType = string;
 
 export declare interface DeploymentScopeListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: DeploymentScope[] | null;
-    location?: string | null;
+    readonly data?: DeploymentScope[];
+    location?: string;
 }
 
 /**
  * Defines values for DeploymentScopeType. \
  * {@link KnownDeploymentScopeType} can be used interchangeably with DeploymentScopeType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **AzureResourceManager** \
  * **AzureDevOps** \
  * **GitHub**
@@ -374,8 +375,8 @@ export declare type DeploymentScopeType = string;
 
 export declare interface ErrorResult {
     code?: number;
-    status?: string | null;
-    errors?: ResultError[] | null;
+    status?: string;
+    errors?: ResultError[];
 }
 
 /** Known values of {@link AdapterInformationType} that the service accepts. */
@@ -562,25 +563,25 @@ export declare interface Organization {
     /** Dictionary of <string> */
     tags?: {
         [propertyName: string]: string;
-    } | null;
-    resourceId?: string | null;
+    };
+    resourceId?: string;
     resourceState?: OrganizationResourceState;
-    galleryId?: string | null;
-    registryId?: string | null;
-    storageId?: string | null;
+    galleryId?: string;
+    registryId?: string;
+    storageId?: string;
     id: string;
 }
 
 export declare interface OrganizationDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: Organization;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface OrganizationDefinition {
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug?: string | null;
+    readonly slug?: string;
     displayName: string;
     subscriptionId: string;
     location: string;
@@ -588,17 +589,17 @@ export declare interface OrganizationDefinition {
 
 export declare interface OrganizationListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: Organization[] | null;
-    location?: string | null;
+    readonly data?: Organization[];
+    location?: string;
 }
 
 /**
  * Defines values for OrganizationResourceState. \
  * {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -612,36 +613,36 @@ export declare interface Project {
     slug: string;
     displayName: string;
     template: string;
-    templateInput?: string | null;
-    users?: User[] | null;
+    templateInput?: string;
+    users?: User[];
     /** Dictionary of <string> */
     tags?: {
         [propertyName: string]: string;
-    } | null;
-    resourceId?: string | null;
+    };
+    resourceId?: string;
     resourceState?: ProjectResourceState;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly vaultId?: string | null;
-    sharedVaultId?: string | null;
-    secretsVaultId?: string | null;
-    storageId?: string | null;
+    readonly vaultId?: string;
+    sharedVaultId?: string;
+    secretsVaultId?: string;
+    storageId?: string;
     id: string;
 }
 
 export declare interface ProjectDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: Project;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface ProjectDefinition {
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly slug?: string | null;
+    readonly slug?: string;
     displayName: string;
     template: string;
     templateInput: string;
-    users?: UserDefinition[] | null;
+    users?: UserDefinition[];
 }
 
 export declare interface ProjectIdentity {
@@ -651,17 +652,17 @@ export declare interface ProjectIdentity {
     deploymentScopeId: string;
     tenantId?: string;
     clientId?: string;
-    clientSecret?: string | null;
-    redirectUrls?: string[] | null;
+    clientSecret?: string;
+    redirectUrls?: string[];
     objectId?: string;
     id: string;
 }
 
 export declare interface ProjectIdentityDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: ProjectIdentity;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface ProjectIdentityDefinition {
@@ -671,18 +672,18 @@ export declare interface ProjectIdentityDefinition {
 
 export declare interface ProjectIdentityListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: ProjectIdentity[] | null;
-    location?: string | null;
+    readonly data?: ProjectIdentity[];
+    location?: string;
 }
 
 export declare interface ProjectListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: Project[] | null;
-    location?: string | null;
+    readonly data?: Project[];
+    location?: string;
 }
 
 export declare interface ProjectMembership {
@@ -691,14 +692,14 @@ export declare interface ProjectMembership {
     /** Dictionary of <string> */
     properties?: {
         [propertyName: string]: string;
-    } | null;
+    };
 }
 
 /**
  * Defines values for ProjectMembershipRole. \
  * {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **None** \
  * **Member** \
  * **Admin** \
@@ -711,7 +712,7 @@ export declare type ProjectMembershipRole = string;
  * Defines values for ProjectResourceState. \
  * {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
@@ -723,21 +724,21 @@ export declare type ProjectResourceState = string;
 export declare interface ProjectTemplate {
     organization: string;
     slug: string;
-    name?: string | null;
+    name?: string;
     displayName: string;
-    components?: string[] | null;
+    components?: string[];
     repository: RepositoryReference;
-    description?: string | null;
+    description?: string;
     isDefault: boolean;
-    inputJsonSchema?: string | null;
+    inputJsonSchema?: string;
     id: string;
 }
 
 export declare interface ProjectTemplateDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: ProjectTemplate;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface ProjectTemplateDefinition {
@@ -747,37 +748,37 @@ export declare interface ProjectTemplateDefinition {
 
 export declare interface ProjectTemplateListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: ProjectTemplate[] | null;
-    location?: string | null;
+    readonly data?: ProjectTemplate[];
+    location?: string;
 }
 
 export declare interface RepositoryDefinition {
     url: string;
-    token?: string | null;
-    version?: string | null;
+    token?: string;
+    version?: string;
 }
 
 export declare interface RepositoryReference {
     url: string;
-    token?: string | null;
-    version?: string | null;
-    baselUrl?: string | null;
-    mountUrl?: string | null;
-    ref?: string | null;
+    token?: string;
+    version?: string;
+    baselUrl?: string;
+    mountUrl?: string;
+    ref?: string;
     provider: RepositoryReferenceProvider;
     type: RepositoryReferenceType;
-    organization?: string | null;
-    repository?: string | null;
-    project?: string | null;
+    organization?: string;
+    repository?: string;
+    project?: string;
 }
 
 /**
  * Defines values for RepositoryReferenceProvider. \
  * {@link KnownRepositoryReferenceProvider} can be used interchangeably with RepositoryReferenceProvider,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **GitHub** \
  * **DevOps**
@@ -788,7 +789,7 @@ export declare type RepositoryReferenceProvider = string;
  * Defines values for RepositoryReferenceType. \
  * {@link KnownRepositoryReferenceType} can be used interchangeably with RepositoryReferenceType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Tag** \
  * **Branch** \
@@ -798,15 +799,15 @@ export declare type RepositoryReferenceType = string;
 
 export declare interface ResultError {
     code?: ResultErrorCode;
-    message?: string | null;
-    errors?: ValidationError[] | null;
+    message?: string;
+    errors?: ValidationError[];
 }
 
 /**
  * Defines values for ResultErrorCode. \
  * {@link KnownResultErrorCode} can be used interchangeably with ResultErrorCode,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Unknown** \
  * **Failed** \
  * **Conflict** \
@@ -823,30 +824,30 @@ export declare interface Schedule {
     projectId: string;
     enabled?: boolean;
     recurring?: boolean;
-    daysOfWeek?: ScheduleDaysOfWeekItem[] | null;
+    daysOfWeek?: ScheduleDaysOfWeekItem[];
     utcHour?: number;
     utcMinute?: number;
-    creator?: string | null;
+    creator?: string;
     created?: Date;
-    lastUpdatedBy?: string | null;
+    lastUpdatedBy?: string;
     lastUpdated?: Date;
-    lastRun?: Date | null;
-    componentTasks?: ComponentTaskReference[] | null;
+    lastRun?: Date;
+    componentTasks?: ComponentTaskReference[];
     id: string;
 }
 
 export declare interface ScheduleDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: Schedule;
-    location?: string | null;
+    location?: string;
 }
 
 /**
  * Defines values for ScheduleDaysOfWeekItem. \
  * {@link KnownScheduleDaysOfWeekItem} can be used interchangeably with ScheduleDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Sunday** \
  * **Monday** \
  * **Tuesday** \
@@ -860,17 +861,17 @@ export declare type ScheduleDaysOfWeekItem = string;
 export declare interface ScheduleDefinition {
     enabled?: boolean;
     recurring?: boolean;
-    daysOfWeek?: ScheduleDefinitionDaysOfWeekItem[] | null;
+    daysOfWeek?: ScheduleDefinitionDaysOfWeekItem[];
     utcHour?: number;
     utcMinute?: number;
-    componentTasks?: ComponentTaskReference[] | null;
+    componentTasks?: ComponentTaskReference[];
 }
 
 /**
  * Defines values for ScheduleDefinitionDaysOfWeekItem. \
  * {@link KnownScheduleDefinitionDaysOfWeekItem} can be used interchangeably with ScheduleDefinitionDaysOfWeekItem,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **Sunday** \
  * **Monday** \
  * **Tuesday** \
@@ -883,42 +884,42 @@ export declare type ScheduleDefinitionDaysOfWeekItem = string;
 
 export declare interface ScheduleListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: Schedule[] | null;
-    location?: string | null;
+    readonly data?: Schedule[];
+    location?: string;
 }
 
 export declare interface StatusResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly state?: string | null;
-    stateMessage?: string | null;
-    location?: string | null;
-    errors?: ResultError[] | null;
-    trackingId?: string | null;
+    readonly state?: string;
+    stateMessage?: string;
+    location?: string;
+    errors?: ResultError[];
+    trackingId?: string;
 }
 
 export declare interface StringDictionaryDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /**
      * Dictionary of <string>
      * NOTE: This property will not be serialized. It can only be populated by the server.
      */
     readonly data?: {
         [propertyName: string]: string;
-    } | null;
-    location?: string | null;
+    };
+    location?: string;
 }
 
 export declare interface StringListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: string[] | null;
-    location?: string | null;
+    readonly data?: string[];
+    location?: string;
 }
 
 export declare class TeamCloud extends TeamCloudContext {
@@ -928,12 +929,12 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param $host server parameter
      * @param options The parameter options
      */
-    constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
+    constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
     /**
      * Gets all Adapters.
      * @param options The options parameters.
      */
-    getAdapters(options?: coreHttp.OperationOptions): Promise<TeamCloudGetAdaptersResponse>;
+    getAdapters(options?: TeamCloudGetAdaptersOptionalParams): Promise<TeamCloudGetAdaptersResponse>;
     /**
      * Gets all Components for a Project.
      * @param organizationId
@@ -955,7 +956,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentResponse>;
+    getComponent(componentId: string | null, organizationId: string, projectId: string, options?: TeamCloudGetComponentOptionalParams): Promise<TeamCloudGetComponentResponse>;
     /**
      * Deletes an existing Project Component.
      * @param componentId
@@ -963,7 +964,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    deleteComponent(componentId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteComponentResponse>;
+    deleteComponent(componentId: string | null, organizationId: string, projectId: string, options?: TeamCloudDeleteComponentOptionalParams): Promise<TeamCloudDeleteComponentResponse>;
     /**
      * Gets all Component Tasks.
      * @param organizationId
@@ -971,7 +972,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTasks(organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTasksResponse>;
+    getComponentTasks(organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudGetComponentTasksOptionalParams): Promise<TeamCloudGetComponentTasksResponse>;
     /**
      * Creates a new Project Component Task.
      * @param organizationId
@@ -988,14 +989,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTaskResponse>;
+    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudGetComponentTaskOptionalParams): Promise<TeamCloudGetComponentTaskResponse>;
     /**
      * Gets all Component Templates for a Project.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getComponentTemplates(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplatesResponse>;
+    getComponentTemplates(organizationId: string, projectId: string, options?: TeamCloudGetComponentTemplatesOptionalParams): Promise<TeamCloudGetComponentTemplatesResponse>;
     /**
      * Gets the Component Template.
      * @param id
@@ -1003,13 +1004,13 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getComponentTemplate(id: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetComponentTemplateResponse>;
+    getComponentTemplate(id: string | null, organizationId: string, projectId: string, options?: TeamCloudGetComponentTemplateOptionalParams): Promise<TeamCloudGetComponentTemplateResponse>;
     /**
      * Gets all Deployment Scopes.
      * @param organizationId
      * @param options The options parameters.
      */
-    getDeploymentScopes(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopesResponse>;
+    getDeploymentScopes(organizationId: string, options?: TeamCloudGetDeploymentScopesOptionalParams): Promise<TeamCloudGetDeploymentScopesResponse>;
     /**
      * Creates a new Deployment Scope.
      * @param organizationId
@@ -1022,7 +1023,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetDeploymentScopeResponse>;
+    getDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudGetDeploymentScopeOptionalParams): Promise<TeamCloudGetDeploymentScopeResponse>;
     /**
      * Updates an existing Deployment Scope.
      * @param deploymentScopeId
@@ -1036,7 +1037,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudDeleteDeploymentScopeOptionalParams): Promise<TeamCloudDeleteDeploymentScopeResponse>;
     /**
      * Authorize an existing Deployment Scope.
      * @param deploymentScopeId
@@ -1050,7 +1051,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    negotiateSignalR(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<coreHttp.RestResponse>;
+    negotiateSignalR(organizationId: string, projectId: string, options?: TeamCloudNegotiateSignalROptionalParams): Promise<void>;
     /**
      * Gets all audit entries.
      * @param organizationId
@@ -1069,12 +1070,12 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getAuditCommands(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetAuditCommandsResponse>;
+    getAuditCommands(organizationId: string, options?: TeamCloudGetAuditCommandsOptionalParams): Promise<TeamCloudGetAuditCommandsResponse>;
     /**
      * Gets all Organizations.
      * @param options The options parameters.
      */
-    getOrganizations(options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationsResponse>;
+    getOrganizations(options?: TeamCloudGetOrganizationsOptionalParams): Promise<TeamCloudGetOrganizationsResponse>;
     /**
      * Creates a new Organization.
      * @param options The options parameters.
@@ -1085,19 +1086,19 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationResponse>;
+    getOrganization(organizationId: string, options?: TeamCloudGetOrganizationOptionalParams): Promise<TeamCloudGetOrganizationResponse>;
     /**
      * Deletes an existing Organization.
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteOrganization(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationResponse>;
+    deleteOrganization(organizationId: string, options?: TeamCloudDeleteOrganizationOptionalParams): Promise<TeamCloudDeleteOrganizationResponse>;
     /**
      * Gets all Users.
      * @param organizationId
      * @param options The options parameters.
      */
-    getOrganizationUsers(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUsersResponse>;
+    getOrganizationUsers(organizationId: string, options?: TeamCloudGetOrganizationUsersOptionalParams): Promise<TeamCloudGetOrganizationUsersResponse>;
     /**
      * Creates a new User.
      * @param organizationId
@@ -1110,7 +1111,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserResponse>;
+    getOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudGetOrganizationUserOptionalParams): Promise<TeamCloudGetOrganizationUserResponse>;
     /**
      * Updates an existing User.
      * @param userId
@@ -1124,13 +1125,13 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteOrganizationUser(userId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteOrganizationUserResponse>;
+    deleteOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudDeleteOrganizationUserOptionalParams): Promise<TeamCloudDeleteOrganizationUserResponse>;
     /**
      * Gets a User A User matching the current authenticated user.
      * @param organizationId
      * @param options The options parameters.
      */
-    getOrganizationUserMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetOrganizationUserMeResponse>;
+    getOrganizationUserMe(organizationId: string, options?: TeamCloudGetOrganizationUserMeOptionalParams): Promise<TeamCloudGetOrganizationUserMeResponse>;
     /**
      * Updates an existing User.
      * @param organizationId
@@ -1142,7 +1143,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getProjects(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectsResponse>;
+    getProjects(organizationId: string, options?: TeamCloudGetProjectsOptionalParams): Promise<TeamCloudGetProjectsResponse>;
     /**
      * Creates a new Project.
      * @param organizationId
@@ -1155,21 +1156,21 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectResponse>;
+    getProject(projectId: string, organizationId: string, options?: TeamCloudGetProjectOptionalParams): Promise<TeamCloudGetProjectResponse>;
     /**
      * Deletes a Project.
      * @param projectId
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteProject(projectId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectResponse>;
+    deleteProject(projectId: string, organizationId: string, options?: TeamCloudDeleteProjectOptionalParams): Promise<TeamCloudDeleteProjectResponse>;
     /**
      * Gets all Project Identities.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectIdentities(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectIdentitiesResponse>;
+    getProjectIdentities(organizationId: string, projectId: string, options?: TeamCloudGetProjectIdentitiesOptionalParams): Promise<TeamCloudGetProjectIdentitiesResponse>;
     /**
      * Creates a new Project Identity.
      * @param organizationId
@@ -1184,7 +1185,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectIdentityResponse>;
+    getProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: TeamCloudGetProjectIdentityOptionalParams): Promise<TeamCloudGetProjectIdentityResponse>;
     /**
      * Updates an existing Project Identity.
      * @param projectIdentityId
@@ -1200,14 +1201,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    deleteProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectIdentityResponse>;
+    deleteProjectIdentity(projectIdentityId: string | null, organizationId: string, projectId: string, options?: TeamCloudDeleteProjectIdentityOptionalParams): Promise<TeamCloudDeleteProjectIdentityResponse>;
     /**
      * Gets all Tags for a Project.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectTags(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagsResponse>;
+    getProjectTags(organizationId: string, projectId: string, options?: TeamCloudGetProjectTagsOptionalParams): Promise<TeamCloudGetProjectTagsResponse>;
     /**
      * Creates a new Project Tag.
      * @param organizationId
@@ -1229,7 +1230,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectTagByKey(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTagByKeyResponse>;
+    getProjectTagByKey(tagKey: string | null, organizationId: string, projectId: string, options?: TeamCloudGetProjectTagByKeyOptionalParams): Promise<TeamCloudGetProjectTagByKeyResponse>;
     /**
      * Deletes an existing Project Tag.
      * @param tagKey
@@ -1237,13 +1238,13 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTagResponse>;
+    deleteProjectTag(tagKey: string | null, organizationId: string, projectId: string, options?: TeamCloudDeleteProjectTagOptionalParams): Promise<TeamCloudDeleteProjectTagResponse>;
     /**
      * Gets all Project Templates.
      * @param organizationId
      * @param options The options parameters.
      */
-    getProjectTemplates(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplatesResponse>;
+    getProjectTemplates(organizationId: string, options?: TeamCloudGetProjectTemplatesOptionalParams): Promise<TeamCloudGetProjectTemplatesResponse>;
     /**
      * Creates a new Project Template.
      * @param organizationId
@@ -1256,7 +1257,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectTemplateResponse>;
+    getProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: TeamCloudGetProjectTemplateOptionalParams): Promise<TeamCloudGetProjectTemplateResponse>;
     /**
      * Updates an existing Project Template.
      * @param projectTemplateId
@@ -1270,14 +1271,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectTemplateResponse>;
+    deleteProjectTemplate(projectTemplateId: string | null, organizationId: string, options?: TeamCloudDeleteProjectTemplateOptionalParams): Promise<TeamCloudDeleteProjectTemplateResponse>;
     /**
      * Gets all Users for a Project.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectUsers(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUsersResponse>;
+    getProjectUsers(organizationId: string, projectId: string, options?: TeamCloudGetProjectUsersOptionalParams): Promise<TeamCloudGetProjectUsersResponse>;
     /**
      * Creates a new Project User
      * @param organizationId
@@ -1292,7 +1293,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserResponse>;
+    getProjectUser(userId: string | null, organizationId: string, projectId: string, options?: TeamCloudGetProjectUserOptionalParams): Promise<TeamCloudGetProjectUserResponse>;
     /**
      * Updates an existing Project User.
      * @param userId
@@ -1308,14 +1309,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudDeleteProjectUserResponse>;
+    deleteProjectUser(userId: string | null, organizationId: string, projectId: string, options?: TeamCloudDeleteProjectUserOptionalParams): Promise<TeamCloudDeleteProjectUserResponse>;
     /**
      * Gets a Project User for the calling user.
      * @param organizationId
      * @param projectId
      * @param options The options parameters.
      */
-    getProjectUserMe(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectUserMeResponse>;
+    getProjectUserMe(organizationId: string, projectId: string, options?: TeamCloudGetProjectUserMeOptionalParams): Promise<TeamCloudGetProjectUserMeResponse>;
     /**
      * Updates an existing Project User.
      * @param organizationId
@@ -1329,7 +1330,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getSchedules(organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetSchedulesResponse>;
+    getSchedules(organizationId: string, projectId: string, options?: TeamCloudGetSchedulesOptionalParams): Promise<TeamCloudGetSchedulesResponse>;
     /**
      * Creates a new Project Schedule.
      * @param organizationId
@@ -1344,7 +1345,7 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetScheduleResponse>;
+    getSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: TeamCloudGetScheduleOptionalParams): Promise<TeamCloudGetScheduleResponse>;
     /**
      * Updates a Project Schedule.
      * @param scheduleId
@@ -1360,14 +1361,14 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param projectId
      * @param options The options parameters.
      */
-    runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudRunScheduleResponse>;
+    runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: TeamCloudRunScheduleOptionalParams): Promise<TeamCloudRunScheduleResponse>;
     /**
      * Gets the status of a long-running operation.
      * @param trackingId
      * @param organizationId
      * @param options The options parameters.
      */
-    getStatus(trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetStatusResponse>;
+    getStatus(trackingId: string, organizationId: string, options?: TeamCloudGetStatusOptionalParams): Promise<TeamCloudGetStatusResponse>;
     /**
      * Gets the status of a long-running operation.
      * @param projectId
@@ -1375,39 +1376,31 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param organizationId
      * @param options The options parameters.
      */
-    getProjectStatus(projectId: string, trackingId: string, organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetProjectStatusResponse>;
+    getProjectStatus(projectId: string, trackingId: string, organizationId: string, options?: TeamCloudGetProjectStatusOptionalParams): Promise<TeamCloudGetProjectStatusResponse>;
     /**
      * Gets all Projects for a User.
      * @param organizationId
      * @param userId
      * @param options The options parameters.
      */
-    getUserProjects(organizationId: string, userId: string | null, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsResponse>;
+    getUserProjects(organizationId: string, userId: string | null, options?: TeamCloudGetUserProjectsOptionalParams): Promise<TeamCloudGetUserProjectsResponse>;
     /**
      * Gets all Projects for a User.
      * @param organizationId
      * @param options The options parameters.
      */
-    getUserProjectsMe(organizationId: string, options?: coreHttp.OperationOptions): Promise<TeamCloudGetUserProjectsMeResponse>;
+    getUserProjectsMe(organizationId: string, options?: TeamCloudGetUserProjectsMeOptionalParams): Promise<TeamCloudGetUserProjectsMeResponse>;
 }
 
 /** Optional parameters. */
-export declare interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreClient.OperationOptions {
     body?: DeploymentScope;
 }
 
 /** Contains response data for the authorizeDeploymentScope operation. */
-export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: DeploymentScopeDataResult;
-    };
-};
+export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult;
 
-export declare class TeamCloudContext extends coreHttp.ServiceClient {
+export declare class TeamCloudContext extends coreClient.ServiceClient {
     $host: string;
     /**
      * Initializes a new instance of the TeamCloudContext class.
@@ -1415,123 +1408,67 @@ export declare class TeamCloudContext extends coreHttp.ServiceClient {
      * @param $host server parameter
      * @param options The parameter options
      */
-    constructor(credentials: coreHttp.TokenCredential | coreHttp.ServiceClientCredentials, $host: string, options?: TeamCloudOptionalParams);
+    constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
 }
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateComponentOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateComponentOptionalParams extends coreClient.OperationOptions {
     body?: ComponentDefinition;
 }
 
 /** Contains response data for the createComponent operation. */
-export declare type TeamCloudCreateComponentResponse = ComponentDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentDataResult;
-    };
-};
+export declare type TeamCloudCreateComponentResponse = ComponentDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateComponentTaskOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateComponentTaskOptionalParams extends coreClient.OperationOptions {
     body?: ComponentTaskDefinition;
 }
 
 /** Contains response data for the createComponentTask operation. */
-export declare type TeamCloudCreateComponentTaskResponse = ComponentTaskDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentTaskDataResult;
-    };
-};
+export declare type TeamCloudCreateComponentTaskResponse = ComponentTaskDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateDeploymentScopeOptionalParams extends coreClient.OperationOptions {
     body?: DeploymentScopeDefinition;
 }
 
 /** Contains response data for the createDeploymentScope operation. */
-export declare type TeamCloudCreateDeploymentScopeResponse = DeploymentScopeDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: DeploymentScopeDataResult;
-    };
-};
+export declare type TeamCloudCreateDeploymentScopeResponse = DeploymentScopeDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateOrganizationOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateOrganizationOptionalParams extends coreClient.OperationOptions {
     body?: OrganizationDefinition;
 }
 
 /** Contains response data for the createOrganization operation. */
-export declare type TeamCloudCreateOrganizationResponse = OrganizationDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: OrganizationDataResult;
-    };
-};
+export declare type TeamCloudCreateOrganizationResponse = OrganizationDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateOrganizationUserOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateOrganizationUserOptionalParams extends coreClient.OperationOptions {
     body?: UserDefinition;
 }
 
 /** Contains response data for the createOrganizationUser operation. */
-export declare type TeamCloudCreateOrganizationUserResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
+export declare type TeamCloudCreateOrganizationUserResponse = UserDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateProjectIdentityOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateProjectIdentityOptionalParams extends coreClient.OperationOptions {
     body?: ProjectIdentityDefinition;
 }
 
 /** Contains response data for the createProjectIdentity operation. */
-export declare type TeamCloudCreateProjectIdentityResponse = ProjectIdentityDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectIdentityDataResult;
-    };
-};
+export declare type TeamCloudCreateProjectIdentityResponse = ProjectIdentityDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateProjectOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateProjectOptionalParams extends coreClient.OperationOptions {
     body?: ProjectDefinition;
 }
 
 /** Contains response data for the createProject operation. */
-export declare type TeamCloudCreateProjectResponse = ProjectDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectDataResult;
-    };
-};
+export declare type TeamCloudCreateProjectResponse = ProjectDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateProjectTagOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateProjectTagOptionalParams extends coreClient.OperationOptions {
     /** Dictionary of <string> */
     body?: {
         [propertyName: string]: string;
@@ -1539,637 +1476,389 @@ export declare interface TeamCloudCreateProjectTagOptionalParams extends coreHtt
 }
 
 /** Contains response data for the createProjectTag operation. */
-export declare type TeamCloudCreateProjectTagResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
+export declare type TeamCloudCreateProjectTagResponse = StatusResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateProjectTemplateOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateProjectTemplateOptionalParams extends coreClient.OperationOptions {
     body?: ProjectTemplateDefinition;
 }
 
 /** Contains response data for the createProjectTemplate operation. */
-export declare type TeamCloudCreateProjectTemplateResponse = ProjectTemplateDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectTemplateDataResult;
-    };
-};
+export declare type TeamCloudCreateProjectTemplateResponse = ProjectTemplateDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateProjectUserOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateProjectUserOptionalParams extends coreClient.OperationOptions {
     body?: UserDefinition;
 }
 
 /** Contains response data for the createProjectUser operation. */
-export declare type TeamCloudCreateProjectUserResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
+export declare type TeamCloudCreateProjectUserResponse = UserDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudCreateScheduleOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudCreateScheduleOptionalParams extends coreClient.OperationOptions {
     body?: ScheduleDefinition;
 }
 
 /** Contains response data for the createSchedule operation. */
-export declare type TeamCloudCreateScheduleResponse = ScheduleDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ScheduleDataResult;
-    };
-};
-
-/** Contains response data for the deleteComponent operation. */
-export declare type TeamCloudDeleteComponentResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the deleteDeploymentScope operation. */
-export declare type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: DeploymentScopeDataResult;
-    };
-};
-
-/** Contains response data for the deleteOrganization operation. */
-export declare type TeamCloudDeleteOrganizationResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the deleteOrganizationUser operation. */
-export declare type TeamCloudDeleteOrganizationUserResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the deleteProjectIdentity operation. */
-export declare type TeamCloudDeleteProjectIdentityResponse = ProjectIdentityDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectIdentityDataResult;
-    };
-};
-
-/** Contains response data for the deleteProject operation. */
-export declare type TeamCloudDeleteProjectResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the deleteProjectTag operation. */
-export declare type TeamCloudDeleteProjectTagResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the deleteProjectTemplate operation. */
-export declare type TeamCloudDeleteProjectTemplateResponse = ProjectTemplateDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectTemplateDataResult;
-    };
-};
-
-/** Contains response data for the deleteProjectUser operation. */
-export declare type TeamCloudDeleteProjectUserResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the getAdapters operation. */
-export declare type TeamCloudGetAdaptersResponse = AdapterInformationListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: AdapterInformationListDataResult;
-    };
-};
-
-/** Contains response data for the getAuditCommands operation. */
-export declare type TeamCloudGetAuditCommandsResponse = StringListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StringListDataResult;
-    };
-};
+export declare type TeamCloudCreateScheduleResponse = ScheduleDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudGetAuditEntriesOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudDeleteComponentOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteComponent operation. */
+export declare type TeamCloudDeleteComponentResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteDeploymentScopeOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteDeploymentScope operation. */
+export declare type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteOrganizationOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteOrganization operation. */
+export declare type TeamCloudDeleteOrganizationResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteOrganizationUserOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteOrganizationUser operation. */
+export declare type TeamCloudDeleteOrganizationUserResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteProjectIdentityOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteProjectIdentity operation. */
+export declare type TeamCloudDeleteProjectIdentityResponse = ProjectIdentityDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteProjectOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteProject operation. */
+export declare type TeamCloudDeleteProjectResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteProjectTagOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteProjectTag operation. */
+export declare type TeamCloudDeleteProjectTagResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteProjectTemplateOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteProjectTemplate operation. */
+export declare type TeamCloudDeleteProjectTemplateResponse = ProjectTemplateDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudDeleteProjectUserOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the deleteProjectUser operation. */
+export declare type TeamCloudDeleteProjectUserResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetAdaptersOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getAdapters operation. */
+export declare type TeamCloudGetAdaptersResponse = AdapterInformationListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetAuditCommandsOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getAuditCommands operation. */
+export declare type TeamCloudGetAuditCommandsResponse = StringListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetAuditEntriesOptionalParams extends coreClient.OperationOptions {
     timeRange?: string;
     /** Array of Get1ItemsItem */
     commands?: string[];
 }
 
 /** Contains response data for the getAuditEntries operation. */
-export declare type TeamCloudGetAuditEntriesResponse = CommandAuditEntityListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: CommandAuditEntityListDataResult;
-    };
-};
+export declare type TeamCloudGetAuditEntriesResponse = CommandAuditEntityListDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudGetAuditEntryOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudGetAuditEntryOptionalParams extends coreClient.OperationOptions {
     expand?: boolean;
 }
 
 /** Contains response data for the getAuditEntry operation. */
-export declare type TeamCloudGetAuditEntryResponse = CommandAuditEntityDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: CommandAuditEntityDataResult;
-    };
-};
-
-/** Contains response data for the getComponent operation. */
-export declare type TeamCloudGetComponentResponse = ComponentDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentDataResult;
-    };
-};
+export declare type TeamCloudGetAuditEntryResponse = CommandAuditEntityDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudGetComponentsOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudGetComponentOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getComponent operation. */
+export declare type TeamCloudGetComponentResponse = ComponentDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetComponentsOptionalParams extends coreClient.OperationOptions {
     deleted?: boolean;
 }
 
 /** Contains response data for the getComponents operation. */
-export declare type TeamCloudGetComponentsResponse = ComponentListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentListDataResult;
-    };
-};
-
-/** Contains response data for the getComponentTask operation. */
-export declare type TeamCloudGetComponentTaskResponse = ComponentTaskDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentTaskDataResult;
-    };
-};
-
-/** Contains response data for the getComponentTasks operation. */
-export declare type TeamCloudGetComponentTasksResponse = ComponentTaskListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentTaskListDataResult;
-    };
-};
-
-/** Contains response data for the getComponentTemplate operation. */
-export declare type TeamCloudGetComponentTemplateResponse = ComponentTemplateDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentTemplateDataResult;
-    };
-};
-
-/** Contains response data for the getComponentTemplates operation. */
-export declare type TeamCloudGetComponentTemplatesResponse = ComponentTemplateListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ComponentTemplateListDataResult;
-    };
-};
-
-/** Contains response data for the getDeploymentScope operation. */
-export declare type TeamCloudGetDeploymentScopeResponse = DeploymentScopeDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: DeploymentScopeDataResult;
-    };
-};
-
-/** Contains response data for the getDeploymentScopes operation. */
-export declare type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: DeploymentScopeListDataResult;
-    };
-};
-
-/** Contains response data for the getOrganization operation. */
-export declare type TeamCloudGetOrganizationResponse = OrganizationDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: OrganizationDataResult;
-    };
-};
-
-/** Contains response data for the getOrganizations operation. */
-export declare type TeamCloudGetOrganizationsResponse = OrganizationListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: OrganizationListDataResult;
-    };
-};
-
-/** Contains response data for the getOrganizationUserMe operation. */
-export declare type TeamCloudGetOrganizationUserMeResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
-
-/** Contains response data for the getOrganizationUser operation. */
-export declare type TeamCloudGetOrganizationUserResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
-
-/** Contains response data for the getOrganizationUsers operation. */
-export declare type TeamCloudGetOrganizationUsersResponse = UserListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserListDataResult;
-    };
-};
-
-/** Contains response data for the getProjectIdentities operation. */
-export declare type TeamCloudGetProjectIdentitiesResponse = ProjectIdentityListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectIdentityListDataResult;
-    };
-};
-
-/** Contains response data for the getProjectIdentity operation. */
-export declare type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectIdentityDataResult;
-    };
-};
-
-/** Contains response data for the getProject operation. */
-export declare type TeamCloudGetProjectResponse = ProjectDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectDataResult;
-    };
-};
-
-/** Contains response data for the getProjects operation. */
-export declare type TeamCloudGetProjectsResponse = ProjectListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectListDataResult;
-    };
-};
-
-/** Contains response data for the getProjectStatus operation. */
-export declare type TeamCloudGetProjectStatusResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the getProjectTagByKey operation. */
-export declare type TeamCloudGetProjectTagByKeyResponse = StringDictionaryDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StringDictionaryDataResult;
-    };
-};
-
-/** Contains response data for the getProjectTags operation. */
-export declare type TeamCloudGetProjectTagsResponse = StringDictionaryDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StringDictionaryDataResult;
-    };
-};
-
-/** Contains response data for the getProjectTemplate operation. */
-export declare type TeamCloudGetProjectTemplateResponse = ProjectTemplateDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectTemplateDataResult;
-    };
-};
-
-/** Contains response data for the getProjectTemplates operation. */
-export declare type TeamCloudGetProjectTemplatesResponse = ProjectTemplateListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectTemplateListDataResult;
-    };
-};
-
-/** Contains response data for the getProjectUserMe operation. */
-export declare type TeamCloudGetProjectUserMeResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
-
-/** Contains response data for the getProjectUser operation. */
-export declare type TeamCloudGetProjectUserResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
-
-/** Contains response data for the getProjectUsers operation. */
-export declare type TeamCloudGetProjectUsersResponse = UserListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserListDataResult;
-    };
-};
-
-/** Contains response data for the getSchedule operation. */
-export declare type TeamCloudGetScheduleResponse = ScheduleDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ScheduleDataResult;
-    };
-};
-
-/** Contains response data for the getSchedules operation. */
-export declare type TeamCloudGetSchedulesResponse = ScheduleListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ScheduleListDataResult;
-    };
-};
-
-/** Contains response data for the getStatus operation. */
-export declare type TeamCloudGetStatusResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
-
-/** Contains response data for the getUserProjectsMe operation. */
-export declare type TeamCloudGetUserProjectsMeResponse = ProjectListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectListDataResult;
-    };
-};
-
-/** Contains response data for the getUserProjects operation. */
-export declare type TeamCloudGetUserProjectsResponse = ProjectListDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectListDataResult;
-    };
-};
+export declare type TeamCloudGetComponentsResponse = ComponentListDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudOptionalParams extends coreHttp.ServiceClientOptions {
+export declare interface TeamCloudGetComponentTaskOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getComponentTask operation. */
+export declare type TeamCloudGetComponentTaskResponse = ComponentTaskDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetComponentTasksOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getComponentTasks operation. */
+export declare type TeamCloudGetComponentTasksResponse = ComponentTaskListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetComponentTemplateOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getComponentTemplate operation. */
+export declare type TeamCloudGetComponentTemplateResponse = ComponentTemplateDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetComponentTemplatesOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getComponentTemplates operation. */
+export declare type TeamCloudGetComponentTemplatesResponse = ComponentTemplateListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetDeploymentScopeOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getDeploymentScope operation. */
+export declare type TeamCloudGetDeploymentScopeResponse = DeploymentScopeDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetDeploymentScopesOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getDeploymentScopes operation. */
+export declare type TeamCloudGetDeploymentScopesResponse = DeploymentScopeListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetOrganizationOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getOrganization operation. */
+export declare type TeamCloudGetOrganizationResponse = OrganizationDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetOrganizationsOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getOrganizations operation. */
+export declare type TeamCloudGetOrganizationsResponse = OrganizationListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetOrganizationUserMeOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getOrganizationUserMe operation. */
+export declare type TeamCloudGetOrganizationUserMeResponse = UserDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetOrganizationUserOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getOrganizationUser operation. */
+export declare type TeamCloudGetOrganizationUserResponse = UserDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetOrganizationUsersOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getOrganizationUsers operation. */
+export declare type TeamCloudGetOrganizationUsersResponse = UserListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectIdentitiesOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectIdentities operation. */
+export declare type TeamCloudGetProjectIdentitiesResponse = ProjectIdentityListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectIdentityOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectIdentity operation. */
+export declare type TeamCloudGetProjectIdentityResponse = ProjectIdentityDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProject operation. */
+export declare type TeamCloudGetProjectResponse = ProjectDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectsOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjects operation. */
+export declare type TeamCloudGetProjectsResponse = ProjectListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectStatusOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectStatus operation. */
+export declare type TeamCloudGetProjectStatusResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectTagByKeyOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectTagByKey operation. */
+export declare type TeamCloudGetProjectTagByKeyResponse = StringDictionaryDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectTagsOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectTags operation. */
+export declare type TeamCloudGetProjectTagsResponse = StringDictionaryDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectTemplateOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectTemplate operation. */
+export declare type TeamCloudGetProjectTemplateResponse = ProjectTemplateDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectTemplatesOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectTemplates operation. */
+export declare type TeamCloudGetProjectTemplatesResponse = ProjectTemplateListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectUserMeOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectUserMe operation. */
+export declare type TeamCloudGetProjectUserMeResponse = UserDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectUserOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectUser operation. */
+export declare type TeamCloudGetProjectUserResponse = UserDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetProjectUsersOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getProjectUsers operation. */
+export declare type TeamCloudGetProjectUsersResponse = UserListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetScheduleOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getSchedule operation. */
+export declare type TeamCloudGetScheduleResponse = ScheduleDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetSchedulesOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getSchedules operation. */
+export declare type TeamCloudGetSchedulesResponse = ScheduleListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetStatusOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getStatus operation. */
+export declare type TeamCloudGetStatusResponse = StatusResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetUserProjectsMeOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getUserProjectsMe operation. */
+export declare type TeamCloudGetUserProjectsMeResponse = ProjectListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudGetUserProjectsOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getUserProjects operation. */
+export declare type TeamCloudGetUserProjectsResponse = ProjectListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudNegotiateSignalROptionalParams extends coreClient.OperationOptions {
+}
+
+/** Optional parameters. */
+export declare interface TeamCloudOptionalParams extends coreClient.ServiceClientOptions {
     /** Overrides client endpoint. */
     endpoint?: string;
 }
 
+/** Optional parameters. */
+export declare interface TeamCloudRunScheduleOptionalParams extends coreClient.OperationOptions {
+}
+
 /** Contains response data for the runSchedule operation. */
-export declare type TeamCloudRunScheduleResponse = ScheduleDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ScheduleDataResult;
-    };
-};
+export declare type TeamCloudRunScheduleResponse = ScheduleDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateDeploymentScopeOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateDeploymentScopeOptionalParams extends coreClient.OperationOptions {
     body?: DeploymentScope;
 }
 
 /** Contains response data for the updateDeploymentScope operation. */
-export declare type TeamCloudUpdateDeploymentScopeResponse = DeploymentScopeDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: DeploymentScopeDataResult;
-    };
-};
+export declare type TeamCloudUpdateDeploymentScopeResponse = DeploymentScopeDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateOrganizationUserMeOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateOrganizationUserMeOptionalParams extends coreClient.OperationOptions {
     body?: User;
 }
 
 /** Contains response data for the updateOrganizationUserMe operation. */
-export declare type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
+export declare type TeamCloudUpdateOrganizationUserMeResponse = UserDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateOrganizationUserOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateOrganizationUserOptionalParams extends coreClient.OperationOptions {
     body?: User;
 }
 
 /** Contains response data for the updateOrganizationUser operation. */
-export declare type TeamCloudUpdateOrganizationUserResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
+export declare type TeamCloudUpdateOrganizationUserResponse = UserDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateProjectIdentityOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateProjectIdentityOptionalParams extends coreClient.OperationOptions {
     body?: ProjectIdentity;
 }
 
 /** Contains response data for the updateProjectIdentity operation. */
-export declare type TeamCloudUpdateProjectIdentityResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
+export declare type TeamCloudUpdateProjectIdentityResponse = StatusResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateProjectTagOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateProjectTagOptionalParams extends coreClient.OperationOptions {
     /** Dictionary of <string> */
     body?: {
         [propertyName: string]: string;
@@ -2177,93 +1866,53 @@ export declare interface TeamCloudUpdateProjectTagOptionalParams extends coreHtt
 }
 
 /** Contains response data for the updateProjectTag operation. */
-export declare type TeamCloudUpdateProjectTagResponse = StatusResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: StatusResult;
-    };
-};
+export declare type TeamCloudUpdateProjectTagResponse = StatusResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateProjectTemplateOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateProjectTemplateOptionalParams extends coreClient.OperationOptions {
     body?: ProjectTemplate;
 }
 
 /** Contains response data for the updateProjectTemplate operation. */
-export declare type TeamCloudUpdateProjectTemplateResponse = ProjectTemplateDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ProjectTemplateDataResult;
-    };
-};
+export declare type TeamCloudUpdateProjectTemplateResponse = ProjectTemplateDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateProjectUserMeOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateProjectUserMeOptionalParams extends coreClient.OperationOptions {
     body?: User;
 }
 
 /** Contains response data for the updateProjectUserMe operation. */
-export declare type TeamCloudUpdateProjectUserMeResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
+export declare type TeamCloudUpdateProjectUserMeResponse = UserDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateProjectUserOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateProjectUserOptionalParams extends coreClient.OperationOptions {
     body?: User;
 }
 
 /** Contains response data for the updateProjectUser operation. */
-export declare type TeamCloudUpdateProjectUserResponse = UserDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: UserDataResult;
-    };
-};
+export declare type TeamCloudUpdateProjectUserResponse = UserDataResult;
 
 /** Optional parameters. */
-export declare interface TeamCloudUpdateScheduleOptionalParams extends coreHttp.OperationOptions {
+export declare interface TeamCloudUpdateScheduleOptionalParams extends coreClient.OperationOptions {
     body?: Schedule;
 }
 
 /** Contains response data for the updateSchedule operation. */
-export declare type TeamCloudUpdateScheduleResponse = ScheduleDataResult & {
-    /** The underlying HTTP response. */
-    _response: coreHttp.HttpResponse & {
-        /** The response body as text (string format) */
-        bodyAsText: string;
-        /** The response body as parsed JSON or XML */
-        parsedBody: ScheduleDataResult;
-    };
-};
+export declare type TeamCloudUpdateScheduleResponse = ScheduleDataResult;
 
 export declare interface User {
     organization: string;
-    displayName?: string | null;
-    loginName?: string | null;
-    mailAddress?: string | null;
+    displayName?: string;
+    loginName?: string;
+    mailAddress?: string;
     userType: UserType;
     role: UserRole;
-    projectMemberships?: ProjectMembership[] | null;
-    alternateIdentities?: UserAlternateIdentities | null;
+    projectMemberships?: ProjectMembership[];
+    alternateIdentities?: UserAlternateIdentities;
     /** Dictionary of <string> */
     properties?: {
         [propertyName: string]: string;
-    } | null;
+    };
     id: string;
 }
 
@@ -2275,9 +1924,9 @@ export declare interface UserAlternateIdentities {
 
 export declare interface UserDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     data?: User;
-    location?: string | null;
+    location?: string;
 }
 
 export declare interface UserDefinition {
@@ -2286,22 +1935,22 @@ export declare interface UserDefinition {
     /** Dictionary of <string> */
     properties?: {
         [propertyName: string]: string;
-    } | null;
+    };
 }
 
 export declare interface UserListDataResult {
     code?: number;
-    status?: string | null;
+    status?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly data?: User[] | null;
-    location?: string | null;
+    readonly data?: User[];
+    location?: string;
 }
 
 /**
  * Defines values for UserRole. \
  * {@link KnownUserRole} can be used interchangeably with UserRole,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **None** \
  * **Member** \
  * **Admin** \
@@ -2313,7 +1962,7 @@ export declare type UserRole = string;
  * Defines values for UserType. \
  * {@link KnownUserType} can be used interchangeably with UserType,
  *  this enum contains the known values that the service supports.
- * ### Know values supported by the service
+ * ### Known values supported by the service
  * **User** \
  * **Group** \
  * **System** \
@@ -2322,8 +1971,8 @@ export declare type UserRole = string;
 export declare type UserType = string;
 
 export declare interface ValidationError {
-    field?: string | null;
-    message?: string | null;
+    field?: string;
+    message?: string;
 }
 
 export { }

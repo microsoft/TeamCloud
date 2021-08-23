@@ -6,7 +6,6 @@ import { useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api } from '../API';
 import { useProject } from '.';
-import { ErrorResult } from 'teamcloud';
 
 export const useProjectSchedule = () => {
 
@@ -18,12 +17,12 @@ export const useProjectSchedule = () => {
 
     return useQuery(['org', project?.organization, 'project', project?.id, 'schedule', itemId], async () => {
 
-        const { data, code, _response } = await api.getSchedule(itemId, project!.organization, project!.id);
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
+        const { data } = await api.getSchedule(itemId, project!.organization, project!.id, {
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
 
         return data;
     }, {

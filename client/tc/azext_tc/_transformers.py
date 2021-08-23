@@ -3,7 +3,6 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
-from urllib.parse import urlparse
 from collections import OrderedDict
 from knack.log import get_logger
 from .vendored_sdks.teamcloud.models import (ErrorResult, StatusResult)
@@ -12,6 +11,9 @@ logger = get_logger(__name__)
 
 
 def transform_output(result):
+
+    if result is None:
+        logger.warning('Consider raising exception')
 
     if isinstance(result, ErrorResult):
         return transform_error(result)
@@ -53,9 +55,6 @@ def transform_org_table_output(result):
     resultList = []
 
     for item in result:
-        resourceId = item['resourceId']
-        paths = None if resourceId is None else urlparse(resourceId).path.split('/')
-        rg = None if resourceId is None else paths[paths.index('resourceGroups') + 1]
         resultList.append(OrderedDict([
             ('Name', item['displayName']),
             ('Slug', item['slug']),
@@ -63,7 +62,6 @@ def transform_org_table_output(result):
             ('Location', item['location']),
             ('State', item['resourceState']),
             ('Subscription', item['subscriptionId']),
-            ('Resource Group', '' if rg is None else rg),
             ('Tags', str(item['tags'])),
         ]))
 
@@ -80,9 +78,10 @@ def transform_scope_table_output(result):
         resultList.append(OrderedDict([
             ('Name', item['displayName']),
             ('Slug', item['slug']),
+            ('Type', item['type']),
             ('ID', item['id']),
-            ('Default', item['isDefault']),
-            ('Subscriptions', str(item['subscriptionIds'])),
+            ('Authorized', item['authorized']),
+            ('Component Types', ','.join(item['componentTypes'])),
         ]))
 
     return resultList

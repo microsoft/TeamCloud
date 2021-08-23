@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from 'react-query'
 import { useHistory } from 'react-router-dom';
-import { ErrorResult, ProjectDefinition } from 'teamcloud';
+import { ProjectDefinition } from 'teamcloud';
 import { api } from '../API';
 import { useOrg, useProjects } from '.';
 
@@ -19,12 +19,13 @@ export const useCreateProject = () => {
     return useMutation(async (projectDef: ProjectDefinition) => {
         if (!org) throw Error('No Org');
 
-        const { data, code, _response } = await api.createProject(org.id, { body: projectDef });
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
+        const { data } = await api.createProject(org.id, {
+            body: projectDef,
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
 
         return data;
     }, {

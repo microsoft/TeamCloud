@@ -3,27 +3,20 @@
 
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
+import { Member } from '../model';
+import { useOrg, useUsers } from '.';
 import { getGraphPrincipal } from '../MSGraph';
-import { api } from '../API';
-import { useOrg } from '.';
 
 export const useMembers = () => {
 
-    const { data: org } = useOrg();
-
     const isAuthenticated = useIsAuthenticated();
 
-    return useQuery(['org', org?.id, 'members'], async () => {
-        let _users = await api.getOrganizationUsers(org!.id);
-        if (_users.data) {
-            let _members = await Promise.all(_users.data.map(async u => ({
-                user: u,
-                graphPrincipal: await getGraphPrincipal(u)
-            })));
-            return _members;
-        }
-        return [];
-    }, {
-        enabled: isAuthenticated && !!org?.id
-    });
+    const { data: org } = useOrg();
+    const { data: users } = useUsers();
+
+    return useQuery(['org', org?.id, 'members'],
+        async () => await Promise.all(users!.map(async u => new Member(u, await getGraphPrincipal(u)))),
+        {
+            enabled: isAuthenticated && !!org?.id && !!users && users.length > 0
+        });
 }

@@ -49,9 +49,9 @@ type: command
 short-summary: Deploy a new client applications.
 examples:
   - name: Deploy a new web app for a instance.
-    text: az tc app deploy --base-url url --client-id clientId --type Web
+    text: az tc app deploy --url url --client-id clientId --type Web
   - name: Deploy new pre-release web app for a instance.
-    text: az tc app deploy --base-url url --client-id clientId --type Web --pre
+    text: az tc app deploy --url url --client-id clientId --type Web --pre
 """
 
 # ----------------
@@ -68,7 +68,7 @@ type: command
 short-summary: Create a new organization.
 examples:
   - name: Create a new organization with Admin role.
-    text: az tc org create --base-url url --name MyOrg --location eastus
+    text: az tc org create --url url --name MyOrg --location eastus
 """
 
 helps['tc org delete'] = """
@@ -76,9 +76,9 @@ type: command
 short-summary: Delete a organization.
 examples:
   - name: Delete a organization by slug.
-    text: az tc org delete --base-url url --name myorg
+    text: az tc org delete --url url --name myorg
   - name: Delete a organization by id.
-    text: az tc org delete --base-url url --name orgId
+    text: az tc org delete --url url --name orgId
 """
 
 helps['tc org list'] = """
@@ -86,9 +86,9 @@ type: command
 short-summary: List all organizations.
 examples:
   - name: List all organizations.
-    text: az tc org list --base-url url
+    text: az tc org list --url url
   - name: List all organizations in table format.
-    text: az tc org list --base-url url -o table
+    text: az tc org list --url url -o table
 """
 
 helps['tc org show'] = """
@@ -96,9 +96,9 @@ type: command
 short-summary: Get a organization.
 examples:
   - name: Get a organization by slug.
-    text: az tc org show --base-url url --name myorg
+    text: az tc org show --url url --name myorg
   - name: Get a organization by id.
-    text: az tc org show --base-url url --name orgId
+    text: az tc org show --url url --name orgId
 """
 
 # ----------------
@@ -115,7 +115,7 @@ type: command
 short-summary: Create a new deployment scope.
 examples:
   - name: Create a new deployment scope.
-    text: az tc scope create --base-url url --org org --name Sandbox --subscriptions sub1 sub2
+    text: az tc scope create --url url --org org --name Sandbox
 """
 
 helps['tc scope delete'] = """
@@ -123,7 +123,7 @@ type: command
 short-summary: Delete a deployment scope.
 examples:
   - name: Delete a deployment scope by name or id.
-    text: az tc scope delete --base-url url --org org --name Sandbox
+    text: az tc scope delete --url url --org org --name Sandbox
 """
 
 helps['tc scope list'] = """
@@ -131,9 +131,9 @@ type: command
 short-summary: List all deployment scopes.
 examples:
   - name: List all deployment scopes.
-    text: az tc scope list --base-url url --org org
+    text: az tc scope list --url url --org org
   - name: List all deployment scopes in table format.
-    text: az tc scope list --base-url url --org org -o table
+    text: az tc scope list --url url --org org -o table
 """
 
 helps['tc scope show'] = """
@@ -141,7 +141,7 @@ type: command
 short-summary: Get a deployment scope.
 examples:
   - name: Get a deployment scope by name or id.
-    text: az tc scope show --base-url url --org org --name sandbox
+    text: az tc scope show --url url --org org --name sandbox
 """
 
 # ----------------
@@ -160,7 +160,7 @@ examples:
   - name: Create a new default project template.
     text: |
       az tc template create \\
-        --base-url url \\
+        --url url \\
         --org org \\
         --name myTemplate \\
         --repo-url https://github.com/microsoft/TeamCloud-Project-Sample \\
@@ -172,7 +172,7 @@ type: command
 short-summary: Delete a project template.
 examples:
   - name: Delete a project template.
-    text: az tc template delete --base-url url --org org --name myTemplate
+    text: az tc template delete --url url --org org --name myTemplate
 """
 
 helps['tc template list'] = """
@@ -180,9 +180,9 @@ type: command
 short-summary: List all project templates.
 examples:
   - name: List all project templates.
-    text: az tc template list --base-url url --org org
+    text: az tc template list --url url --org org
   - name: List all project templates in table format.
-    text: az tc template list --base-url url --org org -o table
+    text: az tc template list --url url --org org -o table
 """
 
 helps['tc template show'] = """
@@ -190,5 +190,5 @@ type: command
 short-summary: Get a project template.
 examples:
   - name: Get a project-type.
-    text: az tc template show --base-url url --org org --name myTemplate
+    text: az tc template show --url url --org org --name myTemplate
 """

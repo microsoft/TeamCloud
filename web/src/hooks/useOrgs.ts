@@ -4,7 +4,6 @@
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api } from '../API';
-import { ErrorResult } from 'teamcloud';
 
 export const useOrgs = () => {
 
@@ -12,12 +11,12 @@ export const useOrgs = () => {
 
     return useQuery('orgs', async () => {
 
-        const { data, code, _response } = await api.getOrganizations();
-
-        if (code && code >= 400) {
-            const error = JSON.parse(_response.bodyAsText) as ErrorResult;
-            throw error;
-        }
+        const { data } = await api.getOrganizations({
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
 
         return data
     }, {

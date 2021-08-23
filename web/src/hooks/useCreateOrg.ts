@@ -3,7 +3,7 @@
 
 import { useHistory } from 'react-router-dom';
 import { useMutation, useQueryClient } from 'react-query'
-import { DeploymentScopeDefinition, ErrorResult, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
+import { DeploymentScopeDefinition, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { api } from '../API';
 
 export const useCreateOrg = () => {
@@ -14,37 +14,42 @@ export const useCreateOrg = () => {
     return useMutation(async (def: { orgDef: OrganizationDefinition, scopeDef?: DeploymentScopeDefinition, templateDef?: ProjectTemplateDefinition }) => {
 
         console.log(`- createOrg`);
-        const orgResponse = await api.createOrganization({ body: def.orgDef });
+        const orgResponse = await api.createOrganization({
+            body: def.orgDef,
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
         const newOrg = orgResponse.data;
         console.log(`+ createOrg`);
-
-        if (orgResponse.code && orgResponse.code >= 400) {
-            const error = (JSON.parse(orgResponse._response.bodyAsText) as ErrorResult);
-            throw error;
-        }
 
         let scope, template;
 
         if (newOrg?.id) {
             if (def.scopeDef) {
                 console.log(`- createDeploymentScope`);
-                const scopeResponse = await api.createDeploymentScope(newOrg.id, { body: def.scopeDef });
+                const scopeResponse = await api.createDeploymentScope(newOrg.id, {
+                    body: def.scopeDef,
+                    onResponse: (raw, flat) => {
+                        if (raw.status >= 400)
+                            throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+                    }
+                });
                 scope = scopeResponse.data;
                 console.log(`+ createDeploymentScope`);
-                if (scopeResponse.code && scopeResponse.code >= 400) {
-                    const error = (JSON.parse(scopeResponse._response.bodyAsText) as ErrorResult);
-                    throw error;
-                }
             }
             if (def.templateDef) {
                 console.log(`- createProjectTemplate`);
-                const templateResponse = await api.createProjectTemplate(newOrg.id, { body: def.templateDef });
+                const templateResponse = await api.createProjectTemplate(newOrg.id, {
+                    body: def.templateDef,
+                    onResponse: (raw, flat) => {
+                        if (raw.status >= 400)
+                            throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+                    }
+                });
                 template = templateResponse.data;
                 console.log(`+ createProjectTemplate`);
-                if (templateResponse.code && templateResponse.code >= 400) {
-                    const error = (JSON.parse(templateResponse._response.bodyAsText) as ErrorResult);
-                    throw error;
-                }
             }
         }
 

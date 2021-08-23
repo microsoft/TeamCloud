@@ -2,14 +2,14 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
-
 # pylint: disable=too-many-statements
+
 from knack.arguments import CLIArgumentType
 from azure.cli.core.commands.parameters import (tags_type, get_enum_type)
 
 from ._validators import (
-    org_name_or_id_validator, org_name_validator, subscriptions_list_validator,
-    base_url_validator, teamcloud_cli_source_version_validator, repo_url_validator,
+    org_name_or_id_validator, org_name_validator, base_url_validator,
+    teamcloud_cli_source_version_validator, repo_url_validator,
     teamcloud_source_version_validator, index_url_validator, client_id_validator)
 
 from ._completers import (get_org_completion_list)
@@ -18,20 +18,34 @@ from ._completers import (get_org_completion_list)
 def load_arguments(self, _):
 
     tc_url_type = CLIArgumentType(
-        options_list=['--base-url', '-u'],
-        help='Base url of the TeamCloud instance. Use `az configure --defaults tc-base-url=<url>` '
+        options_list=['--url', '-u'],
+        help='Base url of the TeamCloud instance. Use `az configure -d tc-url=<url>` '
              'to configure a default.',
-        configured_default='tc-base-url',
+        configured_default='tc-url',
         validator=base_url_validator)
 
     org_name_or_id_type = CLIArgumentType(
         options_list=['--org'],
-        help='Organization id (uuid) or name.',
+        help='Organization id (uuid) or name. Use `az configure -d tc-org=<url>` '
+             'to configure a default.',
         configured_default='tc-org',
         validator=org_name_or_id_validator)
 
+    parameters_type = CLIArgumentType(
+        options_list=['--parameters', '-p'],
+        action='append',
+        nargs='+',
+        help='the deployment parameters')
+
     # with self.argument_context('tc test', arg_group='TeamCloud') as c:
     #     c.argument('base_url', tc_url_type)
+    #     c.argument('scope', options_list=['--name', '-n'],
+    #                type=str, help='Deployment scope name.')
+    #     c.argument('scope_type', get_enum_type(['AzureResourceManager', 'GitHub', 'AzureDevOps'],
+    #                default='AzureResourceManager'),
+    #                options_list=['--type', '-t'], help='Deployment scope name.')
+    #     c.argument('parameters', arg_type=parameters_type)
+    #     c.ignore('_subscription')
 
     # Global
 
@@ -109,11 +123,10 @@ def load_arguments(self, _):
     with self.argument_context('tc scope create') as c:
         c.argument('scope', options_list=['--name', '-n'],
                    type=str, help='Deployment scope name.')
-        c.argument('subscriptions', nargs='+',
-                   help='Space-seperated subscription ids (uuids).',
-                   validator=subscriptions_list_validator)
-        c.argument('default', action='store_true',
-                   help='Set as the default project type.')
+        c.argument('scope_type', get_enum_type(['AzureResourceManager', 'GitHub', 'AzureDevOps'],
+                   default='AzureResourceManager'),
+                   options_list=['--type', '-t'], help='Deployment scope name.')
+        c.argument('parameters', arg_type=parameters_type)
 
     for scope in ['tc scope show', 'tc scope delete']:
         with self.argument_context(scope) as c:

@@ -10,7 +10,7 @@ import {
   OperationParameter,
   OperationURLParameter,
   OperationQueryParameter
-} from "@azure/core-http";
+} from "@azure/core-client";
 import {
   ComponentDefinition as ComponentDefinitionMapper,
   ComponentTaskDefinition as ComponentTaskDefinitionMapper,
@@ -55,6 +55,7 @@ export const $host: OperationURLParameter = {
 export const deleted: OperationQueryParameter = {
   parameterPath: ["options", "deleted"],
   mapper: {
+    defaultValue: false,
     serializedName: "deleted",
     type: {
       name: "Boolean"
@@ -200,6 +201,7 @@ export const commandId: OperationURLParameter = {
 export const expand: OperationQueryParameter = {
   parameterPath: ["options", "expand"],
   mapper: {
+    defaultValue: false,
     serializedName: "expand",
     type: {
       name: "Boolean"
