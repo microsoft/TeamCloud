@@ -201,8 +201,6 @@ namespace TeamCloud.API
                 .AddSingleton<IDocumentExpander, ComponentExpander>()
                 .AddSingleton<IDocumentExpander, UserExpander>();
 
-            ConfigureAuthentication(services);
-            ConfigureAuthorization(services);
 
             services
                 .AddApplicationInsightsTelemetry()
@@ -229,17 +227,22 @@ namespace TeamCloud.API
 
 #pragma warning restore CA1308 // Normalize strings to uppercase
 
-            ConfigureSwagger(services);
+            if (Configuration.TryBind<AzureResourceManagerOptions>("Azure:ResourceManager", out var azureResourceManagerOptions))
+            {
+                ConfigureAuthentication(services, azureResourceManagerOptions);
+                ConfigureAuthorization(services);
+                ConfigureSwagger(services, azureResourceManagerOptions);
+            }
+            else
+            {
+                throw new ApplicationException("Failed to bind configuration section 'Azure:ResourceManager'");
+            }
         }
 
 #pragma warning restore CA1822 // Mark members as static
 
-        private static void ConfigureSwagger(IServiceCollection services)
+        private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
         {
-            var resourceManagerOptions = services
-                .BuildServiceProvider()
-                .GetRequiredService<AzureResourceManagerOptions>();
-
             services
                 .AddSwaggerGen(options =>
                 {
@@ -272,8 +275,8 @@ namespace TeamCloud.API
                         {
                             AuthorizationCode = new OpenApiOAuthFlow
                             {
-                                TokenUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/token"),
-                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
+                                TokenUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/token"),
+                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
                                 Scopes = new Dictionary<string, string> {
                                     { "openid", "Sign you in" },
                                     { "http://TeamCloud.aztcclitestsix/user_impersonation", "Access the TeamCloud API" }
@@ -298,18 +301,14 @@ namespace TeamCloud.API
                 .AddSwaggerGenNewtonsoftSupport();
         }
 
-        private static void ConfigureAuthentication(IServiceCollection services)
+        private static void ConfigureAuthentication(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
         {
-            var resourceManagerOptions = services
-                .BuildServiceProvider()
-                .GetRequiredService<AzureResourceManagerOptions>();
-
             services
                 .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
                 .AddAzureADBearer(options =>
                 {
                     options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
-                    options.TenantId = resourceManagerOptions.TenantId;
+                    options.TenantId = azureResourceManagerOptions.TenantId;
                 });
 
             services
@@ -325,8 +324,8 @@ namespace TeamCloud.API
                     // The valid issuers can be based on Azure identity V1 or V2
                     options.TokenValidationParameters.ValidIssuers = new string[]
                     {
-                        $"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/v2.0",
-                        $"https://sts.windows.net/{resourceManagerOptions.TenantId}/"
+                        $"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/v2.0",
+                        $"https://sts.windows.net/{azureResourceManagerOptions.TenantId}/"
                     };
 
                     options.Events = new JwtBearerEvents()
