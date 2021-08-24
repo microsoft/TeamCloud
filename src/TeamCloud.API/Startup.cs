@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Management.Storage.Fluent.Models;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
@@ -105,6 +106,8 @@ namespace TeamCloud.API
                 .UseMiddleware<EnsureTeamCloudModelMiddleware>()
                 .UseAuthorization()
                 .UseEndpoints(endpoints => endpoints.MapControllers());
+
+            EncryptedValueProvider.DefaultDataProtectionProvider = app.ApplicationServices.GetDataProtectionProvider();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -124,19 +127,18 @@ namespace TeamCloud.API
                 .AddTeamCloudHttp()
                 .AddTeamCloudSecrets();
 
-            var databaseOptions = services
-                .BuildServiceProvider()
-                .GetRequiredService<TeamCloudDatabaseOptions>();
-
-            services
-                .AddCosmosCache(options =>
-                {
-                    options.ClientBuilder = new CosmosClientBuilder(databaseOptions.ConnectionString);
-                    options.DatabaseName = $"{databaseOptions.DatabaseName}Cache";
-                    options.ContainerName = "DistributedCache";
-                    options.CreateIfNotExists = true;
-                })
-                .AddSingleton<IRepositoryCache, RepositoryCache>();
+            if (Configuration.TryBind<AzureCosmosDbOptions>("Azure:CosmosDb", out var azureCosmosDbOptions))
+            { 
+                services
+                    .AddCosmosCache(options =>
+                    {
+                        options.ClientBuilder = new CosmosClientBuilder(azureCosmosDbOptions.ConnectionString);
+                        options.DatabaseName = $"{azureCosmosDbOptions.DatabaseName}Cache";
+                        options.ContainerName = "DistributedCache";
+                        options.CreateIfNotExists = true;
+                    })
+                    .AddSingleton<IRepositoryCache, RepositoryCache>();
+            }
 
             if (Configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
             {
@@ -157,8 +159,6 @@ namespace TeamCloud.API
                     //dataProtectionBuilder.ProtectKeysWithAzureKeyVault()
                     throw new NotImplementedException();
                 }
-
-                EncryptedValueProvider.DefaultDataProtectionProvider = services.BuildServiceProvider().GetDataProtectionProvider();
             }
 
             services
@@ -185,10 +185,13 @@ namespace TeamCloud.API
                 .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
 
             services
-                .AddTeamCloudAdapterFramework()
-                .AddTeamCloudAdapter<AzureResourceManagerAdapter>()
-                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
-                .AddTeamCloudAdapter<GitHubAdapter>();
+                .AddTeamCloudAdapters(configuration =>
+                {
+                    configuration
+                        .Register<AzureResourceManagerAdapter>()
+                        .Register<AzureDevOpsAdapter>()
+                        .Register<GitHubAdapter>();
+                });
 
             services
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))

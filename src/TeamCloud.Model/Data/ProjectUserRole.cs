@@ -15,6 +15,7 @@ namespace TeamCloud.Model.Data
         None,
         Member,
         Admin,
-        Owner
+        Owner,
+        Adapter
     }
 }

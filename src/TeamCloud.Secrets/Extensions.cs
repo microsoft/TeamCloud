@@ -13,7 +13,7 @@ namespace TeamCloud.Secrets
         public static IServiceCollection AddTeamCloudSecrets(this IServiceCollection services)
         {
             services
-                .TryAddSingleton<ISecretsStoreProvider>(provider => new SecretsStoreProvider(provider));
+                .TryAddSingleton<ISecretsStoreProvider>(provider => new SecretsStoreProvider<KeyVaultSecretsStore>(provider));
 
             return services;
         }

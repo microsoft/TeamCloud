@@ -10,16 +10,20 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Management.CosmosDB.Fluent.Models;
+using Microsoft.Azure.Management.DevTestLabs.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using Octokit;
 using Octokit.Internal;
+using Org.BouncyCastle.Asn1.Crmf;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Directory;
@@ -34,6 +38,7 @@ using TeamCloud.Secrets;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
 using TeamCloud.Templates;
+using HttpStatusCode = System.Net.HttpStatusCode;
 using IHttpClientFactory = Flurl.Http.Configuration.IHttpClientFactory;
 using Organization = TeamCloud.Model.Data.Organization;
 using Project = TeamCloud.Model.Data.Project;
@@ -41,7 +46,7 @@ using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Adapters.GitHub
 {
-    public sealed partial class GitHubAdapter : Adapter, IAdapterAuthorize
+    public sealed partial class GitHubAdapter : Adapter, IAdapterAuthorize, IAdapterIdentity
     {
         private static readonly IJsonSerializer GitHubSerializer = new SimpleJsonSerializer();
 
@@ -73,7 +78,7 @@ namespace TeamCloud.Adapters.GitHub
             IAzureResourceService azureResourceService,
             IAzureDirectoryService azureDirectoryService,
             IFunctionsHost functionsHost = null)
-            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository)
+            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
         {
             this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
@@ -128,7 +133,7 @@ namespace TeamCloud.Adapters.GitHub
             return SessionClient.SetAsync<GitHubSession>(new GitHubSession(deploymentScope));
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -138,9 +143,6 @@ namespace TeamCloud.Adapters.GitHub
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             var queryParams = Flurl.Url.ParseQueryParams(requestMessage.RequestUri.Query);
             var queryState = queryParams.GetValueOrDefault("state", StringComparison.OrdinalIgnoreCase);
@@ -227,7 +229,7 @@ namespace TeamCloud.Adapters.GitHub
             };
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log)
+        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
@@ -237,9 +239,6 @@ namespace TeamCloud.Adapters.GitHub
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             var json = await requestMessage.Content
                 .ReadAsJsonAsync()
@@ -382,16 +381,19 @@ namespace TeamCloud.Adapters.GitHub
             return gitHubClient;
         }
 
-        private Task<Component> ExecuteAsync(Component component, IAsyncCollector<ICommand> commandQueue, ILogger log, Func<Organization, DeploymentScope, Project, GitHubClient, Octokit.User, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
+        private static string GetRepositoryName(Project project, Component component, int count = 0)
+            => $"{project.Slug}-{component.Slug}{(count <= 0 ? string.Empty : $"-{count:D5}")}";
+
+        private Task<Component> ExecuteAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue, Func<GitHubClient, Octokit.User, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
 
+            if (contextUser is null)
+                throw new ArgumentNullException(nameof(contextUser));
+
             if (commandQueue is null)
                 throw new ArgumentNullException(nameof(commandQueue));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
 
             if (callback is null)
                 throw new ArgumentNullException(nameof(callback));
@@ -405,10 +407,11 @@ namespace TeamCloud.Adapters.GitHub
                 var client = await CreateClientAsync(token)
                     .ConfigureAwait(false);
 
-
                 var teams = await client.Organization.Team
                     .GetAll(token.Owner.Login)
                     .ConfigureAwait(false);
+
+                var tasks = new List<Task>();
 
                 var teamsByName = teams
                     .ToDictionary(k => k.Name, v => v);
@@ -454,14 +457,26 @@ namespace TeamCloud.Adapters.GitHub
 
                 }).ConfigureAwait(false);
 
+                var organizationOwners = await userRepository
+                    .ListOwnersAsync(component.Organization)
+                    .ToArrayAsync()
+                    .ConfigureAwait(false);
+
+                var organizationAdmins = await userRepository
+                    .ListAdminsAsync(component.Organization)
+                    .ToArrayAsync()
+                    .ConfigureAwait(false);
+                
                 await Task.WhenAll(
 
                     EnsurePermissionAsync(projectTeam, project, "write"),
-                    EnsurePermissionAsync(projectAdminsTeam, project, "admin")
+                    EnsurePermissionAsync(projectAdminsTeam, project, "admin"),
+
+                    SynchronizeTeamMembersAsync(client, organizationAdminTeam, Enumerable.Concat(organizationOwners, organizationAdmins).Distinct(), component, contextUser, commandQueue)
 
                     ).ConfigureAwait(false);
 
-                return await callback(componentOrganization, componentDeploymentScope, componentProject, client, token.Owner, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
+                return await callback(client, token.Owner, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
 
                 async Task<Team> EnsureTeamAsync(string teamName, Team parentTeam, NewTeam teamDefinition)
                 {
@@ -521,8 +536,10 @@ namespace TeamCloud.Adapters.GitHub
                             .CreateForOrganization(token.Owner.Login, projectDefinition)
                             .ConfigureAwait(false);
                     }
-                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity) // yes, thats the status code if the team already exists
+                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity) 
                     {
+                        // the project already exists - try to re-fetch project information
+
                         projects = await client.Repository.Project
                             .GetAllForOrganization(token.Owner.Login)
                             .ConfigureAwait(false);
@@ -531,7 +548,11 @@ namespace TeamCloud.Adapters.GitHub
                             .FirstOrDefault(t => t.Name.Equals(projectName, StringComparison.Ordinal));
 
                         if (project is null)
-                            throw;
+                            throw new ApplicationException($"Duplicate project ({projectName}) under unknown ownership detected", exc);
+                    }
+                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        throw new ApplicationException($"Organization level projects disabled in {client.Connection.BaseAddress}");
                     }
 
                     return project;
@@ -550,91 +571,173 @@ namespace TeamCloud.Adapters.GitHub
             });
         }
 
-        public override Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
-            => ExecuteAsync(component, commandQueue, log, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
+        private async Task SynchronizeTeamMembersAsync(GitHubClient client, Team team, IEnumerable<User> users, Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
-            var repositoryName = $"{componentProject.DisplayName} {component.DisplayName}";
-            var repositoryDescription = $"Repository for TeamCloud project {componentProject.DisplayName}";
+            var userIds = new HashSet<Guid>(await users
+                .ToAsyncEnumerable()
+                .SelectMany(user => ResolveUserIdsAsync(user))
+                .ToArrayAsync()
+                .ConfigureAwait(false));
 
+            var teamUsers = await userIds
+                .Select(userId =>
+                {
+                    var user = users.SingleOrDefault(u => userId.Equals(Guid.Parse(u.Id)));
+                    return user is null ? EnsureUserAsync(userId) : InitializeUserAsync(user);
+                })
+                .WhenAll()
+                .ConfigureAwait(false);
+
+            var logins = teamUsers
+                .Select(user => user.AlternateIdentities.TryGetValue(this.Type, out var alternateIdentity) ? alternateIdentity.Login : null)
+                .Where(login => !string.IsNullOrWhiteSpace(login))
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            var members = await client.Organization.Team
+                .GetAllMembers(team.Id)
+                .ConfigureAwait(false);
+
+            var membershipTasks = new List<Task>();
+
+            membershipTasks.AddRange(logins
+                .Except(members.Select(m => m.Login), StringComparer.OrdinalIgnoreCase)
+                .Select(login => client.Organization.Team.AddOrEditMembership(team.Id, login, new UpdateTeamMembership(TeamRole.Member))));
+
+            membershipTasks.AddRange(members
+                .Select(m => m.Login)
+                .Except(logins, StringComparer.OrdinalIgnoreCase)
+                .Select(login => client.Organization.Team.RemoveMembership(team.Id, login)));
+
+            await membershipTasks
+                .WhenAll()
+                .ConfigureAwait(false);
+
+            async Task<User> EnsureUserAsync(Guid userId)
+            {
+                var user = await userRepository
+                    .GetAsync(component.Organization, userId.ToString(), true)
+                    .ConfigureAwait(false);
+
+                if (user is null)
+                {
+                    user = new User()
+                    {
+                        Id = userId.ToString(),
+                        Role = OrganizationUserRole.None
+                    };
+
+                    user.AlternateIdentities[this.Type] = new AlternateIdentity();
+
+                    await commandQueue
+                        .AddAsync(new OrganizationUserCreateCommand(contextUser, user))
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    user = await InitializeUserAsync(user)
+                        .ConfigureAwait(false);
+                }
+
+                return user;
+            }
+
+            async Task<User> InitializeUserAsync(User user)
+            {
+                if (user?.AlternateIdentities.TryAdd(Type, new AlternateIdentity()) ?? false)
+                {
+                    await commandQueue
+                        .AddAsync(new OrganizationUserUpdateCommand(contextUser, user))
+                        .ConfigureAwait(false);
+                }
+
+                return user;
+            }
+
+            IAsyncEnumerable<Guid> ResolveUserIdsAsync(User user) => user.UserType switch
+            {
+                // return the given user id as async enumeration
+                UserType.User => AsyncEnumerable.Repeat(new Guid(user.Id), 1),
+
+                // return user ids based on the given user that represents a group
+                UserType.Group => azureDirectoryService.GetGroupMembersAsync(user.Id, true),
+
+                // not supported user type 
+                _ => AsyncEnumerable.Empty<Guid>()
+            };
+        }
+
+        protected override Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
+            => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
+        {
             Repository repository = null;
 
-            try
+            var repositoryName = GetRepositoryName(componentProject, component);
+            var repositoryDescription = $"Repository for TeamCloud project {componentProject.DisplayName}";
+            var repositoryCount = 0;
+            var repositoryTemplateUrl = default(string);
+
+            while (repository is null)
             {
-                if (GitHubIdentifier.TryParse(component.ResourceId, out var resourceId))
+                try
                 {
-                    repository = await client.Repository
-                        .Get(resourceId.Organization, resourceId.Repository)
-                        .ConfigureAwait(false);
-                }
-                else
-                {
-                    repository = await client.Repository
-                        .Get(owner.Login, repositoryName)
-                        .ConfigureAwait(false);
-                }
-            }
-            catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-            {
-                repository = null;
-            }
+                    repositoryTemplateUrl ??= await GetTemplateRepositoryUrlAsync().ConfigureAwait(false);
 
-            string repositoryTemplateUrl = null;
+                    var repositoryTemplate = string.IsNullOrEmpty(repositoryTemplateUrl)
+                        ? null // as there is no repository template url available we won't find a repo
+                        : await GetTemplateRepositoryAsync(repositoryTemplateUrl).ConfigureAwait(false);
 
-            if (repository is null)
-            {
-                repositoryTemplateUrl ??= await GetTemplateRepositoryUrlAsync().ConfigureAwait(false);
-
-                var repositoryTemplate = string.IsNullOrEmpty(repositoryTemplateUrl)
-                    ? null // as there is no repository template url available we won't find a repo
-                    : await GetTemplateRepositoryAsync(repositoryTemplateUrl).ConfigureAwait(false);
-
-                if (repositoryTemplate is null)
-                {
-                    // the fact that there is no repository template just means that
-                    // we can't use the repo templating factory provided by GitHub, but
-                    // need to fall back to a classic repository import later on if a
-                    // template repository git url is given.
-
-                    var data = string.IsNullOrWhiteSpace(componentDeploymentScope.InputData)
-                        ? default
-                        : TeamCloudSerialize.DeserializeObject<GitHubData>(componentDeploymentScope.InputData);
-
-                    var repoSettings = new NewRepository(repositoryName)
+                    if (repositoryTemplate is null)
                     {
-                        Description = repositoryDescription,
-                        AutoInit = string.IsNullOrWhiteSpace(repositoryTemplateUrl),
-                        Private = !(data?.PublicRepository ?? false)
-                    };
+                        // the fact that there is no repository template just means that
+                        // we can't use the repo templating factory provided by GitHub, but
+                        // need to fall back to a classic repository import later on if a
+                        // template repository git url is given.
 
-                    repository = await client.Repository
-                        .Create(owner.Login, repoSettings)
-                        .ConfigureAwait(false);
-                }
-                else
-                {
-                    // use the GitHub template repository as a blueprint to create a new
-                    // repository. as this API call isn't supported by the Octokit client
-                    // library we need to fall back to a raw API call via Flurl.
+                        var data = string.IsNullOrWhiteSpace(componentDeploymentScope.InputData)
+                            ? default
+                            : TeamCloudSerialize.DeserializeObject<GitHubData>(componentDeploymentScope.InputData);
 
-                    var payload = new
+                        var repoSettings = new NewRepository(repositoryName)
+                        {
+                            Description = repositoryDescription,
+                            AutoInit = string.IsNullOrWhiteSpace(repositoryTemplateUrl),
+                            Private = !(data?.PublicRepository ?? false)
+                        };
+
+                        repository = await client.Repository
+                            .Create(owner.Login, repoSettings)
+                            .ConfigureAwait(false);
+                    }
+                    else
                     {
-                        owner = owner.Login,
-                        name = repositoryName,
-                        description = repositoryDescription
-                    };
+                        // use the GitHub template repository as a blueprint to create a new
+                        // repository. as this API call isn't supported by the Octokit client
+                        // library we need to fall back to a raw API call via Flurl.
 
-                    var response = await repositoryTemplate.Url.ToString()
-                        .AppendPathSegment("generate")
-                        .WithGitHubHeaders("baptiste-preview")
-                        .WithGitHubCredentials(client.Credentials)
-                        .PostJsonAsync(payload)
-                        .ConfigureAwait(false);
+                        var payload = new
+                        {
+                            owner = owner.Login,
+                            name = repositoryName,
+                            description = repositoryDescription
+                        };
 
-                    var json = await response.Content
-                        .ReadAsStringAsync()
-                        .ConfigureAwait(false);
+                        var response = await repositoryTemplate.Url.ToString()
+                            .AppendPathSegment("generate")
+                            .WithGitHubHeaders("baptiste-preview")
+                            .WithGitHubCredentials(client.Credentials)
+                            .PostJsonAsync(payload)
+                            .ConfigureAwait(false);
 
-                    repository = GitHubSerializer.Deserialize<Repository>(json);
+                        var json = await response.Content
+                            .ReadAsStringAsync()
+                            .ConfigureAwait(false);
+
+                        repository = GitHubSerializer.Deserialize<Repository>(json);
+                    }
+                }
+                catch (RepositoryExistsException)
+                {
+                    repositoryName = GetRepositoryName(componentProject, component, ++repositoryCount);
                 }
             }
 
@@ -670,11 +773,11 @@ namespace TeamCloud.Adapters.GitHub
                 }
                 catch (FlurlHttpException exc) when (exc.Call.HttpStatus == HttpStatusCode.Forbidden)
                 {
-                    // foo
+                    // swallow and resume
                 }
             }
 
-            return await UpdateComponentAsync(component, commandUser, commandQueue, log).ConfigureAwait(false);
+            return await UpdateComponentAsync(component, contextUser, commandQueue).ConfigureAwait(false);
 
             async Task<string> GetTemplateRepositoryUrlAsync()
             {
@@ -719,8 +822,8 @@ namespace TeamCloud.Adapters.GitHub
             }
         });
 
-        public override Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
-            => ExecuteAsync(component, commandQueue, log, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
+        protected override Task<Component> UpdateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
+            => ExecuteAsync(component, contextUser, commandQueue, (Func<GitHubClient, Octokit.User, Octokit.Project, Team, Team, Task<Component>>)(async (client, owner, project, memberTeam, adminTeam) =>
         {
             var users = await userRepository
                 .ListAsync(component.Organization, component.ProjectId)
@@ -729,102 +832,66 @@ namespace TeamCloud.Adapters.GitHub
 
             await Task.WhenAll(
 
-                SynchronizeTeamMembersAsync(memberTeam, users.Where(user => user.IsMember())),
-                SynchronizeTeamMembersAsync(adminTeam, users.Where(user => user.IsAdmin()))
+                SyncTeamCloudIdentityAsync(),
+
+                SynchronizeTeamMembersAsync(client, memberTeam, users.Where(user => user.IsMember()), component, contextUser, commandQueue),
+                SynchronizeTeamMembersAsync(client, adminTeam, users.Where(user => user.IsAdmin()), component, contextUser, commandQueue)
 
                 ).ConfigureAwait(false);
 
             return component;
 
-            async Task<User> EnsureUserAsync(Guid userId)
+            async Task SyncTeamCloudIdentityAsync()
             {
-                var user = await userRepository
-                    .GetAsync(component.Organization, userId.ToString(), true)
-                    .ConfigureAwait(false);
-
-                if (user is null)
+                if (AzureResourceIdentifier.TryParse(componentProject.ResourceId, out var projectResourceId) && GitHubIdentifier.TryParse(component.ResourceId, out var componentResourceId))
                 {
-                    user = new User()
+                    var servicePrincipal = await base.GetServiceIdentityAsync((Component)component, (bool)true)
+                        .ConfigureAwait(false);
+
+                    var repository = await client.Repository
+                        .Get(componentResourceId.Organization, componentResourceId.Repository)
+                        .ConfigureAwait(false);
+
+                    if (repository != null)
                     {
-                        Id = userId.ToString(),
-                        Role = OrganizationUserRole.None
-                    };
+                        var servicePrincipalJson = GitHubExtensions.ToJson(servicePrincipal, (Guid)projectResourceId.SubscriptionId);
 
-                    user.AlternateIdentities[this.Type] = new AlternateIdentity();
+                        var keyJson = await repository.Url
+                            .AppendPathSegment("actions/secrets/public-key")
+                            .WithGitHubHeaders()
+                            .WithGitHubCredentials(client.Connection.Credentials)
+                            .GetJObjectAsync()
+                            .ConfigureAwait(false);
 
-                    await commandQueue
-                        .AddAsync(new OrganizationUserCreateCommand(commandUser, user))
-                        .ConfigureAwait(false);
+                        var key = Convert.FromBase64String(keyJson.SelectToken("key")?.ToString() ?? string.Empty);
+
+                        var secretBuffer = Encoding.UTF8.GetBytes(servicePrincipalJson);
+                        var encryptBuffer = Sodium.SealedPublicKeyBox.Create(secretBuffer, key);
+
+                        var payload = new
+                        {
+                            owner = repository.Owner.Name,
+                            repo = repository.Name,
+                            secret_name = "TEAMCLOUD_CREDENTIAL",
+                            encrypted_value = Convert.ToBase64String(encryptBuffer),
+                            key_id = keyJson.SelectToken("key_id")?.ToString()
+                        };
+
+                        await repository.Url
+                            .AppendPathSegment($"actions/secrets/{payload.secret_name}")
+                            .WithGitHubHeaders()
+                            .WithGitHubCredentials(client.Connection.Credentials)
+                            .PutJsonAsync(payload)
+                            .ConfigureAwait(false);
+                    }
                 }
-                else 
-                {
-                    user = await InitializeUserAsync(user)
-                        .ConfigureAwait(false);
-                }
-
-                return user;
             }
+        }));
 
-            async Task<User> InitializeUserAsync(User user)
-            {
-                if (user?.AlternateIdentities.TryAdd(Type, new AlternateIdentity()) ?? false)
-                {
-                    await commandQueue
-                        .AddAsync(new OrganizationUserUpdateCommand(commandUser, user))
-                        .ConfigureAwait(false);
-                }
-
-                return user;
-            }
-
-            async Task SynchronizeTeamMembersAsync(Team team, IEnumerable<User> users)
-            {
-                var userIds = new HashSet<Guid>(await users
-                    .ToAsyncEnumerable()
-                    .SelectMany(user => azureDirectoryService.GetGroupMembersAsync(user.Id))
-                    .ToArrayAsync()
-                    .ConfigureAwait(false));
-
-                var teamUsers = await userIds
-                    .Select(userId =>
-                    {
-                        var user = users.SingleOrDefault(u => userId.Equals(Guid.Parse(u.Id)));
-                        return user is null ? EnsureUserAsync(userId) : InitializeUserAsync(user);
-
-                    }).WhenAll()
-                    .ConfigureAwait(false);
-
-                var logins = teamUsers
-                    .Select(user => user.AlternateIdentities.TryGetValue(this.Type, out var alternateIdentity) ? alternateIdentity.Login : null)
-                    .Where(login => !string.IsNullOrWhiteSpace(login))
-                    .Distinct(StringComparer.OrdinalIgnoreCase);
-
-                var members = await client.Organization.Team
-                    .GetAllMembers(team.Id)
-                    .ConfigureAwait(false);
-
-                var membershipTasks = new List<Task>();
-
-                membershipTasks.AddRange(logins
-                    .Except(members.Select(m => m.Login), StringComparer.OrdinalIgnoreCase)
-                    .Select(login => client.Organization.Team.AddOrEditMembership(team.Id, login, new UpdateTeamMembership(TeamRole.Member))));
-
-                membershipTasks.AddRange(members
-                    .Select(m => m.Login)
-                    .Except(logins, StringComparer.OrdinalIgnoreCase)
-                    .Select(login => client.Organization.Team.RemoveMembership(team.Id, login)));
-
-                await membershipTasks
-                    .WhenAll()
-                    .ConfigureAwait(false);
-            }
-        });
-
-        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
-            => ExecuteAsync(component, commandQueue, log, async (componentOrganization, componentDeploymentScope, componentProject, client, owner, project, memberTeam, adminTeam) =>
+        protected override Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
+            => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
         {
             return component;
-
         });
 
         public override async Task<NetworkCredential> GetServiceCredentialAsync(Component component)
@@ -835,9 +902,10 @@ namespace TeamCloud.Adapters.GitHub
             var gitHubClient = await CreateClientAsync(component)
                 .ConfigureAwait(false);
 
-            return gitHubClient is null
-                ? null
-                : new NetworkCredential("bearer", gitHubClient.Credentials.Password, gitHubClient.BaseAddress.ToString());
+            if (gitHubClient is null)
+                return default;
+
+            return new NetworkCredential("bearer", gitHubClient.Credentials.Password, gitHubClient.BaseAddress.ToString());
         }
     }
 }

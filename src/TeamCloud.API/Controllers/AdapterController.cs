@@ -24,11 +24,11 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class AdapterController : TeamCloudController
     {
-        private readonly IEnumerable<IAdapter> adapters;
+        private readonly IAdapterProvider adapterProvider;
 
-        public AdapterController(IEnumerable<IAdapter> adapters = null) : base()
+        public AdapterController(IAdapterProvider adapterProvider) : base()
         {
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new System.ArgumentNullException(nameof(adapterProvider));
         }
 
         [HttpGet()]
@@ -38,7 +38,8 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         public async Task<IActionResult> Get()
         {
-            var adpaterInformationList = await adapters
+            var adpaterInformationList = await adapterProvider
+                .GetAdapters()
                 .Select(async a => new AdapterInformation()
                 {
                     Type = a.Type,

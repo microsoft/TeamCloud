@@ -14,7 +14,8 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.Secrets
 {
-    public sealed class SecretsStoreProvider : ISecretsStoreProvider
+    public sealed class SecretsStoreProvider<TSecretsStore> : ISecretsStoreProvider
+        where TSecretsStore : ISecretsStore
     {
         private static readonly ConcurrentDictionary<string, AsyncLazy<AzureKeyVaultResource>> keyVaultResourceCache = new ConcurrentDictionary<string, AsyncLazy<AzureKeyVaultResource>>();
 
@@ -53,7 +54,14 @@ namespace TeamCloud.Secrets
 
             })).ConfigureAwait(false);
 
-            return ActivatorUtilities.CreateInstance<ISecretsStore>(serviceProvider, keyVaultResource);
+            try
+            {
+                return ActivatorUtilities.CreateInstance<TSecretsStore>(serviceProvider, keyVaultResource);
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }

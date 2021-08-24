@@ -8,6 +8,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using TeamCloud.Azure.Directory;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
@@ -27,11 +28,11 @@ namespace TeamCloud.Adapters
 
         Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
 
-        Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        Task<Component> CreateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-        Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        Task<Component> UpdateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-        Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log);
+        Task<Component> DeleteComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
         Task<NetworkCredential> GetServiceCredentialAsync(Component component);
     }

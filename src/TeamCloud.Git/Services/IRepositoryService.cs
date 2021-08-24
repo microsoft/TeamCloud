@@ -11,8 +11,6 @@ namespace TeamCloud.Git.Services
 {
     public interface IRepositoryService
     {
-        Task<RepositoryReference> GetRepositoryReferenceAsync(string url, string version, string token);
-
         Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate);
 
         Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId);

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Management.ManagementGroups;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
@@ -37,19 +36,19 @@ namespace TeamCloud.Adapters.AzureResourceManager
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
         public AzureResourceManagerAdapter(IAuthorizationSessionClient sessionClient,
-                                           IAuthorizationTokenClient tokenClient,
-                                           IDistributedLockManager distributedLockManager,
-                                           ISecretsStoreProvider secretsStoreProvider,
-                                           IAzureSessionService azureSessionService,
-                                           IAzureDirectoryService azureDirectoryService,
-                                           IAzureResourceService azureResourceService,
-                                           IOrganizationRepository organizationRepository,
-                                           IUserRepository userRepository,
-                                           IDeploymentScopeRepository deploymentScopeRepository,
-                                           IProjectRepository projectRepository,
-                                           IComponentRepository componentRepository,
-                                           IComponentTemplateRepository componentTemplateRepository)
-            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository)
+            IAuthorizationTokenClient tokenClient,
+            IDistributedLockManager distributedLockManager,
+            ISecretsStoreProvider secretsStoreProvider,
+            IAzureSessionService azureSessionService,
+            IAzureDirectoryService azureDirectoryService,
+            IAzureResourceService azureResourceService,
+            IOrganizationRepository organizationRepository,
+            IUserRepository userRepository,
+            IDeploymentScopeRepository deploymentScopeRepository,
+            IProjectRepository projectRepository,
+            IComponentRepository componentRepository,
+            IComponentTemplateRepository componentTemplateRepository)
+            : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
@@ -133,7 +132,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
         public override Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
             => azureSessionService.GetIdentityAsync().ContinueWith(identity => identity != null, TaskScheduler.Current);
 
-        public override async Task<Component> CreateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
+        protected override async Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -156,10 +155,10 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     .ConfigureAwait(false);
             }
 
-            return await UpdateComponentAsync(component, commandUser, commandQueue, log).ConfigureAwait(false);
+            return await UpdateComponentAsync(component, contextUser, commandQueue).ConfigureAwait(false);
         }
 
-        public override async Task<Component> UpdateComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
+        protected override async Task<Component> UpdateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
@@ -255,7 +254,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
             }
         }
 
-        public override Task<Component> DeleteComponentAsync(Component component, User commandUser, IAsyncCollector<ICommand> commandQueue, ILogger log)
+        protected override Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
             return Task.FromResult(component);
         }
@@ -271,14 +270,29 @@ namespace TeamCloud.Adapters.AzureResourceManager
             if (subscriptionIds.Any())
             {
                 var resourceGroupIds = await Task
-                    .WhenAll(subscriptionIds.Select(sid => FindResourceId(sid, resourceGroupName)))
+                    .WhenAll(subscriptionIds.Select(sid => FindResourceIdAsync(sid, resourceGroupName)))
                     .ConfigureAwait(false);
 
-                // resourceGroupIds enumeration contains nulls or matches only - and there should be only 1 match
+                // resourceGroupIds enumeration contains nulls or matches only - and there should be only 1 or no match
                 resourceGroupId = resourceGroupIds.SingleOrDefault(rgid => !string.IsNullOrEmpty(rgid));
 
                 if (string.IsNullOrEmpty(resourceGroupId))
                 {
+                    // as Azure subscriptions are limited to 2000 role assignments 
+                    // we pick those with the least amout of used assignments
+
+                    var leastRoleAssignments = await subscriptionIds
+                        .ToAsyncEnumerable()
+                        .GroupByAwait(sid => GetRoleAssignmentCountAsync(sid))
+                        .OrderBy(cnt => cnt.Key)
+                        .FirstOrDefaultAsync()
+                        .ConfigureAwait(false);
+
+                    subscriptionIds = leastRoleAssignments.ToEnumerable();
+
+                    // in case there are several subscriptions with the same amount of
+                    // role assignments we pick a random one for our deployment
+
                     var subscriptionIndex = (int)(DateTime.UtcNow.Ticks % subscriptionIds.Count());
                     var subscriptionId = subscriptionIds.Skip(subscriptionIndex).FirstOrDefault();
 
@@ -306,7 +320,20 @@ namespace TeamCloud.Adapters.AzureResourceManager
 
             return resourceGroupId;
 
-            async Task<string> FindResourceId(Guid subscriptionId, string resourceGroupName)
+            async ValueTask<int> GetRoleAssignmentCountAsync(Guid subscriptionId)
+            {
+                var subscription = await azureResourceService
+                    .GetSubscriptionAsync(subscriptionId, throwIfNotExists: true)
+                    .ConfigureAwait(false);
+
+                var roleAssignmentUsage = await subscription
+                    .GetRoleAssignmentUsageAsync()
+                    .ConfigureAwait(false);
+
+                return roleAssignmentUsage.RoleAssignmentsCurrentCount;
+            }
+
+            async Task<string> FindResourceIdAsync(Guid subscriptionId, string resourceGroupName)
             {
                 var session = await azureResourceService.AzureSessionService
                     .CreateSessionAsync(subscriptionId)
@@ -492,6 +519,5 @@ namespace TeamCloud.Adapters.AzureResourceManager
                 }
             }
         }
-
     }
 }

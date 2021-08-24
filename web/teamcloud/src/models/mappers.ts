@@ -1004,6 +1004,17 @@ export const ComponentTemplatePermissions: coreClient.CompositeMapper = {
             }
           }
         }
+      },
+      adapter: {
+        serializedName: "Adapter",
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
       }
     }
   }

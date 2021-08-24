@@ -13,9 +13,9 @@ namespace TeamCloud.Data
     {
         IAsyncEnumerable<User> ListAsync(string organization, string projectId);
 
-        IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId);
+        IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId = null);
 
-        IAsyncEnumerable<User> ListAdminsAsync(string organization);
+        IAsyncEnumerable<User> ListAdminsAsync(string organization, string projectId = null);
 
         IAsyncEnumerable<string> ListOrgsAsync(User user);
 

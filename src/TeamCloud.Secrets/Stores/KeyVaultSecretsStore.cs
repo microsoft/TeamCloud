@@ -8,11 +8,11 @@ using TeamCloud.Azure.Resources.Typed;
 
 namespace TeamCloud.Secrets
 {
-    public sealed class SecretsStore : ISecretsStore
+    public sealed class KeyVaultSecretsStore : ISecretsStore
     {
         private readonly AzureKeyVaultResource keyVaultResource;
 
-        internal SecretsStore(AzureKeyVaultResource keyVaultResource)
+        public KeyVaultSecretsStore(AzureKeyVaultResource keyVaultResource)
         {
             this.keyVaultResource = keyVaultResource ?? throw new System.ArgumentNullException(nameof(keyVaultResource));
         }

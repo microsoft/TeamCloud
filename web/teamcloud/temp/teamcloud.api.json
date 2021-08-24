@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.9.10",
+    "toolVersion": "7.7.11",
     "schemaVersion": 1003,
     "oldestForwardsCompatibleVersion": 1001
   },
@@ -3551,6 +3551,31 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTemplatePermissions#adapter:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "adapter?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "adapter",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTemplatePermissions#admin:member",
               "docComment": "",
               "excerptTokens": [
@@ -4632,7 +4657,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownAdapterInformationType "
+              "text": "export declare enum KnownAdapterInformationType "
             }
           ],
           "releaseTag": "Public",
@@ -4710,7 +4735,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownCommandAuditEntityRuntimeStatus "
+              "text": "export declare enum KnownCommandAuditEntityRuntimeStatus "
             }
           ],
           "releaseTag": "Public",
@@ -4893,7 +4918,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownComponentResourceState "
+              "text": "export declare enum KnownComponentResourceState "
             }
           ],
           "releaseTag": "Public",
@@ -5013,7 +5038,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownComponentTaskResourceState "
+              "text": "export declare enum KnownComponentTaskResourceState "
             }
           ],
           "releaseTag": "Public",
@@ -5133,7 +5158,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownComponentTaskTemplateType "
+              "text": "export declare enum KnownComponentTaskTemplateType "
             }
           ],
           "releaseTag": "Public",
@@ -5211,7 +5236,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownComponentTaskType "
+              "text": "export declare enum KnownComponentTaskType "
             }
           ],
           "releaseTag": "Public",
@@ -5289,7 +5314,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownComponentTemplateType "
+              "text": "export declare enum KnownComponentTemplateType "
             }
           ],
           "releaseTag": "Public",
@@ -5346,7 +5371,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownComponentType "
+              "text": "export declare enum KnownComponentType "
             }
           ],
           "releaseTag": "Public",
@@ -5403,7 +5428,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownDeploymentScopeComponentTypesItem "
+              "text": "export declare enum KnownDeploymentScopeComponentTypesItem "
             }
           ],
           "releaseTag": "Public",
@@ -5460,7 +5485,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownDeploymentScopeDefinitionType "
+              "text": "export declare enum KnownDeploymentScopeDefinitionType "
             }
           ],
           "releaseTag": "Public",
@@ -5538,7 +5563,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownDeploymentScopeType "
+              "text": "export declare enum KnownDeploymentScopeType "
             }
           ],
           "releaseTag": "Public",
@@ -5616,7 +5641,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownOrganizationResourceState "
+              "text": "export declare enum KnownOrganizationResourceState "
             }
           ],
           "releaseTag": "Public",
@@ -5736,12 +5761,33 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownProjectMembershipRole "
+              "text": "export declare enum KnownProjectMembershipRole "
             }
           ],
           "releaseTag": "Public",
           "name": "KnownProjectMembershipRole",
           "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectMembershipRole.Adapter:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Adapter = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Adapter\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Adapter",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownProjectMembershipRole.Admin:member",
@@ -5835,7 +5881,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownProjectResourceState "
+              "text": "export declare enum KnownProjectResourceState "
             }
           ],
           "releaseTag": "Public",
@@ -5955,7 +6001,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownRepositoryReferenceProvider "
+              "text": "export declare enum KnownRepositoryReferenceProvider "
             }
           ],
           "releaseTag": "Public",
@@ -6033,7 +6079,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownRepositoryReferenceType "
+              "text": "export declare enum KnownRepositoryReferenceType "
             }
           ],
           "releaseTag": "Public",
@@ -6132,7 +6178,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownResultErrorCode "
+              "text": "export declare enum KnownResultErrorCode "
             }
           ],
           "releaseTag": "Public",
@@ -6315,7 +6361,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownScheduleDaysOfWeekItem "
+              "text": "export declare enum KnownScheduleDaysOfWeekItem "
             }
           ],
           "releaseTag": "Public",
@@ -6477,7 +6523,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownScheduleDefinitionDaysOfWeekItem "
+              "text": "export declare enum KnownScheduleDefinitionDaysOfWeekItem "
             }
           ],
           "releaseTag": "Public",
@@ -6639,7 +6685,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownUserRole "
+              "text": "export declare enum KnownUserRole "
             }
           ],
           "releaseTag": "Public",
@@ -6738,7 +6784,7 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare const enum KnownUserType "
+              "text": "export declare enum KnownUserType "
             }
           ],
           "releaseTag": "Public",
@@ -8947,7 +8993,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ProjectMembershipRole:type",
-          "docComment": "/**\n * Defines values for ProjectMembershipRole. \\ {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole, this enum contains the known values that the service supports. ### Known values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner**\n */\n",
+          "docComment": "/**\n * Defines values for ProjectMembershipRole. \\ {@link KnownProjectMembershipRole} can be used interchangeably with ProjectMembershipRole, this enum contains the known values that the service supports. ### Known values supported by the service **None** \\ **Member** \\ **Admin** \\ **Owner** \\ **Adapter**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

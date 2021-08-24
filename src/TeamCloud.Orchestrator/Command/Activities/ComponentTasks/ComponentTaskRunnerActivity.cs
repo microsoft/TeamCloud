@@ -38,7 +38,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
         private readonly IComponentTaskRepository componentTaskRepository;
         private readonly IAzureSessionService azureSessionService;
         private readonly IAzureResourceService azureResourceService;
-        private readonly IEnumerable<IAdapter> adapters;
+        private readonly IAdapterProvider adapterProvider;
 
         public ComponentTaskRunnerActivity(IOrganizationRepository organizationRepository,
                                            IDeploymentScopeRepository deploymentScopeRepository,
@@ -48,7 +48,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                                            IComponentTaskRepository componentTaskRepository,
                                            IAzureSessionService azureSessionService,
                                            IAzureResourceService azureResourceService,
-                                           IEnumerable<IAdapter> adapters)
+                                           IAdapterProvider adapterProvider)
         {
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
@@ -58,7 +58,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
         [FunctionName(nameof(ComponentTaskRunnerActivity))]
@@ -568,7 +568,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                 .GetAsync(component.Organization, component.DeploymentScopeId)
                 .ConfigureAwait(false);
 
-            if (adapters.TryGetAdapter(deploymentScope.Type, out var adapter))
+            var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
+
+            if (adapter != null)
             {
                 var credential = await adapter
                     .GetServiceCredentialAsync(component)

@@ -44,25 +44,6 @@ namespace TeamCloud.Git
             return repository;
         }
 
-        internal static async IAsyncEnumerable<TSource> ToAsyncEnumerable<TSource>(this IEnumerable<Task<TSource>> source)
-        {
-            if (source is null)
-                throw new ArgumentNullException(nameof(source));
-
-            var tasks = source.ToList();
-
-            while (tasks.Any())
-            {
-                var result = await Task
-                    .WhenAny(tasks)
-                    .ConfigureAwait(false);
-
-                tasks.Remove(result);
-
-                yield return await result.ConfigureAwait(false);
-            }
-        }
-
         private static RepositoryReference ParseGitHubUrl(this RepositoryReference repository)
         {
             repository.Url = repository.Url
@@ -133,9 +114,6 @@ namespace TeamCloud.Git
 
         internal static bool IsTag(this Microsoft.TeamFoundation.SourceControl.WebApi.GitRef gitRef)
             => gitRef?.Name?.StartsWith("refs/tags/", StringComparison.Ordinal) ?? throw new ArgumentNullException(nameof(gitRef));
-
-
-
 
         internal static string ToString(this JSchema schema, Formatting formatting)
         {

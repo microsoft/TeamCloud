@@ -26,14 +26,18 @@ namespace TeamCloud.Orchestrator.Command.Handlers
     {
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IAuthorizationSessionClient authorizationSessionClient;
-        private readonly IAdapter[] adapters;
+        private readonly IAdapterProvider adapterProvider;
         private readonly IFunctionsHost functionsHost;
 
-        public DeploymentScopeCommandHandler(IDeploymentScopeRepository deploymentScopeRepository, IAuthorizationSessionClient authorizationSessionClient, IAdapter[] adapters, IFunctionsHost functionsHost)
+        public DeploymentScopeCommandHandler(
+            IDeploymentScopeRepository deploymentScopeRepository,
+            IAuthorizationSessionClient authorizationSessionClient,
+            IAdapterProvider adapterProvider,
+            IFunctionsHost functionsHost)
         {
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.authorizationSessionClient = authorizationSessionClient ?? throw new ArgumentNullException(nameof(authorizationSessionClient));
-            this.adapters = adapters ?? Array.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
         }
 
@@ -129,7 +133,9 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             {
                 commandResult.Result = command.Payload;
 
-                if (!adapters.TryGetAdapter(command.Payload.Type, out var adapter))
+                var adapter = adapterProvider.GetAdapter(command.Payload.Type);
+
+                if (adapter is null)
                 {
                     throw new NullReferenceException($"Could not find adapter for {command.Payload}");
                 }
