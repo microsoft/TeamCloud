@@ -269,6 +269,25 @@ def get_index_webapp(cli_ctx, version=None, prerelease=False, index_url=None):
     return version, deploy_url, zip_url
 
 
+def get_tc_deployment(cli_ctx, version=None, prerelease=False, index_url=None):
+    version, teamcloud, webapp = _get_index_teamcloud_core(cli_ctx, version, prerelease, index_url)
+    deploy_url, api_zip_url, orchestrator_zip_url = teamcloud.get('deployUrl'), teamcloud.get(
+        'apiZipUrl'), teamcloud.get('orchestratorZipUrl')
+    web_deploy_url, web_zip_url = webapp.get('deployUrl'), webapp.get('zipUrl')
+
+    if not deploy_url:
+        raise CLIError('No deployUrl found in index')
+    if not api_zip_url:
+        raise CLIError('No apiZipUrl found in index')
+    if not orchestrator_zip_url:
+        raise CLIError('No orchestratorZipUrl found in index')
+    if not web_deploy_url:
+        raise CLIError('No deployUrl found in index for web app')
+    if not web_zip_url:
+        raise CLIError('No zipUrl found in index for web app')
+    return version, deploy_url, api_zip_url, orchestrator_zip_url, web_deploy_url, web_zip_url
+
+
 def get_app_name(url):
     from re import match
     name = ''

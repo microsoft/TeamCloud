@@ -10,7 +10,8 @@ from azure.cli.core.commands.parameters import (tags_type, get_enum_type)
 from ._validators import (
     org_name_or_id_validator, org_name_validator, base_url_validator,
     teamcloud_cli_source_version_validator, repo_url_validator,
-    teamcloud_source_version_validator, index_url_validator, client_id_validator)
+    teamcloud_source_version_validator, index_url_validator, client_id_validator,
+    tc_test_validator)
 
 from ._completers import (get_org_completion_list)
 
@@ -37,15 +38,27 @@ def load_arguments(self, _):
         nargs='+',
         help='the deployment parameters')
 
-    # with self.argument_context('tc test', arg_group='TeamCloud') as c:
-    #     c.argument('base_url', tc_url_type)
-    #     c.argument('scope', options_list=['--name', '-n'],
-    #                type=str, help='Deployment scope name.')
-    #     c.argument('scope_type', get_enum_type(['AzureResourceManager', 'GitHub', 'AzureDevOps'],
-    #                default='AzureResourceManager'),
-    #                options_list=['--type', '-t'], help='Deployment scope name.')
-    #     c.argument('parameters', arg_type=parameters_type)
-    #     c.ignore('_subscription')
+    with self.argument_context('tc test', arg_group='TeamCloud') as c:
+        c.argument('name', options_list=['--name', '-n'],
+                   help='Name of app. Must be globally unique and will be the subdomain '
+                        'for the TeamCloud instance service endpoint.')
+        c.argument('principal_name', help='Service principal app (client) id.')
+        c.argument('principal_password', help="Service principal password, aka 'client secret'.")
+        c.argument('tags', tags_type)
+        c.argument('version', options_list=['--version', '-v'],
+                   help='TeamCloud version. Default: latest stable.')
+        c.argument('prerelease', options_list=['--pre'], action='store_true',
+                   help='Deploy latest prerelease version.')
+        c.argument('index_url', help='URL to custom index.json file.')
+        c.argument('skip_app_deployment', action='store_true',
+                   help="Only create Azure resources, skip deploying the TeamCloud API and Orchestrator apps.")
+        c.argument('skip_name_validation', action='store_true',
+                   help="Skip name validaiton. Useful when attempting to redeploy a partial or failed deployment.")
+        c.ignore('_subscription')
+        c.argument('scope', help='Scope to use for user authentication.')
+        c.argument('client_id', options_list=['--client-id', '-c'],
+                   type=str, help='Client ID for the Managed Application used for user authentication. '
+                   'See https://aka.ms/tcwebclientid for instructions.')
 
     # Global
 
