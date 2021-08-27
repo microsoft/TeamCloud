@@ -196,11 +196,11 @@ export interface ComponentTask {
     // (undocumented)
     resourceId?: string;
     // (undocumented)
-    resourceState?: ComponentTaskResourceState;
-    // (undocumented)
     scheduleId?: string;
     // (undocumented)
     started?: Date;
+    // (undocumented)
+    taskState?: ComponentTaskState;
     // (undocumented)
     type?: ComponentTaskType;
     // (undocumented)
@@ -248,9 +248,6 @@ export interface ComponentTaskReference {
     inputJson?: string;
 }
 
-// @public
-export type ComponentTaskResourceState = string;
-
 // @public (undocumented)
 export interface ComponentTaskRunner {
     // (undocumented)
@@ -259,6 +256,9 @@ export interface ComponentTaskRunner {
         [propertyName: string]: string;
     };
 }
+
+// @public
+export type ComponentTaskState = string;
 
 // @public (undocumented)
 export interface ComponentTaskTemplate {
@@ -473,19 +473,23 @@ export enum KnownCommandAuditEntityRuntimeStatus {
 // @public
 export enum KnownComponentResourceState {
     // (undocumented)
+    Deprovisioned = "Deprovisioned",
+    // (undocumented)
+    Deprovisioning = "Deprovisioning",
+    // (undocumented)
     Failed = "Failed",
     // (undocumented)
     Initializing = "Initializing",
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Provisioned = "Provisioned",
     // (undocumented)
-    Succeeded = "Succeeded"
+    Provisioning = "Provisioning"
 }
 
 // @public
-export enum KnownComponentTaskResourceState {
+export enum KnownComponentTaskState {
     // (undocumented)
     Failed = "Failed",
     // (undocumented)
@@ -493,7 +497,7 @@ export enum KnownComponentTaskResourceState {
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Processing = "Processing",
     // (undocumented)
     Succeeded = "Succeeded"
 }
@@ -565,15 +569,19 @@ export enum KnownDeploymentScopeType {
 // @public
 export enum KnownOrganizationResourceState {
     // (undocumented)
+    Deprovisioned = "Deprovisioned",
+    // (undocumented)
+    Deprovisioning = "Deprovisioning",
+    // (undocumented)
     Failed = "Failed",
     // (undocumented)
     Initializing = "Initializing",
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Provisioned = "Provisioned",
     // (undocumented)
-    Succeeded = "Succeeded"
+    Provisioning = "Provisioning"
 }
 
 // @public
@@ -593,15 +601,19 @@ export enum KnownProjectMembershipRole {
 // @public
 export enum KnownProjectResourceState {
     // (undocumented)
+    Deprovisioned = "Deprovisioned",
+    // (undocumented)
+    Deprovisioning = "Deprovisioning",
+    // (undocumented)
     Failed = "Failed",
     // (undocumented)
     Initializing = "Initializing",
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Provisioned = "Provisioned",
     // (undocumented)
-    Succeeded = "Succeeded"
+    Provisioning = "Provisioning"
 }
 
 // @public

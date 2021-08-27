@@ -72,12 +72,11 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
     const _getTaskName = (t?: ComponentTask) => t ? `Task: ${t.id}` : undefined;
 
     const _getTaskStatus = (t?: ComponentTask) => {
-        if (t?.resourceState) {
-            if (t.resourceState.toLowerCase() === 'succeeded' || t.resourceState.toLowerCase() === 'failed') {
-                return t.finished ? `${t.resourceState} ${t.finished.toLocaleString()} (ExitCode: ${t.exitCode})` : t.resourceState;
+        if (t?.taskState) {
+            if (t.taskState.toLowerCase() === 'succeeded' || t.taskState.toLowerCase() === 'failed') {
+                return t.finished ? `${t.taskState} ${t.finished.toLocaleString()} (ExitCode: ${t.exitCode})` : t.taskState;
             } else {
-                return t.resourceState;
-                // return `${d.resourceState}${dots}`;
+                return t.taskState;
             }
         } else if (t?.started) {
             return `Started ${t.started.toLocaleString()}`;

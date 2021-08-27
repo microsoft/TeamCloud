@@ -97,7 +97,7 @@ export interface ComponentTask {
     inputJson?: string;
     output?: string;
     resourceId?: string;
-    resourceState?: ComponentTaskResourceState;
+    taskState?: ComponentTaskState;
     exitCode?: number;
     id: string;
 }
@@ -563,7 +563,9 @@ export declare enum KnownComponentResourceState {
     Pending = "Pending",
     Initializing = "Initializing",
     Provisioning = "Provisioning",
-    Succeeded = "Succeeded",
+    Provisioned = "Provisioned",
+    Deprovisioning = "Deprovisioning",
+    Deprovisioned = "Deprovisioned",
     Failed = "Failed"
 }
 /**
@@ -574,7 +576,9 @@ export declare enum KnownComponentResourceState {
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
- * **Succeeded** \
+ * **Provisioned** \
+ * **Deprovisioning** \
+ * **Deprovisioned** \
  * **Failed**
  */
 export declare type ComponentResourceState = string;
@@ -594,26 +598,26 @@ export declare enum KnownComponentTaskType {
  * **Delete**
  */
 export declare type ComponentTaskType = string;
-/** Known values of {@link ComponentTaskResourceState} that the service accepts. */
-export declare enum KnownComponentTaskResourceState {
+/** Known values of {@link ComponentTaskState} that the service accepts. */
+export declare enum KnownComponentTaskState {
     Pending = "Pending",
     Initializing = "Initializing",
-    Provisioning = "Provisioning",
+    Processing = "Processing",
     Succeeded = "Succeeded",
     Failed = "Failed"
 }
 /**
- * Defines values for ComponentTaskResourceState. \
- * {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState,
+ * Defines values for ComponentTaskState. \
+ * {@link KnownComponentTaskState} can be used interchangeably with ComponentTaskState,
  *  this enum contains the known values that the service supports.
  * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
- * **Provisioning** \
+ * **Processing** \
  * **Succeeded** \
  * **Failed**
  */
-export declare type ComponentTaskResourceState = string;
+export declare type ComponentTaskState = string;
 /** Known values of {@link RepositoryReferenceProvider} that the service accepts. */
 export declare enum KnownRepositoryReferenceProvider {
     Unknown = "Unknown",
@@ -755,7 +759,9 @@ export declare enum KnownOrganizationResourceState {
     Pending = "Pending",
     Initializing = "Initializing",
     Provisioning = "Provisioning",
-    Succeeded = "Succeeded",
+    Provisioned = "Provisioned",
+    Deprovisioning = "Deprovisioning",
+    Deprovisioned = "Deprovisioned",
     Failed = "Failed"
 }
 /**
@@ -766,7 +772,9 @@ export declare enum KnownOrganizationResourceState {
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
- * **Succeeded** \
+ * **Provisioned** \
+ * **Deprovisioning** \
+ * **Deprovisioned** \
  * **Failed**
  */
 export declare type OrganizationResourceState = string;
@@ -831,7 +839,9 @@ export declare enum KnownProjectResourceState {
     Pending = "Pending",
     Initializing = "Initializing",
     Provisioning = "Provisioning",
-    Succeeded = "Succeeded",
+    Provisioned = "Provisioned",
+    Deprovisioning = "Deprovisioning",
+    Deprovisioned = "Deprovisioned",
     Failed = "Failed"
 }
 /**
@@ -842,7 +852,9 @@ export declare enum KnownProjectResourceState {
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
- * **Succeeded** \
+ * **Provisioned** \
+ * **Deprovisioning** \
+ * **Deprovisioned** \
  * **Failed**
  */
 export declare type ProjectResourceState = string;

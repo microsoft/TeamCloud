@@ -46,9 +46,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             {
                 if (AzureResourceIdentifier.TryParse(componentTask.ResourceId, out var resourceId))
                 {
-                    if (!componentTask.ResourceState.IsFinal())
+                    if (!componentTask.TaskState.IsFinal())
                     {
-                        componentTask.ResourceState = ResourceState.Failed;
+                        componentTask.TaskState = TaskState.Failed;
 
                         componentTask = await componentTaskRepository
                             .SetAsync(componentTask)

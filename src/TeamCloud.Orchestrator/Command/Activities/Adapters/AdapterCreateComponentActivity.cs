@@ -88,7 +88,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Adapter '{adapter.GetType().FullName}' failed to execute component {component}: {exc.Message}");
+                log.LogError(exc, $"Adapter '{adapter.GetType().FullName}' failed to create component {component}: {exc.Message}");
 
                 throw exc.AsSerializable();
             }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Management.ManagementGroups;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.VisualStudio.Services.Identity;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
@@ -254,9 +255,41 @@ namespace TeamCloud.Adapters.AzureResourceManager
             }
         }
 
-        protected override Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
+        protected override async Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
-            return Task.FromResult(component);
+            if (component is null)
+                throw new ArgumentNullException(nameof(component));
+
+            if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+            {
+                var resourceGroup = await azureResourceService
+                    .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
+                    .ConfigureAwait(false);
+
+                if (resourceGroup != null)
+                {
+                    await resourceGroup
+                        .DeleteAsync(true)
+                        .ConfigureAwait(false);
+                }
+
+                // remove resource related informations
+
+                component.ResourceId = null;
+                component.ResourceUrl = null;
+                
+                // ensure resource state is deleted
+
+                component.ResourceState = Model.Common.ResourceState.Deprovisioned;
+
+                // update entity to ensure we have it's state updated in case the delete fails
+
+                component = await componentRepository
+                    .SetAsync(component)
+                    .ConfigureAwait(false);
+            }
+
+            return component;
         }
 
         private async Task<string> CreateResourceIdAsync(Component component)

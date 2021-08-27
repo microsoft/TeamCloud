@@ -22,6 +22,7 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Data;
 using TeamCloud.Http;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Serialization;
@@ -88,7 +89,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                 componentTask.Started = componentTask.Created;
                 componentTask.Finished = componentTask.Created;
                 componentTask.ExitCode = 0;
-                componentTask.ResourceState = Model.Common.ResourceState.Succeeded;
+                componentTask.TaskState = TaskState.Succeeded;
             }
             else
             {

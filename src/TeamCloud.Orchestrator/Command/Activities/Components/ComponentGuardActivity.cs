@@ -72,7 +72,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
             if (organization.ResourceState == ResourceState.Failed)
                 throw new NotSupportedException($"Organization '{organization.Slug}' ended up in a Failed resource state.");
 
-            return organization.ResourceState == ResourceState.Succeeded;
+            return organization.ResourceState == ResourceState.Provisioned;
         }
 
         private async Task<bool> GuardProjectAsync(Component component)
@@ -84,7 +84,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
             if (project.ResourceState == ResourceState.Failed)
                 throw new NotSupportedException($"Project '{project.Slug}' ended up in a Failed resource state.");
 
-            return project.ResourceState == ResourceState.Succeeded;
+            return project.ResourceState == ResourceState.Provisioned;
         }
 
         internal struct Input

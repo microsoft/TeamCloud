@@ -75,7 +75,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                         commandResult.Result = TeamCloudSerialize.MergeObject(organizationDataJson.ToString(), commandResult.Result);
 
                         commandResult.Result = await orchestrationContext
-                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Succeeded })
+                            .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Provisioned })
                             .ConfigureAwait(true);
                     }
                     else

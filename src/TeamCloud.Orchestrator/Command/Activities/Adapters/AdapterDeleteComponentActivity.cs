@@ -19,13 +19,13 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Activities.Adapters
 {
-    public sealed class AdapterUpdateComponentActivity
+    public sealed class AdapterDeleteComponentActivity
     {
         private readonly IComponentRepository componentRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IAdapterProvider adapterProvider;
 
-        public AdapterUpdateComponentActivity(
+        public AdapterDeleteComponentActivity(
             IComponentRepository componentRepository,
             IDeploymentScopeRepository deploymentScopeRepository,
             IAdapterProvider adapterProvider)
@@ -35,7 +35,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
-        [FunctionName(nameof(AdapterUpdateComponentActivity))]
+        [FunctionName(nameof(AdapterDeleteComponentActivity))]
         [RetryOptions(3)]
         public async Task<Component> Run(
             [ActivityTrigger] IDurableActivityContext context,
@@ -80,12 +80,12 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             try
             {
                 component = await adapter
-                    .UpdateComponentAsync(component, context.GetInput<Input>().User, new CommandCollector(commandQueue))
+                    .DeleteComponentAsync(component, context.GetInput<Input>().User, new CommandCollector(commandQueue))
                     .ConfigureAwait(false);
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Adapter '{adapter.GetType().FullName}' failed to update component {component}: {exc.Message}");
+                log.LogError(exc, $"Adapter '{adapter.GetType().FullName}' failed to delete component {component}: {exc.Message}");
 
                 throw exc.AsSerializable();
             }

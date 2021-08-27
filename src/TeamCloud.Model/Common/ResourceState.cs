@@ -17,7 +17,11 @@ namespace TeamCloud.Model.Common
 
         Provisioning,
 
-        Succeeded,
+        Provisioned,
+
+        Deprovisioning,
+
+        Deprovisioned,
 
         Failed
     }
@@ -25,7 +29,7 @@ namespace TeamCloud.Model.Common
     public static class ResourceStateExtensions
     {
         public static bool IsFinal(this ResourceState resourceState)
-            => resourceState == ResourceState.Succeeded || resourceState == ResourceState.Failed;
+            => resourceState == ResourceState.Provisioned || resourceState == ResourceState.Deprovisioned || resourceState == ResourceState.Failed;
 
         public static bool IsActive(this ResourceState resourceState)
             => !resourceState.IsFinal();

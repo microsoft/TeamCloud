@@ -18,9 +18,13 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentRepository : CosmosDbRepository<Component>, IComponentRepository
     {
-        public CosmosDbComponentRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+        private readonly IComponentTaskRepository componentTaskRepository;
+
+        public CosmosDbComponentRepository(ICosmosDbOptions options, IComponentTaskRepository componentTaskRepository, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
             : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
-        { }
+        {
+            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
+        }
 
         public override async Task<Component> AddAsync(Component component)
         {
@@ -187,6 +191,10 @@ namespace TeamCloud.Data.CosmosDb
                 }
                 else
                 {
+                    await componentTaskRepository
+                        .RemoveAllAsync(component.Id)
+                        .ConfigureAwait(false);
+
                     var response = await container
                         .DeleteItemAsync<Component>(component.Id, GetPartitionKey(component))
                         .ConfigureAwait(false);

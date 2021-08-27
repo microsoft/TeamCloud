@@ -2990,7 +2990,9 @@ components:
             - Pending
             - Initializing
             - Provisioning
-            - Succeeded
+            - Provisioned
+            - Deprovisioning
+            - Deprovisioned
             - Failed
           type: string
         deploymentScopeId:
@@ -3140,11 +3142,11 @@ components:
         resourceId:
           type: string
           nullable: true
-        resourceState:
+        taskState:
           enum:
             - Pending
             - Initializing
-            - Provisioning
+            - Processing
             - Succeeded
             - Failed
           type: string
@@ -3650,7 +3652,9 @@ components:
             - Pending
             - Initializing
             - Provisioning
-            - Succeeded
+            - Provisioned
+            - Deprovisioning
+            - Deprovisioned
             - Failed
           type: string
         galleryId:
@@ -3890,7 +3894,9 @@ components:
             - Pending
             - Initializing
             - Provisioning
-            - Succeeded
+            - Provisioned
+            - Deprovisioning
+            - Deprovisioned
             - Failed
           type: string
         vaultId:
