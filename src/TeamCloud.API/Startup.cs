@@ -103,6 +103,7 @@ namespace TeamCloud.API
             app
                 .UseRouting()
                 .UseAuthentication()
+                .UseMiddleware<RequestBenchmarkMiddleware>()
                 .UseMiddleware<EnsureTeamCloudModelMiddleware>()
                 .UseAuthorization()
                 .UseEndpoints(endpoints => endpoints.MapControllers());
@@ -177,7 +178,9 @@ namespace TeamCloud.API
                 .AddSingleton<OrchestratorService>()
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
-                .AddScoped<EnsureTeamCloudModelMiddleware>();
+                .AddScoped<EnsureTeamCloudModelMiddleware>()
+                .AddScoped<RequestBenchmarkMiddleware>();
+
 
             services
                 .AddSingleton<RecyclableMemoryStreamManager>()
