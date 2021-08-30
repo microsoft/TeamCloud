@@ -4802,7 +4802,9 @@
               "Pending",
               "Initializing",
               "Provisioning",
-              "Succeeded",
+              "Provisioned",
+              "Deprovisioning",
+              "Deprovisioned",
               "Failed"
             ],
             "type": "string"
@@ -5007,11 +5009,11 @@
             "type": "string",
             "nullable": true
           },
-          "resourceState": {
+          "taskState": {
             "enum": [
               "Pending",
               "Initializing",
-              "Provisioning",
+              "Processing",
               "Succeeded",
               "Failed"
             ],
@@ -5702,7 +5704,9 @@
               "Pending",
               "Initializing",
               "Provisioning",
-              "Succeeded",
+              "Provisioned",
+              "Deprovisioning",
+              "Deprovisioned",
               "Failed"
             ],
             "type": "string"
@@ -6033,7 +6037,9 @@
               "Pending",
               "Initializing",
               "Provisioning",
-              "Succeeded",
+              "Provisioned",
+              "Deprovisioning",
+              "Deprovisioned",
               "Failed"
             ],
             "type": "string"

@@ -90,9 +90,13 @@ export const AuditList: React.FC = () => {
     const onRenderDate = (date?: Date | null) =>
         <Text>{date?.toDateTimeDisplayString(false)}</Text>;
 
+    const onRenderParentId = (parentId: string | undefined) =>
+        parentId && parentId !== '00000000-0000-0000-0000-000000000000' ? <Text>{parentId}</Text> : <></>;
+
     const columns: IColumn[] = [
         { key: 'commandId', name: 'Command ID', minWidth: 300, maxWidth: 300, fieldName: 'commandId' },
-        { key: 'command', name: 'Command', minWidth: 300, maxWidth: 300, fieldName: 'command' },
+        { key: 'parentId', name: 'Parent ID', minWidth: 300, maxWidth: 300, onRender: (a: CommandAuditEntity) => onRenderParentId(a?.parentId) },
+        { key: 'command', name: 'Command', minWidth: 300, maxWidth: 10000, fieldName: 'command' },
         { key: 'runtimeStatus', name: 'Runtime Status', minWidth: 100, maxWidth: 100, fieldName: 'runtimeStatus' },
         { key: 'customStatus', name: 'Custom Status', minWidth: 100, maxWidth: 100, fieldName: 'customStatus' },
         { key: 'created', name: 'Created', minWidth: 200, onRender: (a: CommandAuditEntity) => onRenderDate(a?.created) },

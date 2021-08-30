@@ -36,7 +36,9 @@ export var KnownComponentResourceState;
     KnownComponentResourceState["Pending"] = "Pending";
     KnownComponentResourceState["Initializing"] = "Initializing";
     KnownComponentResourceState["Provisioning"] = "Provisioning";
-    KnownComponentResourceState["Succeeded"] = "Succeeded";
+    KnownComponentResourceState["Provisioned"] = "Provisioned";
+    KnownComponentResourceState["Deprovisioning"] = "Deprovisioning";
+    KnownComponentResourceState["Deprovisioned"] = "Deprovisioned";
     KnownComponentResourceState["Failed"] = "Failed";
 })(KnownComponentResourceState || (KnownComponentResourceState = {}));
 /** Known values of {@link ComponentTaskType} that the service accepts. */
@@ -46,15 +48,15 @@ export var KnownComponentTaskType;
     KnownComponentTaskType["Create"] = "Create";
     KnownComponentTaskType["Delete"] = "Delete";
 })(KnownComponentTaskType || (KnownComponentTaskType = {}));
-/** Known values of {@link ComponentTaskResourceState} that the service accepts. */
-export var KnownComponentTaskResourceState;
-(function (KnownComponentTaskResourceState) {
-    KnownComponentTaskResourceState["Pending"] = "Pending";
-    KnownComponentTaskResourceState["Initializing"] = "Initializing";
-    KnownComponentTaskResourceState["Provisioning"] = "Provisioning";
-    KnownComponentTaskResourceState["Succeeded"] = "Succeeded";
-    KnownComponentTaskResourceState["Failed"] = "Failed";
-})(KnownComponentTaskResourceState || (KnownComponentTaskResourceState = {}));
+/** Known values of {@link ComponentTaskState} that the service accepts. */
+export var KnownComponentTaskState;
+(function (KnownComponentTaskState) {
+    KnownComponentTaskState["Pending"] = "Pending";
+    KnownComponentTaskState["Initializing"] = "Initializing";
+    KnownComponentTaskState["Processing"] = "Processing";
+    KnownComponentTaskState["Succeeded"] = "Succeeded";
+    KnownComponentTaskState["Failed"] = "Failed";
+})(KnownComponentTaskState || (KnownComponentTaskState = {}));
 /** Known values of {@link RepositoryReferenceProvider} that the service accepts. */
 export var KnownRepositoryReferenceProvider;
 (function (KnownRepositoryReferenceProvider) {
@@ -121,7 +123,9 @@ export var KnownOrganizationResourceState;
     KnownOrganizationResourceState["Pending"] = "Pending";
     KnownOrganizationResourceState["Initializing"] = "Initializing";
     KnownOrganizationResourceState["Provisioning"] = "Provisioning";
-    KnownOrganizationResourceState["Succeeded"] = "Succeeded";
+    KnownOrganizationResourceState["Provisioned"] = "Provisioned";
+    KnownOrganizationResourceState["Deprovisioning"] = "Deprovisioning";
+    KnownOrganizationResourceState["Deprovisioned"] = "Deprovisioned";
     KnownOrganizationResourceState["Failed"] = "Failed";
 })(KnownOrganizationResourceState || (KnownOrganizationResourceState = {}));
 /** Known values of {@link UserType} that the service accepts. */
@@ -155,7 +159,9 @@ export var KnownProjectResourceState;
     KnownProjectResourceState["Pending"] = "Pending";
     KnownProjectResourceState["Initializing"] = "Initializing";
     KnownProjectResourceState["Provisioning"] = "Provisioning";
-    KnownProjectResourceState["Succeeded"] = "Succeeded";
+    KnownProjectResourceState["Provisioned"] = "Provisioned";
+    KnownProjectResourceState["Deprovisioning"] = "Deprovisioning";
+    KnownProjectResourceState["Deprovisioned"] = "Deprovisioned";
     KnownProjectResourceState["Failed"] = "Failed";
 })(KnownProjectResourceState || (KnownProjectResourceState = {}));
 /** Known values of {@link ScheduleDaysOfWeekItem} that the service accepts. */

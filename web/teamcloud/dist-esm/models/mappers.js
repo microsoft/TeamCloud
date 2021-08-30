@@ -624,8 +624,8 @@ export const ComponentTask = {
                     name: "String"
                 }
             },
-            resourceState: {
-                serializedName: "resourceState",
+            taskState: {
+                serializedName: "taskState",
                 type: {
                     name: "String"
                 }

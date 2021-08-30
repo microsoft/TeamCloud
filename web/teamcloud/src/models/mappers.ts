@@ -638,8 +638,8 @@ export const ComponentTask: coreClient.CompositeMapper = {
           name: "String"
         }
       },
-      resourceState: {
-        serializedName: "resourceState",
+      taskState: {
+        serializedName: "taskState",
         type: {
           name: "String"
         }

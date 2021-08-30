@@ -1802,7 +1802,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentResourceState:type",
-          "docComment": "/**\n * Defines values for ComponentResourceState. \\ {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentResourceState. \\ {@link KnownComponentResourceState} can be used interchangeably with ComponentResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Provisioned** \\ **Deprovisioning** \\ **Deprovisioned** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -2116,32 +2116,6 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!ComponentTask#resourceState:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "resourceState?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ComponentTaskResourceState",
-                  "canonicalReference": "teamcloud!ComponentTaskResourceState:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "resourceState",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTask#scheduleId:member",
               "docComment": "",
               "excerptTokens": [
@@ -2186,6 +2160,32 @@
               ],
               "releaseTag": "Public",
               "name": "started",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTask#taskState:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "taskState?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ComponentTaskState",
+                  "canonicalReference": "teamcloud!ComponentTaskState:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "taskState",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -2641,31 +2641,6 @@
           "extendsTokenRanges": []
         },
         {
-          "kind": "TypeAlias",
-          "canonicalReference": "teamcloud!ComponentTaskResourceState:type",
-          "docComment": "/**\n * Defines values for ComponentTaskResourceState. \\ {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare type ComponentTaskResourceState = "
-            },
-            {
-              "kind": "Content",
-              "text": "string"
-            },
-            {
-              "kind": "Content",
-              "text": ";"
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "ComponentTaskResourceState",
-          "typeTokenRange": {
-            "startIndex": 1,
-            "endIndex": 2
-          }
-        },
-        {
           "kind": "Interface",
           "canonicalReference": "teamcloud!ComponentTaskRunner:interface",
           "docComment": "",
@@ -2730,6 +2705,31 @@
             }
           ],
           "extendsTokenRanges": []
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!ComponentTaskState:type",
+          "docComment": "/**\n * Defines values for ComponentTaskState. \\ {@link KnownComponentTaskState} can be used interchangeably with ComponentTaskState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Processing** \\ **Succeeded** \\ **Failed**\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type ComponentTaskState = "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "ComponentTaskState",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",
@@ -4926,6 +4926,48 @@
           "members": [
             {
               "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Deprovisioned:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Deprovisioned = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Deprovisioned\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Deprovisioned",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Deprovisioning:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Deprovisioning = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Deprovisioning\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Deprovisioning",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentResourceState.Failed:member",
               "docComment": "",
               "excerptTokens": [
@@ -4989,6 +5031,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentResourceState.Provisioned:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provisioned = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provisioned\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provisioned",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentResourceState.Provisioning:member",
               "docComment": "",
               "excerptTokens": [
@@ -5007,46 +5070,25 @@
                 "startIndex": 1,
                 "endIndex": 2
               }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentResourceState.Succeeded:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Succeeded = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"Succeeded\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Succeeded",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
             }
           ]
         },
         {
           "kind": "Enum",
-          "canonicalReference": "teamcloud!KnownComponentTaskResourceState:enum",
-          "docComment": "/**\n * Known values of {@link ComponentTaskResourceState} that the service accepts.\n */\n",
+          "canonicalReference": "teamcloud!KnownComponentTaskState:enum",
+          "docComment": "/**\n * Known values of {@link ComponentTaskState} that the service accepts.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare enum KnownComponentTaskResourceState "
+              "text": "export declare enum KnownComponentTaskState "
             }
           ],
           "releaseTag": "Public",
-          "name": "KnownComponentTaskResourceState",
+          "name": "KnownComponentTaskState",
           "members": [
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Failed:member",
+              "canonicalReference": "teamcloud!KnownComponentTaskState.Failed:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -5067,7 +5109,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Initializing:member",
+              "canonicalReference": "teamcloud!KnownComponentTaskState.Initializing:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -5088,7 +5130,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Pending:member",
+              "canonicalReference": "teamcloud!KnownComponentTaskState.Pending:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -5109,20 +5151,20 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Provisioning:member",
+              "canonicalReference": "teamcloud!KnownComponentTaskState.Processing:member",
               "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "Provisioning = "
+                  "text": "Processing = "
                 },
                 {
                   "kind": "Content",
-                  "text": "\"Provisioning\""
+                  "text": "\"Processing\""
                 }
               ],
               "releaseTag": "Public",
-              "name": "Provisioning",
+              "name": "Processing",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -5130,7 +5172,7 @@
             },
             {
               "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownComponentTaskResourceState.Succeeded:member",
+              "canonicalReference": "teamcloud!KnownComponentTaskState.Succeeded:member",
               "docComment": "",
               "excerptTokens": [
                 {
@@ -5649,6 +5691,48 @@
           "members": [
             {
               "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Deprovisioned:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Deprovisioned = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Deprovisioned\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Deprovisioned",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Deprovisioning:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Deprovisioning = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Deprovisioning\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Deprovisioning",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownOrganizationResourceState.Failed:member",
               "docComment": "",
               "excerptTokens": [
@@ -5712,6 +5796,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Provisioned:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provisioned = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provisioned\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provisioned",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownOrganizationResourceState.Provisioning:member",
               "docComment": "",
               "excerptTokens": [
@@ -5726,27 +5831,6 @@
               ],
               "releaseTag": "Public",
               "name": "Provisioning",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownOrganizationResourceState.Succeeded:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Succeeded = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"Succeeded\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Succeeded",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -5889,6 +5973,48 @@
           "members": [
             {
               "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Deprovisioned:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Deprovisioned = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Deprovisioned\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Deprovisioned",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Deprovisioning:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Deprovisioning = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Deprovisioning\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Deprovisioning",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownProjectResourceState.Failed:member",
               "docComment": "",
               "excerptTokens": [
@@ -5952,6 +6078,27 @@
             },
             {
               "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownProjectResourceState.Provisioned:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Provisioned = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Provisioned\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Provisioned",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownProjectResourceState.Provisioning:member",
               "docComment": "",
               "excerptTokens": [
@@ -5966,27 +6113,6 @@
               ],
               "releaseTag": "Public",
               "name": "Provisioning",
-              "initializerTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              }
-            },
-            {
-              "kind": "EnumMember",
-              "canonicalReference": "teamcloud!KnownProjectResourceState.Succeeded:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "Succeeded = "
-                },
-                {
-                  "kind": "Content",
-                  "text": "\"Succeeded\""
-                }
-              ],
-              "releaseTag": "Public",
-              "name": "Succeeded",
               "initializerTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -7550,7 +7676,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!OrganizationResourceState:type",
-          "docComment": "/**\n * Defines values for OrganizationResourceState. \\ {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for OrganizationResourceState. \\ {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Provisioned** \\ **Deprovisioning** \\ **Deprovisioned** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -9018,7 +9144,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ProjectResourceState:type",
-          "docComment": "/**\n * Defines values for ProjectResourceState. \\ {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for ProjectResourceState. \\ {@link KnownProjectResourceState} can be used interchangeably with ProjectResourceState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Provisioning** \\ **Provisioned** \\ **Deprovisioning** \\ **Deprovisioned** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

@@ -51,8 +51,7 @@ namespace TeamCloud.Model.Data
 
         public string ResourceId { get; set; }
 
-        public ResourceState ResourceState { get; set; }
-            = ResourceState.Pending;
+        public TaskState TaskState { get; set; } = TaskState.Pending;
 
         public int? ExitCode { get; set; }
 

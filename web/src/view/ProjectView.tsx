@@ -46,6 +46,8 @@ export const ProjectView: React.FC = () => {
 
         message.items.forEach(item => {
 
+            console.log(`Received SignalR Message: ${JSON.stringify(item)}`);
+            
             if (!item.organization || !item.project || !item.type || !item.id)
                 throw Error('Missing required stuff');
 

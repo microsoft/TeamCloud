@@ -102,9 +102,9 @@ namespace TeamCloud.Data.CosmosDb
 
         public async Task RemoveAllAsync(string componentId)
         {
-            var components = ListAsync(componentId);
+            var componentTasks = ListAsync(componentId);
 
-            if (await components.AnyAsync().ConfigureAwait(false))
+            if (await componentTasks.AnyAsync().ConfigureAwait(false))
             {
                 var container = await GetContainerAsync()
                     .ConfigureAwait(false);
@@ -112,8 +112,8 @@ namespace TeamCloud.Data.CosmosDb
                 var batch = container
                     .CreateTransactionalBatch(GetPartitionKey(componentId));
 
-                await foreach (var component in components.ConfigureAwait(false))
-                    batch = batch.DeleteItem(component.Id);
+                await foreach (var componentTask in componentTasks.ConfigureAwait(false))
+                    batch = batch.DeleteItem(componentTask.Id);
 
                 var batchResponse = await batch
                     .ExecuteAsync()
