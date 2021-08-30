@@ -9,9 +9,7 @@ from azure.cli.core.commands.parameters import (tags_type, get_enum_type)
 
 from ._validators import (
     org_name_or_id_validator, org_name_validator, base_url_validator,
-    teamcloud_cli_source_version_validator, repo_url_validator,
-    teamcloud_source_version_validator, index_url_validator, client_id_validator,
-    tc_test_validator)
+    teamcloud_cli_source_version_validator, repo_url_validator)
 
 from ._completers import (get_org_completion_list)
 

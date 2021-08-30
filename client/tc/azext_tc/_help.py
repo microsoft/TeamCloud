@@ -30,9 +30,9 @@ type: command
 short-summary: Deploy a new TeamCloud instance.
 examples:
   - name: Deploy a new TeamCloud instance.
-    text: az tc deploy --name myawesomeapp --location eastus
+    text: az tc deploy --name myawesomeapp --location eastus --client-id myWebClientId
   - name: Deploy a TeamCloud instance to a specific pre-release.
-    text: az tc deploy --name myawesomeapp --location eastus --version v0.1.1
+    text: az tc deploy --name myawesomeapp --location eastus --client-id myWebClientId --version v0.1.1
 """
 
 # ----------------
