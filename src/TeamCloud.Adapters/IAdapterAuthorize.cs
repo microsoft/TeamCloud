@@ -16,8 +16,8 @@ namespace TeamCloud.Adapters
     {
         Task CreateSessionAsync(DeploymentScope deploymentScope);
 
-        Task<IActionResult> HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log);
+        Task<IActionResult> HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints);
 
-        Task<IActionResult> HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints, ILogger log);
+        Task<IActionResult> HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints);
     }
 }

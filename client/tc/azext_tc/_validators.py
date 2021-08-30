@@ -72,6 +72,9 @@ def tc_deploy_validator(cmd, ns):
             if not availability.name_available:
                 raise CLIError(
                     '--name/-n {}'.format(availability.message))
+    if ns.client_id:
+        if not _is_valid_uuid(ns.client_id):
+            raise CLIError('--client-id/-c should be a valid uuid')
 
 
 def org_name_validator(cmd, ns):

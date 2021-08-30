@@ -196,11 +196,11 @@ export interface ComponentTask {
     // (undocumented)
     resourceId?: string;
     // (undocumented)
-    resourceState?: ComponentTaskResourceState;
-    // (undocumented)
     scheduleId?: string;
     // (undocumented)
     started?: Date;
+    // (undocumented)
+    taskState?: ComponentTaskState;
     // (undocumented)
     type?: ComponentTaskType;
     // (undocumented)
@@ -248,9 +248,6 @@ export interface ComponentTaskReference {
     inputJson?: string;
 }
 
-// @public
-export type ComponentTaskResourceState = string;
-
 // @public (undocumented)
 export interface ComponentTaskRunner {
     // (undocumented)
@@ -259,6 +256,9 @@ export interface ComponentTaskRunner {
         [propertyName: string]: string;
     };
 }
+
+// @public
+export type ComponentTaskState = string;
 
 // @public (undocumented)
 export interface ComponentTaskTemplate {
@@ -335,6 +335,8 @@ export interface ComponentTemplateListDataResult {
 
 // @public (undocumented)
 export interface ComponentTemplatePermissions {
+    // (undocumented)
+    adapter?: string[];
     // (undocumented)
     admin?: string[];
     // (undocumented)
@@ -439,7 +441,7 @@ export interface ErrorResult {
 }
 
 // @public
-export const enum KnownAdapterInformationType {
+export enum KnownAdapterInformationType {
     // (undocumented)
     AzureDevOps = "AzureDevOps",
     // (undocumented)
@@ -449,7 +451,7 @@ export const enum KnownAdapterInformationType {
 }
 
 // @public
-export const enum KnownCommandAuditEntityRuntimeStatus {
+export enum KnownCommandAuditEntityRuntimeStatus {
     // (undocumented)
     Canceled = "Canceled",
     // (undocumented)
@@ -469,7 +471,11 @@ export const enum KnownCommandAuditEntityRuntimeStatus {
 }
 
 // @public
-export const enum KnownComponentResourceState {
+export enum KnownComponentResourceState {
+    // (undocumented)
+    Deprovisioned = "Deprovisioned",
+    // (undocumented)
+    Deprovisioning = "Deprovisioning",
     // (undocumented)
     Failed = "Failed",
     // (undocumented)
@@ -477,13 +483,13 @@ export const enum KnownComponentResourceState {
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Provisioned = "Provisioned",
     // (undocumented)
-    Succeeded = "Succeeded"
+    Provisioning = "Provisioning"
 }
 
 // @public
-export const enum KnownComponentTaskResourceState {
+export enum KnownComponentTaskState {
     // (undocumented)
     Failed = "Failed",
     // (undocumented)
@@ -491,13 +497,13 @@ export const enum KnownComponentTaskResourceState {
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Processing = "Processing",
     // (undocumented)
     Succeeded = "Succeeded"
 }
 
 // @public
-export const enum KnownComponentTaskTemplateType {
+export enum KnownComponentTaskTemplateType {
     // (undocumented)
     Create = "Create",
     // (undocumented)
@@ -507,7 +513,7 @@ export const enum KnownComponentTaskTemplateType {
 }
 
 // @public
-export const enum KnownComponentTaskType {
+export enum KnownComponentTaskType {
     // (undocumented)
     Create = "Create",
     // (undocumented)
@@ -517,7 +523,7 @@ export const enum KnownComponentTaskType {
 }
 
 // @public
-export const enum KnownComponentTemplateType {
+export enum KnownComponentTemplateType {
     // (undocumented)
     Environment = "Environment",
     // (undocumented)
@@ -525,7 +531,7 @@ export const enum KnownComponentTemplateType {
 }
 
 // @public
-export const enum KnownComponentType {
+export enum KnownComponentType {
     // (undocumented)
     Environment = "Environment",
     // (undocumented)
@@ -533,7 +539,7 @@ export const enum KnownComponentType {
 }
 
 // @public
-export const enum KnownDeploymentScopeComponentTypesItem {
+export enum KnownDeploymentScopeComponentTypesItem {
     // (undocumented)
     Environment = "Environment",
     // (undocumented)
@@ -541,7 +547,7 @@ export const enum KnownDeploymentScopeComponentTypesItem {
 }
 
 // @public
-export const enum KnownDeploymentScopeDefinitionType {
+export enum KnownDeploymentScopeDefinitionType {
     // (undocumented)
     AzureDevOps = "AzureDevOps",
     // (undocumented)
@@ -551,7 +557,7 @@ export const enum KnownDeploymentScopeDefinitionType {
 }
 
 // @public
-export const enum KnownDeploymentScopeType {
+export enum KnownDeploymentScopeType {
     // (undocumented)
     AzureDevOps = "AzureDevOps",
     // (undocumented)
@@ -561,7 +567,11 @@ export const enum KnownDeploymentScopeType {
 }
 
 // @public
-export const enum KnownOrganizationResourceState {
+export enum KnownOrganizationResourceState {
+    // (undocumented)
+    Deprovisioned = "Deprovisioned",
+    // (undocumented)
+    Deprovisioning = "Deprovisioning",
     // (undocumented)
     Failed = "Failed",
     // (undocumented)
@@ -569,13 +579,15 @@ export const enum KnownOrganizationResourceState {
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Provisioned = "Provisioned",
     // (undocumented)
-    Succeeded = "Succeeded"
+    Provisioning = "Provisioning"
 }
 
 // @public
-export const enum KnownProjectMembershipRole {
+export enum KnownProjectMembershipRole {
+    // (undocumented)
+    Adapter = "Adapter",
     // (undocumented)
     Admin = "Admin",
     // (undocumented)
@@ -587,7 +599,11 @@ export const enum KnownProjectMembershipRole {
 }
 
 // @public
-export const enum KnownProjectResourceState {
+export enum KnownProjectResourceState {
+    // (undocumented)
+    Deprovisioned = "Deprovisioned",
+    // (undocumented)
+    Deprovisioning = "Deprovisioning",
     // (undocumented)
     Failed = "Failed",
     // (undocumented)
@@ -595,13 +611,13 @@ export const enum KnownProjectResourceState {
     // (undocumented)
     Pending = "Pending",
     // (undocumented)
-    Provisioning = "Provisioning",
+    Provisioned = "Provisioned",
     // (undocumented)
-    Succeeded = "Succeeded"
+    Provisioning = "Provisioning"
 }
 
 // @public
-export const enum KnownRepositoryReferenceProvider {
+export enum KnownRepositoryReferenceProvider {
     // (undocumented)
     DevOps = "DevOps",
     // (undocumented)
@@ -611,7 +627,7 @@ export const enum KnownRepositoryReferenceProvider {
 }
 
 // @public
-export const enum KnownRepositoryReferenceType {
+export enum KnownRepositoryReferenceType {
     // (undocumented)
     Branch = "Branch",
     // (undocumented)
@@ -623,7 +639,7 @@ export const enum KnownRepositoryReferenceType {
 }
 
 // @public
-export const enum KnownResultErrorCode {
+export enum KnownResultErrorCode {
     // (undocumented)
     Conflict = "Conflict",
     // (undocumented)
@@ -643,7 +659,7 @@ export const enum KnownResultErrorCode {
 }
 
 // @public
-export const enum KnownScheduleDaysOfWeekItem {
+export enum KnownScheduleDaysOfWeekItem {
     // (undocumented)
     Friday = "Friday",
     // (undocumented)
@@ -661,7 +677,7 @@ export const enum KnownScheduleDaysOfWeekItem {
 }
 
 // @public
-export const enum KnownScheduleDefinitionDaysOfWeekItem {
+export enum KnownScheduleDefinitionDaysOfWeekItem {
     // (undocumented)
     Friday = "Friday",
     // (undocumented)
@@ -679,7 +695,7 @@ export const enum KnownScheduleDefinitionDaysOfWeekItem {
 }
 
 // @public
-export const enum KnownUserRole {
+export enum KnownUserRole {
     // (undocumented)
     Admin = "Admin",
     // (undocumented)
@@ -691,7 +707,7 @@ export const enum KnownUserRole {
 }
 
 // @public
-export const enum KnownUserType {
+export enum KnownUserType {
     // (undocumented)
     Group = "Group",
     // (undocumented)

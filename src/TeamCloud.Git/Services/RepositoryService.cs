@@ -22,18 +22,17 @@ namespace TeamCloud.Git.Services
             devops = new DevOpsService();
         }
 
-        public Task<RepositoryReference> GetRepositoryReferenceAsync(string url, string version, string token)
-            => GetRepositoryReferenceAsync(new RepositoryReference { Url = url, Token = token, Version = version });
-
         public Task<RepositoryReference> GetRepositoryReferenceAsync(RepositoryReference repository)
-            => GetRepositoryReferenceInternalAsync(repository.ParseUrl());
-
-        private Task<RepositoryReference> GetRepositoryReferenceInternalAsync(RepositoryReference repository) => repository?.Provider switch
         {
-            RepositoryProvider.DevOps => DevOpsService.GetRepositoryReferenceAsync(repository),
-            RepositoryProvider.GitHub => github.GetRepositoryReferenceAsync(repository),
-            _ => throw new NotSupportedException("Only GitHub and Azure DevOps git repositories are supported. Generic git repositories are not supported.")
-        } ?? throw new ArgumentNullException(nameof(repository));
+            repository = repository.ParseUrl();
+
+            return repository.Provider switch
+            {
+                RepositoryProvider.DevOps => DevOpsService.GetRepositoryReferenceAsync(repository),
+                RepositoryProvider.GitHub => github.GetRepositoryReferenceAsync(repository),
+                _ => throw new NotSupportedException($"Repository provider {repository.Provider} is not supported.")
+            };
+        }
 
         public async Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate)
         {
@@ -41,34 +40,42 @@ namespace TeamCloud.Git.Services
                 throw new ArgumentNullException(nameof(projectTemplate));
 
             if (projectTemplate.Repository.Provider == RepositoryProvider.Unknown || projectTemplate.Repository.Type == RepositoryReferenceType.Branch)
-                projectTemplate.Repository = await GetRepositoryReferenceAsync(projectTemplate.Repository)
-                    .ConfigureAwait(false);
+                projectTemplate.Repository = await GetRepositoryReferenceAsync(projectTemplate.Repository).ConfigureAwait(false);
 
-            return await UpdateProjectTemplateInternalAsync(projectTemplate)
-                .ConfigureAwait(false);
+            return await (projectTemplate.Repository.Provider switch
+            {
+                RepositoryProvider.DevOps => devops.UpdateProjectTemplateAsync(projectTemplate),
+                RepositoryProvider.GitHub => github.UpdateProjectTemplateAsync(projectTemplate),
+                _ => throw new NotSupportedException($"Repository provider {projectTemplate.Repository.Provider} is not supported.")
+
+            }).ConfigureAwait(false);
         }
 
-        private Task<ProjectTemplate> UpdateProjectTemplateInternalAsync(ProjectTemplate projectTemplate) => projectTemplate?.Repository?.Provider switch
+        public Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId)
         {
-            RepositoryProvider.DevOps => devops.UpdateProjectTemplateAsync(projectTemplate),
-            RepositoryProvider.GitHub => github.UpdateProjectTemplateAsync(projectTemplate),
-            _ => throw new NotSupportedException("Only GitHub and Azure DevOps git repositories are supported. Generic git repositories are not supported.")
-        } ?? throw new ArgumentNullException(nameof(projectTemplate));
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
 
+            return projectTemplate.Repository.Provider switch
+            {
+                RepositoryProvider.DevOps => devops.GetComponentTemplateAsync(projectTemplate, templateId),
+                RepositoryProvider.GitHub => github.GetComponentTemplateAsync(projectTemplate, templateId),
+                _ => throw new NotSupportedException($"Repository provider {projectTemplate.Repository.Provider} is not supported.")
+            };
+        }
 
-        public Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId) => projectTemplate?.Repository?.Provider switch
+        public IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate)
         {
-            RepositoryProvider.DevOps => devops.GetComponentTemplateAsync(projectTemplate, templateId),
-            RepositoryProvider.GitHub => github.GetComponentTemplateAsync(projectTemplate, templateId),
-            _ => throw new NotSupportedException("Only GitHub and Azure DevOps git repositories are supported. Generic git repositories are not supported.")
-        } ?? throw new ArgumentNullException(nameof(projectTemplate));
+            if (projectTemplate is null)
+                throw new ArgumentNullException(nameof(projectTemplate));
 
-        public IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate) => projectTemplate?.Repository?.Provider switch
-        {
-            RepositoryProvider.DevOps => devops.GetComponentTemplatesAsync(projectTemplate),
-            RepositoryProvider.GitHub => github.GetComponentTemplatesAsync(projectTemplate),
-            _ => throw new NotSupportedException("Only GitHub and Azure DevOps git repositories are supported. Generic git repositories are not supported.")
-        } ?? throw new ArgumentNullException(nameof(projectTemplate));
+            return projectTemplate.Repository.Provider switch
+            {
+                RepositoryProvider.DevOps => devops.GetComponentTemplatesAsync(projectTemplate),
+                RepositoryProvider.GitHub => github.GetComponentTemplatesAsync(projectTemplate),
+                _ => throw new NotSupportedException($"Repository provider {projectTemplate.Repository.Provider} is not supported.")
+            };
+        }
 
     }
 }

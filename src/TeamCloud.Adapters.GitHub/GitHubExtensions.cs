@@ -12,11 +12,14 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Jose;
+using Newtonsoft.Json.Linq;
 using Octokit;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.OpenSsl;
+using TeamCloud.Azure.Directory;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Adapters.GitHub
 {
@@ -85,13 +88,13 @@ namespace TeamCloud.Adapters.GitHub
             }
         }
 
-        public static IFlurlRequest WithGitHubCredentials(this string url, Credentials credentials)
+        internal static IFlurlRequest WithGitHubCredentials(this string url, Credentials credentials)
             => new FlurlRequest(url).WithGitHubCredentials(credentials);
 
-        public static IFlurlRequest WithGitHubCredentials(this Url url, Credentials credentials)
+        internal static IFlurlRequest WithGitHubCredentials(this Url url, Credentials credentials)
             => new FlurlRequest(url).WithGitHubCredentials(credentials);
 
-        public static T WithGitHubCredentials<T>(this T clientOrRequest, Credentials credentials)
+        internal static T WithGitHubCredentials<T>(this T clientOrRequest, Credentials credentials)
             where T : IHttpSettingsContainer
         {
             if (clientOrRequest is null)
@@ -111,13 +114,13 @@ namespace TeamCloud.Adapters.GitHub
 
 
 
-        public static IFlurlRequest WithGitHubHeaders(this string url, string acceptHeader = null)
+        internal static IFlurlRequest WithGitHubHeaders(this string url, string acceptHeader = null)
             => new FlurlRequest(url).WithGitHubHeaders(acceptHeader);
 
-        public static IFlurlRequest WithGitHubHeaders(this Url url, string acceptHeader = null)
+        internal static IFlurlRequest WithGitHubHeaders(this Url url, string acceptHeader = null)
             => new FlurlRequest(url).WithGitHubHeaders(acceptHeader);
 
-        public static T WithGitHubHeaders<T>(this T clientOrRequest, string acceptHeader = null)
+        internal static T WithGitHubHeaders<T>(this T clientOrRequest, string acceptHeader = null)
             where T : IHttpSettingsContainer
         {
             const string ACCEPT_HEADER_PREFIX = "application/vnd.github.";
@@ -126,7 +129,7 @@ namespace TeamCloud.Adapters.GitHub
                 throw new ArgumentNullException(nameof(clientOrRequest));
 
             // do some accept header sanitization
-            acceptHeader = acceptHeader?.Trim().ToLowerInvariant();
+            acceptHeader = acceptHeader?.Trim()?.ToLowerInvariant();
 
             if (string.IsNullOrWhiteSpace(acceptHeader))
             {
@@ -145,7 +148,7 @@ namespace TeamCloud.Adapters.GitHub
                 .WithHeader("User-Agent", GitHubConstants.ProductHeader);
         }
 
-        public static async Task<bool> IsEmpty(this IRepositoriesClient client, long repositoryId)
+        internal static async Task<bool> IsEmpty(this IRepositoriesClient client, long repositoryId)
         {
             if (client is null)
                 throw new ArgumentNullException(nameof(client));
@@ -171,6 +174,23 @@ namespace TeamCloud.Adapters.GitHub
             {
                 return true; // for whatever reason, github returns a 'conflict' when there is no commit available
             }
+        }
+
+        internal static string ToJson(this AzureServicePrincipal servicePrincipal, Guid subscriptionId = default)
+        {
+            var data = new Dictionary<string, string>()
+            {
+                { "clientId" , servicePrincipal.ApplicationId.ToString() },
+                { "clientSecret" , servicePrincipal.Password },
+                { "tenantId", servicePrincipal.TenantId.ToString() }
+            };
+
+            if (subscriptionId != default)
+            {
+                data.Add("subscriptionId", subscriptionId.ToString());
+            }
+
+            return TeamCloudSerialize.SerializeObject(data);
         }
     }
 }

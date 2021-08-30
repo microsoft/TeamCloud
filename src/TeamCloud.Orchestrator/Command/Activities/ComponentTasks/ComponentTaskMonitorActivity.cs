@@ -58,28 +58,28 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
                     if (container?.InstanceView is null)
                     {
-                        componentDeployment.ResourceState = ResourceState.Initializing;
+                        componentDeployment.TaskState = TaskState.Initializing;
                     }
                     else if (container.InstanceView.CurrentState != null)
                     {
-                        componentDeployment.ResourceState = ResourceState.Provisioning;
+                        componentDeployment.TaskState = TaskState.Processing;
                         componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;
                         componentDeployment.Started = container.InstanceView.CurrentState.StartTime;
                         componentDeployment.Finished = container.InstanceView.CurrentState.FinishTime;
 
                         if (componentDeployment.ExitCode.HasValue)
                         {
-                            componentDeployment.ResourceState = componentDeployment.ExitCode == 0
-                                ? ResourceState.Succeeded   // ExitCode indicates successful provisioning
-                                : ResourceState.Failed;     // ExitCode indicates failed provisioning
+                            componentDeployment.TaskState = componentDeployment.ExitCode == 0
+                                ? TaskState.Succeeded   // ExitCode indicates successful provisioning
+                                : TaskState.Failed;       // ExitCode indicates failed provisioning
                         }
                         else if (container.InstanceView.CurrentState.State?.Equals("Terminated", StringComparison.OrdinalIgnoreCase) ?? false)
                         {
                             // container instance was terminated without exit code
-                            componentDeployment.ResourceState = ResourceState.Failed;
+                            componentDeployment.TaskState = TaskState.Failed;
                         }
 
-                        if (componentDeployment.ResourceState == ResourceState.Failed)
+                        if (componentDeployment.TaskState == TaskState.Failed)
                         {
                             var log = await runner
                                 .GetLogContentAsync(container.Name)

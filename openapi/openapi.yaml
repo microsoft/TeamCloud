@@ -2990,7 +2990,9 @@ components:
             - Pending
             - Initializing
             - Provisioning
-            - Succeeded
+            - Provisioned
+            - Deprovisioning
+            - Deprovisioned
             - Failed
           type: string
         deploymentScopeId:
@@ -3140,11 +3142,11 @@ components:
         resourceId:
           type: string
           nullable: true
-        resourceState:
+        taskState:
           enum:
             - Pending
             - Initializing
-            - Provisioning
+            - Processing
             - Succeeded
             - Failed
           type: string
@@ -3322,6 +3324,10 @@ components:
               items:
                 type: string
             Owner:
+              type: array
+              items:
+                type: string
+            Adapter:
               type: array
               items:
                 type: string
@@ -3646,7 +3652,9 @@ components:
             - Pending
             - Initializing
             - Provisioning
-            - Succeeded
+            - Provisioned
+            - Deprovisioning
+            - Deprovisioned
             - Failed
           type: string
         galleryId:
@@ -3727,6 +3735,7 @@ components:
             - Member
             - Admin
             - Owner
+            - Adapter
           type: string
         properties:
           type: object
@@ -3885,7 +3894,9 @@ components:
             - Pending
             - Initializing
             - Provisioning
-            - Succeeded
+            - Provisioned
+            - Deprovisioning
+            - Deprovisioned
             - Failed
           type: string
         vaultId:

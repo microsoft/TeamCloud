@@ -638,8 +638,8 @@ export const ComponentTask: coreClient.CompositeMapper = {
           name: "String"
         }
       },
-      resourceState: {
-        serializedName: "resourceState",
+      taskState: {
+        serializedName: "taskState",
         type: {
           name: "String"
         }
@@ -996,6 +996,17 @@ export const ComponentTemplatePermissions: coreClient.CompositeMapper = {
       },
       owner: {
         serializedName: "Owner",
+        type: {
+          name: "Sequence",
+          element: {
+            type: {
+              name: "String"
+            }
+          }
+        }
+      },
+      adapter: {
+        serializedName: "Adapter",
         type: {
           name: "Sequence",
           element: {

@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { getTheme, PrimaryButton, Stack } from '@fluentui/react';
+import { DefaultButton, Dialog, DialogFooter, DialogType, getTheme, PrimaryButton, Separator, Stack } from '@fluentui/react';
 import { ComponentTaskTemplate } from 'teamcloud';
 import { useCreateProjectComponentTask, useOrg, useProjectComponent, useProjectComponentTemplates } from '../hooks';
+import { useDeleteProjectComponent } from '../hooks/useDeleteProjectComponent';
 
 export interface IComponentTaskMenuProps { }
 
@@ -15,8 +16,11 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
     const { data: org } = useOrg();
     const { data: component } = useProjectComponent();
     const { data: templates } = useProjectComponentTemplates();
-    const createComponentTask = useCreateProjectComponentTask();
 
+    const createComponentTask = useCreateProjectComponentTask();
+    const deleteComponent = useDeleteProjectComponent();
+
+    const [dialogHidden, setDialogHidden] = useState<boolean>(true);
     const [taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
 
     useEffect(() => {
@@ -39,18 +43,64 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
         }
     }
 
+    const onClickDeleteButton = async () => {
+        if (org && component) {
+            if (dialogHidden){
+                showDialog();
+            } else {
+                await deleteComponent(component);
+                hideDialog();
+            }
+        }
+    }
+
+    const hideDialog = () => setDialogHidden(true);
+
+    const showDialog = () => setDialogHidden(false);
+
+    const dialogContentProps = {
+        type: DialogType.normal,
+        title: 'Delete Component',
+        subText: `Do you want to delete component ${component?.displayName}?`
+    };
+      
     return (
-        <Stack horizontal tokens={{ childrenGap: '6px' }}>
-            { taskTemplates ? taskTemplates.map(tt => (
+        <>
+            <Stack horizontal tokens={{ childrenGap: '6px' }}>
+                { taskTemplates && component?.deleted === undefined ? taskTemplates.map((tt, i) => (
+                    <>
+                        <Stack.Item
+                            key={tt.id}>
+                            <DefaultButton
+                                theme={theme}
+                                text={tt.displayName ?? ''}
+                                alt={tt.description ?? ''}
+                                onClick={() => onClickTaskButton(tt)} />
+                        </Stack.Item>
+                        { (i === (taskTemplates.length - 1)) ? <Stack.Item key='Seperator'><Separator vertical /></Stack.Item> : <></> }
+                    </>
+                )) : []}
                 <Stack.Item
-                    key={tt.id}>
-                    <PrimaryButton
+                    key='delete'>
+                    <DefaultButton
                         theme={theme}
-                        text={tt.displayName ?? ''}
-                        alt={tt.description ?? ''}
-                        onClick={() => onClickTaskButton(tt)} />
-                </Stack.Item>
-            )) : []}
-        </Stack>
+                        text='Delete'
+                        hidden={!(org && component)}
+                        disabled={component === undefined || component.deleted !== undefined}
+                        onClick={() => onClickDeleteButton()} />
+                    <Dialog
+                        hidden={dialogHidden}
+                        onDismiss={hideDialog}
+                        dialogContentProps={dialogContentProps}
+                        modalProps={{ isBlocking: true }}>
+                        <DialogFooter>
+                            <PrimaryButton onClick={onClickDeleteButton} text="Delete" />
+                            <DefaultButton onClick={hideDialog} text="Cancel" />
+                        </DialogFooter>
+                    </Dialog>
+                </Stack.Item>  
+            </Stack>
+
+        </>
     );
 }

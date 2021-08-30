@@ -8,8 +8,10 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Management.Storage.Fluent.Models;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
@@ -43,6 +45,7 @@ using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Data;
+using TeamCloud.Orchestrator.Options;
 using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 
@@ -80,10 +83,13 @@ namespace TeamCloud.Orchestrator
                 .AddNewtonsoftJson();
 
             builder.Services
-                .AddTeamCloudAdapterFramework()
-                .AddTeamCloudAdapter<AzureResourceManagerAdapter>()
-                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
-                .AddTeamCloudAdapter<GitHubAdapter>();
+                .AddTeamCloudAdapters(configuration =>
+                {
+                    configuration
+                        .Register<AzureResourceManagerAdapter>()
+                        .Register<AzureDevOpsAdapter>()
+                        .Register<GitHubAdapter>();
+                });
 
             var notificationSmtpOptions = builder.Services
                 .BuildServiceProvider()
@@ -93,18 +99,19 @@ namespace TeamCloud.Orchestrator
                 !string.IsNullOrWhiteSpace(notificationSmtpOptions?.SenderAddress))
                 builder.Services.AddTeamCloudNotificationSmtpSender(notificationSmtpOptions);
 
-            if (string.IsNullOrEmpty(configuration.GetValue<string>("Cache:Configuration")))
-            {
-                builder.Services
-                    .AddDistributedMemoryCache()
-                    .AddSingleton<IRepositoryCache, RepositoryCache>();
-            }
-            else
-            {
-                builder.Services
-                    .AddDistributedRedisCache(options => configuration.Bind("Cache", options))
-                    .AddSingleton<IRepositoryCache, RepositoryCache>();
-            }
+            var databaseOptions = builder.Services
+                .BuildServiceProvider()
+                .GetService<TeamCloudDatabaseOptions>();
+
+            builder.Services
+                .AddCosmosCache(options =>
+                {
+                    options.ClientBuilder = new CosmosClientBuilder(databaseOptions.ConnectionString);
+                    options.DatabaseName = $"{databaseOptions.DatabaseName}Cache";
+                    options.ContainerName = "DistributedCache";
+                    options.CreateIfNotExists = true;
+                })
+                .AddSingleton<IRepositoryCache, RepositoryCache>();
 
             if (configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
             {

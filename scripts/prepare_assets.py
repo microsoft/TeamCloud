@@ -23,13 +23,6 @@ assets = []
 bicep_dir = '{}/deploy/bicep'.format(Path.cwd())
 assets_dir = '{}/{}'.format(Path.cwd(), 'release_assets' if ci else 'local/release_assets')
 
-# Compile Bicep to ARM
-# templates = [
-#     { 'bicep': 'main.bicep', 'arm': 'azuredeploy.json'},
-#     { 'bicep': 'webUI.bicep', 'arm': 'azuredeploy.web.json'}
-# ]
-# for t in templates:
-#     subprocess.run(['az', 'bicep', 'build', '-f', '{}/{}'.format(bicep_dir, t['bicep']), '--outfile', '{}/{}'.format(assets_dir, t['arm'])])
 
 # Get CLI version
 with open(Path(Path.cwd() / 'client/tc') / 'setup.py', 'r') as f:
@@ -46,15 +39,16 @@ index = {}
 index['teamcloud'] = {
     'version': '{}'.format(version),
     'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/azuredeploy.json'.format(version),
+    'webZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Web.zip'.format(version),
     'apiZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.API.zip'.format(version),
     'orchestratorZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Orchestrator.zip'.format(version),
 }
 
-index['webapp'] = {
-    'version': '{}'.format(version),
-    'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/azuredeploy.web.json'.format(version),
-    'zipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Web.zip'.format(version),
-}
+# index['webapp'] = {
+#     'version': '{}'.format(version),
+#     'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/azuredeploy.web.json'.format(version),
+#     'zipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Web.zip'.format(version),
+# }
 
 index['extensions'] = {
     'tc': [

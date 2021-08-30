@@ -23,13 +23,16 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
     {
         private readonly IComponentRepository componentRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
-        private readonly IEnumerable<IAdapter> adapters;
+        private readonly IAdapterProvider adapterProvider;
 
-        public AdapterUpdateComponentActivity(IComponentRepository componentRepository, IDeploymentScopeRepository deploymentScopeRepository, IEnumerable<IAdapter> adapters)
+        public AdapterUpdateComponentActivity(
+            IComponentRepository componentRepository,
+            IDeploymentScopeRepository deploymentScopeRepository,
+            IAdapterProvider adapterProvider)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
-            this.adapters = adapters ?? Enumerable.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
         [FunctionName(nameof(AdapterUpdateComponentActivity))]
@@ -62,21 +65,27 @@ namespace TeamCloud.Orchestrator.Command.Activities.Adapters
             if (deploymentScope is null)
                 throw new ArgumentException("Deployment scope not found", nameof(context));
 
-            if (!adapters.TryGetAdapter(deploymentScope.Type, out var adapter))
+            var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
+
+            if (adapter is null)
                 throw new ArgumentException("Adapter for deployment scope not found", nameof(context));
 
-            if (!await adapter.IsAuthorizedAsync(deploymentScope).ConfigureAwait(false))
+            var adapterAuthorized = await adapter
+                .IsAuthorizedAsync(deploymentScope)
+                .ConfigureAwait(false);
+
+            if (!adapterAuthorized)
                 throw new ArgumentException("Adapter for deployment scope not authorized", nameof(context));
 
             try
             {
                 component = await adapter
-                    .UpdateComponentAsync(component, context.GetInput<Input>().User, new CommandCollector(commandQueue), log)
+                    .UpdateComponentAsync(component, context.GetInput<Input>().User, new CommandCollector(commandQueue))
                     .ConfigureAwait(false);
             }
             catch (Exception exc)
             {
-                log.LogError(exc, $"Adapter '{adapter.GetType().FullName}' failed to execute component {component}: {exc.Message}");
+                log.LogError(exc, $"Adapter '{adapter.GetType().FullName}' failed to update component {component}: {exc.Message}");
 
                 throw exc.AsSerializable();
             }

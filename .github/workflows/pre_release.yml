@@ -51,17 +51,8 @@ jobs:
         with:
           script: await io.mkdirP('release_assets')
 
-      # - name: Build & Package for Pre-release
-      #   run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -o Prerelease -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --version-suffix "pre"
-
-      # - name: Publish Pre-release NuGet Packages
-      #   run: dotnet nuget push 'Prerelease/*.nupkg' --api-key '${{ secrets.MYGET_DEV_TOKEN }}' --source 'https://www.myget.org/F/teamcloud-dev/api/v2/package' --symbol-api-key '${{ secrets.MYGET_DEV_TOKEN }}' --symbol-source 'https://www.myget.org/F/teamcloud-dev/symbols/api/v2/package' --skip-duplicate
-
       - name: Build & Package for Release
         run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
-
-      - name: Create Release Asset - NuGet
-        run: zip -r -j release_assets/NuGet.zip src -i '*.nupkg'
 
       - name: Create Release Asset - TeamCloud.API
         run: |
@@ -89,14 +80,13 @@ jobs:
         run: |
           pushd deploy/bicep
             az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
-            az bicep build -f webUI.bicep --outfile ../../release_assets/azuredeploy.web.json
           popd
 
       - name: Create OpenAPI & Python Client
         run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
 
-      - name: Build TeamCloud CLI
-        run: bash ./scripts/build-cli.sh
+      # - name: Build TeamCloud CLI
+      #   run: bash ./scripts/build-cli.sh
 
       # This must be run LAST - AFTER everything is added to release_assets
       - name: Prepare Release Assets
@@ -134,6 +124,7 @@ jobs:
 
       - name: Trigger Publish
         uses: actions/github-script@v4
+        if: "!contains(join(github.event.commits.*.message), '+skipdeploy')"
         with:
           github-token: ${{ secrets.TEAMCLOUD_PAT }}
           script: |

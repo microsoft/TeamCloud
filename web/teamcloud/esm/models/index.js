@@ -147,6 +147,7 @@ export var KnownProjectMembershipRole;
     KnownProjectMembershipRole["Member"] = "Member";
     KnownProjectMembershipRole["Admin"] = "Admin";
     KnownProjectMembershipRole["Owner"] = "Owner";
+    KnownProjectMembershipRole["Adapter"] = "Adapter";
 })(KnownProjectMembershipRole || (KnownProjectMembershipRole = {}));
 /** Known values of {@link ProjectResourceState} that the service accepts. */
 export var KnownProjectResourceState;

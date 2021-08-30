@@ -153,12 +153,14 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId)
+        public async IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId = null)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Owner}')");
+            var query = string.IsNullOrWhiteSpace(projectId)
+                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = '{OrganizationUserRole.Owner}'")
+                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Owner}')");
 
             var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 
@@ -173,12 +175,14 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async IAsyncEnumerable<User> ListAdminsAsync(string organization)
+        public async IAsyncEnumerable<User> ListAdminsAsync(string organization, string projectId = null)
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT * FROM u WHERE u.role = '{OrganizationUserRole.Admin}'");
+            var query = string.IsNullOrWhiteSpace(projectId)
+                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = '{OrganizationUserRole.Admin}'")
+                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Admin}')");
 
             var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
 

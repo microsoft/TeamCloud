@@ -228,7 +228,7 @@ namespace TeamCloud.Azure.Resources.Typed
                     .PostJsonAsync(payload)
                     .ConfigureAwait(false);
             }
-            catch (FlurlHttpException exc)
+            catch (FlurlHttpException)
             {
                 throw;
             }

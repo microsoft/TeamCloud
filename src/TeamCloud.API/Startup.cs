@@ -18,7 +18,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
+using Microsoft.Azure.Management.Storage.Fluent.Models;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +35,7 @@ using TeamCloud.Adapters.AzureResourceManager;
 using TeamCloud.Adapters.GitHub;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Middleware;
+using TeamCloud.API.Options;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
 using TeamCloud.Audit;
@@ -100,9 +103,12 @@ namespace TeamCloud.API
             app
                 .UseRouting()
                 .UseAuthentication()
+                .UseMiddleware<RequestBenchmarkMiddleware>()
                 .UseMiddleware<EnsureTeamCloudModelMiddleware>()
                 .UseAuthorization()
                 .UseEndpoints(endpoints => endpoints.MapControllers());
+
+            EncryptedValueProvider.DefaultDataProtectionProvider = app.ApplicationServices.GetDataProtectionProvider();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -122,16 +128,16 @@ namespace TeamCloud.API
                 .AddTeamCloudHttp()
                 .AddTeamCloudSecrets();
 
-            if (string.IsNullOrEmpty(Configuration.GetValue<string>("Cache:Configuration")))
-            {
+            if (Configuration.TryBind<AzureCosmosDbOptions>("Azure:CosmosDb", out var azureCosmosDbOptions))
+            { 
                 services
-                    .AddDistributedMemoryCache()
-                    .AddSingleton<IRepositoryCache, RepositoryCache>();
-            }
-            else
-            {
-                services
-                    .AddDistributedRedisCache(options => Configuration.Bind("Cache", options))
+                    .AddCosmosCache(options =>
+                    {
+                        options.ClientBuilder = new CosmosClientBuilder(azureCosmosDbOptions.ConnectionString);
+                        options.DatabaseName = $"{azureCosmosDbOptions.DatabaseName}Cache";
+                        options.ContainerName = "DistributedCache";
+                        options.CreateIfNotExists = true;
+                    })
                     .AddSingleton<IRepositoryCache, RepositoryCache>();
             }
 
@@ -154,8 +160,6 @@ namespace TeamCloud.API
                     //dataProtectionBuilder.ProtectKeysWithAzureKeyVault()
                     throw new NotImplementedException();
                 }
-
-                EncryptedValueProvider.DefaultDataProtectionProvider = services.BuildServiceProvider().GetDataProtectionProvider();
             }
 
             services
@@ -174,7 +178,9 @@ namespace TeamCloud.API
                 .AddSingleton<OrchestratorService>()
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
-                .AddScoped<EnsureTeamCloudModelMiddleware>();
+                .AddScoped<EnsureTeamCloudModelMiddleware>()
+                .AddScoped<RequestBenchmarkMiddleware>();
+
 
             services
                 .AddSingleton<RecyclableMemoryStreamManager>()
@@ -182,10 +188,13 @@ namespace TeamCloud.API
                 .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
 
             services
-                .AddTeamCloudAdapterFramework()
-                .AddTeamCloudAdapter<AzureResourceManagerAdapter>()
-                .AddTeamCloudAdapter<AzureDevOpsAdapter>()
-                .AddTeamCloudAdapter<GitHubAdapter>();
+                .AddTeamCloudAdapters(configuration =>
+                {
+                    configuration
+                        .Register<AzureResourceManagerAdapter>()
+                        .Register<AzureDevOpsAdapter>()
+                        .Register<GitHubAdapter>();
+                });
 
             services
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
@@ -195,8 +204,6 @@ namespace TeamCloud.API
                 .AddSingleton<IDocumentExpander, ComponentExpander>()
                 .AddSingleton<IDocumentExpander, UserExpander>();
 
-            ConfigureAuthentication(services);
-            ConfigureAuthorization(services);
 
             services
                 .AddApplicationInsightsTelemetry()
@@ -223,17 +230,22 @@ namespace TeamCloud.API
 
 #pragma warning restore CA1308 // Normalize strings to uppercase
 
-            ConfigureSwagger(services);
+            if (Configuration.TryBind<AzureResourceManagerOptions>("Azure:ResourceManager", out var azureResourceManagerOptions))
+            {
+                ConfigureAuthentication(services, azureResourceManagerOptions);
+                ConfigureAuthorization(services);
+                ConfigureSwagger(services, azureResourceManagerOptions);
+            }
+            else
+            {
+                throw new ApplicationException("Failed to bind configuration section 'Azure:ResourceManager'");
+            }
         }
 
 #pragma warning restore CA1822 // Mark members as static
 
-        private static void ConfigureSwagger(IServiceCollection services)
+        private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
         {
-            var resourceManagerOptions = services
-                .BuildServiceProvider()
-                .GetRequiredService<AzureResourceManagerOptions>();
-
             services
                 .AddSwaggerGen(options =>
                 {
@@ -266,8 +278,8 @@ namespace TeamCloud.API
                         {
                             AuthorizationCode = new OpenApiOAuthFlow
                             {
-                                TokenUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/token"),
-                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
+                                TokenUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/token"),
+                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
                                 Scopes = new Dictionary<string, string> {
                                     { "openid", "Sign you in" },
                                     { "http://TeamCloud.aztcclitestsix/user_impersonation", "Access the TeamCloud API" }
@@ -292,18 +304,14 @@ namespace TeamCloud.API
                 .AddSwaggerGenNewtonsoftSupport();
         }
 
-        private static void ConfigureAuthentication(IServiceCollection services)
+        private static void ConfigureAuthentication(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
         {
-            var resourceManagerOptions = services
-                .BuildServiceProvider()
-                .GetRequiredService<AzureResourceManagerOptions>();
-
             services
                 .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
                 .AddAzureADBearer(options =>
                 {
                     options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
-                    options.TenantId = resourceManagerOptions.TenantId;
+                    options.TenantId = azureResourceManagerOptions.TenantId;
                 });
 
             services
@@ -319,8 +327,8 @@ namespace TeamCloud.API
                     // The valid issuers can be based on Azure identity V1 or V2
                     options.TokenValidationParameters.ValidIssuers = new string[]
                     {
-                        $"https://login.microsoftonline.com/{resourceManagerOptions.TenantId}/v2.0",
-                        $"https://sts.windows.net/{resourceManagerOptions.TenantId}/"
+                        $"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/v2.0",
+                        $"https://sts.windows.net/{azureResourceManagerOptions.TenantId}/"
                     };
 
                     options.Events = new JwtBearerEvents()

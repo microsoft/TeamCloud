@@ -117,7 +117,7 @@ export interface ComponentTask {
   inputJson?: string;
   output?: string;
   resourceId?: string;
-  resourceState?: ComponentTaskResourceState;
+  taskState?: ComponentTaskState;
   exitCode?: number;
   id: string;
 }
@@ -178,6 +178,7 @@ export interface ComponentTemplatePermissions {
   member?: string[];
   admin?: string[];
   owner?: string[];
+  adapter?: string[];
 }
 
 export interface ComponentTaskTemplate {
@@ -556,7 +557,7 @@ export interface ScheduleDataResult {
 }
 
 /** Known values of {@link AdapterInformationType} that the service accepts. */
-export const enum KnownAdapterInformationType {
+export enum KnownAdapterInformationType {
   AzureResourceManager = "AzureResourceManager",
   AzureDevOps = "AzureDevOps",
   GitHub = "GitHub"
@@ -574,7 +575,7 @@ export const enum KnownAdapterInformationType {
 export type AdapterInformationType = string;
 
 /** Known values of {@link ResultErrorCode} that the service accepts. */
-export const enum KnownResultErrorCode {
+export enum KnownResultErrorCode {
   Unknown = "Unknown",
   Failed = "Failed",
   Conflict = "Conflict",
@@ -602,7 +603,7 @@ export const enum KnownResultErrorCode {
 export type ResultErrorCode = string;
 
 /** Known values of {@link ComponentType} that the service accepts. */
-export const enum KnownComponentType {
+export enum KnownComponentType {
   Environment = "Environment",
   Repository = "Repository"
 }
@@ -618,11 +619,13 @@ export const enum KnownComponentType {
 export type ComponentType = string;
 
 /** Known values of {@link ComponentResourceState} that the service accepts. */
-export const enum KnownComponentResourceState {
+export enum KnownComponentResourceState {
   Pending = "Pending",
   Initializing = "Initializing",
   Provisioning = "Provisioning",
-  Succeeded = "Succeeded",
+  Provisioned = "Provisioned",
+  Deprovisioning = "Deprovisioning",
+  Deprovisioned = "Deprovisioned",
   Failed = "Failed"
 }
 
@@ -634,13 +637,15 @@ export const enum KnownComponentResourceState {
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
- * **Succeeded** \
+ * **Provisioned** \
+ * **Deprovisioning** \
+ * **Deprovisioned** \
  * **Failed**
  */
 export type ComponentResourceState = string;
 
 /** Known values of {@link ComponentTaskType} that the service accepts. */
-export const enum KnownComponentTaskType {
+export enum KnownComponentTaskType {
   Custom = "Custom",
   Create = "Create",
   Delete = "Delete"
@@ -657,30 +662,30 @@ export const enum KnownComponentTaskType {
  */
 export type ComponentTaskType = string;
 
-/** Known values of {@link ComponentTaskResourceState} that the service accepts. */
-export const enum KnownComponentTaskResourceState {
+/** Known values of {@link ComponentTaskState} that the service accepts. */
+export enum KnownComponentTaskState {
   Pending = "Pending",
   Initializing = "Initializing",
-  Provisioning = "Provisioning",
+  Processing = "Processing",
   Succeeded = "Succeeded",
   Failed = "Failed"
 }
 
 /**
- * Defines values for ComponentTaskResourceState. \
- * {@link KnownComponentTaskResourceState} can be used interchangeably with ComponentTaskResourceState,
+ * Defines values for ComponentTaskState. \
+ * {@link KnownComponentTaskState} can be used interchangeably with ComponentTaskState,
  *  this enum contains the known values that the service supports.
  * ### Known values supported by the service
  * **Pending** \
  * **Initializing** \
- * **Provisioning** \
+ * **Processing** \
  * **Succeeded** \
  * **Failed**
  */
-export type ComponentTaskResourceState = string;
+export type ComponentTaskState = string;
 
 /** Known values of {@link RepositoryReferenceProvider} that the service accepts. */
-export const enum KnownRepositoryReferenceProvider {
+export enum KnownRepositoryReferenceProvider {
   Unknown = "Unknown",
   GitHub = "GitHub",
   DevOps = "DevOps"
@@ -698,7 +703,7 @@ export const enum KnownRepositoryReferenceProvider {
 export type RepositoryReferenceProvider = string;
 
 /** Known values of {@link RepositoryReferenceType} that the service accepts. */
-export const enum KnownRepositoryReferenceType {
+export enum KnownRepositoryReferenceType {
   Unknown = "Unknown",
   Tag = "Tag",
   Branch = "Branch",
@@ -718,7 +723,7 @@ export const enum KnownRepositoryReferenceType {
 export type RepositoryReferenceType = string;
 
 /** Known values of {@link ComponentTaskTemplateType} that the service accepts. */
-export const enum KnownComponentTaskTemplateType {
+export enum KnownComponentTaskTemplateType {
   Custom = "Custom",
   Create = "Create",
   Delete = "Delete"
@@ -736,7 +741,7 @@ export const enum KnownComponentTaskTemplateType {
 export type ComponentTaskTemplateType = string;
 
 /** Known values of {@link ComponentTemplateType} that the service accepts. */
-export const enum KnownComponentTemplateType {
+export enum KnownComponentTemplateType {
   Environment = "Environment",
   Repository = "Repository"
 }
@@ -752,7 +757,7 @@ export const enum KnownComponentTemplateType {
 export type ComponentTemplateType = string;
 
 /** Known values of {@link DeploymentScopeType} that the service accepts. */
-export const enum KnownDeploymentScopeType {
+export enum KnownDeploymentScopeType {
   AzureResourceManager = "AzureResourceManager",
   AzureDevOps = "AzureDevOps",
   GitHub = "GitHub"
@@ -770,7 +775,7 @@ export const enum KnownDeploymentScopeType {
 export type DeploymentScopeType = string;
 
 /** Known values of {@link DeploymentScopeComponentTypesItem} that the service accepts. */
-export const enum KnownDeploymentScopeComponentTypesItem {
+export enum KnownDeploymentScopeComponentTypesItem {
   Environment = "Environment",
   Repository = "Repository"
 }
@@ -786,7 +791,7 @@ export const enum KnownDeploymentScopeComponentTypesItem {
 export type DeploymentScopeComponentTypesItem = string;
 
 /** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
-export const enum KnownDeploymentScopeDefinitionType {
+export enum KnownDeploymentScopeDefinitionType {
   AzureResourceManager = "AzureResourceManager",
   AzureDevOps = "AzureDevOps",
   GitHub = "GitHub"
@@ -804,7 +809,7 @@ export const enum KnownDeploymentScopeDefinitionType {
 export type DeploymentScopeDefinitionType = string;
 
 /** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
-export const enum KnownCommandAuditEntityRuntimeStatus {
+export enum KnownCommandAuditEntityRuntimeStatus {
   Unknown = "Unknown",
   Running = "Running",
   Completed = "Completed",
@@ -832,11 +837,13 @@ export const enum KnownCommandAuditEntityRuntimeStatus {
 export type CommandAuditEntityRuntimeStatus = string;
 
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
-export const enum KnownOrganizationResourceState {
+export enum KnownOrganizationResourceState {
   Pending = "Pending",
   Initializing = "Initializing",
   Provisioning = "Provisioning",
-  Succeeded = "Succeeded",
+  Provisioned = "Provisioned",
+  Deprovisioning = "Deprovisioning",
+  Deprovisioned = "Deprovisioned",
   Failed = "Failed"
 }
 
@@ -848,13 +855,15 @@ export const enum KnownOrganizationResourceState {
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
- * **Succeeded** \
+ * **Provisioned** \
+ * **Deprovisioning** \
+ * **Deprovisioned** \
  * **Failed**
  */
 export type OrganizationResourceState = string;
 
 /** Known values of {@link UserType} that the service accepts. */
-export const enum KnownUserType {
+export enum KnownUserType {
   User = "User",
   Group = "Group",
   System = "System",
@@ -874,7 +883,7 @@ export const enum KnownUserType {
 export type UserType = string;
 
 /** Known values of {@link UserRole} that the service accepts. */
-export const enum KnownUserRole {
+export enum KnownUserRole {
   None = "None",
   Member = "Member",
   Admin = "Admin",
@@ -894,11 +903,12 @@ export const enum KnownUserRole {
 export type UserRole = string;
 
 /** Known values of {@link ProjectMembershipRole} that the service accepts. */
-export const enum KnownProjectMembershipRole {
+export enum KnownProjectMembershipRole {
   None = "None",
   Member = "Member",
   Admin = "Admin",
-  Owner = "Owner"
+  Owner = "Owner",
+  Adapter = "Adapter"
 }
 
 /**
@@ -909,16 +919,19 @@ export const enum KnownProjectMembershipRole {
  * **None** \
  * **Member** \
  * **Admin** \
- * **Owner**
+ * **Owner** \
+ * **Adapter**
  */
 export type ProjectMembershipRole = string;
 
 /** Known values of {@link ProjectResourceState} that the service accepts. */
-export const enum KnownProjectResourceState {
+export enum KnownProjectResourceState {
   Pending = "Pending",
   Initializing = "Initializing",
   Provisioning = "Provisioning",
-  Succeeded = "Succeeded",
+  Provisioned = "Provisioned",
+  Deprovisioning = "Deprovisioning",
+  Deprovisioned = "Deprovisioned",
   Failed = "Failed"
 }
 
@@ -930,13 +943,15 @@ export const enum KnownProjectResourceState {
  * **Pending** \
  * **Initializing** \
  * **Provisioning** \
- * **Succeeded** \
+ * **Provisioned** \
+ * **Deprovisioning** \
+ * **Deprovisioned** \
  * **Failed**
  */
 export type ProjectResourceState = string;
 
 /** Known values of {@link ScheduleDaysOfWeekItem} that the service accepts. */
-export const enum KnownScheduleDaysOfWeekItem {
+export enum KnownScheduleDaysOfWeekItem {
   Sunday = "Sunday",
   Monday = "Monday",
   Tuesday = "Tuesday",
@@ -962,7 +977,7 @@ export const enum KnownScheduleDaysOfWeekItem {
 export type ScheduleDaysOfWeekItem = string;
 
 /** Known values of {@link ScheduleDefinitionDaysOfWeekItem} that the service accepts. */
-export const enum KnownScheduleDefinitionDaysOfWeekItem {
+export enum KnownScheduleDefinitionDaysOfWeekItem {
   Sunday = "Sunday",
   Monday = "Monday",
   Tuesday = "Tuesday",

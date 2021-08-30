@@ -32,11 +32,11 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     }, [org, project, component, componentTasks, componentTask, subitemId, history]);
 
     const _getStateIcon = (task?: ComponentTask) => {
-        if (task?.resourceState)
-            switch (task.resourceState) {
+        if (task?.taskState)
+            switch (task.taskState) {
                 case 'Pending': return 'ProgressLoopOuter'; // UnknownSolid, AwayStatus, DRM, Blocked2
                 case 'Initializing': return 'Running'; // Running, Rocket
-                case 'Provisioning': return 'Rocket'; // Processing,
+                case 'Processing': return 'Rocket'; // Processing,
                 case 'Succeeded': return 'CompletedSolid'; // BoxCheckmarkSolid, CheckboxComposite, Accept, CompletedSolid
                 case 'Failed': return 'StatusErrorFull'; // BoxMultiplySolid, Error, ErrorBadge StatusErrorFull, IncidentTriangle
                 default: return undefined;
@@ -72,7 +72,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                         </Stack.Item>)
                     }
                     <Stack.Item>
-                        <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.resourceState?.toLowerCase() ?? 'pending'}`} />
+                        <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.taskState?.toLowerCase() ?? 'pending'}`} />
                     </Stack.Item>
                 </Stack>
             )
@@ -96,11 +96,11 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     }
 
     const _getTaskStatus = (t?: ComponentTask) => {
-        if (t?.resourceState) {
-            if (t.resourceState.toLowerCase() === 'succeeded' || t.resourceState.toLowerCase() === 'failed') {
-                return t.finished ? `${t.resourceState} ${t.finished.toLocaleString()}` : t.resourceState;
+        if (t?.taskState) {
+            if (t.taskState.toLowerCase() === 'succeeded' || t.taskState.toLowerCase() === 'failed') {
+                return t.finished ? `${t.taskState} ${t.finished.toLocaleString()}` : t.taskState;
             } else {
-                return t.resourceState;
+                return t.taskState;
             }
         } else if (t?.started) {
             return `Started ${t.started.toLocaleString()}`;

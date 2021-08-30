@@ -4802,7 +4802,9 @@
               "Pending",
               "Initializing",
               "Provisioning",
-              "Succeeded",
+              "Provisioned",
+              "Deprovisioning",
+              "Deprovisioned",
               "Failed"
             ],
             "type": "string"
@@ -5007,11 +5009,11 @@
             "type": "string",
             "nullable": true
           },
-          "resourceState": {
+          "taskState": {
             "enum": [
               "Pending",
               "Initializing",
-              "Provisioning",
+              "Processing",
               "Succeeded",
               "Failed"
             ],
@@ -5255,6 +5257,12 @@
                 }
               },
               "Owner": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "Adapter": {
                 "type": "array",
                 "items": {
                   "type": "string"
@@ -5696,7 +5704,9 @@
               "Pending",
               "Initializing",
               "Provisioning",
-              "Succeeded",
+              "Provisioned",
+              "Deprovisioning",
+              "Deprovisioned",
               "Failed"
             ],
             "type": "string"
@@ -5806,7 +5816,8 @@
               "None",
               "Member",
               "Admin",
-              "Owner"
+              "Owner",
+              "Adapter"
             ],
             "type": "string"
           },
@@ -6026,7 +6037,9 @@
               "Pending",
               "Initializing",
               "Provisioning",
-              "Succeeded",
+              "Provisioned",
+              "Deprovisioning",
+              "Deprovisioned",
               "Failed"
             ],
             "type": "string"

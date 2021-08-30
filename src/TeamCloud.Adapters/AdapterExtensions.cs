@@ -22,31 +22,6 @@ namespace TeamCloud.Adapters
 {
     public static class AdapterExtensions
     {
-        public static bool TryGetAdapter(this IEnumerable<IAdapter> adapters, DeploymentScopeType deploymentScopeType, out IAdapter adapter)
-        {
-            if (adapters is null)
-                throw new ArgumentNullException(nameof(adapters));
-
-            try
-            {
-                adapter = adapters.GetAdapter(deploymentScopeType);
-            }
-            catch
-            {
-                adapter = null;
-            }
-
-            return adapter != null;
-        }
-
-        public static IAdapter GetAdapter(this IEnumerable<IAdapter> adapters, DeploymentScopeType deploymentScopeType)
-        {
-            if (adapters is null)
-                throw new ArgumentNullException(nameof(adapters));
-
-            return adapters.SingleOrDefault(a => a.Type == deploymentScopeType);
-        }
-
         public static string ToString(this JSchema schema, Formatting formatting)
         {
             if (schema is null)
@@ -62,10 +37,13 @@ namespace TeamCloud.Adapters
             return sb.ToString();
         }
 
-        public static IServiceCollection AddTeamCloudAdapterFramework(this IServiceCollection services)
+        public static IServiceCollection AddTeamCloudAdapters(this IServiceCollection services, Action<IAdapterConfiguration> configuration)
         {
             if (services is null)
                 throw new ArgumentNullException(nameof(services));
+
+            if (configuration is null)
+                throw new ArgumentNullException(nameof(configuration));
 
             services
                 .TryAddSingleton<IAdapterInitializationLoggerFactory, AdapterInitializationLoggerFactory>();
@@ -85,18 +63,15 @@ namespace TeamCloud.Adapters
             services
                 .TryAddSingleton<IAuthorizationTokenClient, AuthorizationTokenClient>();
 
-            return services;
-        }
-
-        public static IServiceCollection AddTeamCloudAdapter<TAdapter>(this IServiceCollection services)
-            where TAdapter : class, IAdapter
-        {
-            if (services is null)
-                throw new ArgumentNullException(nameof(services));
-
             services
-                .AddTeamCloudAdapterFramework()
-                .AddSingleton<IAdapter, TAdapter>();
+                .TryAddTransient<IAdapterProvider>(provider => new AdapterProvider(provider));
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var adapterConfiguration = serviceProvider.GetService<IAdapterConfiguration>()
+                ?? serviceProvider.GetService<IAdapterProvider>() as IAdapterConfiguration;
+
+            configuration(adapterConfiguration);
 
             return services;
         }

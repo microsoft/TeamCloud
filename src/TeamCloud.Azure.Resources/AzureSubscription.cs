@@ -48,6 +48,20 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
+        public async Task<AzureRoleAssignmentUsage> GetRoleAssignmentUsageAsync()
+        {
+            var token = await AzureResourceService.AzureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            return await AzureResourceService.AzureSessionService.Environment.ResourceManagerEndpoint
+                .AppendPathSegment($"subscriptions/{this.ResourceId.SubscriptionId}/providers/Microsoft.Authorization/roleAssignmentsUsageMetrics")
+                .SetQueryParam("api-version", "2019-08-01-preview")
+                .WithOAuthBearerToken(token)
+                .GetJsonAsync<AzureRoleAssignmentUsage>()
+                .ConfigureAwait(false);
+        }
+
         public async Task<AzureResourceGroup> CreateResourceGroupAsync(string name, string region = default)
         {
             var session = await AzureResourceService.AzureSessionService

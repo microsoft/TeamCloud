@@ -7,7 +7,14 @@ param resourceManagerIdentityClientId string
 @description('The ClientSecret of the service principals used to authenticate users and create new Resource Groups for Projecs.')
 param resourceManagerIdentityClientSecret string
 
+@description('The ClientId of the Managed Application used to authenticate users. See https://aka.ms/tcwebclientid for details.')
+param reactAppMsalClientId string
+
+@description('Scope.')
+param reactAppMsalScope string = 'http://TeamCloud.Web/user_impersonation'
+
 var name = toLower(webAppName)
+var webName = '${name}-web'
 var suffix = uniqueString(resourceGroup().id)
 var functionAppName = '${name}-orchestrator'
 var functionAppRoleAssignmentId = guid('${resourceGroup().id}${functionAppName}contributor')
@@ -17,13 +24,6 @@ module cosmos 'cosmosDb.bicep' = {
   name: 'cosmosDb'
   params: {
     name: 'database${suffix}'
-  }
-}
-
-module redis 'redis.bicep' = {
-  name: 'redis'
-  params: {
-    name: 'redis${suffix}'
   }
 }
 
@@ -123,8 +123,20 @@ module signalr 'signalR.bicep' = {
   }
 }
 
+module web 'webUI.bicep' = {
+  name: 'webUI'
+  params: {
+    reactAppMsalClientId: reactAppMsalClientId
+    reactAppMsalScope: reactAppMsalScope
+    reactAppTcApiUrl: api.outputs.url
+    webAppName: webName
+  }
+}
+
 output apiUrl string = api.outputs.url
 output apiAppName string = api.outputs.name
+output webUrl string = web.outputs.url
+output webAppName string = web.outputs.name
 output orchestratorUrl string = orchestrator.outputs.url
 output orchestratorAppName string = orchestrator.outputs.name
 output configServiceConnectionString string = config.outputs.connectionString
@@ -142,8 +154,7 @@ output configServiceImport object = {
   'Endpoint:Api:Url': api.outputs.url
   'Endpoint:Orchestrator:Url': orchestrator.outputs.url
   'Endpoint:Orchestrator:AuthCode': orchestrator.outputs.key
-  'Cache:Configuration': redis.outputs.configuration
-  'Encryption:KeyStorage': storage_wj.outputs.connectionString  
+  'Encryption:KeyStorage': storage_wj.outputs.connectionString
   'Audit:ConnectionString': storage_wj.outputs.connectionString
   'Adapter:Session:Storage:ConnectoinString': storage_wj.outputs.connectionString
   'Adapter:Token:Storage:ConnectionString': storage_wj.outputs.connectionString

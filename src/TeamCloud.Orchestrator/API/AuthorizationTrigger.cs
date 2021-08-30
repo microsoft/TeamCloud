@@ -42,13 +42,13 @@ namespace TeamCloud.Orchestrator.API
 
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IFunctionsHost functionsHost;
-        private readonly IAdapter[] adapters;
+        private readonly IAdapterProvider adapterProvider;
 
-        public AuthorizationTrigger(IDeploymentScopeRepository deploymentScopeRepository, IFunctionsHost functionsHost, IAdapter[] adapters)
+        public AuthorizationTrigger(IDeploymentScopeRepository deploymentScopeRepository, IFunctionsHost functionsHost, IAdapterProvider adapterProvider)
         {
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
-            this.adapters = adapters ?? Array.Empty<IAdapter>();
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
         private async Task<IActionResult> ExecuteAsync(string organization, string deploymentScopeId, Func<IAdapterAuthorize, DeploymentScope, IAuthorizationEndpoints, Task<IActionResult>> callback)
@@ -63,7 +63,7 @@ namespace TeamCloud.Orchestrator.API
                 .GetAsync(organization, deploymentScopeId)
                 .ConfigureAwait(false);
 
-            if (deploymentScope != null && adapters.TryGetAdapter(deploymentScope.Type, out var adapter) && adapter is IAdapterAuthorize adapterAuthorize)
+            if (deploymentScope != null && adapterProvider.GetAdapter(deploymentScope.Type) is IAdapterAuthorize adapterAuthorize)
             {
                 var authorizationEndpoints = new AuthorizationEndpoints()
                 {
@@ -87,20 +87,18 @@ namespace TeamCloud.Orchestrator.API
         public Task<IActionResult> Authorize(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "authorize/{organization}/{id}")] HttpRequestMessage requestMessage,
             string organization,
-            string id,
-            ILogger log) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
+            string id) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
             {
-                return authorizationAdapter.HandleAuthorizeAsync(deploymentScope, requestMessage, authorizationEndpoints, log);
+                return authorizationAdapter.HandleAuthorizeAsync(deploymentScope, requestMessage, authorizationEndpoints);
             });
 
         [FunctionName(nameof(Callback))]
         public Task<IActionResult> Callback(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "authorize/{organization}/{id}/callback")] HttpRequestMessage requestMessage,
             string organization,
-            string id,
-            ILogger log) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
+            string id) => ExecuteAsync(organization, id, (authorizationAdapter, deploymentScope, authorizationEndpoints) =>
             {
-                return authorizationAdapter.HandleCallbackAsync(deploymentScope, requestMessage, authorizationEndpoints, log);
+                return authorizationAdapter.HandleCallbackAsync(deploymentScope, requestMessage, authorizationEndpoints);
             });
 
         private class AuthorizationEndpoints : IAuthorizationEndpoints

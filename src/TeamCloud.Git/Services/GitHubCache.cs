@@ -52,8 +52,9 @@ namespace TeamCloud.Git.Services
                         .Send(request, cancellationToken)
                         .ConfigureAwait(false);
 
-                    return await TraceRateLimitsAsync(passthroughResponse)
-                        .ConfigureAwait(false);
+                    return TraceRateLimits(passthroughResponse);
+                    // return await TraceRateLimitsAsync(passthroughResponse)
+                    //     .ConfigureAwait(false);
                 }
 
                 var response = await ReadCacheAsync(requestUrl, cancellationToken)
@@ -69,7 +70,7 @@ namespace TeamCloud.Git.Services
                         .ConfigureAwait(false);
                 }
 
-                // add a conditional request header so our 
+                // add a conditional request header so our
                 // request won't affect the GitHub rate limit.
 
                 request.Headers["If-None-Match"] = response.ApiInfo.Etag;
@@ -82,7 +83,7 @@ namespace TeamCloud.Git.Services
 
                 if (cacheHit)
                 {
-                    // the conditional response indicates that our cached response 
+                    // the conditional response indicates that our cached response
                     // is still up-to-date - we are done and return the cached response
 
                     return response; // no need to trace ratelimits
@@ -102,19 +103,33 @@ namespace TeamCloud.Git.Services
             }
         }
 
-        private async Task<IResponse> TraceRateLimitsAsync(IResponse response)
+        private static IResponse TraceRateLimits(IResponse response)
         {
             const string RateLimitHeader = "x-ratelimit-";
 
             var rateLimitData = response.Headers
                 .Where(kvp => kvp.Key.StartsWith(RateLimitHeader, StringComparison.OrdinalIgnoreCase))
-                .Select(kvp => new KeyValuePair<string, string>(kvp.Key.Substring(RateLimitHeader.Length), kvp.Value));
+                .Select(kvp => new KeyValuePair<string, string>(kvp.Key[RateLimitHeader.Length..], kvp.Value));
 
             // TODO: write some telemetry data to AppInsight instead of using debug output as telemetry sink
             Debug.WriteLine($"{nameof(GitHubCache)} - { string.Join(" / ", rateLimitData.Select(kvp => $"{kvp.Key}={kvp.Value}")) }");
 
             return response;
         }
+
+        // private async Task<IResponse> TraceRateLimitsAsync(IResponse response)
+        // {
+        //     const string RateLimitHeader = "x-ratelimit-";
+
+        //     var rateLimitData = response.Headers
+        //         .Where(kvp => kvp.Key.StartsWith(RateLimitHeader, StringComparison.OrdinalIgnoreCase))
+        //         .Select(kvp => new KeyValuePair<string, string>(kvp.Key[RateLimitHeader.Length..], kvp.Value));
+
+        //     // TODO: write some telemetry data to AppInsight instead of using debug output as telemetry sink
+        //     Debug.WriteLine($"{nameof(GitHubCache)} - { string.Join(" / ", rateLimitData.Select(kvp => $"{kvp.Key}={kvp.Value}")) }");
+
+        //     return response;
+        // }
 
         private async Task<IResponse> WriteCacheAsync(string endpoint, IResponse response, CancellationToken cancellationToken)
         {
@@ -127,8 +142,9 @@ namespace TeamCloud.Git.Services
                     .ConfigureAwait(false);
             }
 
-            return await TraceRateLimitsAsync(response)
-                .ConfigureAwait(false);
+            return TraceRateLimits(response);
+            // return await TraceRateLimitsAsync(response)
+            //     .ConfigureAwait(false);
         }
 
         private async Task<IResponse> ReadCacheAsync(string endpoint, CancellationToken cancellationToken)
