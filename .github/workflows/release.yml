@@ -102,13 +102,7 @@ jobs:
           az extension add -s ${{steps.get-cli.outputs.result}} -y
 
           echo "deploying demo teamcloud instance"
-          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
-
-          echo "setting default teamcloud instance in configuration"
-          az configure -d tc-url=https://teamclouddemo.azurewebsites.net
-
-          echo "deploying demo teamcloud web instance"
-          az tc app deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -c ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}}
+          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
 
       - name: Promote Release
         uses: actions/github-script@v4

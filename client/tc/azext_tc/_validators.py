@@ -215,22 +215,6 @@ def teamcloud_cli_source_version_validator(cmd, ns):
             raise CLIError('--version/-v {} does not exist'.format(ns.version))
 
 
-def providers_source_version_validator(cmd, ns):
-    if ns.version:
-        if ns.prerelease or ns.index_url:
-            raise CLIError(
-                'usage error: can only use one of --index-url | --version/-v | --pre')
-        ns.version = ns.version.lower()
-        if ns.version[:1].isdigit():
-            ns.version = 'v' + ns.version
-        if not _is_valid_version(ns.version):
-            raise CLIError(
-                '--version/-v should be in format v0.0.0 do not include -pre suffix')
-
-        if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud-Providers'):
-            raise CLIError('--version/-v {} does not exist'.format(ns.version))
-
-
 def properties_validator(cmd, ns):
     if isinstance(ns.properties, list):
         properties_dict = {}

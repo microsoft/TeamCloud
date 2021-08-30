@@ -3,6 +3,12 @@
 Release History
 ===============
 
+0.5.0
+++++++
++ Deploy web and api in same resource group
++ Simplify index logic
++ Cleanup
+
 0.4.1
 ++++++
 + Use az cli built-in extension update logic
