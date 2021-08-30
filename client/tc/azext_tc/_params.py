@@ -38,32 +38,10 @@ def load_arguments(self, _):
         nargs='+',
         help='the deployment parameters')
 
-    with self.argument_context('tc test', arg_group='TeamCloud') as c:
-        c.argument('name', options_list=['--name', '-n'],
-                   help='Name of app. Must be globally unique and will be the subdomain '
-                        'for the TeamCloud instance service endpoint.')
-        c.argument('principal_name', help='Service principal app (client) id.')
-        c.argument('principal_password', help="Service principal password, aka 'client secret'.")
-        c.argument('tags', tags_type)
-        c.argument('version', options_list=['--version', '-v'],
-                   help='TeamCloud version. Default: latest stable.')
-        c.argument('prerelease', options_list=['--pre'], action='store_true',
-                   help='Deploy latest prerelease version.')
-        c.argument('index_url', help='URL to custom index.json file.')
-        c.argument('skip_app_deployment', action='store_true',
-                   help="Only create Azure resources, skip deploying the TeamCloud API and Orchestrator apps.")
-        c.argument('skip_name_validation', action='store_true',
-                   help="Skip name validaiton. Useful when attempting to redeploy a partial or failed deployment.")
-        c.ignore('_subscription')
-        c.argument('scope', help='Scope to use for user authentication.')
-        c.argument('client_id', options_list=['--client-id', '-c'],
-                   type=str, help='Client ID for the Managed Application used for user authentication. '
-                   'See https://aka.ms/tcwebclientid for instructions.')
-
     # Global
 
     # ignore global az arg --subscription and requre base_url for everything except `tc deploy`
-    for scope in ['tc update', 'tc app', 'tc org', 'tc template', 'tc scope']:
+    for scope in ['tc org', 'tc template', 'tc scope']:
         with self.argument_context(scope, arg_group='TeamCloud') as c:
             c.argument('base_url', tc_url_type)
 
@@ -95,27 +73,16 @@ def load_arguments(self, _):
                    help='TeamCloud version. Default: latest stable.')
         c.argument('prerelease', options_list=['--pre'], action='store_true',
                    help='Deploy latest prerelease version.')
+        c.argument('index_url', help='URL to custom index.json file.')
         c.argument('skip_app_deployment', action='store_true',
                    help="Only create Azure resources, skip deploying the TeamCloud API and Orchestrator apps.")
         c.argument('skip_name_validation', action='store_true',
                    help="Skip name validaiton. Useful when attempting to redeploy a partial or failed deployment.")
-        c.argument('index_url', help='URL to custom index.json file.')
-
-    with self.argument_context('tc app deploy') as c:
-        c.argument('client_id', options_list=['--client-id', '-c'],
-                   type=str, validator=client_id_validator,
-                   help='Client ID for the Managed Application used for user authentication. '
-                   'See https://aka.ms/tcwebclientid for instructions.')
-        c.argument('app_type', get_enum_type(['Web'], default='Web'),
-                   options_list=['--type', '-t'], help='App type. Currently only supports Web')
-        c.argument('version', options_list=['--version', '-v'],
-                   type=str, help='App version. Default: latest stable.',
-                   validator=teamcloud_source_version_validator)
-        c.argument('prerelease', options_list=['--pre'], action='store_true',
-                   help='Deploy latest prerelease version.')
-        c.argument('index_url', help='URL to custom index.json file.',
-                   validator=index_url_validator)
+        # c.ignore('_subscription')
         c.argument('scope', help='Scope to use for user authentication.')
+        c.argument('client_id', options_list=['--client-id', '-c'],
+                   type=str, help='Client ID for the Managed Application used for user authentication. '
+                   'See https://aka.ms/tcwebclientid for instructions.')
 
     # Orgs
 

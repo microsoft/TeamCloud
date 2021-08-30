@@ -36,25 +36,6 @@ examples:
 """
 
 # ----------------
-# TeamCloud Apps
-# ----------------
-
-helps['tc app'] = """
-type: group
-short-summary: Manage client applications.
-"""
-
-helps['tc app deploy'] = """
-type: command
-short-summary: Deploy a new client applications.
-examples:
-  - name: Deploy a new web app for a instance.
-    text: az tc app deploy --url url --client-id clientId --type Web
-  - name: Deploy new pre-release web app for a instance.
-    text: az tc app deploy --url url --client-id clientId --type Web --pre
-"""
-
-# ----------------
 # TeamCloud Orgs
 # ----------------
 

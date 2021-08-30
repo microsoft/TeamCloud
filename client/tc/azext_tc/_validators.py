@@ -23,7 +23,7 @@ def _ensure_base_url(client, base_url):
     client._client._base_url = base_url
 
 
-def tc_test_validator(cmd, ns):
+def tc_deploy_validator(cmd, ns):
     if ns.principal_name is not None:
         if ns.principal_password is None:
             raise CLIError(
@@ -75,57 +75,6 @@ def tc_test_validator(cmd, ns):
     if ns.client_id:
         if not _is_valid_uuid(ns.client_id):
             raise CLIError('--client-id/-c should be a valid uuid')
-
-
-def tc_deploy_validator(cmd, ns):
-    if ns.principal_name is not None:
-        if ns.principal_password is None:
-            raise CLIError(
-                'usage error: --principal-password must be have a value if --principal-name is specified')
-    if ns.principal_password is not None:
-        if ns.principal_name is None:
-            raise CLIError(
-                'usage error: --principal-name must be have a value if --principal-password is specified')
-
-    if sum(1 for ct in [ns.version, ns.prerelease, ns.index_url] if ct) > 1:
-        raise CLIError(
-            'usage error: can only use one of --index-url | --version/-v | --pre')
-
-    if ns.version:
-        ns.version = ns.version.lower()
-        if ns.version[:1].isdigit():
-            ns.version = 'v' + ns.version
-        if not _is_valid_version(ns.version):
-            raise CLIError(
-                '--version/-v should be in format v0.0.0 do not include -pre suffix')
-
-        if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
-            raise CLIError('--version/-v {} does not exist'.format(ns.version))
-
-    if ns.tags:
-        validate_tags(ns)
-
-    if ns.index_url:
-        if not _is_valid_url(ns.index_url):
-            raise CLIError(
-                '--index-url should be a valid url')
-
-    if ns.name is not None:
-        name_clean = ''
-        for n in ns.name.lower():
-            if n.isalpha() or n.isdigit() or n == '-':
-                name_clean += n
-
-        ns.name = name_clean
-
-        if ns.skip_name_validation:
-            logger.warning('IMPORTANT: --skip-name-validation prevented unique name validation.')
-        else:
-            web_client = web_client_factory(cmd.cli_ctx)
-            availability = web_client.check_name_availability(ns.name, 'Site')
-            if not availability.name_available:
-                raise CLIError(
-                    '--name/-n {}'.format(availability.message))
 
 
 def org_name_validator(cmd, ns):

@@ -76,3 +76,6 @@ resource app 'Microsoft.Web/sites@2020-06-01' = {
     }
   }
 }
+
+output name string = name
+output url string = 'https://${name}.azurewebsites.net'

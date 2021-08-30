@@ -135,6 +135,8 @@ module web 'webUI.bicep' = {
 
 output apiUrl string = api.outputs.url
 output apiAppName string = api.outputs.name
+output webUrl string = web.outputs.url
+output webAppName string = web.outputs.name
 output orchestratorUrl string = orchestrator.outputs.url
 output orchestratorAppName string = orchestrator.outputs.name
 output configServiceConnectionString string = config.outputs.connectionString
