@@ -72,7 +72,7 @@ export const ComponentForm: React.FC = () => {
     };
 
     const _getTypeIcon = (template: ComponentTemplate) => {
-        switch (template?.type.toLowerCase()) { 
+        switch (template?.type.toLowerCase()) {
             case 'environment': return 'AzureLogo';
             case 'repository': return 'OpenSource';
         }
@@ -146,22 +146,6 @@ export const ComponentForm: React.FC = () => {
         { key: 'version', name: 'Version', minWidth: 80, maxWidth: 80, onRender: (t: ComponentTemplate) => t.repository.version },
     ];
 
-    const _applyFilter = (template: ComponentTemplate, filter: string): boolean => {
-        const f = filter?.toUpperCase();
-        if (!f) return true;
-        return (
-            template.displayName?.toUpperCase().includes(f)
-            || template.id?.toUpperCase().includes(f)
-            || template.description?.toUpperCase().includes(f)
-            || template.parentId?.toUpperCase().includes(f)
-            || template.repository.organization?.toUpperCase().includes(f)
-            || template.repository.project?.toUpperCase().includes(f)
-            || template.repository.repository?.toUpperCase().includes(f)
-            || template.repository.url?.toUpperCase().includes(f)
-            || template.type?.toUpperCase().includes(f)
-        ) ?? false
-
-    };
 
     const _onItemInvoked = (template: ComponentTemplate): void => {
         setTemplate(template);
@@ -190,7 +174,7 @@ export const ComponentForm: React.FC = () => {
                             onItemInvoked={_onItemInvoked}
                             noCheck
                             noHeader={template !== undefined}
-                            applyFilter={template ? undefined : _applyFilter}
+                            // applyFilter={template ? undefined : _applyFilter}
                             filterPlaceholder='Filter components' />
                     </Stack.Item>
                     {template && (

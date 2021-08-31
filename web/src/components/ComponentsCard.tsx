@@ -24,7 +24,7 @@ export const ComponentsCard: React.FC = () => {
     const { data: components } = useProjectComponents();
     const { data: templates } = useProjectComponentTemplates();
     const deleteComponent = useDeleteProjectComponent();
-    
+
     const [component, setComponent] = useState<Component>();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
@@ -101,7 +101,7 @@ export const ComponentsCard: React.FC = () => {
                     items={items ?? []}
                     columns={columns}
                     // styles={{ root: { maxWidth: '400px' } }}
-                    // isHeaderVisible={true}
+                    // isHeaderVisible
                     onRenderRow={_onRenderRow}
                     layoutMode={DetailsListLayoutMode.fixedColumns}
                     checkboxVisibility={CheckboxVisibility.hidden}

@@ -3,6 +3,7 @@
 
 export * from './useAddMembers'
 export * from './useAddProjectMembers'
+export * from './useAudit'
 export * from './useAzureManagementGroups'
 export * from './useAzureSubscriptions'
 export * from './useCreateDeploymentScope'

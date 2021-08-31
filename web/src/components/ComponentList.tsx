@@ -12,7 +12,7 @@ import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import { ComponentIcon } from './ComponentIcon';
 
 export interface IComponentListProps {
-    onItemInvoked?: (component: Component) => void;
+    // onItemInvoked?: (component: Component) => void;
 }
 
 export const ComponentList: React.FC<IComponentListProps> = (props) => {
@@ -37,7 +37,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
         if (!item) return undefined;
         return <Stack horizontal tokens={{ childrenGap: '10px' }} >
             <ComponentIcon component={item.component} />
-            <Text>{ item.component?.displayName }</Text>
+            <Text>{item.component?.displayName}</Text>
         </Stack>
     };
 
@@ -70,10 +70,6 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
     ];
 
 
-    const _applyFilter = (item: { component: Component, template: ComponentTemplate }, filter: string): boolean => {
-        return filter ? JSON.stringify(item).toUpperCase().includes(filter.toUpperCase()) : true;
-    };
-
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
         history.push(`/orgs/${orgId}/projects/${projectId}/components/${item.component.slug}`);
     };
@@ -82,7 +78,6 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
         <ContentList
             columns={columns}
             items={items}
-            applyFilter={_applyFilter}
             onItemInvoked={_onItemInvoked}
             filterPlaceholder='Filter components'
             buttonText='Create component'

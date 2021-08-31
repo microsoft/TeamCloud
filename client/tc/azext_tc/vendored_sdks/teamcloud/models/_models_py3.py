@@ -311,7 +311,7 @@ class Component(msrest.serialization.Model):
     :param resource_url:
     :type resource_url: str
     :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
-     "Succeeded", "Failed".
+     "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :type resource_state: str or ~teamcloud.models.ComponentResourceState
     :param deployment_scope_id:
     :type deployment_scope_id: str
@@ -556,9 +556,9 @@ class ComponentTask(msrest.serialization.Model):
     :type output: str
     :param resource_id:
     :type resource_id: str
-    :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
+    :param task_state:  Possible values include: "Pending", "Initializing", "Processing",
      "Succeeded", "Failed".
-    :type resource_state: str or ~teamcloud.models.ComponentTaskResourceState
+    :type task_state: str or ~teamcloud.models.ComponentTaskState
     :param exit_code:
     :type exit_code: int
     :param id: Required.
@@ -586,7 +586,7 @@ class ComponentTask(msrest.serialization.Model):
         'input_json': {'key': 'inputJson', 'type': 'str'},
         'output': {'key': 'output', 'type': 'str'},
         'resource_id': {'key': 'resourceId', 'type': 'str'},
-        'resource_state': {'key': 'resourceState', 'type': 'str'},
+        'task_state': {'key': 'taskState', 'type': 'str'},
         'exit_code': {'key': 'exitCode', 'type': 'int'},
         'id': {'key': 'id', 'type': 'str'},
     }
@@ -608,7 +608,7 @@ class ComponentTask(msrest.serialization.Model):
         input_json: Optional[str] = None,
         output: Optional[str] = None,
         resource_id: Optional[str] = None,
-        resource_state: Optional[Union[str, "ComponentTaskResourceState"]] = None,
+        task_state: Optional[Union[str, "ComponentTaskState"]] = None,
         exit_code: Optional[int] = None,
         **kwargs
     ):
@@ -626,7 +626,7 @@ class ComponentTask(msrest.serialization.Model):
         self.input_json = input_json
         self.output = output
         self.resource_id = resource_id
-        self.resource_state = resource_state
+        self.task_state = task_state
         self.exit_code = exit_code
         self.id = id
 
@@ -1027,6 +1027,8 @@ class ComponentTemplatePermissions(msrest.serialization.Model):
     :type admin: list[str]
     :param owner:
     :type owner: list[str]
+    :param adapter:
+    :type adapter: list[str]
     """
 
     _attribute_map = {
@@ -1034,6 +1036,7 @@ class ComponentTemplatePermissions(msrest.serialization.Model):
         'member': {'key': 'Member', 'type': '[str]'},
         'admin': {'key': 'Admin', 'type': '[str]'},
         'owner': {'key': 'Owner', 'type': '[str]'},
+        'adapter': {'key': 'Adapter', 'type': '[str]'},
     }
 
     def __init__(
@@ -1043,6 +1046,7 @@ class ComponentTemplatePermissions(msrest.serialization.Model):
         member: Optional[List[str]] = None,
         admin: Optional[List[str]] = None,
         owner: Optional[List[str]] = None,
+        adapter: Optional[List[str]] = None,
         **kwargs
     ):
         super(ComponentTemplatePermissions, self).__init__(**kwargs)
@@ -1050,6 +1054,7 @@ class ComponentTemplatePermissions(msrest.serialization.Model):
         self.member = member
         self.admin = admin
         self.owner = owner
+        self.adapter = adapter
 
 
 class DeploymentScope(msrest.serialization.Model):
@@ -1329,7 +1334,7 @@ class Organization(msrest.serialization.Model):
     :param resource_id:
     :type resource_id: str
     :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
-     "Succeeded", "Failed".
+     "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :type resource_state: str or ~teamcloud.models.OrganizationResourceState
     :param gallery_id:
     :type gallery_id: str
@@ -1544,7 +1549,7 @@ class Project(msrest.serialization.Model):
     :param resource_id:
     :type resource_id: str
     :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
-     "Succeeded", "Failed".
+     "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :type resource_state: str or ~teamcloud.models.ProjectResourceState
     :ivar vault_id:
     :vartype vault_id: str
@@ -1940,7 +1945,7 @@ class ProjectMembership(msrest.serialization.Model):
 
     :param project_id: Required.
     :type project_id: str
-    :param role: Required.  Possible values include: "None", "Member", "Admin", "Owner".
+    :param role: Required.  Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
     :type role: str or ~teamcloud.models.ProjectMembershipRole
     :param properties: Dictionary of :code:`<string>`.
     :type properties: dict[str, str]

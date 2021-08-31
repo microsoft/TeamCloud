@@ -72,7 +72,7 @@ export const UserInfo: React.FC = () => {
                 </Stack>
             </Panel>
             <UserForm
-                me={true}
+                me
                 user={user}
                 graphUser={graphUser}
                 panelIsOpen={editPanelOpen}

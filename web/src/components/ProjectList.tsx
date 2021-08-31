@@ -97,7 +97,7 @@ export const ProjectList: React.FC = () => {
             selectionMode={SelectionMode.none}
             layoutMode={DetailsListLayoutMode.justified}
             checkboxVisibility={CheckboxVisibility.hidden}
-            selectionPreservedOnEmptyClick={true}
+            selectionPreservedOnEmptyClick
             onItemInvoked={_onItemInvoked}
             styles={{
                 root: {

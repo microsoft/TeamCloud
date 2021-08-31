@@ -100,10 +100,6 @@ export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
     ];
 
 
-    const _applyFilter = (item: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }, filter: string): boolean => {
-        return filter ? JSON.stringify(item).toUpperCase().includes(filter.toUpperCase()) : true;
-    };
-
     const _onItemInvoked = (item: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }): void => {
         history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules/${item.schedule.id}`);
     };
@@ -113,7 +109,6 @@ export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
             columns={columns}
             items={items}
             noCheck
-            applyFilter={_applyFilter}
             onItemInvoked={_onItemInvoked}
             filterPlaceholder='Filter schedules'
             buttonText='Create schedule'

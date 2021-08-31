@@ -208,7 +208,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                     layoutMode={DetailsListLayoutMode.justified}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.none}
-                    selectionPreservedOnEmptyClick={true}
+                    selectionPreservedOnEmptyClick
                 />
                 <Stack horizontal style={{ marginTop: '10px' }}>
                     <TextField
@@ -304,7 +304,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                 items={items}
                 layoutMode={DetailsListLayoutMode.justified}
                 checkboxVisibility={CheckboxVisibility.hidden}
-                selectionPreservedOnEmptyClick={true} />
+                selectionPreservedOnEmptyClick />
         )
     };
 
@@ -363,7 +363,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                 items={items}
                 layoutMode={DetailsListLayoutMode.justified}
                 checkboxVisibility={CheckboxVisibility.hidden}
-                selectionPreservedOnEmptyClick={true} />
+                selectionPreservedOnEmptyClick />
         )
     };
 

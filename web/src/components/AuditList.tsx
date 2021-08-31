@@ -2,16 +2,17 @@
 // Licensed under the MIT License.
 
 import React, { CSSProperties, useEffect, useState } from 'react';
-import { ContentList, ContentProgress } from '.';
-
+import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, IDropdownStyles, IIconProps, Pivot, PivotItem, ScrollablePane, ScrollbarVisibility, Stack, Text } from '@fluentui/react';
+import { useQueryClient } from 'react-query'
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import { useAuditCommands } from '../hooks/useAudit';
-import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, IDropdownStyles, IIconProps, Pivot, PivotItem, ScrollablePane, ScrollbarVisibility, Stack, Text } from '@fluentui/react';
 import { CommandAuditEntity } from 'teamcloud';
 import { api } from '../API';
 import { useParams } from 'react-router-dom';
 import JSONPretty from 'react-json-pretty';
-import { Lightbox } from './common';
+import { ContentSearch, Lightbox } from './common';
+import { ContentList, ContentProgress } from '.';
+import { useOrg } from '../hooks';
 
 export const AuditList: React.FC = () => {
 
@@ -20,6 +21,8 @@ export const AuditList: React.FC = () => {
     const { orgId } = useParams() as { orgId: string };
 
     const { data: auditCommands } = useAuditCommands();
+
+    const [itemFilter, setItemFilter] = useState<string>();
 
     const _getTimeRangeOptions = (): IDropdownOption[] => [
         { key: '00:05:00', text: 'last 5 minutes', selected: true },
@@ -120,101 +123,90 @@ export const AuditList: React.FC = () => {
         dropdown: { minWidth: 250 },
     };
 
-    const refreshIcon: IIconProps = { iconName: 'Refresh' };
+    const { data: org } = useOrg();
+    const queryClient = useQueryClient();
 
     const _onRefresh = () => {
-        setRefreshKey(refreshKey + 1);
+        // setRefreshKey(refreshKey + 1);
+        queryClient.invalidateQueries(['org', org!.id, 'audit'])
     };
 
     const _getCommandOptions = (): IDropdownOption[] => auditCommands
-        ? auditCommands.map(ac => ({ text: ac } as IDropdownOption))
+        ? auditCommands.map(ac => ({ key: ac, text: ac } as IDropdownOption))
         : [];
 
     const _applyFilter = (audit: CommandAuditEntity, filter: string): boolean => {
-        if (filter) {
-            return ((audit?.command?.toUpperCase().includes(filter.toUpperCase()) ?? false)
-                || (audit?.commandId?.toUpperCase().includes(filter.toUpperCase()) ?? false)
-                || (audit?.componentTask?.toUpperCase().includes(filter.toUpperCase()) ?? false)
-                || (audit?.customStatus?.toUpperCase().includes(filter.toUpperCase()) ?? false)
-                || (audit?.errors?.toUpperCase().includes(filter.toUpperCase()) ?? false)
-                || (audit?.parentId?.toUpperCase().includes(filter.toUpperCase()) ?? false)
-                || (audit?.projectId?.toUpperCase().includes(filter.toUpperCase()) ?? false)
-                || (audit?.runtimeStatus?.toUpperCase().includes(filter.toUpperCase()) ?? false));
-        }
-        return true;
+        if (!filter) return true;
+        return JSON.stringify(audit).toUpperCase().includes(filter.toUpperCase())
     }
-
-    const _onItemInvoked = (audit: CommandAuditEntity): void => {
-        setAuditEntity(audit);
-    };
-
-    const _onRenderBeforeSearchBox = () => (
-        <Stack horizontal tokens={{ childrenGap: '20px' }} style={{ marginLeft: '10px' }}>
-            <Stack horizontal tokens={{ childrenGap: '10px' }}>
-                <Stack
-                    className='ms-SearchBox-iconContainer'
-                    theme={theme}
-                    style={iconContainerStyle}>
-                    <Icon
-                        theme={theme}
-                        iconName='Calendar'
-                        className='ms-SearchBox-icon'
-                    />
-                </Stack>
-                <Dropdown
-                    theme={theme}
-                    title="Time range"
-                    options={_getTimeRangeOptions()}
-                    onChange={(e, o) => setSelectedTimeRange(o?.key as string)}
-                    styles={dropdownStyles}
-                />
-            </Stack>
-            <Stack horizontal tokens={{ childrenGap: '10px' }} >
-                <Stack
-                    className='ms-SearchBox-iconContainer'
-                    theme={theme}
-                    style={iconContainerStyle}>
-                    <Icon
-                        theme={theme}
-                        iconName='ReturnKey'
-                        className='ms-SearchBox-icon'
-                    />
-                </Stack>
-                <Dropdown
-                    theme={theme}
-                    title="Command"
-                    options={_getCommandOptions()}
-                    multiSelect={true}
-                    onChange={(e, o) => setSelectedCommands((o?.selected ?? false) ? [...selectedCommands, (o?.key ?? o?.text) as string] : selectedCommands.filter(c => c !== ((o?.key ?? o?.text) as string)))}
-                    styles={dropdownStyles}
-                />
-            </Stack>
-        </Stack>
-    );
-
-    const _onRenderAfterSearchBox = () => (
-        <IconButton
-            theme={theme}
-            iconProps={refreshIcon}
-            onClick={_onRefresh} />
-    );
-
 
     return (
         <>
             <ContentProgress progressHidden={!auditEntriesLoading} />
-            <ContentList
-                columns={columns}
-                items={auditEntries ?? undefined}
-                onRenderBeforeSearchBox={_onRenderBeforeSearchBox}
-                onRenderAfterSearchBox={_onRenderAfterSearchBox}
-                applyFilter={_applyFilter}
-                onItemInvoked={_onItemInvoked}
-                filterPlaceholder='Filter audit records'
-                noCheck={true}
-                noDataTitle='You do not have any audit records yet'
-                noDataImage={collaboration}
-            />
+            <Stack tokens={{ childrenGap: '20px' }}>
+                <ContentSearch
+                    placeholder='Filter audit records'
+                    onChange={(_ev, val) => setItemFilter(val)}>
+                    <Stack horizontal tokens={{ childrenGap: '20px' }} style={{ marginLeft: '10px' }}>
+                        <Stack horizontal tokens={{ childrenGap: '10px' }}>
+                            <Stack
+                                className='ms-SearchBox-iconContainer'
+                                theme={theme}
+                                style={iconContainerStyle}>
+                                <Icon
+                                    theme={theme}
+                                    iconName='Calendar'
+                                    className='ms-SearchBox-icon'
+                                />
+                            </Stack>
+                            <Dropdown
+                                theme={theme}
+                                title="Time range"
+                                options={_getTimeRangeOptions()}
+                                onChange={(e, o) => setSelectedTimeRange(o?.key as string)}
+                                styles={dropdownStyles}
+                            />
+                        </Stack>
+                        <Stack horizontal tokens={{ childrenGap: '10px' }} >
+                            <Stack
+                                className='ms-SearchBox-iconContainer'
+                                theme={theme}
+                                style={iconContainerStyle}>
+                                <Icon
+                                    theme={theme}
+                                    iconName='ReturnKey'
+                                    className='ms-SearchBox-icon'
+                                />
+                            </Stack>
+                            <Dropdown
+                                theme={theme}
+                                title="Command"
+                                options={_getCommandOptions()}
+                                multiSelect
+                                onChange={(e, o) => setSelectedCommands((o?.selected ?? false) ? [...selectedCommands, (o?.key ?? o?.text) as string] : selectedCommands.filter(c => c !== ((o?.key ?? o?.text) as string)))}
+                                styles={dropdownStyles}
+                            />
+                        </Stack>
+                        <IconButton
+                            theme={theme}
+                            iconProps={{ iconName: 'Refresh' }}
+                            onClick={_onRefresh} />
+                    </Stack>
+                </ContentSearch>
+
+                <ContentList
+                    columns={columns}
+                    items={auditEntries ? itemFilter ? auditEntries.filter(i => _applyFilter(i, itemFilter)) : auditEntries : undefined}
+                    noSearch
+                    noCheck
+                    // applyFilter={_applyFilter}
+                    onItemInvoked={setAuditEntity}
+                    filterPlaceholder='Filter audit records'
+                    noDataTitle='Not audit records match your query'
+                    noDataDescription='Try changing your query parameters'
+                    noDataImage={collaboration}
+                />
+            </Stack>
             <Lightbox
                 title={`Command: ${auditEntity?.command} (${auditEntity?.commandId})`}
                 titleSize='xxLargePlus'
