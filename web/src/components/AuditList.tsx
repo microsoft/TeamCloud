@@ -1,94 +1,88 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { CSSProperties, useEffect, useState } from 'react';
-import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, IDropdownStyles, IIconProps, Pivot, PivotItem, ScrollablePane, ScrollbarVisibility, Stack, Text } from '@fluentui/react';
-import { useQueryClient } from 'react-query'
-import collaboration from '../img/MSC17_collaboration_010_noBG.png'
-import { useAuditCommands } from '../hooks/useAudit';
+import React, { CSSProperties, useState } from 'react';
+import JSONPretty from 'react-json-pretty';
+import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, Pivot, PivotItem, ScrollablePane, ScrollbarVisibility, Stack, Text } from '@fluentui/react';
+import { useQuery, useQueryClient } from 'react-query'
 import { CommandAuditEntity } from 'teamcloud';
 import { api } from '../API';
-import { useParams } from 'react-router-dom';
-import JSONPretty from 'react-json-pretty';
 import { ContentSearch, Lightbox } from './common';
+import { useOrg, useAuditCommands } from '../hooks';
 import { ContentList, ContentProgress } from '.';
-import { useOrg } from '../hooks';
+
+import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const AuditList: React.FC = () => {
 
     const theme = getTheme();
 
-    const { orgId } = useParams() as { orgId: string };
-
-    const { data: auditCommands } = useAuditCommands();
-
-    const [itemFilter, setItemFilter] = useState<string>();
-
-    const _getTimeRangeOptions = (): IDropdownOption[] => [
+    const timeRangeOptions: IDropdownOption[] = [
         { key: '00:05:00', text: 'last 5 minutes', selected: true },
         { key: '00:30:00', text: 'last 30 minutes' },
         { key: '01:00:00', text: 'last hour' },
         { key: '12:00:00', text: 'last 12 hours' },
         { key: '1.00:00:00', text: 'last 24 hours' },
-        { key: '00:00:00', text: 'ALL' },
+        { key: '00:00:00', text: 'All time' },
     ];
 
-    const [selectedTimeRange, setSelectedTimeRange] = useState<string>(_getTimeRangeOptions().find(o => (o.selected ?? false))?.key as string);
-    const [selectedCommands, setSelectedCommands] = useState<string[]>([]);
-
-    const [auditEntity, setAuditEntity] = useState<CommandAuditEntity>();
-    const [auditEntries, setAuditEntries] = useState<CommandAuditEntity[]>();
-    const [auditEntriesLoading, setAuditEntriesLoading] = useState<boolean>();
-    const [refreshKey, setRefreshKey] = useState<number>(0);
     const [pivotKey, setPivotKey] = useState<string>('Details');
+    const [itemFilter, setItemFilter] = useState<string>();
+    const [selectedEntryId, setSelectedEntryId] = useState<string>();
+    const [selectedCommands, setSelectedCommands] = useState<string[]>([]);
+    const [selectedTimeRange, setSelectedTimeRange] = useState<string>(timeRangeOptions.find(o => (o.selected ?? false))?.key as string);
 
-    useEffect(() => {
-        (async () => {
+    const queryClient = useQueryClient();
 
-            setAuditEntriesLoading(true);
+    const { data: org } = useOrg();
 
-            const { data } = await api.getAuditEntries(orgId, {
-                timeRange: selectedTimeRange,
-                commands: selectedCommands,
-                onResponse: (raw, flat) => {
-                    if (raw.status >= 400)
-                        throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-                }
-            }).finally(() => setAuditEntriesLoading(false));
+    const { data: auditCommands, isLoading: auditCommandsLoading } = useAuditCommands();
+    const { data: auditEntries, isLoading: auditEntriesLoading } = useQuery(['org', org?.id, 'audit', 'entries', selectedTimeRange, ...selectedCommands], async () => {
+        const { data } = await api.getAuditEntries(org!.id, {
+            timeRange: selectedTimeRange,
+            commands: selectedCommands,
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
+        return data;
+    }, {
+        enabled: !!org?.id,
+        cacheTime: 1000 * 30 // cache for 30 secs (opposed to default 5 mins)
+    });
 
-            var auditEntriesUpdate = data ?? [];
+    const { data: auditEntry, isLoading: auditEntryLoading } = useQuery(['org', org?.id, 'audit', 'entries', selectedEntryId], async () => {
+        const { data } = await api.getAuditEntry(selectedEntryId!, org!.id, {
+            expand: true,
+            onResponse: (raw, flat) => {
+                if (raw.status >= 400)
+                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+            }
+        });
+        return data;
+    }, {
+        enabled: !!org?.id && !!selectedEntryId
+    });
 
-            console.log(JSON.stringify({
-                selectedTimeRange: selectedTimeRange,
-                selectedCommands: selectedCommands,
-                resultCount: auditEntriesUpdate.length
-            }));
 
-            setAuditEntries(auditEntriesUpdate);
+    const iconContainerStyle: CSSProperties = {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        flexShrink: 0,
+        fontSize: '16px',
+        width: '32px',
+        textAlign: 'center',
+        color: 'rgb(161, 159, 157)',
+        cursor: 'text',
+        transition: 'width 0.167s ease 0s'
+    };
 
-        })();
-    }, [orgId, selectedTimeRange, selectedCommands, refreshKey]);
-
-    useEffect(() => {
-        if (auditEntity) {
-
-            (async () => {
-                setAuditEntriesLoading(true);
-
-                const { data } = await api.getAuditEntry(auditEntity.commandId!, auditEntity.organizationId!, {
-                    expand: true,
-                    onResponse: (raw, flat) => {
-                        if (raw.status >= 400)
-                            throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-                    }
-                }).finally(() => setAuditEntriesLoading(false));;
-
-                auditEntity.commandJson = auditEntity.commandJson ?? data?.commandJson;
-                auditEntity.resultJson = auditEntity.resultJson ?? data?.resultJson;
-            })();
-
-        }
-    }, [auditEntity])
+    const _applyFilter = (audit: CommandAuditEntity, filter: string): boolean => {
+        if (!filter) return true;
+        return JSON.stringify(audit).toUpperCase().includes(filter.toUpperCase())
+    }
 
     const onRenderDate = (date?: Date | null) =>
         <Text>{date?.toDateTimeDisplayString(false)}</Text>;
@@ -106,43 +100,9 @@ export const AuditList: React.FC = () => {
         { key: 'updated', name: 'Updated', minWidth: 200, onRender: (a: CommandAuditEntity) => onRenderDate(a?.updated) },
     ];
 
-    const iconContainerStyle: CSSProperties = {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        flexShrink: 0,
-        fontSize: '16px',
-        width: '32px',
-        textAlign: 'center',
-        color: 'rgb(161, 159, 157)',
-        cursor: 'text',
-        transition: 'width 0.167s ease 0s'
-    };
-
-    const dropdownStyles: Partial<IDropdownStyles> = {
-        dropdown: { minWidth: 250 },
-    };
-
-    const { data: org } = useOrg();
-    const queryClient = useQueryClient();
-
-    const _onRefresh = () => {
-        // setRefreshKey(refreshKey + 1);
-        queryClient.invalidateQueries(['org', org!.id, 'audit'])
-    };
-
-    const _getCommandOptions = (): IDropdownOption[] => auditCommands
-        ? auditCommands.map(ac => ({ key: ac, text: ac } as IDropdownOption))
-        : [];
-
-    const _applyFilter = (audit: CommandAuditEntity, filter: string): boolean => {
-        if (!filter) return true;
-        return JSON.stringify(audit).toUpperCase().includes(filter.toUpperCase())
-    }
-
     return (
         <>
-            <ContentProgress progressHidden={!auditEntriesLoading} />
+            <ContentProgress progressHidden={!auditEntriesLoading && !auditCommandsLoading && !auditEntryLoading} />
             <Stack tokens={{ childrenGap: '20px' }}>
                 <ContentSearch
                     placeholder='Filter audit records'
@@ -162,9 +122,9 @@ export const AuditList: React.FC = () => {
                             <Dropdown
                                 theme={theme}
                                 title="Time range"
-                                options={_getTimeRangeOptions()}
+                                options={timeRangeOptions}
                                 onChange={(e, o) => setSelectedTimeRange(o?.key as string)}
-                                styles={dropdownStyles}
+                                styles={{ dropdown: { minWidth: 250 } }}
                             />
                         </Stack>
                         <Stack horizontal tokens={{ childrenGap: '10px' }} >
@@ -181,26 +141,25 @@ export const AuditList: React.FC = () => {
                             <Dropdown
                                 theme={theme}
                                 title="Command"
-                                options={_getCommandOptions()}
+                                options={auditCommands?.map(ac => ({ key: ac, text: ac } as IDropdownOption)) ?? []}
                                 multiSelect
                                 onChange={(e, o) => setSelectedCommands((o?.selected ?? false) ? [...selectedCommands, (o?.key ?? o?.text) as string] : selectedCommands.filter(c => c !== ((o?.key ?? o?.text) as string)))}
-                                styles={dropdownStyles}
+                                styles={{ dropdown: { minWidth: 250 } }}
                             />
                         </Stack>
                         <IconButton
                             theme={theme}
                             iconProps={{ iconName: 'Refresh' }}
-                            onClick={_onRefresh} />
+                            onClick={() => queryClient.invalidateQueries(['org', org?.id, 'audit'])} />
                     </Stack>
                 </ContentSearch>
 
                 <ContentList
+                    noCheck
+                    noSearch
                     columns={columns}
                     items={auditEntries ? itemFilter ? auditEntries.filter(i => _applyFilter(i, itemFilter)) : auditEntries : undefined}
-                    noSearch
-                    noCheck
-                    // applyFilter={_applyFilter}
-                    onItemInvoked={setAuditEntity}
+                    onItemInvoked={(entry) => setSelectedEntryId(entry.commandId)}
                     filterPlaceholder='Filter audit records'
                     noDataTitle='Not audit records match your query'
                     noDataDescription='Try changing your query parameters'
@@ -208,29 +167,29 @@ export const AuditList: React.FC = () => {
                 />
             </Stack>
             <Lightbox
-                title={`Command: ${auditEntity?.command} (${auditEntity?.commandId})`}
+                title={`Command: ${auditEntry?.command} (${auditEntry?.commandId})`}
                 titleSize='xxLargePlus'
-                isOpen={(auditEntity ? true : false)}
-                onDismiss={() => setAuditEntity(undefined)}>
+                isOpen={(!!selectedEntryId && !!auditEntry)}
+                onDismiss={() => setSelectedEntryId(undefined)}>
                 <Pivot selectedKey={pivotKey} onLinkClick={(i, e) => setPivotKey(i?.props.itemKey ?? 'Details')} styles={{ root: { height: '100%', marginBottom: '12px' } }}>
                     <PivotItem headerText='Details' itemKey='Details'>
                         <div style={{ height: 'calc(100vh - 320px)', position: 'relative', maxHeight: 'inherit' }}>
                             <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-                                <JSONPretty data={auditEntity ? JSON.stringify(auditEntity) : {}} />
+                                <JSONPretty data={auditEntry ? JSON.stringify(auditEntry) : {}} />
                             </ScrollablePane>
                         </div>
                     </PivotItem>
                     <PivotItem headerText='Command' itemKey='Command'>
                         <div style={{ height: 'calc(100vh - 320px)', position: 'relative', maxHeight: 'inherit' }}>
                             <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-                                <JSONPretty data={auditEntity?.commandJson} />
+                                <JSONPretty data={auditEntry?.commandJson} />
                             </ScrollablePane>
                         </div>
                     </PivotItem>
                     <PivotItem headerText='Result' itemKey='Result'>
                         <div style={{ height: 'calc(100vh - 320px)', position: 'relative', maxHeight: 'inherit' }}>
                             <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-                                <JSONPretty data={auditEntity?.resultJson} />
+                                <JSONPretty data={auditEntry?.resultJson} />
                             </ScrollablePane>
                         </div>
                     </PivotItem>
