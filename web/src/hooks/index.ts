@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+export * from './useAdapters'
 export * from './useAddMembers'
 export * from './useAddProjectMembers'
 export * from './useAuditCommands'

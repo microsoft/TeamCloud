@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 import React, { PropsWithChildren, useState } from 'react';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, PrimaryButton, SearchBox, SelectionMode, Stack } from '@fluentui/react';
-import { NoData, CalloutLabel } from '.';
-import { ContentSearch } from './ContentSearch';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, getTheme, IColumn, IDetailsHeaderProps, IDetailsRowProps, IRenderFunction, PrimaryButton, SelectionMode, Stack } from '@fluentui/react';
+import { NoData, CalloutLabel, ContentSearch } from '.';
 
 export interface IContentListProps<T> {
     items?: T[];
@@ -56,9 +55,6 @@ export const ContentList = <T,>(props: PropsWithChildren<IContentListProps<T>>) 
     };
 
     const items: T[] = props.items ? itemFilter ? props.items.filter(i => _applyFilter(i, itemFilter)) : props.items : [];
-
-    // const items: T[] = props.items ? (itemFilter && props.applyFilter !== undefined) ? props.items.filter(i => props.applyFilter!(i, itemFilter)) : props.items : [];
-
 
     if (props.items === undefined)
         return (<></>);
