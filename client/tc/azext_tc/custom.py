@@ -86,6 +86,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
     parameters.append('resourceManagerIdentityClientSecret={}'.format(
         resource_manager_sp['password']))
     parameters.append('reactAppMsalClientId={}'.format(client_id))
+    parameters.append('reactAppVersion={}'.format(version))
 
     if scope:
         parameters.append('reactAppMsalScope={}'.format(scope))

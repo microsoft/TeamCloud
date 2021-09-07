@@ -19,7 +19,7 @@ namespace TeamCloud.Data.CosmosDb
             {
                 var operationResult = batchResponse.GetOperationResultAtIndex<T>(i);
 
-                yield return operationResult.IsSuccessStatusCode ? operationResult.Resource : default(T);
+                yield return operationResult.IsSuccessStatusCode ? operationResult.Resource : default;
             }
         }
     }
