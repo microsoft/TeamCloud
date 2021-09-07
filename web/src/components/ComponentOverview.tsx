@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { getTheme, Pivot, PivotItem, Stack, Text, TextField } from '@fluentui/react';
+import { getTheme, Pivot, PivotItem, Stack, Text } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm'
 import { FuiForm } from '@rjsf/fluent-ui';
-import { FieldTemplateProps, WidgetProps } from '@rjsf/core';
 import { ComponentTemplate, DeploymentScope } from 'teamcloud';
 import { ProjectMember } from '../model';
 import { ComponentTaskList, UserPersona, ComponentLink, ComponentTemplateLink } from '.';
@@ -31,7 +30,16 @@ export const ComponentOverview: React.FC = () => {
     useEffect(() => {
         if (component && templates && (template === undefined || component.templateId.toLowerCase() !== template.id.toLowerCase())) {
             // console.log(`+ setComponentTemplate (${component.slug})`);
-            setTemplate(templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined);
+            const tmpl = templates.find(t => component.templateId.toLowerCase() === t.id.toLowerCase()) ?? undefined
+            if (tmpl?.inputJsonSchema) {
+                const schema = JSON.parse(tmpl.inputJsonSchema)
+                if (schema.properties)
+                    Object.keys(schema.properties).forEach(key => {
+                        schema.properties[key]['readOnly'] = true
+                    });
+                tmpl.inputJsonSchema = JSON.stringify(schema)
+            }
+            setTemplate(tmpl ?? undefined);
         }
     }, [component, template, templates])
 
@@ -94,16 +102,18 @@ export const ComponentOverview: React.FC = () => {
                             horizontalAlign='start'
                             tokens={{ childrenGap: '20px' }}
                             styles={{ root: { height: '100%', padding: '24px 8px' } }}>
-                            <Stack.Item styles={{ root: { minWidth: '460px' } }}>
-                                <FuiForm
-                                    widgets={{ 'SelectWidget': ReadonlySelectWidget }}
-                                    FieldTemplate={ReadonlyFieldTemplate}
-                                    schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}
-                                    formData={component?.inputJson ? JSON.parse(component.inputJson) : undefined}
-                                    onChange={() => { }}>
-                                    <></>
-                                </FuiForm>
-                            </Stack.Item>
+                            {template?.inputJsonSchema && (
+                                <Stack.Item styles={{ root: { minWidth: '460px' } }}>
+                                    <FuiForm
+                                        // widgets={{ 'SelectWidget': ReadonlySelectWidget }}
+                                        // FieldTemplate={ReadonlyFieldTemplate}
+                                        schema={JSON.parse(template.inputJsonSchema)}
+                                        formData={component?.inputJson ? JSON.parse(component.inputJson) : undefined}
+                                        onChange={() => { }}>
+                                        <></>
+                                    </FuiForm>
+                                </Stack.Item>
+                            )}
                             {template?.description && (
                                 <Stack.Item grow={2} styles={{
                                     root: {
@@ -159,25 +169,3 @@ export const ComponentOverviewHeaderSection: React.FC<IComponentOverviewHeaderSe
         </Stack.Item>
     );
 }
-
-export const ReadonlyFieldTemplate: React.FC<FieldTemplateProps> = (props) =>
-    props.id === 'root' ? (
-        <Stack styles={{ root: { paddingTop: '16px', minWidth: '460px' } }} tokens={{ childrenGap: '14px' }}>
-            {props.children}
-        </Stack>
-    ) : (
-        <Stack.Item grow styles={{ root: { paddingBottom: '16px' } }}>
-            {props.children}
-        </Stack.Item>
-    );
-
-
-export const ReadonlySelectWidget: React.FC<WidgetProps> = (props) => (
-    <TextField
-        readOnly
-        label={props.schema.description}
-        defaultValue={props.value}
-        styles={{
-
-        }} />
-);

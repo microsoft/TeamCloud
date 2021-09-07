@@ -67,19 +67,17 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
         <>
             <Stack horizontal tokens={{ childrenGap: '6px' }}>
                 {taskTemplates && component?.deleted === undefined ? taskTemplates.map((tt, i) => (
-                    <>
-                        <Stack.Item
-                            key={tt.id}>
-                            <DefaultButton
-                                key={tt.id}
-                                theme={theme}
-                                text={tt.displayName ?? ''}
-                                alt={tt.description ?? ''}
-                                onClick={() => onClickTaskButton(tt)} />
-                        </Stack.Item>
-                        {(i === (taskTemplates.length - 1)) ? <Stack.Item key='Seperator'><Separator vertical /></Stack.Item> : <></>}
-                    </>
+                    <Stack.Item
+                        key={tt.id}>
+                        <DefaultButton
+                            // key={tt.id}
+                            theme={theme}
+                            text={tt.displayName ?? ''}
+                            alt={tt.description ?? ''}
+                            onClick={() => onClickTaskButton(tt)} />
+                    </Stack.Item>
                 )) : []}
+                {(taskTemplates && taskTemplates.length > 0) && (<Stack.Item key='Seperator'><Separator vertical /></Stack.Item>)}
                 <Stack.Item
                     key='delete'>
                     <PrimaryButton
