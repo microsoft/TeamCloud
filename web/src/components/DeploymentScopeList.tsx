@@ -30,7 +30,7 @@ export const DeploymentScopeList: React.FC = () => {
     ];
 
     const _onItemAuthorize = async (scope: DeploymentScope): Promise<void> => {
-        console.log(JSON.stringify(scope));
+        // console.log(JSON.stringify(scope));
         let response = await api.authorizeDeploymentScope(scope.id, scope.organization, { body: scope });
         if (response && response.data && response.data.authorizeUrl) {
             window.open(response.data.authorizeUrl, "_blank");

@@ -145,7 +145,6 @@ export const ComponentForm: React.FC = () => {
 
 
     const _onItemInvoked = (template: ComponentTemplate): void => {
-        console.log(template.inputJsonSchema)
         setTemplate(template);
     };
 

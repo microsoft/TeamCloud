@@ -5,11 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IColumn, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
 import { Component, ComponentTemplate } from 'teamcloud';
-import { DetailCard, ComponentLink } from '.';
-import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates } from '../hooks';
-
-import { useDeleteProjectComponent } from '../hooks/useDeleteProjectComponent';
-import { ComponentIcon } from './ComponentIcon';
+import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates, useDeleteProjectComponent } from '../hooks';
+import { DetailCard, ComponentLink, ComponentIcon } from '.';
 
 export const ComponentsCard: React.FC = () => {
 
@@ -33,7 +30,7 @@ export const ComponentsCard: React.FC = () => {
 
     useEffect(() => {
         if (components && templates && (items === undefined || items.length !== components.length)) {
-            console.log(JSON.stringify(components));
+            // console.log(JSON.stringify(components));
             setItems(components.map(c => ({ component: c, template: templates.find(t => t.id === c.templateId)! })));
         }
     }, [components, templates, items]);

@@ -47,7 +47,7 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
 
     useEffect(() => {
         if (output && selectedLine && listRef.current) {
-            console.log(`+ setScroll`);
+            // console.log(`+ setScroll`);
             listRef.current.scrollToIndex(selectedLine, i => 20, ScrollToMode.center);
         }
     }, [output, selectedLine, listRef]);

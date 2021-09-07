@@ -49,7 +49,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const _changeForm = async (e: IChangeEvent<any>) => {
         console.log("Form errors: " + e.errors.length);
-        console.log(JSON.stringify(e.formData))
+        // console.log(JSON.stringify(e.formData))
         setScopeTypeData(e.errors.length === 0 ? JSON.stringify(e.formData) : undefined);
     };
 
@@ -60,7 +60,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     useEffect(() => {
         if (scopeTypeOptions === undefined) {
-            console.log('+ scopeTypeOptions');
+            // console.log('+ scopeTypeOptions');
             var options = adapterInformation?.map(info => ({ key: info.type?.toString(), text: info.displayName })) as IComboBoxOption[];
             setScopeType(options?.find(option => option !== undefined)?.key as string);
             setScopeTypeOptions(options);
@@ -68,8 +68,8 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
         if (scopeType && adapterInformation) {
             var scopeTypeInfo = adapterInformation?.find(info => info && info.type === scopeType)
             // console.log("ScopeTypeInfo = " + JSON.stringify(scopeTypeInfo));
-            console.log(JSON.stringify(JSON.parse(scopeTypeInfo!.inputDataSchema!)));
-            console.log(JSON.stringify(JSON.parse(scopeTypeInfo!.inputDataForm!)));
+            // console.log(JSON.stringify(JSON.parse(scopeTypeInfo!.inputDataSchema!)));
+            // console.log(JSON.stringify(JSON.parse(scopeTypeInfo!.inputDataForm!)));
             setScopeTypeSchema(scopeTypeInfo?.inputDataSchema || undefined);
             setScopeTypeForm(scopeTypeInfo?.inputDataForm || undefined);
         } else {
