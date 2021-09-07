@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { DefaultButton, Stack, Panel, getTheme, Separator, PrimaryButton } from '@fluentui/react';
+import { DefaultButton, Stack, Panel, getTheme, Separator, PrimaryButton, Text } from '@fluentui/react';
 import { auth } from '../API';
 import { UserForm, UserPersona } from '.';
 import { useGraphUser, useUser } from '../hooks';
@@ -69,6 +69,8 @@ export const UserInfo: React.FC = () => {
                         <DefaultButton text='Sign out' onClick={() => auth.logout()} />
                         {/* <DefaultButton text='Sign out' onClick={() => props.onSignOut()} /> */}
                     </Stack>
+                    <Separator />
+                    <Text styles={{ root: { color: theme.palette.neutralSecondary, padding: '0px', textAlign: 'center' } }}>{process.env.REACT_APP_VERSION}</Text>
                 </Stack>
             </Panel>
             <UserForm

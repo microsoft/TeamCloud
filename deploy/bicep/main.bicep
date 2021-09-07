@@ -13,6 +13,8 @@ param reactAppMsalClientId string
 @description('Scope.')
 param reactAppMsalScope string = 'http://TeamCloud.Web/user_impersonation'
 
+param reactAppVersion string = ''
+
 var name = toLower(webAppName)
 var webName = '${name}-web'
 var suffix = uniqueString(resourceGroup().id)
@@ -129,6 +131,7 @@ module web 'webUI.bicep' = {
     reactAppMsalClientId: reactAppMsalClientId
     reactAppMsalScope: reactAppMsalScope
     reactAppTcApiUrl: api.outputs.url
+    reactAppVersion: reactAppVersion
     webAppName: webName
   }
 }

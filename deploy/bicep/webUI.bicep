@@ -10,6 +10,8 @@ param reactAppTcApiUrl string
 @description('Scope.')
 param reactAppMsalScope string = 'http://TeamCloud.Web/user_impersonation'
 
+param reactAppVersion string = ''
+
 var name = toLower(webAppName)
 
 resource farm 'Microsoft.Web/serverfarms@2020-06-01' = {
@@ -63,6 +65,10 @@ resource app 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'REACT_APP_TC_API_URL'
           value: reactAppTcApiUrl
+        }
+        {
+          name: 'REACT_APP_VERSION'
+          value: reactAppVersion
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
