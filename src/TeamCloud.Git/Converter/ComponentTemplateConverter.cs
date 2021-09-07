@@ -31,6 +31,7 @@ namespace TeamCloud.Git.Converter
 
             foreach (var nameToken in componentJson.SelectTokens("$..name").Reverse().ToArray())
             {
+                // (nameToken.Parent.Parent as JObject)?.SetProperty("title", nameToken.ToString());
                 (nameToken.Parent.Parent as JObject)?.SetProperty("displayName", nameToken.ToString());
                 nameToken.Parent.Remove(); // get rid of the name token as we don't need it anymore
             }

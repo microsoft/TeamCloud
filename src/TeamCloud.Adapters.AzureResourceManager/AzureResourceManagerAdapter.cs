@@ -277,7 +277,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
 
                 component.ResourceId = null;
                 component.ResourceUrl = null;
-                
+
                 // ensure resource state is deleted
 
                 component.ResourceState = Model.Common.ResourceState.Deprovisioned;
@@ -311,7 +311,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
 
                 if (string.IsNullOrEmpty(resourceGroupId))
                 {
-                    // as Azure subscriptions are limited to 2000 role assignments 
+                    // as Azure subscriptions are limited to 2000 role assignments
                     // we pick those with the least amout of used assignments
 
                     var leastRoleAssignments = await subscriptionIds

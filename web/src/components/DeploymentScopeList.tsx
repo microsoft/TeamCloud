@@ -26,11 +26,11 @@ export const DeploymentScopeList: React.FC = () => {
         { key: 'isDefault', name: 'Default', minWidth: 100, onRender: (s: DeploymentScope) => <Checkbox checked={s.isDefault} disabled /> },
         { key: 'subscriptionIds', name: 'Subscriptions', minWidth: 280, fieldName: 'subscriptionIds' },
         { key: 'managementGroupId', name: 'Management Group', minWidth: 240, onRender: (s: DeploymentScope) => s.managementGroupId?.split('/')[s.managementGroupId?.split('/').length - 1] },
-        { key: 'authorize', name: '', minWidth: 100, onRender: (s: DeploymentScope) => s.authorizable === true ? <DefaultButton text='authorize' iconProps={{ iconName: 'Permissions' }} onClick={ () => _onItemAuthorize(s) } /> : <></> }
+        { key: 'authorize', name: '', minWidth: 100, onRender: (s: DeploymentScope) => s.authorizable === true ? <DefaultButton text='authorize' iconProps={{ iconName: 'Permissions' }} onClick={() => _onItemAuthorize(s)} /> : <></> }
     ];
 
     const _onItemAuthorize = async (scope: DeploymentScope): Promise<void> => {
-        console.log(JSON.stringify(scope));
+        // console.log(JSON.stringify(scope));
         let response = await api.authorizeDeploymentScope(scope.id, scope.organization, { body: scope });
         if (response && response.data && response.data.authorizeUrl) {
             window.open(response.data.authorizeUrl, "_blank");
@@ -46,7 +46,7 @@ export const DeploymentScopeList: React.FC = () => {
             columns={columns}
             items={scopes ?? undefined}
             onItemInvoked={_onItemInvoked}
-            filterPlaceholder='Filter members'
+            filterPlaceholder='Filter deployment scopes'
             buttonText='New scope'
             buttonIcon='Add'
             onButtonClick={() => history.push(`/orgs/${org.slug}/settings/scopes/new`)}

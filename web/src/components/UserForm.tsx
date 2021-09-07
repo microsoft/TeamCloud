@@ -6,9 +6,8 @@ import { PrimaryButton, DefaultButton, Stack, TextField, Dropdown, Spinner, Icon
 import { AlternateIdentity, User, UserRole } from 'teamcloud';
 import { GraphUser } from '../model'
 import { api } from '../API'
-import { UserPersona } from '.';
+import { UserPersona, Lightbox } from '.';
 import { prettyPrintCamlCaseString } from '../Utils';
-import { Lightbox } from './common';
 import { useProjects } from '../hooks';
 import { useQueryClient } from 'react-query';
 
@@ -58,7 +57,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
 
     useEffect(() => {
         if (props.user) {
-            console.log("Updating form user: " + JSON.stringify(props.user));
+            // console.log("Updating form user: " + JSON.stringify(props.user));
             setFormUser({ ...props.user });
         } else {
             setFormUser(undefined);
@@ -88,7 +87,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
 
                 setFormEnabled(false);
 
-                const { code } = await api.updateOrganizationUserMe(formUser!.organization, {
+                await api.updateOrganizationUserMe(formUser!.organization, {
                     body: formUser,
                     onResponse: (raw, flat) => {
                         if (raw.status >= 400)
@@ -102,7 +101,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
 
             } catch (error) {
 
-                setErrorMessage(error);
+                setErrorMessage(`${error}`);
 
             } finally {
 
@@ -208,7 +207,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                     layoutMode={DetailsListLayoutMode.justified}
                     checkboxVisibility={CheckboxVisibility.hidden}
                     selectionMode={SelectionMode.none}
-                    selectionPreservedOnEmptyClick={true}
+                    selectionPreservedOnEmptyClick
                 />
                 <Stack horizontal style={{ marginTop: '10px' }}>
                     <TextField
@@ -304,7 +303,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                 items={items}
                 layoutMode={DetailsListLayoutMode.justified}
                 checkboxVisibility={CheckboxVisibility.hidden}
-                selectionPreservedOnEmptyClick={true} />
+                selectionPreservedOnEmptyClick />
         )
     };
 
@@ -363,7 +362,7 @@ export const UserForm: React.FC<IUserFormProps> = (props) => {
                 items={items}
                 layoutMode={DetailsListLayoutMode.justified}
                 checkboxVisibility={CheckboxVisibility.hidden}
-                selectionPreservedOnEmptyClick={true} />
+                selectionPreservedOnEmptyClick />
         )
     };
 

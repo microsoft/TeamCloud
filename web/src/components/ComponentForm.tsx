@@ -3,21 +3,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
+import { ActionButton, DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm'
 import { FuiForm } from '@rjsf/fluent-ui'
 import { ISubmitEvent } from '@rjsf/core';
 import { ComponentDefinition, ComponentTemplate } from 'teamcloud';
-import { ContentContainer, ContentHeader, ContentList, ContentProgress, ContentSeparator } from '.';
+import { ContentContainer, ContentHeader, ContentList, ContentProgress, ContentSeparator, TCFieldTemplate } from '.';
 import { useOrg, useProject, useDeploymentScopes, useCreateProjectComponent, useProjectComponentTemplates } from '../hooks';
 
 import DevOps from '../img/devops.svg';
 import GitHub from '../img/github.svg';
 import Resource from '../img/resource.svg';
-
-import { TeamCloudFieldTemplate } from './form/TeamCloudFieldTemplate';
-import { TeamCloudForm } from './form/TeamCloudForm';
 
 export const ComponentForm: React.FC = () => {
 
@@ -72,7 +69,7 @@ export const ComponentForm: React.FC = () => {
     };
 
     const _getTypeIcon = (template: ComponentTemplate) => {
-        switch (template?.type.toLowerCase()) { 
+        switch (template?.type.toLowerCase()) {
             case 'environment': return 'AzureLogo';
             case 'repository': return 'OpenSource';
         }
@@ -146,22 +143,6 @@ export const ComponentForm: React.FC = () => {
         { key: 'version', name: 'Version', minWidth: 80, maxWidth: 80, onRender: (t: ComponentTemplate) => t.repository.version },
     ];
 
-    const _applyFilter = (template: ComponentTemplate, filter: string): boolean => {
-        const f = filter?.toUpperCase();
-        if (!f) return true;
-        return (
-            template.displayName?.toUpperCase().includes(f)
-            || template.id?.toUpperCase().includes(f)
-            || template.description?.toUpperCase().includes(f)
-            || template.parentId?.toUpperCase().includes(f)
-            || template.repository.organization?.toUpperCase().includes(f)
-            || template.repository.project?.toUpperCase().includes(f)
-            || template.repository.repository?.toUpperCase().includes(f)
-            || template.repository.url?.toUpperCase().includes(f)
-            || template.type?.toUpperCase().includes(f)
-        ) ?? false
-
-    };
 
     const _onItemInvoked = (template: ComponentTemplate): void => {
         setTemplate(template);
@@ -171,6 +152,14 @@ export const ComponentForm: React.FC = () => {
         setDeploymentScopeId((scopes && option) ? scopes.find(s => s.id === option.key)?.id : undefined);
     };
 
+    const _onBackInvoked = (): void => {
+        setFormEnabled(true);
+        setTemplate(undefined);
+        setDisplayName(undefined);
+        setDeploymentScopeId(undefined);
+    };
+
+
     return (
         <>
             <ContentProgress progressHidden={formEnabled && !orgIsLoading && !scopesIsLoading && !projectIsLoading && !templatesIsLoading} />
@@ -179,9 +168,6 @@ export const ComponentForm: React.FC = () => {
                     onClick={() => history.push(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
             </ContentHeader>
             <ContentContainer>
-                {/* <ComponentForm /> */}
-
-
                 <Stack tokens={{ childrenGap: '40px' }}>
                     <Stack.Item>
                         <ContentList
@@ -190,7 +176,7 @@ export const ComponentForm: React.FC = () => {
                             onItemInvoked={_onItemInvoked}
                             noCheck
                             noHeader={template !== undefined}
-                            applyFilter={template ? undefined : _applyFilter}
+                            noSearch={template !== undefined}
                             filterPlaceholder='Filter components' />
                     </Stack.Item>
                     {template && (
@@ -198,8 +184,15 @@ export const ComponentForm: React.FC = () => {
                             <Stack horizontal tokens={{ childrenGap: '40px' }}>
                                 <Stack.Item grow styles={{ root: { minWidth: '40%', } }}>
                                     <Stack
-                                        styles={{ root: { paddingTop: '20px' } }}
                                         tokens={{ childrenGap: '20px' }}>
+                                        <Stack.Item>
+                                            <ActionButton
+                                                iconProps={{ iconName: 'ChromeBack' }}
+                                                styles={{ icon: { marginLeft: '0px' }, textContainer: { paddingBottom: '2px', color: theme.palette.themeDarkAlt } }}
+                                                onClick={_onBackInvoked}>
+                                                Back to components
+                                            </ActionButton>
+                                        </Stack.Item>
                                         <Stack.Item>
                                             <TextField
                                                 required
@@ -217,16 +210,16 @@ export const ComponentForm: React.FC = () => {
                                                 options={deploymentScopeOptions || []}
                                                 onChange={_onDropdownChange} />
                                         </Stack.Item>
-                                        <Stack.Item>
-                                            <ContentSeparator />
-                                        </Stack.Item>
+                                        {(template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}).properties && (
+                                            <Stack.Item>
+                                                <ContentSeparator />
+                                            </Stack.Item>
+                                        )}
                                         <Stack.Item>
                                             <FuiForm
                                                 disabled={!formEnabled}
                                                 onSubmit={_submitForm}
-                                                FieldTemplate={TeamCloudFieldTemplate}
-                                                widgets={TeamCloudForm.Widgets}
-                                                fields={TeamCloudForm.Fields}
+                                                FieldTemplate={TCFieldTemplate}
                                                 schema={template?.inputJsonSchema ? JSON.parse(template.inputJsonSchema) : {}}>
                                                 <ContentSeparator />
                                                 <div style={{ paddingTop: '24px' }}>
@@ -256,6 +249,3 @@ export const ComponentForm: React.FC = () => {
         </>
     );
 }
-
-
-

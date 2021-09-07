@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+export * from './useAdapters'
 export * from './useAddMembers'
 export * from './useAddProjectMembers'
+export * from './useAuditCommands'
 export * from './useAzureManagementGroups'
 export * from './useAzureSubscriptions'
 export * from './useCreateDeploymentScope'
@@ -12,6 +14,7 @@ export * from './useCreateProjectComponent'
 export * from './useCreateProjectComponentTask'
 export * from './useCreateProjectSchedule'
 export * from './useCreateProjectTemplate'
+export * from './useDeleteProjectComponent'
 export * from './useDeploymentScopes'
 export * from './useGraphUser'
 export * from './useInterval'
