@@ -73,7 +73,7 @@ namespace TeamCloud.Data.CosmosDb
             if (defaultdeploymentScope is null)
             {
                 // ensure we have a default
-                // project type if none is defined
+                // deployment scope if none is defined
 
                 deploymentScope.IsDefault = true;
             }

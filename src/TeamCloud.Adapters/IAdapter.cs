@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Directory;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
