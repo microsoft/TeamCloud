@@ -197,40 +197,7 @@ def get_index(index_url):
             continue
 
 
-def get_index_providers_core(cli_ctx, version=None, prerelease=False, index_url=None, warn=False):
-    if index_url is None:
-        version = version or get_github_latest_release_version(
-            cli_ctx, 'TeamCloud-Providers', prerelease=prerelease)
-        index_url = 'https://github.com/microsoft/TeamCloud-Providers/releases/download/{}/index.json'.format(
-            version)
-    index = get_index(index_url=index_url)
-    providers = index.get('providers')
-    if warn and providers is None:
-        logger.warning(ERR_UNABLE_TO_GET_PROVIDERS)
-    return version, providers
-
-
-def get_index_providers(cli_ctx, provider, version=None, prerelease=False, index_url=None):
-    version, providers = get_index_providers_core(cli_ctx, version, prerelease, index_url)
-    index = providers.get(provider)
-    if not index:
-        raise CLIError("--name/-n no provider found in index with id '{}'".format(provider))
-    zip_url, deploy_url, provider_name, provider_type = index.get(
-        'zipUrl'), index.get('deployUrl'), index.get('name'), index.get('type')
-
-    if not zip_url:
-        raise CLIError("No zipUrl found in index for provider with id '{}'".format(provider))
-    if not deploy_url:
-        raise CLIError("No deployUrl found in index for provider with id '{}'".format(provider))
-    if not provider_name:
-        raise CLIError("No name found in index for provider with id '{}'".format(provider))
-    if not provider_type:
-        raise CLIError("No type found in index for provider with id '{}'".format(provider))
-
-    return version, zip_url, deploy_url, provider_name, provider_type
-
-
-def _get_index_teamcloud_core(cli_ctx, version=None, prerelease=False, index_url=None):
+def get_teamcloud_index(cli_ctx, version=None, prerelease=False, index_url=None):
     if index_url is None:
         version = version or get_github_latest_release_version(
             cli_ctx, 'TeamCloud', prerelease=prerelease)
@@ -238,35 +205,22 @@ def _get_index_teamcloud_core(cli_ctx, version=None, prerelease=False, index_url
             version)
     index = get_index(index_url=index_url)
     teamcloud = index.get('teamcloud')
+
     if teamcloud is None:
         logger.warning(ERR_UNABLE_TO_GET_TEAMCLOUD)
-    webapp = index.get('webapp')
-    if webapp is None:
-        logger.warning(ERR_UNABLE_TO_GET_WEBAPP)
-    return version, teamcloud, webapp
 
+    deploy_url, api_zip_url, orchestrator_zip_url, web_zip_url = teamcloud.get('deployUrl'), teamcloud.get(
+        'apiZipUrl'), teamcloud.get('orchestratorZipUrl'), teamcloud.get('webZipUrl')
 
-def get_index_teamcloud(cli_ctx, version=None, prerelease=False, index_url=None):
-    version, teamcloud, _ = _get_index_teamcloud_core(cli_ctx, version, prerelease, index_url)
-    deploy_url, api_zip_url, orchestrator_zip_url = teamcloud.get('deployUrl'), teamcloud.get(
-        'apiZipUrl'), teamcloud.get('orchestratorZipUrl')
     if not deploy_url:
         raise CLIError('No deployUrl found in index')
     if not api_zip_url:
         raise CLIError('No apiZipUrl found in index')
     if not orchestrator_zip_url:
         raise CLIError('No orchestratorZipUrl found in index')
-    return version, deploy_url, api_zip_url, orchestrator_zip_url
-
-
-def get_index_webapp(cli_ctx, version=None, prerelease=False, index_url=None):
-    version, _, webapp = _get_index_teamcloud_core(cli_ctx, version, prerelease, index_url)
-    deploy_url, zip_url = webapp.get('deployUrl'), webapp.get('zipUrl')
-    if not deploy_url:
-        raise CLIError('No deployUrl found in index')
-    if not zip_url:
-        raise CLIError('No zipUrl found in index')
-    return version, deploy_url, zip_url
+    if not web_zip_url:
+        raise CLIError('No webZipUrl found in index')
+    return version, deploy_url, api_zip_url, orchestrator_zip_url, web_zip_url
 
 
 def get_app_name(url):
@@ -409,8 +363,8 @@ def _get_deployment_details(res_dict, deployment_status_url, authorization):
         try:
             deploment_log_dict = deploment_log_response.json()
 
-            deploment_details = next((log for log in deploment_log_dict if log['details_url'] is not None
-                                      and log['details_url'].startswith('https')), None)
+            deploment_details = next((log for log in deploment_log_dict if log['details_url'] is not None and
+                                      log['details_url'].startswith('https')), None)
 
             if deploment_details is not None:
 

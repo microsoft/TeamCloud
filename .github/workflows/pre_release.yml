@@ -80,7 +80,6 @@ jobs:
         run: |
           pushd deploy/bicep
             az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
-            az bicep build -f webUI.bicep --outfile ../../release_assets/azuredeploy.web.json
           popd
 
       - name: Create OpenAPI & Python Client
@@ -125,6 +124,7 @@ jobs:
 
       - name: Trigger Publish
         uses: actions/github-script@v4
+        if: "!contains(join(github.event.commits.*.message), '+skipdeploy')"
         with:
           github-token: ${{ secrets.TEAMCLOUD_PAT }}
           script: |

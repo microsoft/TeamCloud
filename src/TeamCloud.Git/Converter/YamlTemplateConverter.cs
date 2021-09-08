@@ -79,10 +79,19 @@ namespace TeamCloud.Git.Converter
 
                 var parameterType = Enum.Parse<JSchemaType>(parameter.GetValue("type", StringComparison.OrdinalIgnoreCase)?.ToString(), true);
 
+                if (parameter.TryGetValue("displayName", StringComparison.OrdinalIgnoreCase, out var parameterNameToken))
+                {
+                    parameter.SetProperty("title", parameterNameToken.ToString()); // add a title for UI
+                }
+
                 if (parameter.TryGetValue("default", StringComparison.OrdinalIgnoreCase, out var parameterDefaultToken))
                 {
                     parameter.SetProperty("value", null); // delete any existing parameter
-                    parameterDefaultToken.Parent.Replace(new JProperty("value", ConvertToSchemaTypeValue(parameterType, parameterDefaultToken)));
+                    parameter.SetProperty("default", null); // delete any existing parameter
+
+                    parameter.SetProperty("value", ConvertToSchemaTypeValue(parameterType, parameterDefaultToken));
+                    parameter.SetProperty("default", ConvertToSchemaTypeValue(parameterType, parameterDefaultToken));
+                    // parameterDefaultToken.Parent.Replace(new JProperty("value", ConvertToSchemaTypeValue(parameterType, parameterDefaultToken)));
                 }
 
                 if (parameter.TryGetValue("allowed", StringComparison.OrdinalIgnoreCase, out var parameterAllowedToken))
@@ -114,7 +123,7 @@ namespace TeamCloud.Git.Converter
                     {
                         JSchemaType.Number => new JValue(double.TryParse($"{value}", out double result) ? result : 0),
                         JSchemaType.Integer => new JValue(int.TryParse($"{value}", out int result) ? result : 0),
-                        JSchemaType.Boolean => new JValue(bool.TryParse($"{value}", out bool result) ? result : false),
+                        JSchemaType.Boolean => new JValue(bool.TryParse($"{value}", out bool result) && result),
                         _ => value
                     };
                 }

@@ -37,9 +37,6 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
         { key: 'type', name: 'Type', minWidth: 240, maxWidth: 240, onRender: (m: Member) => m.user.userType }
     ];
 
-    const _applyFilter = (member: Member, filter: string): boolean =>
-        filter ? member.graphPrincipal?.displayName?.toUpperCase().includes(filter.toUpperCase()) ?? false : true;
-
     const _onItemInvoked = (member: Member): void => {
         console.log(member);
     };
@@ -49,7 +46,6 @@ export const MemberList: React.FC<IMemberListProps> = (props) => {
             <ContentList
                 columns={columns}
                 items={props.members?.filter(m => m.graphPrincipal)}
-                applyFilter={_applyFilter}
                 onItemInvoked={_onItemInvoked}
                 filterPlaceholder='Filter members'
                 buttonText='Add members'

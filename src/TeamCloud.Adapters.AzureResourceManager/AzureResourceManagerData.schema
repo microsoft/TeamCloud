@@ -1,36 +1,66 @@
-﻿{
-	"type": "object",
-	"oneOf": [
-		{
-			"title": "Management Group",
-			"properties": {
-				"managementGroupId": {
-					"type": [
-						"string"
+﻿
+{
+	type: "object",
+	properties: {
+		subscriptionSource: {
+			title: "Subscription Source",
+			type: "string",
+			enum: [
+				"Management Group",
+				"Subscriptions"
+			],
+			default: "Management Group"
+		},
+	},
+	required: [
+		"subscriptionSource"
+	],
+	dependencies: {
+		subscriptionSource: {
+			oneOf: [
+				{
+					properties: {
+						subscriptionSource: {
+							enum: [
+								"Management Group"
+							]
+						},
+						managementGroupId: {
+							type: [
+								"string"
+							],
+							title: "Management Group Id",
+						}
+					},
+					required: [
+						"managementGroupId"
+					]
+				},
+				{
+					properties: {
+						subscriptionSource: {
+							enum: [
+								"Subscriptions"
+							]
+						},
+						subscriptionIds: {
+							type: [
+								"array"
+							],
+							items: {
+								type: [
+									"string"
+								]
+							},
+							title: "Subscription Ids",
+							uniqueItems: true
+						}
+					},
+					required: [
+						"subscriptionIds"
 					]
 				}
-			},
-			"required": [
-				"managementGroupId"
-			]
-		},
-		{
-			"title": "Subscriptions",
-			"properties": {
-				"subscriptionIds": {
-					"type": [
-						"array"
-					],
-					"items": {
-						"type": [
-							"string"
-						]
-					}
-				}
-			},
-			"required": [
-				"subscriptionIds"
 			]
 		}
-	]
+	}
 }

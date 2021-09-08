@@ -48,14 +48,16 @@ class ComponentResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)
     PENDING = "Pending"
     INITIALIZING = "Initializing"
     PROVISIONING = "Provisioning"
-    SUCCEEDED = "Succeeded"
+    PROVISIONED = "Provisioned"
+    DEPROVISIONING = "Deprovisioning"
+    DEPROVISIONED = "Deprovisioned"
     FAILED = "Failed"
 
-class ComponentTaskResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentTaskState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     PENDING = "Pending"
     INITIALIZING = "Initializing"
-    PROVISIONING = "Provisioning"
+    PROCESSING = "Processing"
     SUCCEEDED = "Succeeded"
     FAILED = "Failed"
 
@@ -103,7 +105,9 @@ class OrganizationResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, En
     PENDING = "Pending"
     INITIALIZING = "Initializing"
     PROVISIONING = "Provisioning"
-    SUCCEEDED = "Succeeded"
+    PROVISIONED = "Provisioned"
+    DEPROVISIONING = "Deprovisioning"
+    DEPROVISIONED = "Deprovisioned"
     FAILED = "Failed"
 
 class ProjectMembershipRole(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
@@ -112,13 +116,16 @@ class ProjectMembershipRole(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum))
     MEMBER = "Member"
     ADMIN = "Admin"
     OWNER = "Owner"
+    ADAPTER = "Adapter"
 
 class ProjectResourceState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
 
     PENDING = "Pending"
     INITIALIZING = "Initializing"
     PROVISIONING = "Provisioning"
-    SUCCEEDED = "Succeeded"
+    PROVISIONED = "Provisioned"
+    DEPROVISIONING = "Deprovisioning"
+    DEPROVISIONED = "Deprovisioned"
     FAILED = "Failed"
 
 class RepositoryReferenceProvider(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):

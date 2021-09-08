@@ -3,15 +3,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, IComboBoxOption, PrimaryButton, Stack, TextField } from '@fluentui/react';
-import { DeploymentScopeDefinition } from 'teamcloud';
-import { FuiForm } from '@rjsf/fluent-ui'
 import { useHistory, useParams } from 'react-router-dom';
-import { ContentSeparator } from '.';
-import { TeamCloudFieldTemplate } from './form/TeamCloudFieldTemplate';
-import { TeamCloudForm } from './form/TeamCloudForm';
+import { FuiForm } from '@rjsf/fluent-ui'
 import { IChangeEvent, ISubmitEvent } from '@rjsf/core';
-import { useCreateDeploymentScope } from '../hooks';
-import { useAdapters } from '../hooks/useAdapters';
+import { DeploymentScopeDefinition } from 'teamcloud';
+import { useAdapters, useCreateDeploymentScope } from '../hooks';
+import { ContentSeparator, TCFieldTemplate } from '.';
 
 export interface IDeploymentScopeFormProps {
     embedded?: boolean,
@@ -50,8 +47,9 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
         } as DeploymentScopeDefinition;
     }, [scopeName, scopeType, scopeTypeData]);
 
-    const _changeForm = async(e: IChangeEvent<any>) => {
+    const _changeForm = async (e: IChangeEvent<any>) => {
         console.log("Form errors: " + e.errors.length);
+        // console.log(JSON.stringify(e.formData))
         setScopeTypeData(e.errors.length === 0 ? JSON.stringify(e.formData) : undefined);
     };
 
@@ -62,14 +60,16 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     useEffect(() => {
         if (scopeTypeOptions === undefined) {
-            console.log('+ scopeTypeOptions');
+            // console.log('+ scopeTypeOptions');
             var options = adapterInformation?.map(info => ({ key: info.type?.toString(), text: info.displayName })) as IComboBoxOption[];
             setScopeType(options?.find(option => option !== undefined)?.key as string);
             setScopeTypeOptions(options);
         }
         if (scopeType && adapterInformation) {
             var scopeTypeInfo = adapterInformation?.find(info => info && info.type === scopeType)
-            console.log("ScopeTypeInfo = " + JSON.stringify(scopeTypeInfo));
+            // console.log("ScopeTypeInfo = " + JSON.stringify(scopeTypeInfo));
+            // console.log(JSON.stringify(JSON.parse(scopeTypeInfo!.inputDataSchema!)));
+            // console.log(JSON.stringify(JSON.parse(scopeTypeInfo!.inputDataForm!)));
             setScopeTypeSchema(scopeTypeInfo?.inputDataSchema || undefined);
             setScopeTypeForm(scopeTypeInfo?.inputDataForm || undefined);
         } else {
@@ -84,8 +84,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
         } else {
             setFormCompleted(false);
         }
-        if (onScopeChange)
-        {
+        if (onScopeChange) {
             const scopeDef = _createDefinition();
             onScopeChange(scopeDef);
         }
@@ -107,7 +106,6 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
             }
         }
     };
-
 
     return (
         <Stack tokens={{ childrenGap: '20px' }} styles={{ root: props.embedded ? { padding: '24px 8px' } : undefined }}>
@@ -134,19 +132,21 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     disabled={!formEnabled}
                     onSubmit={_submitForm}
                     onChange={_changeForm}
-                    FieldTemplate={TeamCloudFieldTemplate}
-                    widgets={TeamCloudForm.Widgets}
-                    fields={TeamCloudForm.Fields}
+                    // FieldTemplate={TeamCloudFieldTemplate}
+                    // widgets={TeamCloudForm.Widgets}
+                    // fields={TeamCloudForm.Fields}
+                    FieldTemplate={TCFieldTemplate}
+
                     formData={JSON.parse(scopeTypeData ?? '{}')}
                     schema={JSON.parse(scopeTypeSchema ?? '{}')}
                     uiSchema={JSON.parse(scopeTypeForm ?? '{}')}>
-                    { props.embedded ? <></> : <div><ContentSeparator />
-                    <div style={{ paddingTop: '24px' }}>
-                        <PrimaryButton text='Create scope' type='submit' hidden={props.embedded ? true : false} disabled={!formEnabled || !formCompleted} styles={{ root: { marginRight: 8 } }} />
-                        <DefaultButton text='Cancel' hidden={props.embedded ? true : false} disabled={!formEnabled} onClick={() => setScopeTypeData(undefined)} />
-                    </div></div>}
+                    {props.embedded ? <></> : <div><ContentSeparator />
+                        <div style={{ paddingTop: '24px' }}>
+                            <PrimaryButton text='Create scope' type='submit' hidden={props.embedded ? true : false} disabled={!formEnabled || !formCompleted} styles={{ root: { marginRight: 8 } }} />
+                            <DefaultButton text='Cancel' hidden={props.embedded ? true : false} disabled={!formEnabled} onClick={() => setScopeTypeData(undefined)} />
+                        </div></div>}
                 </FuiForm>
-            </Stack.Item>   
+            </Stack.Item>
 
         </Stack>
     );

@@ -30,28 +30,9 @@ type: command
 short-summary: Deploy a new TeamCloud instance.
 examples:
   - name: Deploy a new TeamCloud instance.
-    text: az tc deploy --name myawesomeapp --location eastus
+    text: az tc deploy --name myawesomeapp --location eastus --client-id myWebClientId
   - name: Deploy a TeamCloud instance to a specific pre-release.
-    text: az tc deploy --name myawesomeapp --location eastus --version v0.1.1
-"""
-
-# ----------------
-# TeamCloud Apps
-# ----------------
-
-helps['tc app'] = """
-type: group
-short-summary: Manage client applications.
-"""
-
-helps['tc app deploy'] = """
-type: command
-short-summary: Deploy a new client applications.
-examples:
-  - name: Deploy a new web app for a instance.
-    text: az tc app deploy --url url --client-id clientId --type Web
-  - name: Deploy new pre-release web app for a instance.
-    text: az tc app deploy --url url --client-id clientId --type Web --pre
+    text: az tc deploy --name myawesomeapp --location eastus --client-id myWebClientId --version v0.1.1
 """
 
 # ----------------

@@ -11,7 +11,7 @@
             "problemMatcher": "$func-watch",
             "presentation": {
                 "panel": "dedicated",
-                "showReuseMessage": false,
+                "showReuseMessage": false
             }
         },
         {
@@ -45,7 +45,7 @@
                 "clean",
                 "${workspaceFolder}/src/TeamCloud.sln",
                 "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary",
+                "/consoleloggerparameters:NoSummary"
             ],
             "type": "process",
             "problemMatcher": "$msCompile",
@@ -55,6 +55,37 @@
             "presentation": {
                 "group": "build",
                 "showReuseMessage": false
+            }
+        },
+        {
+            "label": "startNgrok",
+            "command": "ngrok",
+            "args": [
+                "http",
+                "--region=us",
+                "--hostname=teamcloud.ngrok.io",
+                "https://localhost:5001"
+            ],
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "npmStart",
+            "command": "npm",
+            "args": [
+                "start"
+            ],
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/web"
             }
         }
     ]

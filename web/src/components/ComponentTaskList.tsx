@@ -5,8 +5,8 @@ import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask } from 'teamcloud';
-import { ComponentTaskConsole } from '.';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
+import { ComponentTaskConsole } from '.';
 
 export interface IComponentTaskListProps { }
 

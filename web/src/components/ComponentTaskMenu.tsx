@@ -4,8 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { DefaultButton, Dialog, DialogFooter, DialogType, getTheme, PrimaryButton, Separator, Stack } from '@fluentui/react';
 import { ComponentTaskTemplate } from 'teamcloud';
-import { useCreateProjectComponentTask, useOrg, useProjectComponent, useProjectComponentTemplates } from '../hooks';
-import { useDeleteProjectComponent } from '../hooks/useDeleteProjectComponent';
+import { useCreateProjectComponentTask, useOrg, useProjectComponent, useProjectComponentTemplates, useDeleteProjectComponent } from '../hooks';
 
 export interface IComponentTaskMenuProps { }
 
@@ -45,7 +44,7 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
 
     const onClickDeleteButton = async () => {
         if (org && component) {
-            if (dialogHidden){
+            if (dialogHidden) {
                 showDialog();
             } else {
                 await deleteComponent(component);
@@ -63,29 +62,34 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
         title: 'Delete Component',
         subText: `Do you want to delete component ${component?.displayName}?`
     };
-      
+
     return (
         <>
             <Stack horizontal tokens={{ childrenGap: '6px' }}>
-                { taskTemplates && component?.deleted === undefined ? taskTemplates.map((tt, i) => (
-                    <>
-                        <Stack.Item
-                            key={tt.id}>
-                            <DefaultButton
-                                theme={theme}
-                                text={tt.displayName ?? ''}
-                                alt={tt.description ?? ''}
-                                onClick={() => onClickTaskButton(tt)} />
-                        </Stack.Item>
-                        { (i === (taskTemplates.length - 1)) ? <Stack.Item key='Seperator'><Separator vertical /></Stack.Item> : <></> }
-                    </>
+                {taskTemplates && component?.deleted === undefined ? taskTemplates.map((tt, i) => (
+                    <Stack.Item
+                        key={tt.id}>
+                        <DefaultButton
+                            // key={tt.id}
+                            theme={theme}
+                            text={tt.displayName ?? ''}
+                            alt={tt.description ?? ''}
+                            onClick={() => onClickTaskButton(tt)} />
+                    </Stack.Item>
                 )) : []}
+                {(taskTemplates && taskTemplates.length > 0) && (<Stack.Item key='Seperator'><Separator vertical /></Stack.Item>)}
                 <Stack.Item
                     key='delete'>
-                    <DefaultButton
+                    <PrimaryButton
                         theme={theme}
                         text='Delete'
                         hidden={!(org && component)}
+                        styles={{
+                            root: { backgroundColor: theme.palette.red, border: '1px solid transparent' },
+                            rootHovered: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
+                            rootPressed: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
+                            label: { fontWeight: 700 }
+                        }}
                         disabled={component === undefined || component.deleted !== undefined}
                         onClick={() => onClickDeleteButton()} />
                     <Dialog
@@ -94,11 +98,16 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
                         dialogContentProps={dialogContentProps}
                         modalProps={{ isBlocking: true }}>
                         <DialogFooter>
-                            <PrimaryButton onClick={onClickDeleteButton} text="Delete" />
+                            <PrimaryButton styles={{
+                                root: { backgroundColor: theme.palette.red, border: '1px solid transparent' },
+                                rootHovered: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
+                                rootPressed: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
+                                label: { fontWeight: 700 }
+                            }} onClick={onClickDeleteButton} text="Delete" />
                             <DefaultButton onClick={hideDialog} text="Cancel" />
                         </DialogFooter>
                     </Dialog>
-                </Stack.Item>  
+                </Stack.Item>
             </Stack>
 
         </>

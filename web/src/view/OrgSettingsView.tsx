@@ -76,11 +76,11 @@ export const OrgSettingsView: React.FC = () => {
                 </ContentHeader>
             </Route>
             <Route exact path='/orgs/:orgId/settings/audit'>
-                <ContentProgress progressHidden={true} />
+                <ContentProgress progressHidden />
                 <ContentHeader title='Auditing' />
             </Route>
             <Route exact path='/orgs/:orgId/settings/usage'>
-                <ContentProgress progressHidden={true} />
+                <ContentProgress progressHidden />
                 <ContentHeader title='Usage' />
             </Route>
 
