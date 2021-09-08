@@ -209,6 +209,41 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
+        public IAsyncEnumerable<Component> ListByDeploymentScopeAsync(string deploymentScopeId)
+            => ListByDeploymentScopeAsync(deploymentScopeId, includeDeleted: false);
+
+        public async IAsyncEnumerable<Component> ListByDeploymentScopeAsync(string deploymentScopeId, bool includeDeleted)
+        {
+            if (deploymentScopeId is null)
+                throw new ArgumentNullException(nameof(deploymentScopeId));
+
+            if (!Guid.TryParse(deploymentScopeId, out var deploymentScopeIdParsed))
+                throw new ArgumentException("Value is not a valid GUID", nameof(deploymentScopeId));
+
+            var container = await GetContainerAsync()
+                .ConfigureAwait(false);
+
+            var queryString = $"SELECT * FROM c WHERE c.deploymentScopeId = '{deploymentScopeIdParsed}'";
+
+            if (!includeDeleted)
+                queryString += " AND NOT IS_DEFINED(c.deleted)";
+
+            var query = new QueryDefinition(queryString);
+
+            var queryIterator = container
+                .GetItemQueryIterator<Component>(query);
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResponse = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                foreach (var queryResult in queryResponse)
+                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
+            }
+        }
+
         public async Task RemoveAllAsync(string projectId, bool soft)
         {
             var components = ListAsync(projectId, includeDeleted: !soft);
