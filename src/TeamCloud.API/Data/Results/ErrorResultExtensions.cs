@@ -12,6 +12,9 @@ namespace TeamCloud.API.Data.Results
 {
     public static class ErrorResultExtensions
     {
+        public static Exception ToException(this IErrorResult result)
+            => new ErrorResultException(result);
+
         public static IActionResult ToActionResult(this IErrorResult result) => result?.Code switch
         {
             StatusCodes.Status400BadRequest => new BadRequestObjectResult(result),

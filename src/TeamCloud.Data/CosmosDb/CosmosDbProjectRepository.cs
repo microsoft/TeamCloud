@@ -24,7 +24,7 @@ namespace TeamCloud.Data.CosmosDb
         private readonly IUserRepository userRepository;
 
         public CosmosDbProjectRepository(ICosmosDbOptions options, IUserRepository userRepository, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -88,7 +88,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<Project> GetAsync(string organization, string identifier, bool expand = false)
+        public override Task<Project> GetAsync(string organization, string identifier, bool expand = false) => GetCachedAsync(organization, identifier, async cached =>
         {
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
@@ -101,16 +101,19 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Project>(identifier, GetPartitionKey(organization))
+                    .ReadItemAsync<Project>(identifier, GetPartitionKey(organization), cached?.GetItemNoneMatchRequestOptions())
                     .ConfigureAwait(false);
 
-                project = response.Resource;
+                project = SetCached(organization, identifier, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+            {
+                project = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var identifierLower = identifier.ToLowerInvariant();
-
-                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = '{identifierLower}' OR LOWER(c.displayName) = '{identifierLower}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = @identifier OR LOWER(c.displayName) = @identifier")
+                    .WithParameter("@identifier", identifier.ToLowerInvariant());
 
                 var queryIterator = container
                     .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
@@ -130,7 +133,7 @@ namespace TeamCloud.Data.CosmosDb
 
             return await ExpandAsync(project, expand)
                 .ConfigureAwait(false);
-        }
+        });
 
         public async Task<bool> NameExistsAsync(string organization, string name)
         {

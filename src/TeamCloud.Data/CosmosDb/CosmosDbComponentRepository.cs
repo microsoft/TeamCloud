@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
@@ -20,8 +21,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IComponentTaskRepository componentTaskRepository;
 
-        public CosmosDbComponentRepository(ICosmosDbOptions options, IComponentTaskRepository componentTaskRepository, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+        public CosmosDbComponentRepository(ICosmosDbOptions options, IMemoryCache cache, IComponentTaskRepository componentTaskRepository, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         }
@@ -46,7 +47,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
         }
 
-        public override async Task<Component> GetAsync(string projectId, string id, bool expand = false)
+        public override Task<Component> GetAsync(string projectId, string id, bool expand = false) => GetCachedAsync(projectId, id, async cached =>
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -57,18 +58,24 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
+            Component component = null;
+
             try
             {
                 var response = await container
-                    .ReadItemAsync<Component>(id, GetPartitionKey(projectId))
+                    .ReadItemAsync<Component>(id, GetPartitionKey(projectId), cached?.GetItemNoneMatchRequestOptions())
                     .ConfigureAwait(false);
 
-                return await ExpandAsync(response.Resource, expand)
-                    .ConfigureAwait(false);
+                component = SetCached(projectId, id, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+            {
+                component = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = '{id}'");
+                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = @identifier OR LOWER(o.displayName) = @identifier")
+                    .WithParameter("@identifier", id.ToLowerInvariant());
 
                 var queryIterator = container
                     .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(projectId));
@@ -79,13 +86,13 @@ namespace TeamCloud.Data.CosmosDb
                         .ReadNextAsync()
                         .ConfigureAwait(false);
 
-                    return await ExpandAsync(queryResults.FirstOrDefault())
-                        .ConfigureAwait(false);
+                    component = queryResults.FirstOrDefault();
                 }
             }
 
-            return null;
-        }
+            return await ExpandAsync(component, expand)
+                    .ConfigureAwait(false);
+        });
 
         public override IAsyncEnumerable<Component> ListAsync(string projectId)
             => ListAsync(projectId, includeDeleted: false);

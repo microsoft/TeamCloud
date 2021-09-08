@@ -8,11 +8,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Serialization;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data.Core
 {
     [JsonConverter(typeof(ContainerDocumentConverter))]
-    public interface IContainerDocument : IIdentifiable, IValidatable
+    public interface IContainerDocument : IIdentifiable, IValidatable, ICloneable
     {
         [DatabaseIgnore]
         [JsonProperty("_timestamp")]
@@ -31,6 +32,13 @@ namespace TeamCloud.Model.Data.Core
         DateTime? IContainerDocument.Timestamp { get; set; }
 
         string IContainerDocument.ETag { get; set; }
+
+        public object Clone()
+        {
+            var json = TeamCloudSerialize.SerializeObject(this);
+
+            return TeamCloudSerialize.DeserializeObject(json, GetType());
+        }
 
         public override string ToString() => this switch
         {

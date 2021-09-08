@@ -21,7 +21,7 @@ namespace TeamCloud.Data.Expanders
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
         }
 
-        public async Task<ProjectIdentity> ExpandAsync(ProjectIdentity document)
+        public async Task ExpandAsync(ProjectIdentity document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
@@ -32,8 +32,6 @@ namespace TeamCloud.Data.Expanders
                     .GetServicePrincipalRedirectUrlsAsync(document.ObjectId.ToString())
                     .ConfigureAwait(false);
             }
-
-            return document;
         }
     }
 }

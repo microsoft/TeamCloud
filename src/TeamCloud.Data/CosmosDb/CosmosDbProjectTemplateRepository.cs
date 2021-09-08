@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Git.Services;
 using TeamCloud.Model.Data;
@@ -21,8 +22,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IRepositoryService repositoryService;
 
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IRepositoryService repositoryService, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IRepositoryService repositoryService, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }
@@ -63,7 +64,8 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateTransactionalBatch(GetPartitionKey(projectTemplate))
                         .CreateItem(projectTemplate);
 
-                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{projectTemplate.Id}'");
+                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @identifier")
+                        .WithParameter("@identifier", projectTemplate.Id);
 
                     var queryIterator = container
                         .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: GetQueryRequestOptions(projectTemplate));
@@ -118,10 +120,12 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<ProjectTemplate> GetAsync(string organization, string id, bool expand = false)
+        public override Task<ProjectTemplate> GetAsync(string organization, string id, bool expand = false) => GetCachedAsync(organization, id, async cached =>
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
+
+            ProjectTemplate projectTemplate = null;
 
             try
             {
@@ -129,17 +133,23 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<ProjectTemplate>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                var document = await AugmentAsync(response.Resource)
-                    .ConfigureAwait(false);
-
-                return await ExpandAsync(document, expand)
-                    .ConfigureAwait(false);
+                projectTemplate = SetCached(organization, id, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+            {
+                projectTemplate = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
-        }
+
+            projectTemplate = await AugmentAsync(projectTemplate)
+                .ConfigureAwait(false);
+
+            return await ExpandAsync(projectTemplate, expand)
+                .ConfigureAwait(false);
+        });
 
         public async Task<ProjectTemplate> GetDefaultAsync(string organization)
         {

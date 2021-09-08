@@ -40,10 +40,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Project Component Templates", typeof(DataResult<List<ComponentTemplate>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Component Templates with the provided projectId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudProjectContext>(async context =>
+        public Task<IActionResult> Get() => WithContextAsync<Project>(async (contextUser, project) =>
         {
             var componenetTemplates = await componentTemplateRepository
-                .ListAsync(context.Project.Organization, ProjectId)
+                .ListAsync(project.Organization, ProjectId)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -59,7 +59,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Template", typeof(DataResult<ComponentTemplate>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project Component Template with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string id) => ExecuteAsync<TeamCloudProjectContext>(async context =>
+        public Task<IActionResult> Get([FromRoute] string id) => WithContextAsync<Project>(async (contextUser, project) =>
         {
             if (string.IsNullOrWhiteSpace(id))
                 return ErrorResult
@@ -67,16 +67,16 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var projectTemplate = await projectTemplateRepository
-                .GetAsync(context.Project.Organization, context.Project.Template)
+                .GetAsync(project.Organization, project.Template)
                 .ConfigureAwait(false);
 
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(context.Organization.Id, context.Project.Id, id)
+                .GetAsync(project.Organization, project.Id, id)
                 .ConfigureAwait(false);
 
             if (!(componentTemplate?.ParentId?.Equals(projectTemplate.Id, StringComparison.Ordinal) ?? false))
                 return ErrorResult
-                    .NotFound($"A Component Template with the id '{id}' could not be found for Project {context.Project.Id}.")
+                    .NotFound($"A Component Template with the id '{id}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
             return DataResult<ComponentTemplate>

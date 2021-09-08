@@ -37,9 +37,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns audit entries.", typeof(DataResult<List<CommandAuditEntity>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromQuery] string timeRange = null, [FromQuery] string[]? commands = null) => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
+        public async Task<IActionResult> Get([FromQuery] string timeRange = null, [FromQuery] string[]? commands = null) 
         {
-            var organizationId = Guid.Parse(context.Organization.Id);
+            var organizationId = Guid.Parse(OrganizationId);
 
             var timeRangeParsed = TimeSpan.TryParse(timeRange, out var timeRangeTemp) && timeRangeTemp.TotalMinutes >= 1
                 ? (TimeSpan?)timeRangeTemp : null; // time range must be at least a second; otherwise, don't use this information
@@ -52,7 +52,7 @@ namespace TeamCloud.API.Controllers
             return DataResult<List<CommandAuditEntity>>
                 .Ok(entities)
                 .ToActionResult();
-        });
+        }
 
         [HttpGet("orgs/{organizationId:organizationId}/audit/{commandId:commandId}")]
         [Authorize(Policy = AuthPolicies.OrganizationRead)]
@@ -60,9 +60,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns an audit entry.", typeof(DataResult<CommandAuditEntity>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get(Guid commandId, [FromQuery] bool expand = false) => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
+        public async Task<IActionResult> Get(Guid commandId, [FromQuery] bool expand = false)
         {
-            var organizationId = Guid.Parse(context.Organization.Id);
+            var organizationId = Guid.Parse(OrganizationId);
 
             var entity = await commandAuditReader
                 .GetAsync(organizationId, commandId, expand)
@@ -71,7 +71,7 @@ namespace TeamCloud.API.Controllers
             return DataResult<CommandAuditEntity>
                 .Ok(entity)
                 .ToActionResult();
-        });
+        }
 
         [HttpGet("orgs/{organizationId:organizationId}/audit/commands")]
         [Authorize(Policy = AuthPolicies.OrganizationRead)]
@@ -79,7 +79,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all auditable commands.", typeof(DataResult<List<string>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> GetAuditCommandTypes() => ExecuteAsync<TeamCloudOrganizationContext>(context =>
+        public Task<IActionResult> GetAuditCommandTypes() 
         {
             var commands = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(asm => !asm.IsDynamic)
@@ -88,11 +88,9 @@ namespace TeamCloud.API.Controllers
                 .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            return Task.FromResult<IActionResult>(DataResult<List<string>>
+            return DataResult<List<string>>
                 .Ok(commands)
-                .ToActionResult());
-        });
-
-
+                .ToActionResultAsync();
+        }
     }
 }

@@ -4,15 +4,21 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow.Layouts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using TeamCloud.API;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
+using TeamCloud.Model.Data;
+using TeamCloud.Model.Data.Core;
 
 namespace TeamCloud.API.Controllers.Core
 {
@@ -23,21 +29,21 @@ namespace TeamCloud.API.Controllers.Core
             Log = log ?? NullLogger.Instance;
         }
 
-        private string OrganizationId => RouteData.ValueOrDefault(nameof(OrganizationId));
+        protected string OrganizationId => RouteData.ValueOrDefault(nameof(OrganizationId));
 
-        private string ProjectTemplateId => RouteData.ValueOrDefault(nameof(ProjectTemplateId));
+        protected string ProjectTemplateId => RouteData.ValueOrDefault(nameof(ProjectTemplateId));
 
-        private string ProjectIdentityId => RouteData.ValueOrDefault(nameof(ProjectIdentityId));
+        protected string ProjectIdentityId => RouteData.ValueOrDefault(nameof(ProjectIdentityId));
 
-        private string DeploymentScopeId => RouteData.ValueOrDefault(nameof(DeploymentScopeId));
+        protected string DeploymentScopeId => RouteData.ValueOrDefault(nameof(DeploymentScopeId));
 
-        public string UserId => RouteData.ValueOrDefault(nameof(UserId));
+        protected string UserId => RouteData.ValueOrDefault(nameof(UserId));
 
-        public string ProjectId => RouteData.ValueOrDefault(nameof(ProjectId));
+        protected string ProjectId => RouteData.ValueOrDefault(nameof(ProjectId));
 
-        public string ComponentId => RouteData.ValueOrDefault(nameof(ComponentId));
+        protected string ComponentId => RouteData.ValueOrDefault(nameof(ComponentId));
 
-        public string ScheduleId => RouteData.ValueOrDefault(nameof(ScheduleId));
+        protected string ScheduleId => RouteData.ValueOrDefault(nameof(ScheduleId));
 
         protected T GetService<T>()
             => (T)HttpContext.RequestServices.GetService(typeof(T));
@@ -50,198 +56,168 @@ namespace TeamCloud.API.Controllers.Core
 
         protected ILogger Log { get; }
 
-        [NonAction]
-        internal async Task<IActionResult> ExecuteAsync<TContext>(Func<TContext, Task<IActionResult>> callback)
-            where TContext : TeamCloudOrganizationContext, new()
+        protected Task<IActionResult> WithContextAsync(Func<User, Task<IActionResult>> callback)
         {
-            if (callback is null)
-                throw new ArgumentNullException(nameof(callback));
-
             try
             {
-                var context = Activator.CreateInstance<TContext>();
+                if (callback is null)
+                    throw new ArgumentNullException(nameof(callback));
 
-                if (string.IsNullOrEmpty(OrganizationId))
-                    return ErrorResult
-                        .BadRequest($"Organization id or slug provided in the url path is invalid.  Must be a valid organization slug or id (guid).", ResultErrorCode.ValidationError)
-                        .ToActionResult();
-
-                context.ContextUser = await GetService<UserService>()
+                return GetService<UserService>()
                     .CurrentUserAsync(OrganizationId)
-                    .ConfigureAwait(false);
-
-                context.Organization = await GetService<IOrganizationRepository>()
-                    .GetAsync(GetService<UserService>().CurrentUserTenant, OrganizationId)
-                    .ConfigureAwait(false);
-
-                if (context.Organization is null)
-                    return ErrorResult
-                        .NotFound($"A Organization with the slug or id '{OrganizationId}' was not found.")
-                        .ToActionResult();
-
-                if (context is TeamCloudOrganizationUserContext userContext)
-                {
-                    if (string.IsNullOrEmpty(UserId))
-                        return ErrorResult
-                            .BadRequest($"User name or id provided in the url path is invalid.  Must be a valid email address, service pricipal name, or GUID.", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    var userId = await GetService<UserService>()
-                        .GetUserIdAsync(UserId)
-                        .ConfigureAwait(false);
-
-                    if (string.IsNullOrEmpty(userId))
-                        return ErrorResult
-                            .NotFound($"A User with the name or id '{UserId}' was not found.")
-                            .ToActionResult();
-
-                    userContext.User = await GetService<IUserRepository>()
-                        .GetAsync(OrganizationId, userId)
-                        .ConfigureAwait(false);
-
-                    if (userContext.User is null)
-                        return ErrorResult
-                            .NotFound($"A User with the Id '{UserId}' was not found.")
-                            .ToActionResult();
-                }
-
-                if (context is TeamCloudProjectContext projectContext)
-                {
-                    if (string.IsNullOrEmpty(ProjectId))
-                        return ErrorResult
-                            .BadRequest($"Project name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    projectContext.Project = await GetService<IProjectRepository>()
-                        .GetAsync(projectContext.Organization.Id, ProjectId)
-                        .ConfigureAwait(false);
-
-                    if (projectContext.Project is null)
-                        return ErrorResult
-                            .NotFound($"A Project with the name or id '{ProjectId}' was not found.")
-                            .ToActionResult();
-                }
-
-                if (context is TeamCloudDeploymentScopeContext deploymentScopeContext)
-                {
-                    if (string.IsNullOrEmpty(DeploymentScopeId))
-                        return ErrorResult
-                            .BadRequest($"Deployemnt Scope name or id provided in the url path is invalid.  Must be a valid project name or id (guid).", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    deploymentScopeContext.DeploymentScope = await GetService<IDeploymentScopeRepository>()
-                        .GetAsync(deploymentScopeContext.Organization.Id, DeploymentScopeId)
-                        .ConfigureAwait(false);
-
-                    if (deploymentScopeContext.DeploymentScope is null)
-                        return ErrorResult
-                            .NotFound($"A Deployment Scope with the name or id '{DeploymentScopeId}' was not found.")
-                            .ToActionResult();
-                }
-
-                if (context is TeamCloudProjectTemplateContext projectTemplateContext)
-                {
-                    if (string.IsNullOrEmpty(ProjectTemplateId))
-                        return ErrorResult
-                            .BadRequest($"Project Template name or id provided in the url path is invalid.  Must be a valid project template name or id (guid).", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    projectTemplateContext.ProjectTemplate = await GetService<IProjectTemplateRepository>()
-                        .GetAsync(OrganizationId, ProjectTemplateId)
-                        .ConfigureAwait(false);
-
-                    if (projectTemplateContext.ProjectTemplate is null)
-                        return ErrorResult
-                            .NotFound($"A Project Template with the name or id '{ProjectTemplateId}' was not found.")
-                            .ToActionResult();
-                }
-
-                if (context is TeamCloudProjectUserContext projectUserContext)
-                {
-                    if (string.IsNullOrEmpty(UserId))
-                        return ErrorResult
-                            .BadRequest($"User name or id provided in the url path is invalid.  Must be a valid email address, service pricipal name, or GUID.", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    var userId = await GetService<UserService>()
-                        .GetUserIdAsync(UserId)
-                        .ConfigureAwait(false);
-
-                    if (string.IsNullOrEmpty(userId))
-                        return ErrorResult
-                            .NotFound($"A User with the name or id '{UserId}' was not found.")
-                            .ToActionResult();
-
-                    projectUserContext.User = await GetService<IUserRepository>()
-                        .GetAsync(OrganizationId, userId)
-                        .ConfigureAwait(false);
-
-                    if (projectUserContext.User is null)
-                        return ErrorResult
-                            .NotFound($"A User with the Id '{UserId}' was not found.")
-                            .ToActionResult();
-                }
-
-                if (context is TeamCloudProjectIdentityContext projectIdentityContext)
-                {
-                    if (string.IsNullOrEmpty(ProjectIdentityId))
-                        return ErrorResult
-                            .BadRequest($"Project Identity Id provided in the url path is invalid.  Must be a valid GUID.", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    projectIdentityContext.ProjectIdentity = await GetService<IProjectIdentityRepository>()
-                        .GetAsync(projectIdentityContext.Project.Id, ProjectIdentityId)
-                        .ConfigureAwait(false);
-
-                    if (projectIdentityContext.ProjectIdentity is null)
-                        return ErrorResult
-                            .NotFound($"A Project Identity with the Id '{ProjectIdentityId}' was not found.")
-                            .ToActionResult();
-                }
-
-                if (context is TeamCloudProjectComponentContext projectComponentContext)
-                {
-                    if (string.IsNullOrEmpty(ComponentId))
-                        return ErrorResult
-                            .BadRequest($"Component name or id provided in the url path is invalid.  Must be a valid component name or id (guid).", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    projectComponentContext.Component = await GetService<IComponentRepository>()
-                        .GetAsync(projectComponentContext.Project.Id, ComponentId)
-                        .ConfigureAwait(false);
-
-                    if (projectComponentContext.Component is null)
-                        return ErrorResult
-                            .NotFound($"A Component with id '{ComponentId}' was not found.")
-                            .ToActionResult();
-                }
-
-                if (context is TeamCloudScheduleContext scheduleContext)
-                {
-                    if (string.IsNullOrEmpty(ScheduleId))
-                        return ErrorResult
-                            .BadRequest($"Schedule id provided in the url path is invalid.", ResultErrorCode.ValidationError)
-                            .ToActionResult();
-
-                    scheduleContext.Schedule = await GetService<IScheduleRepository>()
-                        .GetAsync(scheduleContext.Project.Id, ScheduleId)
-                        .ConfigureAwait(false);
-
-                    if (scheduleContext.Schedule is null)
-                        return ErrorResult
-                            .NotFound($"A Schedule with id '{ScheduleId}' was not found.")
-                            .ToActionResult();
-                }
-
-                return await callback(context)
-                    .ConfigureAwait(false);
+                    .ContinueWith(task => callback(task.Result))
+                    .Unwrap();
+            }
+            catch (ErrorResultException exc)
+            {
+                return Task.FromResult(exc.ToActionResult());
             }
             catch (Exception exc)
             {
-                return ErrorResult
-                    .ServerError(exc)
-                    .ToActionResult();
+                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
             }
+        }
+
+        protected Task<IActionResult> WithContextAsync<T1>(Func<User, T1, Task<IActionResult>> callback)
+            where T1: class, IContainerDocument
+        {
+            try
+            {
+                if (callback is null)
+                    throw new ArgumentNullException(nameof(callback));
+
+                var tasks = new List<Task>()
+                {
+                    GetService<UserService>().CurrentUserAsync(OrganizationId),
+                    GetContextDocumentAsync<T1>()
+                };
+
+                return tasks
+                    .WhenAll()
+                    .ContinueWith(_ => tasks.Select(task => (object)((dynamic)task).Result).ToArray(), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .ContinueWith(r => (Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, r.Result), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .Unwrap();
+            }
+            catch (ErrorResultException exc)
+            {
+                return Task.FromResult(exc.ToActionResult());
+            }
+            catch (Exception exc)
+            {
+                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
+            }
+        }
+
+        protected Task<IActionResult> WithContextAsync<T1, T2>(Func<User, T1, T2, Task<IActionResult>> callback)
+            where T1 : class, IContainerDocument
+            where T2 : class, IContainerDocument
+        {
+            try
+            {
+                if (callback is null)
+                    throw new ArgumentNullException(nameof(callback));
+
+                var tasks = new List<Task>()
+                {
+                    GetService<UserService>().CurrentUserAsync(OrganizationId),
+                    GetContextDocumentAsync<T1>(),
+                    GetContextDocumentAsync<T2>()
+                };
+
+                return tasks
+                    .WhenAll()
+                    .ContinueWith(_ => tasks.Select(task => (object)((dynamic)task).Result).ToArray(), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .ContinueWith(r => (Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, r.Result), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .Unwrap();
+            }
+            catch (ErrorResultException exc)
+            {
+                return Task.FromResult(exc.ToActionResult());
+            }
+            catch (Exception exc)
+            {
+                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
+            }
+        }
+
+        protected Task<IActionResult> WithContextAsync<T1, T2, T3>(Func<User, T1, T2, T3, Task<IActionResult>> callback)
+            where T1 : class, IContainerDocument
+            where T2 : class, IContainerDocument
+            where T3 : class, IContainerDocument
+        {
+            try
+            {
+                if (callback is null)
+                    throw new ArgumentNullException(nameof(callback));
+
+                var tasks = new List<Task>()
+                {
+                    GetService<UserService>().CurrentUserAsync(OrganizationId),
+                    GetContextDocumentAsync<T1>(),
+                    GetContextDocumentAsync<T2>(),
+                    GetContextDocumentAsync<T3>()
+                };
+
+                return tasks
+                    .WhenAll()
+                    .ContinueWith(_ => tasks.Select(task => (object)((dynamic)task).Result).ToArray(), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .ContinueWith(r => (Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, r.Result), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .Unwrap();
+            }
+            catch (ErrorResultException exc)
+            {
+                return Task.FromResult(exc.ToActionResult());
+            }
+            catch (Exception exc)
+            {
+                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
+            }
+        }
+
+        private Task<T> GetContextDocumentAsync<T>()
+            where T : class, IContainerDocument
+        {
+            return typeof(T) switch
+            {
+                _ when typeof(T) == typeof(Organization) => GetService<IOrganizationRepository>()
+                    .GetAsync(GetService<UserService>().CurrentUserTenant, OrganizationId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Organization with the slug or id '{OrganizationId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ when typeof(T) == typeof(Project) => GetService<IProjectRepository>()
+                    .GetAsync(OrganizationId, ProjectId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Project with the name or id '{ProjectId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ when typeof(T) == typeof(ProjectTemplate) => GetService<IProjectTemplateRepository>()
+                    .GetAsync(OrganizationId, ProjectTemplateId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Project Template with the name or id '{ProjectTemplateId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ when typeof(T) == typeof(ProjectIdentity) => GetService<IProjectIdentityRepository>()
+                    .GetAsync(ProjectId, ProjectIdentityId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Project Identity with the Id '{ProjectIdentityId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ when typeof(T) == typeof(Component) => GetService<IComponentRepository>()
+                    .GetAsync(ProjectId, ComponentId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Component with id '{ComponentId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ when typeof(T) == typeof(User) => GetService<UserService>()
+                    .GetUserIdAsync(UserId)
+                    .ContinueWith(task => OnNull(task.Result, $"A User with the name or id '{UserId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .ContinueWith(task => GetService<IUserRepository>().GetAsync(OrganizationId, task.Result), TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
+                    .ContinueWith(task => OnNull(task.Result as T, $"A User with the Id '{UserId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+                    
+                _ when typeof(T) ==  typeof(DeploymentScope) => GetService<IDeploymentScopeRepository>()
+                    .GetAsync(OrganizationId, DeploymentScopeId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Deployment Scope with the name or id '{DeploymentScopeId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ when typeof(T) == typeof(Schedule) => GetService<IScheduleRepository>()
+                    .GetAsync(ProjectId, ScheduleId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Schedule with id '{ScheduleId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ => throw new NotSupportedException($"Context document of type {typeof(T)} is not supported")
+            };
+
+            static TValue OnNull<TValue>(TValue value, string errorMessage)
+                => value is null ? throw ErrorResult.NotFound(errorMessage).ToException() : value;
         }
     }
 }

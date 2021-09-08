@@ -28,7 +28,7 @@ namespace TeamCloud.Data
                 .IsAssignableFrom(GetType());
         }
 
-        public virtual async Task<IContainerDocument> ExpandAsync(IContainerDocument document)
+        public virtual async Task ExpandAsync(IContainerDocument document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
@@ -42,13 +42,11 @@ namespace TeamCloud.Data
                 var expandTask = (Task)expandMethod.Invoke(this, new object[] { document });
 
                 await expandTask.ConfigureAwait(false);
-
-                return (IContainerDocument)expandTask.GetType()
-                    .GetProperty(nameof(Task<object>.Result))
-                    .GetValue(expandTask);
             }
-
-            throw new NotImplementedException($"Missing document expander implementation IDocumentExpander<{document.GetType().Name}> at {GetType()}");
+            else
+            {
+                throw new NotImplementedException($"Missing document expander implementation IDocumentExpander<{document.GetType().Name}> at {GetType()}");
+            }
         }
     }
 
@@ -58,12 +56,12 @@ namespace TeamCloud.Data
 
         bool CanExpand(IContainerDocument document);
 
-        Task<IContainerDocument> ExpandAsync(IContainerDocument document);
+        Task ExpandAsync(IContainerDocument document);
     }
 
     public interface IDocumentExpander<T> : IDocumentExpander
         where T : class, IContainerDocument, new()
     {
-        public Task<T> ExpandAsync(T document);
+        public Task ExpandAsync(T document);
     }
 }

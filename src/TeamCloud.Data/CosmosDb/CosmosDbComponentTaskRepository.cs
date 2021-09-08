@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
@@ -18,8 +19,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentTaskRepository : CosmosDbRepository<ComponentTask>, IComponentTaskRepository
     {
-        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         { }
 
         public override async Task<ComponentTask> AddAsync(ComponentTask task)
@@ -42,7 +43,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
         }
 
-        public override async Task<ComponentTask> GetAsync(string componentId, string id, bool expand = false)
+        public override Task<ComponentTask> GetAsync(string componentId, string id, bool expand = false) => GetCachedAsync(componentId, id, async cached =>
         {
             if (componentId is null)
                 throw new ArgumentNullException(nameof(componentId));
@@ -56,20 +57,28 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
+            ComponentTask componentTask = null;
+
             try
             {
                 var response = await container
-                    .ReadItemAsync<ComponentTask>(idParsed.ToString(), GetPartitionKey(componentId))
+                    .ReadItemAsync<ComponentTask>(idParsed.ToString(), GetPartitionKey(componentId), cached?.GetItemNoneMatchRequestOptions())
                     .ConfigureAwait(false);
 
-                return await ExpandAsync(response.Resource, expand)
-                    .ConfigureAwait(false);
+                componentTask = SetCached(componentId, id, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+            {
+                componentTask = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
-        }
+
+            return await ExpandAsync(componentTask, expand)
+                .ConfigureAwait(false);
+        });
 
         public override async IAsyncEnumerable<ComponentTask> ListAsync(string componentId)
         {

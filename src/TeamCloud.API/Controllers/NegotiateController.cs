@@ -14,6 +14,7 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Options;
 using TeamCloud.Model;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Controllers
 {
@@ -36,11 +37,11 @@ namespace TeamCloud.API.Controllers
         [HttpPost]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "NegotiateSignalR", Summary = "Negotiates the SignalR connection.")]
-        public Task<IActionResult> Index() => ExecuteAsync<TeamCloudProjectContext>(context =>
+        public Task<IActionResult> Index() => WithContextAsync<Project>((contextUser, project) =>
         {
-            var hub = context.Project.GetHubName();
+            var hub = project.GetHubName();
             var url = _serviceManager.GetClientEndpoint(hub);
-            var token = _serviceManager.GenerateClientAccessToken(hub, context.ContextUser.Id);
+            var token = _serviceManager.GenerateClientAccessToken(hub, contextUser.Id);
 
             return Task.FromResult<IActionResult>(new JsonResult(new Dictionary<string, string>()
             {

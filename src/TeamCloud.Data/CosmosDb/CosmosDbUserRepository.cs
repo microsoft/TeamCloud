@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
@@ -21,10 +22,11 @@ namespace TeamCloud.Data.CosmosDb
     public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
     {
         public CosmosDbUserRepository(ICosmosDbOptions options,
+                                      IMemoryCache cache,
                                       IDocumentExpanderProvider expanderProvider = null,
                                       IDocumentSubscriptionProvider subscriptionProvider = null,
                                       IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         { }
 
         public override async Task<User> AddAsync(User user)
@@ -50,10 +52,12 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
         }
 
-        public override async Task<User> GetAsync(string organization, string id, bool expand = false)
+        public override Task<User> GetAsync(string organization, string id, bool expand = false) => GetCachedAsync(organization, id, async cached =>
         {
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
+
+            User user = null;
 
             try
             {
@@ -61,14 +65,20 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<User>(id, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                return await ExpandAsync(response.Resource, expand)
-                    .ConfigureAwait(false);
+                user = SetCached(organization, id, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+            {
+                user = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
-        }
+
+            return await ExpandAsync(user, expand)
+                .ConfigureAwait(false);
+        });
 
         private async Task<User> GetAsync(User user, bool expand = false)
         {

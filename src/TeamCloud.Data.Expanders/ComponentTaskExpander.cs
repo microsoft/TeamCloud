@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,10 @@ using System.Threading.Tasks;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Model.Data;
+using Flurl;
+using Flurl.Http;
+using System.Net;
+using Azure.Storage.Sas;
 
 namespace TeamCloud.Data.Expanders
 {
@@ -19,14 +24,16 @@ namespace TeamCloud.Data.Expanders
     {
         private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
+        private readonly IMemoryCache cache;
 
-        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService) : base(true)
+        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IMemoryCache cache) : base(true)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<ComponentTask> ExpandAsync(ComponentTask document)
+        public async Task ExpandAsync(ComponentTask document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
@@ -47,8 +54,6 @@ namespace TeamCloud.Data.Expanders
                     document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
                 }
             }
-
-            return document;
         }
 
         private async Task<string> GetEventsAsync(ComponentTask document)
@@ -99,33 +104,35 @@ namespace TeamCloud.Data.Expanders
 
             if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
             {
+                var cacheKey = $"{GetType()}|{document.GetType()}|{document.Id}";
+
                 try
                 {
-                    var storageAccount = await azureResourceService
-                        .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                    var sasUrl = await cache
+                        .GetOrCreateAsync(cacheKey, AcquireSasUrl)
                         .ConfigureAwait(false);
 
-                    if (storageAccount != null)
+                    if (sasUrl is null)
                     {
-                        var shareClient = await storageAccount
-                            .CreateShareClientAsync(document.ComponentId)
+                        cache.Remove(cacheKey);
+
+                        return null;
+                    }
+                    else
+                    {
+                        using var stream = await sasUrl.ToString()
+                            .WithHeader("responsecontent-disposition", "file; attachment")
+                            .WithHeader("responsecontent-type", "binary")
+                            .GetStreamAsync()
                             .ConfigureAwait(false);
 
-                        var directoryClient = shareClient
-                            .GetDirectoryClient(".output");
-
-                        await directoryClient
-                            .CreateIfNotExistsAsync()
-                            .ConfigureAwait(false);
-
-                        var fileClient = directoryClient
-                            .GetFileClient($"{document.Id}");
-
-                        if (await fileClient.ExistsAsync().ConfigureAwait(false))
+                        if ((stream?.Length ?? 0) > 0)
                         {
-                            using var reader = new StreamReader(await fileClient.OpenReadAsync().ConfigureAwait(false));
+                            using var reader = new StreamReader(stream);
 
-                            return await reader.ReadToEndAsync().ConfigureAwait(false);
+                            return await reader
+                                .ReadToEndAsync()
+                                .ConfigureAwait(false);
                         }
                     }
                 }
@@ -136,6 +143,22 @@ namespace TeamCloud.Data.Expanders
             }
 
             return default;
+
+            async Task<Uri> AcquireSasUrl(ICacheEntry entry)
+            {
+                var storageAccount = await azureResourceService
+                    .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                    .ConfigureAwait(false);
+
+                if (storageAccount is null)
+                    return null;
+
+                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
+
+                return await storageAccount
+                    .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
+                    .ConfigureAwait(false);
+            }
         }
     }
 }

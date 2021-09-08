@@ -46,10 +46,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Component Tasks", typeof(DataResult<List<ComponentTask>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Component with the provided componentId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudProjectComponentContext>(async context =>
+        public Task<IActionResult> Get() => WithContextAsync<Component>(async (contextUser, component) =>
        {
            var componenetTasks = await componentTaskRepository
-               .ListAsync(context.Component.Id)
+               .ListAsync(component.Id)
                .ToListAsync()
                .ConfigureAwait(false);
 
@@ -65,7 +65,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Task", typeof(DataResult<ComponentTask>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Component Task with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string id) => ExecuteAsync<TeamCloudProjectComponentContext>(async context =>
+        public Task<IActionResult> Get([FromRoute] string id) => WithContextAsync<Component>(async (contextUser, component) =>
         {
             if (string.IsNullOrWhiteSpace(id))
                 return ErrorResult
@@ -73,12 +73,12 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var componentTask = await componentTaskRepository
-                .GetAsync(context.Component.Id, id, true)
+                .GetAsync(component.Id, id, true)
                 .ConfigureAwait(false);
 
             if (componentTask is null)
                 return ErrorResult
-                    .NotFound($"A Component Task with the id '{id}' could not be found for Component {context.Component.Id}.")
+                    .NotFound($"A Component Task with the id '{id}' could not be found for Component {component.Id}.")
                     .ToActionResult();
 
             return DataResult<ComponentTask>
@@ -96,7 +96,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Component already exists with the id provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ComponentTaskDefinition componentTaskDefinition) => ExecuteAsync<TeamCloudProjectComponentContext>(async context =>
+        public Task<IActionResult> Post([FromBody] ComponentTaskDefinition componentTaskDefinition) => WithContextAsync<Project, Component>(async (contextUser, project, component) =>
         {
             if (componentTaskDefinition is null)
                 return ErrorResult
@@ -109,19 +109,19 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var componentTemplate = await componentTemplateRepository
-                .GetAsync(context.Organization.Id, context.Project.Id, context.Component.TemplateId)
+                .GetAsync(component.Organization, component.ProjectId, component.TemplateId)
                 .ConfigureAwait(false);
 
-            if (componentTemplate is null || !componentTemplate.ParentId.Equals(context.Project.Template, StringComparison.OrdinalIgnoreCase))
+            if (componentTemplate is null || !componentTemplate.ParentId.Equals(project.Template, StringComparison.OrdinalIgnoreCase))
                 return ErrorResult
-                    .NotFound($"A ComponentTemplate with the id '{context.Component.TemplateId}' could not be found for Project {context.Project.Id}.")
+                    .NotFound($"A ComponentTemplate with the id '{component.TemplateId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
             var componentTaskTemplate = componentTemplate.Tasks.FirstOrDefault(t => t.Id.Equals(componentTaskDefinition.TaskId, StringComparison.OrdinalIgnoreCase));
 
             if (componentTaskTemplate is null)
                 return ErrorResult
-                    .NotFound($"A ComponentTask with the id '{componentTaskDefinition.TaskId}' could not be found for Component {context.Component.Id}.")
+                    .NotFound($"A ComponentTask with the id '{componentTaskDefinition.TaskId}' could not be found for Component {component.Id}.")
                     .ToActionResult();
 
 
@@ -136,24 +136,20 @@ namespace TeamCloud.API.Controllers
                         .ToActionResult();
             }
 
-            var currentUser = await UserService
-                .CurrentUserAsync(context.Organization.Id)
-                .ConfigureAwait(false);
-
             var componentTask = new ComponentTask
             {
-                Organization = context.Organization.Id,
-                ComponentId = context.Component.Id,
-                ProjectId = context.Project.Id,
-                RequestedBy = currentUser.Id,
+                Organization = component.Organization,
+                ComponentId = component.Id,
+                ProjectId = component.ProjectId,
+                RequestedBy = contextUser.Id,
                 Type = ComponentTaskType.Custom,
                 TypeName = componentTaskDefinition.TaskId,
 
                 // component input json is used as a fallback !!!
-                InputJson = componentTaskDefinition.InputJson ?? context.Component.InputJson
+                InputJson = componentTaskDefinition.InputJson ?? component.InputJson
             };
 
-            var command = new ComponentTaskCreateCommand(currentUser, componentTask);
+            var command = new ComponentTaskCreateCommand(contextUser, componentTask);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

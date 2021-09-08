@@ -23,7 +23,7 @@ namespace TeamCloud.Data.Expanders
             this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
-        public async Task<DeploymentScope> ExpandAsync(DeploymentScope document)
+        public async Task ExpandAsync(DeploymentScope document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
@@ -62,8 +62,6 @@ namespace TeamCloud.Data.Expanders
                     document.SubscriptionIds = (inputData.SelectToken("$..subscriptionIds") as JArray)?.Select(t => Guid.Parse(t.ToString())).ToList() ?? new List<Guid>();
                 }
             }
-
-            return document;
         }
     }
 }

@@ -10,6 +10,25 @@ namespace TeamCloud
 {
     internal static class GlobalExtensions
     {
+        internal static void Add(this List<Task> tasks, Func<Task> callback)
+        {
+            if (tasks is null)
+                throw new ArgumentNullException(nameof(tasks));
+
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
+            tasks.Add(callback());
+        }
+
+        internal static void WaitAll(this IEnumerable<Task> tasks)
+        {
+            if (tasks is null)
+                throw new ArgumentNullException(nameof(tasks));
+
+            Task.WaitAll(tasks.ToArray());
+        }
+
         internal static Task WhenAll(this IEnumerable<Task> tasks)
         {
             if (tasks is null)
