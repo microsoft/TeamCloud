@@ -73,6 +73,14 @@ namespace TeamCloud.Serialization.Forms
                     }
                 }
 
+                foreach (var additionalPropertiesToken in token.SelectTokens("$..additionalProperties").Reverse())
+                {
+                    // additionalProperties tokens will raise error on the json form side when
+                    // validating the form data. to avoid this we simply remove this information.
+
+                    additionalPropertiesToken.Parent.Remove();
+                }
+
                 return Task.FromResult(token);
 
                 string PrettyPrintCamelCase(string value)
