@@ -3,10 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters
@@ -31,7 +31,7 @@ namespace TeamCloud.Adapters
         IAdapterConfiguration IAdapterConfiguration.Register<TAdapter>()
         {
             adapterTypes.Add(typeof(TAdapter));
-            
+
             return this; // fluent style
         }
     }

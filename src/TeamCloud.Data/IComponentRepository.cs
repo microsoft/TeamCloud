@@ -20,5 +20,9 @@ namespace TeamCloud.Data
         IAsyncEnumerable<Component> ListAsync(string projectId, IEnumerable<string> identifiers);
 
         IAsyncEnumerable<Component> ListAsync(string projectId, IEnumerable<string> identifiers, bool includeDeleted);
+
+        IAsyncEnumerable<Component> ListByDeploymentScopeAsync(string deploymentScopeId);
+
+        IAsyncEnumerable<Component> ListByDeploymentScopeAsync(string deploymentScopeId, bool includeDeleted);
     }
 }

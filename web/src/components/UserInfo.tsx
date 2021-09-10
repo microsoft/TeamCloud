@@ -64,13 +64,11 @@ export const UserInfo: React.FC = () => {
                     <UserPersona principal={graphUser} large />
                     <Separator />
                     <Stack tokens={{ childrenGap: '8px' }}>
-                        {/* <PrimaryButton text='Edit' onClick={() => { }} /> */}
                         <PrimaryButton text='Edit' onClick={() => setEditPanelOpen(true)} />
                         <DefaultButton text='Sign out' onClick={() => auth.logout()} />
-                        {/* <DefaultButton text='Sign out' onClick={() => props.onSignOut()} /> */}
                     </Stack>
                     <Separator />
-                    <Text styles={{ root: { color: theme.palette.neutralSecondary, padding: '0px', textAlign: 'center' } }}>{process.env.REACT_APP_VERSION}</Text>
+                    <Text styles={{ root: { color: theme.palette.neutralSecondary, padding: '0px', textAlign: 'center' } }}>{process.env.REACT_APP_VERSION ?? 'Dev'}</Text>
                 </Stack>
             </Panel>
             <UserForm

@@ -28,10 +28,12 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class DeploymentScopesController : TeamCloudController
     {
+        private readonly IComponentRepository componentRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
 
-        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository) : base()
+        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository, IComponentRepository componentRepository) : base()
         {
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         }
 
@@ -130,7 +132,37 @@ namespace TeamCloud.API.Controllers
                     .BadRequest(new ValidationError { Field = "id", Message = $"DeploymentScopes's id does match the identifier provided in the path." })
                     .ToActionResult();
 
-            var command = new DeploymentScopeUpdateCommand(contextUser, deploymentScopeUpdate);
+            if (deploymentScope.Type != deploymentScope.Type)
+                return ErrorResult
+                    .BadRequest(new ValidationError { Field = "type", Message = $"DeploymentScopes's type cannot be changed." })
+                    .ToActionResult();
+
+            if (deploymentScope.Type == DeploymentScopeType.AzureResourceManager)
+            {
+                deploymentScope = await deploymentScopeRepository.ExpandAsync(deploymentScope, true);
+
+                if (deploymentScopeUpdate.ManagementGroupId != deploymentScope.ManagementGroupId)
+                    return ErrorResult
+                        .BadRequest(new ValidationError { Field = "managementGroupId", Message = $"DeploymentScopes's managementGroupId cannot be changed." })
+                        .ToActionResult();
+
+                var subsRemoved = deploymentScope.SubscriptionIds.Where(sid => !deploymentScopeUpdate.SubscriptionIds.Contains(sid));
+
+                if (subsRemoved.Any())
+                {
+                    var subInUse = await componentRepository
+                        .ListByDeploymentScopeAsync(deploymentScope.Id)
+                        .AnyAsync(c => subsRemoved.Any(s => c.ResourceId.Contains($"/subscriptions/{s}")))
+                        .ConfigureAwait(false);
+
+                    if (subInUse)
+                        return ErrorResult
+                            .BadRequest(new ValidationError { Field = "subscriptionIds", Message = $"DeploymentScopes's subscriptionIds cannot be removed if a component is deployed in the subscription." })
+                            .ToActionResult();
+                }
+            }
+
+            var command = new DeploymentScopeUpdateCommand(contextUser, deploymentScope);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

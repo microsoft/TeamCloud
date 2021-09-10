@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Management.ManagementGroups;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.VisualStudio.Services.Identity;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
