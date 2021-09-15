@@ -32,6 +32,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
 
+        public override bool Orchestration => false;
+
         public async Task<ICommandResult> HandleAsync(ProjectTemplateCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)

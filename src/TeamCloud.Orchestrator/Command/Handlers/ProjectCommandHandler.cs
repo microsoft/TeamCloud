@@ -41,6 +41,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.endpointOptions = endpointOptions ?? throw new ArgumentNullException(nameof(endpointOptions));
         }
 
+        public override bool Orchestration => false;
+
         public async Task<ICommandResult> HandleAsync(ProjectCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)

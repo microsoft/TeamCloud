@@ -24,15 +24,13 @@ namespace TeamCloud.Orchestrator.Command.Handlers
     {
 
         private readonly IScheduleRepository scheduleRepository;
-        private readonly IComponentRepository componentRepository;
-        private readonly IComponentTaskRepository componentTaskRepository;
 
-        public ScheduleCommandHandler(IScheduleRepository scheduleRepository, IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository)
+        public ScheduleCommandHandler(IScheduleRepository scheduleRepository)
         {
             this.scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
-            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
-            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         }
+
+        public override bool Orchestration => false;
 
         public async Task<ICommandResult> HandleAsync(ScheduleCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
@@ -138,9 +136,9 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     InputJson = t.InputJson ?? ""
                 }));
 
-                var commandTasks = commands.Select(c => commandQueue.AddAsync(c));
-
-                await Task.WhenAll(commandTasks)
+                await commands
+                    .Select(c => commandQueue.AddAsync(c))
+                    .WhenAll()
                     .ConfigureAwait(false);
 
                 command.Payload.LastRun = DateTime.UtcNow;

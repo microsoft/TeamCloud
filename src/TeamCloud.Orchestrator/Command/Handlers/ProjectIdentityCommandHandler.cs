@@ -30,6 +30,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
         }
 
+        public override bool Orchestration => false;
+
         public async Task<ICommandResult> HandleAsync(ProjectIdentityCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)

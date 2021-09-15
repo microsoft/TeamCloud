@@ -20,8 +20,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 {
     public sealed class ComponentUpdateCommandHandler : CommandHandler<ComponentUpdateCommand>
     {
-        public ComponentUpdateCommandHandler() : base(true)
-        { }
+        public override bool Orchestration => true;
 
         public override async Task<ICommandResult> HandleAsync(ComponentUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {

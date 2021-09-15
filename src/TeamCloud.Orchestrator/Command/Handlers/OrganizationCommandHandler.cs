@@ -29,6 +29,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
+        public override bool Orchestration => false;
+
         public async Task<ICommandResult> HandleAsync(OrganizationCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)

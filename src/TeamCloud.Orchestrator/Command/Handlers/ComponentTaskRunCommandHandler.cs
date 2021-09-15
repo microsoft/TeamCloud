@@ -25,8 +25,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 {
     public sealed class ComponentTaskRunCommandHandler : CommandHandler<ComponentTaskRunCommand>
     {
-        public ComponentTaskRunCommandHandler() : base(true)
-        { }
+        public override bool Orchestration => true;
 
         public override async Task<ICommandResult> HandleAsync(ComponentTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
 
