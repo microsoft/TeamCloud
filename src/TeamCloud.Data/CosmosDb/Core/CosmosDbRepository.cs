@@ -246,9 +246,6 @@ namespace TeamCloud.Data.CosmosDb.Core
             {
                 var duration = Stopwatch.StartNew();
 
-                //foreach (var expander in expanderProvider.GetExpanders(document, includeOptional))
-                //    document = (T)await expander.ExpandAsync(document).ConfigureAwait(false);
-
                 await expanderProvider
                     .GetExpanders(document, includeOptional)
                     .Select(expander => expander.ExpandAsync(document))

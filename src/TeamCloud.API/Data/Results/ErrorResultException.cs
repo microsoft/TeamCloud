@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using TeamCloud.Serialization;
 using ErrorResultFactory = TeamCloud.API.Data.Results.ErrorResult;
 
@@ -40,5 +41,7 @@ namespace TeamCloud.API.Data.Results
         }
 
         public IActionResult ToActionResult() => ErrorResult.ToActionResult();
+
+        public Task<IActionResult> ToActionResultAsync() => Task.FromResult(ToActionResult());
     }
 }

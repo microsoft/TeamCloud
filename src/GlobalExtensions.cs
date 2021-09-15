@@ -26,7 +26,8 @@ namespace TeamCloud
             if (tasks is null)
                 throw new ArgumentNullException(nameof(tasks));
 
-            Task.WaitAll(tasks.ToArray());
+            if (tasks.Any())
+                Task.WaitAll(tasks.ToArray());
         }
 
         internal static Task WhenAll(this IEnumerable<Task> tasks)
@@ -34,7 +35,9 @@ namespace TeamCloud
             if (tasks is null)
                 throw new ArgumentNullException(nameof(tasks));
 
-            return Task.WhenAll(tasks);
+            return tasks.Any()
+                ? Task.WhenAll(tasks)
+                : Task.CompletedTask;
         }
 
         internal static Task<T[]> WhenAll<T>(this IEnumerable<Task<T>> tasks)
@@ -42,7 +45,9 @@ namespace TeamCloud
             if (tasks is null)
                 throw new ArgumentNullException(nameof(tasks));
 
-            return Task.WhenAll(tasks);
+            return tasks.Any()
+                ? Task.WhenAll(tasks)
+                : Task.FromResult(Array.Empty<T>());
         }
 
         internal static async IAsyncEnumerable<T> WhenAllAsync<T>(this IEnumerable<Task<T>> tasks)
@@ -50,18 +55,21 @@ namespace TeamCloud
             if (tasks is null)
                 throw new ArgumentNullException(nameof(tasks));
 
-            var tasksMaterialized = tasks.ToList();
-
-            while (tasksMaterialized.Any())
+            if (tasks.Any())
             {
-                var task = await Task
-                    .WhenAny(tasksMaterialized)
-                    .ConfigureAwait(false);
+                var tasksMaterialized = tasks.ToList();
 
-                yield return await task
-                    .ConfigureAwait(false);
+                while (tasksMaterialized.Any())
+                {
+                    var task = await Task
+                        .WhenAny(tasksMaterialized)
+                        .ConfigureAwait(false);
 
-                tasksMaterialized.Remove(task);
+                    yield return await task
+                        .ConfigureAwait(false);
+
+                    tasksMaterialized.Remove(task);
+                }
             }
         }
 

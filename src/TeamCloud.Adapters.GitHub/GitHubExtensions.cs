@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Jose;
+using Microsoft.Azure.Documents;
+using Microsoft.Azure.Management.Sql.Fluent.Models;
+using Microsoft.VisualStudio.Services.Search.Shared.WebApi.Contracts;
 using Newtonsoft.Json.Linq;
 using Octokit;
 using Org.BouncyCastle.Crypto;
@@ -105,14 +108,12 @@ namespace TeamCloud.Adapters.GitHub
 
             return credentials.AuthenticationType switch
             {
-                AuthenticationType.Basic => clientOrRequest.WithBasicAuth(credentials.Login, credentials.Password),
-                AuthenticationType.Bearer => clientOrRequest.WithOAuthBearerToken(credentials.Password),
-                AuthenticationType.Oauth => clientOrRequest.WithOAuthBearerToken(credentials.Password),
+                Octokit.AuthenticationType.Basic => clientOrRequest.WithBasicAuth(credentials.Login, credentials.Password),
+                Octokit.AuthenticationType.Bearer => clientOrRequest.WithOAuthBearerToken(credentials.Password),
+                Octokit.AuthenticationType.Oauth => clientOrRequest.WithOAuthBearerToken(credentials.Password),
                 _ => clientOrRequest
             };
         }
-
-
 
         internal static IFlurlRequest WithGitHubHeaders(this string url, string acceptHeader = null)
             => new FlurlRequest(url).WithGitHubHeaders(acceptHeader);
@@ -146,6 +147,71 @@ namespace TeamCloud.Adapters.GitHub
             return clientOrRequest
                 .WithHeader("Accept", acceptHeader)
                 .WithHeader("User-Agent", GitHubConstants.ProductHeader);
+        }
+
+        internal static async Task<bool> Exists(this IRepositoriesClient client, string owner, string name)
+        {
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
+
+            try
+            {
+                var repo = await client
+                    .Get(owner, name)
+                    .ConfigureAwait(false);
+
+                return repo != null;
+            }
+            catch (ApiException exc) when (exc.HttpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+        }
+
+        internal static async Task<bool> Exists(this IRepositoriesClient client, long repositoryId)
+        {
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
+            try
+            {
+                var repo = await client
+                    .Get(repositoryId)
+                    .ConfigureAwait(false);
+
+                return repo != null;
+            }
+            catch (ApiException exc) when (exc.HttpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return false;
+            }
+        }
+
+        internal static async Task<bool> IsEmpty(this IRepositoriesClient client, string owner, string name)
+        {
+            if (client is null)
+                throw new ArgumentNullException(nameof(client));
+
+            try
+            {
+                // to avoid large response payloads we restrict the amount
+                // of data returned to  a maximum of one page with one record
+
+                var options = new ApiOptions
+                {
+                    PageCount = 1,
+                    PageSize = 1,
+                };
+
+                var commits = await client.Commit
+                    .GetAll(owner, name, options)
+                    .ConfigureAwait(false);
+
+                return !commits.Any();
+            }
+            catch (ApiException exc) when (exc.HttpResponse.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                return true; // for whatever reason, github returns a 'conflict' when there is no commit available
+            }
         }
 
         internal static async Task<bool> IsEmpty(this IRepositoriesClient client, long repositoryId)

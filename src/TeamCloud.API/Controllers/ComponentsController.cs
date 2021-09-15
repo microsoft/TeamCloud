@@ -72,25 +72,11 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns Project Component", typeof(DataResult<Component>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found, or a Component with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string componentId) => WithContextAsync<Project>(async (contextUser, project) =>
+        public Task<IActionResult> Get([FromRoute] string componentId) => WithContextAsync<Component>((contextUser, component) =>
         {
-            if (string.IsNullOrWhiteSpace(componentId))
-                return ErrorResult
-                    .BadRequest($"The id provided in the url path is invalid. Must be a non-empty string.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
-
-            var component = await componentRepository
-                .GetAsync(project.Id, componentId, true)
-                .ConfigureAwait(false);
-
-            if (component is null)
-                return ErrorResult
-                    .NotFound($"A Component with the ID '{componentId}' could not be found for Project {ProjectId}.")
-                    .ToActionResult();
-
             return DataResult<Component>
                 .Ok(component)
-                .ToActionResult();
+                .ToActionResultAsync();
         });
 
         [HttpPost]

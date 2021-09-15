@@ -9,27 +9,38 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TeamCloud.Azure.Resources;
+using TeamCloud.Azure.Resources; 
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Model.Data;
 using Flurl;
 using Flurl.Http;
 using System.Net;
 using Azure.Storage.Sas;
+using TeamCloud.Model.Common;
+using TeamCloud.Audit;
+using System.Text;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Azure.Directory;
 
 namespace TeamCloud.Data.Expanders
 {
     public sealed class ComponentTaskExpander : DocumentExpander,
         IDocumentExpander<ComponentTask>
     {
+        private const string Seperator = "\r\n-----\r\n\r\n";
+
         private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
+        private readonly IAzureDirectoryService azureDirectoryService;
+        private readonly ICommandAuditReader commandAuditReader;
         private readonly IMemoryCache cache;
 
-        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IMemoryCache cache) : base(true)
+        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IAzureDirectoryService azureDirectoryService, ICommandAuditReader commandAuditReader, IMemoryCache cache) : base(true)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+            this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+            this.commandAuditReader = commandAuditReader ?? throw new ArgumentNullException(nameof(commandAuditReader));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
@@ -43,13 +54,15 @@ namespace TeamCloud.Data.Expanders
                 var results = await Task.WhenAll(
 
                     GetEventsAsync(document),
-                    GetOutputAsync(document)
+                    GetOutputAsync(document),
+                    GetAuditAsync(document)
 
                 ).ConfigureAwait(false);
 
                 if (results.Any(result => !string.IsNullOrEmpty(result)))
                 {
-                    document.Output = string.Join(Environment.NewLine, results); // do some empty line trimming (left & right)
+                    // do some empty line trimming (left & right)
+                    document.Output = string.Join(Seperator, results.Where(result => !string.IsNullOrEmpty(result))); 
                     document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
                     document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
                 }
@@ -58,7 +71,7 @@ namespace TeamCloud.Data.Expanders
 
         private async Task<string> GetEventsAsync(ComponentTask document)
         {
-            if (AzureResourceIdentifier.TryParse(document.ResourceId, out var resourceId))
+            if (document.TaskState.IsActive() && AzureResourceIdentifier.TryParse(document.ResourceId, out var resourceId))
             {
                 try
                 {
@@ -98,67 +111,102 @@ namespace TeamCloud.Data.Expanders
 
         private async Task<string> GetOutputAsync(ComponentTask document)
         {
-            var project = await projectRepository
-                .GetAsync(document.Organization, document.ProjectId)
-                .ConfigureAwait(false);
+            var cacheKey = $"{GetType()}|{document.GetType()}|{document.Id}";
 
-            if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+            try
             {
-                var cacheKey = $"{GetType()}|{document.GetType()}|{document.Id}";
+                var sasUrl = await cache
+                    .GetOrCreateAsync(cacheKey, AcquireSasUrl)
+                    .ConfigureAwait(false);
 
-                try
+                if (sasUrl is null)
                 {
-                    var sasUrl = await cache
-                        .GetOrCreateAsync(cacheKey, AcquireSasUrl)
+                    cache.Remove(cacheKey);
+
+                    return null;
+                }
+                else
+                {
+                    using var stream = await sasUrl.ToString()
+                        .WithHeader("responsecontent-disposition", "file; attachment")
+                        .WithHeader("responsecontent-type", "binary")
+                        .GetStreamAsync()
                         .ConfigureAwait(false);
 
-                    if (sasUrl is null)
+                    if ((stream?.Length ?? 0) > 0)
                     {
-                        cache.Remove(cacheKey);
+                        using var reader = new StreamReader(stream);
 
-                        return null;
-                    }
-                    else
-                    {
-                        using var stream = await sasUrl.ToString()
-                            .WithHeader("responsecontent-disposition", "file; attachment")
-                            .WithHeader("responsecontent-type", "binary")
-                            .GetStreamAsync()
+                        return await reader
+                            .ReadToEndAsync()
                             .ConfigureAwait(false);
-
-                        if ((stream?.Length ?? 0) > 0)
-                        {
-                            using var reader = new StreamReader(stream);
-
-                            return await reader
-                                .ReadToEndAsync()
-                                .ConfigureAwait(false);
-                        }
                     }
                 }
-                catch
-                {
-                    // swallow
-                }
+            }
+            catch
+            {
+                // swallow
             }
 
             return default;
 
             async Task<Uri> AcquireSasUrl(ICacheEntry entry)
             {
-                var storageAccount = await azureResourceService
-                    .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                var project = await projectRepository
+                    .GetAsync(document.Organization, document.ProjectId)
                     .ConfigureAwait(false);
 
-                if (storageAccount is null)
-                    return null;
+                if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+                {
+                    var storageAccount = await azureResourceService
+                        .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                        .ConfigureAwait(false);
 
-                entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
+                    if (storageAccount != null)
+                    {
+                        entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
 
-                return await storageAccount
-                    .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
-                    .ConfigureAwait(false);
+                        return await storageAccount
+                            .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
+                            .ConfigureAwait(false);
+                    }
+                }
+
+                return default;
             }
+        }
+
+        private async Task<string> GetAuditAsync(ComponentTask document)
+        {
+            if (document.TaskState.IsFinal())
+            {
+                var audit = await commandAuditReader
+                    .GetAsync(Guid.Parse(document.Organization), Guid.Parse(document.Id))
+                    .ConfigureAwait(false);
+
+                if ((audit?.RuntimeStatus ?? CommandRuntimeStatus.Unknown).IsFinal())
+                {
+                    var username = await azureDirectoryService
+                        .GetDisplayNameAsync(audit.UserId)
+                        .ConfigureAwait(false);
+
+                    var output = new StringBuilder();
+
+                    output.AppendLine($"User:       {username}");
+                    output.AppendLine($"Created:    {audit.Created}");
+                    output.AppendLine($"Finished:   {audit.Updated}");
+
+                    if (!string.IsNullOrEmpty(audit.Errors))
+                    {
+                        output.AppendLine(Seperator);
+                        output.AppendLine(audit.Errors);
+                    }
+
+                    return output.ToString();
+                }
+            }
+
+            return default;
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using DotLiquid.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos.Serialization.HybridRow.Layouts;
@@ -56,67 +57,63 @@ namespace TeamCloud.API.Controllers.Core
 
         protected ILogger Log { get; }
 
-        protected Task<IActionResult> WithContextAsync(Func<User, Task<IActionResult>> callback)
+        protected async Task<IActionResult> WithContextAsync(Func<User, Task<IActionResult>> callback)
         {
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
             try
             {
-                if (callback is null)
-                    throw new ArgumentNullException(nameof(callback));
-
-                return GetService<UserService>()
+                var contextUser = await GetService<UserService>()
                     .CurrentUserAsync(OrganizationId)
-                    .ContinueWith(task => callback(task.Result))
-                    .Unwrap();
+                    .ConfigureAwait(false);
+
+                return await callback(contextUser)
+                    .ConfigureAwait(false);
             }
             catch (ErrorResultException exc)
             {
-                return Task.FromResult(exc.ToActionResult());
-            }
-            catch (Exception exc)
-            {
-                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
+                return exc.ToActionResult();
             }
         }
 
-        protected Task<IActionResult> WithContextAsync<T1>(Func<User, T1, Task<IActionResult>> callback)
-            where T1: class, IContainerDocument
+        protected async Task<IActionResult> WithContextAsync<T1>(Func<User, T1, Task<IActionResult>> callback)
+            where T1 : class, IContainerDocument
         {
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
             try
             {
-                if (callback is null)
-                    throw new ArgumentNullException(nameof(callback));
-
                 var tasks = new List<Task>()
                 {
                     GetService<UserService>().CurrentUserAsync(OrganizationId),
                     GetContextDocumentAsync<T1>()
                 };
 
-                return tasks
-                    .WhenAll()
-                    .ContinueWith(_ => tasks.Select(task => (object)((dynamic)task).Result).ToArray(), TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .ContinueWith(r => (Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, r.Result), TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .Unwrap();
+                await tasks.WhenAll().ConfigureAwait(false);
+
+                var arguments = tasks
+                    .Select(task => (object)((dynamic)task).Result)
+                    .ToArray();
+
+                return await ((Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, arguments)).ConfigureAwait(false);
             }
             catch (ErrorResultException exc)
             {
-                return Task.FromResult(exc.ToActionResult());
-            }
-            catch (Exception exc)
-            {
-                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
+                return exc.ToActionResult();
             }
         }
 
-        protected Task<IActionResult> WithContextAsync<T1, T2>(Func<User, T1, T2, Task<IActionResult>> callback)
+        protected async Task<IActionResult> WithContextAsync<T1, T2>(Func<User, T1, T2, Task<IActionResult>> callback)
             where T1 : class, IContainerDocument
             where T2 : class, IContainerDocument
         {
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
             try
             {
-                if (callback is null)
-                    throw new ArgumentNullException(nameof(callback));
-
                 var tasks = new List<Task>()
                 {
                     GetService<UserService>().CurrentUserAsync(OrganizationId),
@@ -124,32 +121,30 @@ namespace TeamCloud.API.Controllers.Core
                     GetContextDocumentAsync<T2>()
                 };
 
-                return tasks
-                    .WhenAll()
-                    .ContinueWith(_ => tasks.Select(task => (object)((dynamic)task).Result).ToArray(), TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .ContinueWith(r => (Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, r.Result), TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .Unwrap();
+                await tasks.WhenAll().ConfigureAwait(false);
+
+                var arguments = tasks
+                    .Select(task => (object)((dynamic)task).Result)
+                    .ToArray();
+
+                return await ((Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, arguments)).ConfigureAwait(false);
             }
             catch (ErrorResultException exc)
             {
-                return Task.FromResult(exc.ToActionResult());
-            }
-            catch (Exception exc)
-            {
-                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
+                return exc.ToActionResult();
             }
         }
 
-        protected Task<IActionResult> WithContextAsync<T1, T2, T3>(Func<User, T1, T2, T3, Task<IActionResult>> callback)
+        protected async Task<IActionResult> WithContextAsync<T1, T2, T3>(Func<User, T1, T2, T3, Task<IActionResult>> callback)
             where T1 : class, IContainerDocument
             where T2 : class, IContainerDocument
             where T3 : class, IContainerDocument
         {
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
             try
             {
-                if (callback is null)
-                    throw new ArgumentNullException(nameof(callback));
-
                 var tasks = new List<Task>()
                 {
                     GetService<UserService>().CurrentUserAsync(OrganizationId),
@@ -158,26 +153,25 @@ namespace TeamCloud.API.Controllers.Core
                     GetContextDocumentAsync<T3>()
                 };
 
-                return tasks
-                    .WhenAll()
-                    .ContinueWith(_ => tasks.Select(task => (object)((dynamic)task).Result).ToArray(), TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .ContinueWith(r => (Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, r.Result), TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .Unwrap();
+                await tasks.WhenAll().ConfigureAwait(false);
+
+                var arguments = tasks
+                    .Select(task => (object)((dynamic)task).Result)
+                    .ToArray();
+
+                return await((Task<IActionResult>)callback.GetType().GetMethod(nameof(callback.Invoke)).Invoke(callback, arguments)).ConfigureAwait(false);
             }
             catch (ErrorResultException exc)
             {
-                return Task.FromResult(exc.ToActionResult());
+                return exc.ToActionResult();
             }
-            catch (Exception exc)
-            {
-                return Task.FromResult(ErrorResult.ServerError(exc).ToActionResult());
-            }
+
         }
 
-        private Task<T> GetContextDocumentAsync<T>()
-            where T : class, IContainerDocument
+        private async Task<T> GetContextDocumentAsync<T>()
+                    where T : class, IContainerDocument
         {
-            return typeof(T) switch
+            var task = typeof(T) switch
             {
                 _ when typeof(T) == typeof(Organization) => GetService<IOrganizationRepository>()
                     .GetAsync(GetService<UserService>().CurrentUserTenant, OrganizationId)
@@ -204,8 +198,8 @@ namespace TeamCloud.API.Controllers.Core
                     .ContinueWith(task => OnNull(task.Result, $"A User with the name or id '{UserId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion)
                     .ContinueWith(task => GetService<IUserRepository>().GetAsync(OrganizationId, task.Result), TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()
                     .ContinueWith(task => OnNull(task.Result as T, $"A User with the Id '{UserId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
-                    
-                _ when typeof(T) ==  typeof(DeploymentScope) => GetService<IDeploymentScopeRepository>()
+
+                _ when typeof(T) == typeof(DeploymentScope) => GetService<IDeploymentScopeRepository>()
                     .GetAsync(OrganizationId, DeploymentScopeId)
                     .ContinueWith(task => OnNull(task.Result as T, $"A Deployment Scope with the name or id '{DeploymentScopeId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
 
@@ -215,6 +209,8 @@ namespace TeamCloud.API.Controllers.Core
 
                 _ => throw new NotSupportedException($"Context document of type {typeof(T)} is not supported")
             };
+
+            return await task.ConfigureAwait(false);
 
             static TValue OnNull<TValue>(TValue value, string errorMessage)
                 => value is null ? throw ErrorResult.NotFound(errorMessage).ToException() : value;

@@ -823,7 +823,7 @@ namespace TeamCloud.Adapters.GitHub
         });
 
         protected override Task<Component> UpdateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
-            => ExecuteAsync(component, contextUser, commandQueue, (Func<GitHubClient, Octokit.User, Octokit.Project, Team, Team, Task<Component>>)(async (client, owner, project, memberTeam, adminTeam) =>
+            => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
         {
             var users = await userRepository
                 .ListAsync(component.Organization, component.ProjectId)
@@ -886,11 +886,40 @@ namespace TeamCloud.Adapters.GitHub
                     }
                 }
             }
-        }));
+        });
 
         protected override Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
             => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
         {
+            if (GitHubIdentifier.TryParse(component.ResourceId, out var gitHubIdentifier))
+            {
+                var exists = await client.Repository
+                    .Exists(gitHubIdentifier.Organization, gitHubIdentifier.Repository)
+                    .ConfigureAwait(false);
+
+                if (exists)
+                {
+                    await client.Repository
+                        .Delete(gitHubIdentifier.Organization, gitHubIdentifier.Repository)
+                        .ConfigureAwait(false);
+                }
+
+                // remove resource related informations
+
+                component.ResourceId = null;
+                component.ResourceUrl = null;
+
+                // ensure resource state is deleted
+
+                component.ResourceState = Model.Common.ResourceState.Deprovisioned;
+
+                // update entity to ensure we have it's state updated in case the delete fails
+
+                component = await componentRepository
+                    .SetAsync(component)
+                    .ConfigureAwait(false);
+            }
+
             return component;
         });
 

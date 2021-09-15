@@ -43,26 +43,23 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                     .RemoveAsync(command.Payload)
                     .ConfigureAwait(false);
 
-                if (commandResult.Result.Type == ComponentType.Environment)
+                var componentTask = new ComponentTask
                 {
-                    var componentTask = new ComponentTask
-                    {
-                        Organization = commandResult.Result.Organization,
-                        ComponentId = commandResult.Result.Id,
-                        ProjectId = commandResult.Result.ProjectId,
-                        Type = ComponentTaskType.Delete,
-                        RequestedBy = command.User.Id,
-                        InputJson = commandResult.Result.InputJson
-                    };
+                    Organization = commandResult.Result.Organization,
+                    ComponentId = commandResult.Result.Id,
+                    ProjectId = commandResult.Result.ProjectId,
+                    Type = ComponentTaskType.Delete,
+                    RequestedBy = command.User.Id,
+                    InputJson = commandResult.Result.InputJson
+                };
 
-                    componentTask = await componentTaskRepository
-                        .AddAsync(componentTask)
-                        .ConfigureAwait(false);
+                componentTask = await componentTaskRepository
+                    .AddAsync(componentTask)
+                    .ConfigureAwait(false);
 
-                    await commandQueue
-                        .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
-                        .ConfigureAwait(false);
-                }
+                await commandQueue
+                    .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
+                    .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
