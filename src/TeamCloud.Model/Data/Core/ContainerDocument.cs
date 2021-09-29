@@ -34,10 +34,20 @@ namespace TeamCloud.Model.Data.Core
         string IContainerDocument.ETag { get; set; }
 
         public object Clone()
-        {
-            var json = TeamCloudSerialize.SerializeObject(this);
+            => Clone(false);
 
-            return TeamCloudSerialize.DeserializeObject(json, GetType());
+        public virtual object Clone(bool reset)
+        {
+            var json = TeamCloudSerialize
+                .SerializeObject(this);
+
+            var clone = (ContainerDocument) TeamCloudSerialize
+                .DeserializeObject(json, GetType());
+
+            if (reset)
+                clone.Id = Guid.NewGuid().ToString();
+
+            return clone;
         }
 
         public override string ToString() => this switch

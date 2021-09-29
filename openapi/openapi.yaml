@@ -338,14 +338,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}':
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}':
     get:
       tags:
         - ComponentTasks
       summary: Gets the Component Task.
       operationId: GetComponentTask
       parameters:
-        - name: id
+        - name: taskId
           in: path
           required: true
           schema:
@@ -381,6 +381,118 @@ paths:
                 $ref: '#/components/schemas/ErrorResult'
         '404':
           description: A Component Task with the provided id was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/cancel':
+    put:
+      tags:
+        - ComponentTasks
+      summary: Rerun a Project Component Task.
+      operationId: CancelComponentTask
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The canceled Project Component Task.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentTaskDataResult'
+        '202':
+          description: Starts cancelling the Project Component Task. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project or Project Component with the provided identifier was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/rerun':
+    put:
+      tags:
+        - ComponentTasks
+      summary: Cancel an active Project Component Task.
+      operationId: ReRunComponentTask
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: The created Project Component Task created by the rerun action.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentTaskDataResult'
+        '202':
+          description: Rerun the Project Component Task. Returns a StatusResult object that can be used to track progress of the long-running operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResult'
+        '400':
+          description: A validation error occured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '404':
+          description: A Project or Project Component with the provided identifier was not found.
           content:
             application/json:
               schema:
@@ -676,13 +788,12 @@ paths:
       summary: Authorize an existing Deployment Scope.
       operationId: AuthorizeDeploymentScope
       parameters:
-        - name: deploymentScopeId
+        - name: organizationId
           in: path
           required: true
           schema:
             type: string
-            nullable: true
-        - name: organizationId
+        - name: deploymentScopeId
           in: path
           required: true
           schema:
@@ -3148,6 +3259,7 @@ components:
             - Initializing
             - Processing
             - Succeeded
+            - Canceled
             - Failed
           type: string
         exitCode:
@@ -3912,6 +4024,14 @@ components:
           nullable: true
         storageId:
           type: string
+          nullable: true
+        deleted:
+          type: string
+          format: date-time
+          nullable: true
+        ttl:
+          type: integer
+          format: int32
           nullable: true
         id:
           type: string

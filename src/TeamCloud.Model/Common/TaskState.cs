@@ -19,13 +19,15 @@ namespace TeamCloud.Model.Common
 
         Succeeded,
 
+        Canceled,
+
         Failed
     }
 
     public static class TaskStateExtensions
     {
         public static bool IsFinal(this TaskState taskState)
-            => taskState == TaskState.Succeeded || taskState == TaskState.Failed;
+            => taskState == TaskState.Succeeded || taskState == TaskState.Canceled || taskState == TaskState.Failed;
 
         public static bool IsActive(this TaskState taskState)
             => !taskState.IsFinal();

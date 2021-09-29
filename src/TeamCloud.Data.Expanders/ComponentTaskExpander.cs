@@ -53,18 +53,21 @@ namespace TeamCloud.Data.Expanders
             {
                 var results = await Task.WhenAll(
 
+                    GetAuditAsync(document),
                     GetEventsAsync(document),
-                    GetOutputAsync(document),
-                    GetAuditAsync(document)
+                    GetOutputAsync(document)
 
                 ).ConfigureAwait(false);
 
                 if (results.Any(result => !string.IsNullOrEmpty(result)))
                 {
+                    var output = string.Join(Seperator, results.Where(result => !string.IsNullOrEmpty(result)));
+
                     // do some empty line trimming (left & right)
-                    document.Output = string.Join(Seperator, results.Where(result => !string.IsNullOrEmpty(result))); 
-                    document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
-                    document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
+                    output = Regex.Replace(output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
+                    output = Regex.Replace(output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
+
+                    document.Output = output;
                 }
             }
         }
@@ -75,29 +78,15 @@ namespace TeamCloud.Data.Expanders
             {
                 try
                 {
-                    var session = await azureResourceService.AzureSessionService
-                        .CreateSessionAsync(resourceId.SubscriptionId)
+                    var containerGroup = await azureResourceService
+                        .GetResourceAsync<AzureContainerGroupResource>(resourceId.ToString())
                         .ConfigureAwait(false);
 
-                    var runner = await session.ContainerGroups
-                        .GetByIdAsync(resourceId.ToString())
-                        .ConfigureAwait(false);
-
-                    var container = runner?.Containers
-                        .SingleOrDefault()
-                        .Value;
-
-                    if (container?.InstanceView != null)
+                    if (containerGroup != null)
                     {
-                        var lines = container.InstanceView.Events
-                            .Where(e => e.LastTimestamp.HasValue)
-                            .OrderBy(e => e.LastTimestamp)
-                            .Select(e => $"{e.LastTimestamp.Value:yyyy-MM-dd hh:mm:ss}\t{e.Name}\t\t{e.Message}");
-
-                        if (lines.Any())
-                            lines = lines.Append(string.Empty);
-
-                        return string.Join(Environment.NewLine, lines);
+                        return await containerGroup
+                            .GetEventContentAsync("runner")
+                            .ConfigureAwait(false);
                     }
                 }
                 catch
@@ -111,23 +100,34 @@ namespace TeamCloud.Data.Expanders
 
         private async Task<string> GetOutputAsync(ComponentTask document)
         {
-            var cacheKey = $"{GetType()}|{document.GetType()}|{document.Id}";
+            var output = default(string);
 
-            try
+            var outputUrl = await cache
+                .GetOrCreateAsync($"{GetType()}|{document.GetType()}|{document.Id}", GetOutputUrlAsync)
+                .ConfigureAwait(false);
+
+            if (outputUrl != null)
             {
-                var sasUrl = await cache
-                    .GetOrCreateAsync(cacheKey, AcquireSasUrl)
-                    .ConfigureAwait(false);
-
-                if (sasUrl is null)
+                if (document.TaskState.IsActive())
                 {
-                    cache.Remove(cacheKey);
-
-                    return null;
+                    output = await GetOutputLogAsync(null)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
-                    using var stream = await sasUrl.ToString()
+                    output = await cache
+                        .GetOrCreateAsync(outputUrl, GetOutputLogAsync)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            return output;
+
+            async Task<string> GetOutputLogAsync(ICacheEntry entry)
+            {
+                try
+                {
+                    using var stream = await outputUrl.ToString()
                         .WithHeader("responsecontent-disposition", "file; attachment")
                         .WithHeader("responsecontent-type", "binary")
                         .GetStreamAsync()
@@ -137,73 +137,103 @@ namespace TeamCloud.Data.Expanders
                     {
                         using var reader = new StreamReader(stream);
 
-                        return await reader
-                            .ReadToEndAsync()
-                            .ConfigureAwait(false);
+                        if (entry != null)
+                        {
+                            entry.AbsoluteExpiration = DateTime.UtcNow.AddDays(1);
+
+                            entry.Value = await reader
+                                .ReadToEndAsync()
+                                .ConfigureAwait(false);
+
+                            // add entry to cache if not null
+                            if (entry.Value != null) entry.Dispose();
+                        }
+                        else
+                        {
+
+                            return await reader
+                                .ReadToEndAsync()
+                                .ConfigureAwait(false);
+                        }
                     }
                 }
-            }
-            catch
-            {
-                // swallow
-            }
-
-            return default;
-
-            async Task<Uri> AcquireSasUrl(ICacheEntry entry)
-            {
-                var project = await projectRepository
-                    .GetAsync(document.Organization, document.ProjectId)
-                    .ConfigureAwait(false);
-
-                if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+                catch
                 {
-                    var storageAccount = await azureResourceService
-                        .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                    // swallow
+                }
+
+                return entry?.Value as string;
+            }
+
+            async Task<Uri> GetOutputUrlAsync(ICacheEntry entry)
+            {
+                try
+                {
+                    var project = await projectRepository
+                        .GetAsync(document.Organization, document.ProjectId)
                         .ConfigureAwait(false);
 
-                    if (storageAccount != null)
+                    if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
                     {
-                        entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
-
-                        return await storageAccount
-                            .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
+                        var storageAccount = await azureResourceService
+                            .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
                             .ConfigureAwait(false);
+
+                        if (storageAccount != null)
+                        {
+                            entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
+
+                            entry.Value = await storageAccount // create a shared access token with an additional expiration offset to avoid time sync issues when fetching the output
+                                .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
+                                .ConfigureAwait(false);
+
+                            // add entry to cache if not null
+                            if (entry.Value != null) entry.Dispose();
+                        }
                     }
                 }
+                catch
+                {
+                    // swallow
+                }
 
-                return default;
+                return entry?.Value as Uri;
             }
         }
 
         private async Task<string> GetAuditAsync(ComponentTask document)
         {
-            if (document.TaskState.IsFinal())
+            var audit = await commandAuditReader
+                .GetAsync(Guid.Parse(document.Organization), Guid.Parse(document.Id))
+                .ConfigureAwait(false);
+
+            if (audit != null)
             {
-                var audit = await commandAuditReader
-                    .GetAsync(Guid.Parse(document.Organization), Guid.Parse(document.Id))
+                var username = await azureDirectoryService
+                    .GetDisplayNameAsync(audit.UserId)
                     .ConfigureAwait(false);
 
-                if ((audit?.RuntimeStatus ?? CommandRuntimeStatus.Unknown).IsFinal())
+                var output = new StringBuilder();
+
+                output.AppendLine($"User:       {username}");
+                output.AppendLine($"Created:    {audit.Created}");
+
+                if (audit.RuntimeStatus.IsActive())
                 {
-                    var username = await azureDirectoryService
-                        .GetDisplayNameAsync(audit.UserId)
-                        .ConfigureAwait(false);
-
-                    var output = new StringBuilder();
-
-                    output.AppendLine($"User:       {username}");
-                    output.AppendLine($"Created:    {audit.Created}");
-                    output.AppendLine($"Finished:   {audit.Updated}");
-
-                    if (!string.IsNullOrEmpty(audit.Errors))
-                    {
-                        output.AppendLine(Seperator);
-                        output.AppendLine(audit.Errors);
-                    }
-
-                    return output.ToString();
+                    output.AppendLine($"Updated:    {audit.Updated}");
                 }
+                else
+                {
+                    output.AppendLine($"Finished:   {audit.Updated}");
+                }
+
+                if (!string.IsNullOrEmpty(audit.Errors))
+                {
+                    output.AppendLine(Seperator);
+                    output.AppendLine(audit.Errors);
+                }
+
+                return output.ToString();
             }
 
             return default;

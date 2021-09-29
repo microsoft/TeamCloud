@@ -248,42 +248,57 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<Project> RemoveAsync(Project project)
+        public override Task<Project> RemoveAsync(Project project)
+            => RemoveAsync(project, soft: true);
+
+        public async Task<Project> RemoveAsync(Project project, bool soft)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
 
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            try
+            if (soft)
             {
-                var response = await container
-                    .DeleteItemAsync<Project>(project.Id, GetPartitionKey(project))
-                    .ConfigureAwait(false);
+                project.Deleted ??= DateTime.UtcNow;
+                project.TTL = GetSoftDeleteTTL();
 
-                RemoveCachedIds(project);
-
-                await userRepository
-                    .RemoveProjectMembershipsAsync(project.Organization, project.Id)
-                    .ConfigureAwait(false);
-
-                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
-                    .ConfigureAwait(false);
+                return await SetAsync(project).ConfigureAwait(false);
             }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            else
             {
-                return null; // already deleted
+                var container = await GetContainerAsync()
+                    .ConfigureAwait(false);
+
+                try
+                {
+                    var response = await container
+                        .DeleteItemAsync<Project>(project.Id, GetPartitionKey(project))
+                        .ConfigureAwait(false);
+
+                    RemoveCachedIds(project);
+
+                    await userRepository
+                        .RemoveProjectMembershipsAsync(project.Organization, project.Id)
+                        .ConfigureAwait(false);
+
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                        .ConfigureAwait(false);
+                }
+                catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null; // already deleted
+                }
             }
         }
 
         private async Task<Project> PopulateUsersAsync(Project project)
         {
             if (project != null)
+            {
                 project.Users = await userRepository
                     .ListAsync(project.Organization, project.Id)
                     .ToListAsync()
                     .ConfigureAwait(false);
+            }
 
             return project;
         }

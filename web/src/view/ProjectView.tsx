@@ -46,8 +46,6 @@ export const ProjectView: React.FC = () => {
 
         message.items.forEach(item => {
 
-            console.log(`Received SignalR Message: ${JSON.stringify(item)}`);
-            
             if (!item.organization || !item.project || !item.type || !item.id)
                 throw Error('Missing required stuff');
 
@@ -75,39 +73,14 @@ export const ProjectView: React.FC = () => {
 
         switch (action) {
             case 'create':
-                // typeQueries.forEach(q => {
-                //     console.log(`create: invalidating query: ${q}`);
-                //     queryClient.invalidateQueries(q, { exact: true });
-                // });
-                // itemQueries.forEach(q => {
-                //     console.log(`create: invalidating query: ${q}`);
-                //     queryClient.invalidateQueries(q, { exact: true });
-                // });
                 typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 itemQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 break;
             case 'update':
-                // itemQueries.forEach(q => {
-                //     console.log(`update: invalidating query: ${q}`);
-                //     queryClient.invalidateQueries(q, { exact: true });
-                // });
-                // typeQueries.forEach(q => {
-                //     console.log(`update: invalidating query: ${q}`);
-                //     queryClient.invalidateQueries(q, { exact: true })
-                // });
                 itemQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 break;
             case 'delete':
-                // itemQueries.forEach(q => {
-                //     if (q)
-                //         console.log(`delete: removing query: ${q}`);
-                //     queryClient.removeQueries(q, { exact: true })
-                // });
-                // typeQueries.forEach(q => {
-                //     console.log(`delete: invalidating query: ${q}`);
-                //     queryClient.invalidateQueries(q, { exact: true })
-                // });
                 itemQueries.forEach(q => queryClient.removeQueries(q, { exact: true }));
                 typeQueries.forEach(q => queryClient.invalidateQueries(q, { exact: true }));
                 break;
@@ -119,6 +92,7 @@ export const ProjectView: React.FC = () => {
 
 
     useEffect(() => {
+
         if (project) {
             try {
                 startSignalR(project, handleMessage);
@@ -136,6 +110,7 @@ export const ProjectView: React.FC = () => {
                 }
             }
         }
+        
     }, [project, handleMessage])
 
 

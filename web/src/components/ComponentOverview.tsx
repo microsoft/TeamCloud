@@ -18,7 +18,7 @@ export const ComponentOverview: React.FC = () => {
     const { data: scopes } = useDeploymentScopes();
 
     const { data: members } = useProjectMembers();
-    const { data: component } = useProjectComponent();
+    const { data: component } = useProjectComponent(true);
     const { data: templates } = useProjectComponentTemplates();
 
     const [template, setTemplate] = useState<ComponentTemplate>();

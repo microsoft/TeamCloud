@@ -192,7 +192,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "The DeploymentScope was updated.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A DeploymentScope with the id provided was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Authorize([FromRoute] string deploymentScopeId, [FromBody] DeploymentScope deploymentScopeAuthorize) => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>
+        public Task<IActionResult> Authorize([FromBody] DeploymentScope deploymentScopeAuthorize) => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>
         {
             if (deploymentScopeAuthorize is null)
                 return ErrorResult

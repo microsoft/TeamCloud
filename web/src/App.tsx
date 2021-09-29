@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { BrowserRouter } from 'react-router-dom';
 import { RootView } from './view';
+import './App.css'
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -17,7 +18,7 @@ const queryClient = new QueryClient({
     }
 })
 
-export const App: React.FC = () => (
+export const App: React.FC = () => ( 
     <QueryClientProvider client={queryClient}>
         <BrowserRouter>
             <RootView />

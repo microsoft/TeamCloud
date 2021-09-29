@@ -2187,6 +2187,20 @@ export const Project = {
                     name: "String"
                 }
             },
+            deleted: {
+                serializedName: "deleted",
+                nullable: true,
+                type: {
+                    name: "DateTime"
+                }
+            },
+            ttl: {
+                serializedName: "ttl",
+                nullable: true,
+                type: {
+                    name: "Number"
+                }
+            },
             id: {
                 serializedName: "id",
                 required: true,

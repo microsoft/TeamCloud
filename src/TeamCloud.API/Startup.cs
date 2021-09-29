@@ -219,6 +219,7 @@ namespace TeamCloud.API
                     options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
                     options.ConstraintMap.Add("deploymentScopeId", typeof(DeploymentScopeIdentifierConstraint));
                     options.ConstraintMap.Add("commandId", typeof(CommandIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("taskId", typeof(TaskIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()

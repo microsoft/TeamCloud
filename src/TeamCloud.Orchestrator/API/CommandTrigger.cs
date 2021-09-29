@@ -34,15 +34,13 @@ namespace TeamCloud.Orchestrator.API
     public class CommandTrigger
     {
         private readonly ICommandHandler[] commandHandlers;
-        private readonly IAdapter[] adapters;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ICommandAuditWriter commandAuditWriter;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
 
-        public CommandTrigger(ICommandHandler[] commandHandlers, IAdapter[] adapters, IHttpContextAccessor httpContextAccessor, ICommandAuditWriter commandAuditWriter, IDeploymentScopeRepository deploymentScopeRepository)
+        public CommandTrigger(ICommandHandler[] commandHandlers, IHttpContextAccessor httpContextAccessor, ICommandAuditWriter commandAuditWriter, IDeploymentScopeRepository deploymentScopeRepository)
         {
             this.commandHandlers = commandHandlers ?? throw new ArgumentNullException(nameof(commandHandlers));
-            this.adapters = adapters ?? throw new ArgumentNullException(nameof(adapters));
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.commandAuditWriter = commandAuditWriter ?? throw new ArgumentNullException(nameof(commandAuditWriter));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));

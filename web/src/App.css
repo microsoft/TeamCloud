@@ -1,0 +1,4 @@
+html, body {
+	max-height: 100vh !important;
+	overflow: hidden;
+}

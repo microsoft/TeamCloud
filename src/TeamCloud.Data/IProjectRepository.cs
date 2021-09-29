@@ -13,6 +13,8 @@ namespace TeamCloud.Data
     {
         Task<string> ResolveIdAsync(string tenant, string identifier);
 
+        Task<Project> RemoveAsync(Project project, bool soft);
+
         IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> identifiers);
 
         IAsyncEnumerable<Project> ListByTemplateAsync(string organization, string templateId);

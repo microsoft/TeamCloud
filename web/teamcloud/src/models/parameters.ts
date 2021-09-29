@@ -118,6 +118,17 @@ export const body1: OperationParameter = {
   mapper: ComponentTaskDefinitionMapper
 };
 
+export const taskId: OperationURLParameter = {
+  parameterPath: "taskId",
+  mapper: {
+    serializedName: "taskId",
+    required: true,
+    type: {
+      name: "String"
+    }
+  }
+};
+
 export const id: OperationURLParameter = {
   parameterPath: "id",
   mapper: {

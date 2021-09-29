@@ -77,6 +77,10 @@ pre.failure {
   color: red;
 }
 
+.deployment-state-icon-canceled {
+  font-size: 26px;
+  color: darkgray;
+}
 /* .rjsf label {
   display: none;
 } */

@@ -21,10 +21,7 @@ using TeamCloud.Orchestrator.Options;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
 {
-    public sealed class ProjectCommandHandler : CommandHandler,
-          ICommandHandler<ProjectCreateCommand>,
-          ICommandHandler<ProjectUpdateCommand>,
-          ICommandHandler<ProjectDeleteCommand>
+    public sealed class ProjectCreateCommandHandler : CommandHandler<ProjectCreateCommand>
     {
         private readonly IUserRepository userRepository;
         private readonly TeamCloudEndpointOptions endpointOptions;
@@ -32,7 +29,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
         private readonly IOrganizationRepository organizationRepository;
         private readonly IProjectRepository projectRepository;
 
-        public ProjectCommandHandler(IAzureSessionService azureSessionService, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, TeamCloudEndpointOptions endpointOptions)
+        public ProjectCreateCommandHandler(IAzureSessionService azureSessionService, IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IUserRepository userRepository, TeamCloudEndpointOptions endpointOptions)
         {
             this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
             this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
@@ -43,7 +40,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
         public override bool Orchestration => false;
 
-        public async Task<ICommandResult> HandleAsync(ProjectCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        public override async Task<ICommandResult> HandleAsync(ProjectCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -83,58 +80,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
                 await commandQueue
                     .AddAsync(new NotificationSendMailCommand<WelcomeMessage>(command.User, message))
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
-        }
-
-        public async Task<ICommandResult> HandleAsync(ProjectUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                commandResult.Result = await projectRepository
-                    .SetAsync(command.Payload)
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
-        }
-
-        public async Task<ICommandResult> HandleAsync(ProjectDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                commandResult.Result = await projectRepository
-                    .RemoveAsync(command.Payload)
                     .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;

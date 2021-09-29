@@ -206,6 +206,7 @@ export declare interface ComponentTaskRunner {
  * **Initializing** \
  * **Processing** \
  * **Succeeded** \
+ * **Canceled** \
  * **Failed**
  */
 export declare type ComponentTaskState = string;
@@ -417,6 +418,7 @@ export declare enum KnownComponentTaskState {
     Initializing = "Initializing",
     Processing = "Processing",
     Succeeded = "Succeeded",
+    Canceled = "Canceled",
     Failed = "Failed"
 }
 
@@ -636,6 +638,8 @@ export declare interface Project {
     sharedVaultId?: string;
     secretsVaultId?: string;
     storageId?: string;
+    deleted?: Date;
+    ttl?: number;
     id: string;
 }
 
@@ -995,13 +999,31 @@ export declare class TeamCloud extends TeamCloudContext {
     createComponentTask(organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
     /**
      * Gets the Component Task.
-     * @param id
+     * @param taskId
      * @param organizationId
      * @param projectId
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudGetComponentTaskOptionalParams): Promise<TeamCloudGetComponentTaskResponse>;
+    getComponentTask(taskId: string | null, organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudGetComponentTaskOptionalParams): Promise<TeamCloudGetComponentTaskResponse>;
+    /**
+     * Rerun a Project Component Task.
+     * @param organizationId
+     * @param projectId
+     * @param componentId
+     * @param taskId
+     * @param options The options parameters.
+     */
+    cancelComponentTask(organizationId: string, projectId: string, componentId: string | null, taskId: string | null, options?: TeamCloudCancelComponentTaskOptionalParams): Promise<TeamCloudCancelComponentTaskResponse>;
+    /**
+     * Cancel an active Project Component Task.
+     * @param organizationId
+     * @param projectId
+     * @param componentId
+     * @param taskId
+     * @param options The options parameters.
+     */
+    reRunComponentTask(organizationId: string, projectId: string, componentId: string | null, taskId: string | null, options?: TeamCloudReRunComponentTaskOptionalParams): Promise<TeamCloudReRunComponentTaskResponse>;
     /**
      * Gets all Component Templates for a Project.
      * @param organizationId
@@ -1052,11 +1074,11 @@ export declare class TeamCloud extends TeamCloudContext {
     deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudDeleteDeploymentScopeOptionalParams): Promise<TeamCloudDeleteDeploymentScopeResponse>;
     /**
      * Authorize an existing Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    authorizeDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
+    authorizeDeploymentScope(organizationId: string, deploymentScopeId: string | null, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
     /**
      * Negotiates the SignalR connection.
      * @param organizationId
@@ -1411,6 +1433,13 @@ export declare interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends
 
 /** Contains response data for the authorizeDeploymentScope operation. */
 export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudCancelComponentTaskOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the cancelComponentTask operation. */
+export declare type TeamCloudCancelComponentTaskResponse = ComponentTaskDataResult;
 
 export declare class TeamCloudContext extends coreClient.ServiceClient {
     $host: string;
@@ -1829,6 +1858,13 @@ export declare interface TeamCloudOptionalParams extends coreClient.ServiceClien
     /** Overrides client endpoint. */
     endpoint?: string;
 }
+
+/** Optional parameters. */
+export declare interface TeamCloudReRunComponentTaskOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the reRunComponentTask operation. */
+export declare type TeamCloudReRunComponentTaskResponse = ComponentTaskDataResult;
 
 /** Optional parameters. */
 export declare interface TeamCloudRunScheduleOptionalParams extends coreClient.OperationOptions {

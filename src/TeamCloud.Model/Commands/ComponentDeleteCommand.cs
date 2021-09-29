@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 

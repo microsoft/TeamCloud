@@ -42,6 +42,8 @@ namespace TeamCloud.API.Controllers.Core
 
         protected string ProjectId => RouteData.ValueOrDefault(nameof(ProjectId));
 
+        protected string TaskId => RouteData.ValueOrDefault(nameof(TaskId));
+
         protected string ComponentId => RouteData.ValueOrDefault(nameof(ComponentId));
 
         protected string ScheduleId => RouteData.ValueOrDefault(nameof(ScheduleId));
@@ -192,6 +194,10 @@ namespace TeamCloud.API.Controllers.Core
                 _ when typeof(T) == typeof(Component) => GetService<IComponentRepository>()
                     .GetAsync(ProjectId, ComponentId)
                     .ContinueWith(task => OnNull(task.Result as T, $"A Component with id '{ComponentId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                _ when typeof(T) == typeof(ComponentTask) => GetService<IComponentTaskRepository>()
+                    .GetAsync(ComponentId, TaskId)
+                    .ContinueWith(task => OnNull(task.Result as T, $"A Component task with id '{TaskId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
 
                 _ when typeof(T) == typeof(User) => GetService<UserService>()
                     .GetUserIdAsync(UserId)

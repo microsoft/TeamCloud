@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +20,8 @@ using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
 using ValidationError = TeamCloud.API.Data.Results.ValidationError;
@@ -59,27 +62,17 @@ namespace TeamCloud.API.Controllers
        });
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{taskId}")]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "GetComponentTask", Summary = "Gets the Component Task.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Component Task", typeof(DataResult<ComponentTask>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Component Task with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string id) => WithContextAsync<Component>(async (contextUser, component) =>
+        public Task<IActionResult> Get([FromRoute] string taskId) => WithContextAsync<ComponentTask>(async (contextUser, componentTask) =>
         {
-            if (string.IsNullOrWhiteSpace(id))
-                return ErrorResult
-                    .BadRequest($"The id provided in the url path is invalid. Must be a non-empty string.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
-
-            var componentTask = await componentTaskRepository
-                .GetAsync(component.Id, id, true)
+            componentTask = await componentTaskRepository
+                .ExpandAsync(componentTask, true)
                 .ConfigureAwait(false);
-
-            if (componentTask is null)
-                return ErrorResult
-                    .NotFound($"A Component Task with the id '{id}' could not be found for Component {component.Id}.")
-                    .ToActionResult();
 
             return DataResult<ComponentTask>
                 .Ok(componentTask)
@@ -153,6 +146,65 @@ namespace TeamCloud.API.Controllers
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
+                .ConfigureAwait(false);
+        });
+
+
+        [HttpPut("{taskId}/cancel")]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
+        [SwaggerOperation(OperationId = "CancelComponentTask", Summary = "Rerun a Project Component Task.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The canceled Project Component Task.", typeof(DataResult<ComponentTask>))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Starts cancelling the Project Component Task. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project or Project Component with the provided identifier was not found.", typeof(ErrorResult))]
+        public Task<IActionResult> Cancel() => WithContextAsync<ComponentTask>(async (contextUser, componentTask) =>
+        {
+            if (componentTask.Type != ComponentTaskType.Custom)
+                return ErrorResult
+                    .BadRequest($"Component tasks of type '{componentTask.TypeName}' cannot be canceled!", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+            if (componentTask.TaskState.IsFinal())
+                return ErrorResult
+                    .BadRequest($"Component tasks in state '{componentTask.TaskState}' cannot be canceled!", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+            var command = new ComponentTaskCancelCommand(contextUser, componentTask);
+
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync(command, Request)
+                .ConfigureAwait(false);
+        });
+
+        [HttpPut("{taskId}/rerun")]
+        [Authorize(Policy = AuthPolicies.ProjectMember)]
+        [SwaggerOperation(OperationId = "ReRunComponentTask", Summary = "Cancel an active Project Component Task.")]
+        [SwaggerResponse(StatusCodes.Status201Created, "The created Project Component Task created by the rerun action.", typeof(DataResult<ComponentTask>))]
+        [SwaggerResponse(StatusCodes.Status202Accepted, "Rerun the Project Component Task. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "A Project or Project Component with the provided identifier was not found.", typeof(ErrorResult))]
+        public Task<IActionResult> Rerun() => WithContextAsync<ComponentTask>(async (contextUser, componentTask) =>
+        {
+            if (componentTask.Type != ComponentTaskType.Custom)
+                return ErrorResult
+                    .BadRequest($"Component tasks of type '{componentTask.TypeName}' cannot be restarted!", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+            if (componentTask.TaskState.IsActive())
+                return ErrorResult
+                    .BadRequest($"Component tasks in state '{componentTask.TaskState}' cannot be restarted!", ResultErrorCode.ValidationError)
+                    .ToActionResult();
+
+            componentTask = componentTask.Clone(true) as ComponentTask;
+
+            var command = new ComponentTaskCreateCommand(contextUser, componentTask);
+
+            // CAUTION - this is a PUT opertion on the API side but behaves like a POST
+            // when it comes to the returned response, as a new component task instance
+            // is created. therefore we are going to enforce the POST behaviour.
+
+            return await Orchestrator
+                .InvokeAndReturnActionResultAsync(command, HttpMethod.Post)
                 .ConfigureAwait(false);
         });
     }

@@ -20,10 +20,10 @@ namespace TeamCloud.API.Auth
     public static class UserRoleExtensions
     {
         public static string AuthPolicy(this OrganizationUserRole role)
-            => $"Organization_{role}";
+            => $"Organization{role}";
 
         public static string AuthPolicy(this ProjectUserRole role)
-            => $"Project_{role}";
+            => $"Project{role}";
     }
 
     public static class UserRolePolicies

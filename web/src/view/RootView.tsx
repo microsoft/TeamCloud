@@ -68,7 +68,7 @@ export const RootView: React.FC<IRootViewProps> = (props) => {
                 '/orgs/:orgId/projects/:projectId/:navId/:itemId',
                 '/orgs/:orgId/projects/:projectId/:navId/:itemId/tasks/:subitemId',
             ]}>
-                <Stack verticalFill>
+                <Stack verticalFill style={{ height:"100vh" }}>
                     <HeaderBar />
                     <AuthenticatedTemplate>
                         <Stack horizontal disableShrink verticalFill verticalAlign='stretch'>

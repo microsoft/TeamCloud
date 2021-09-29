@@ -8,6 +8,7 @@ export declare const contentType: OperationParameter;
 export declare const body: OperationParameter;
 export declare const componentId: OperationURLParameter;
 export declare const body1: OperationParameter;
+export declare const taskId: OperationURLParameter;
 export declare const id: OperationURLParameter;
 export declare const body2: OperationParameter;
 export declare const deploymentScopeId: OperationURLParameter;

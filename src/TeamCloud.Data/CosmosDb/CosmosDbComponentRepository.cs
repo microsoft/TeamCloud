@@ -251,51 +251,6 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public async Task RemoveAllAsync(string projectId, bool soft)
-        {
-            var components = ListAsync(projectId, includeDeleted: !soft);
-
-            if (await components.AnyAsync().ConfigureAwait(false))
-            {
-                var container = await GetContainerAsync()
-                    .ConfigureAwait(false);
-
-                var batch = container
-                    .CreateTransactionalBatch(GetPartitionKey(projectId));
-
-                if (soft)
-                {
-                    var now = DateTime.UtcNow;
-                    var ttl = GetSoftDeleteTTL();
-
-                    await foreach (var component in components.ConfigureAwait(false))
-                    {
-                        component.Deleted = now;
-                        component.TTL = ttl;
-                        batch = batch.UpsertItem(component);
-                    }
-                }
-                else
-                {
-                    await foreach (var component in components.ConfigureAwait(false))
-                        batch = batch.DeleteItem(component.Id);
-                }
-
-                using var batchResult = await batch
-                    .ExecuteAsync()
-                    .ConfigureAwait(false);
-
-                if (batchResult.IsSuccessStatusCode)
-                {
-                    _ = await NotifySubscribersAsync(batchResult.GetOperationResultResources<Component>(), DocumentSubscriptionEvent.Delete).ConfigureAwait(false);
-                }
-                else
-                {
-                    throw new Exception(batchResult.ErrorMessage);
-                }
-            }
-        }
-
         public override async Task<Component> SetAsync(Component component)
         {
             if (component is null)

@@ -55,6 +55,21 @@ namespace TeamCloud.Model.Data
 
         public int? ExitCode { get; set; }
 
+        public override object Clone(bool reset)
+        {
+            var clone = (ComponentTask) base.Clone(reset);
+
+            if (reset)
+            {
+                clone.TaskState = TaskState.Pending;
+                clone.Created = DateTime.UtcNow;
+                clone.Started = null;
+                clone.Finished = null;
+                clone.ExitCode = null;
+            }
+
+            return clone;
+        }
         public bool Equals(ComponentTask other)
             => Id.Equals(other?.Id, StringComparison.Ordinal);
 

@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
+import { DefaultButton, getTheme, Link, Persona, PersonaSize, Stack, Text, TextField } from '@fluentui/react';
 import { ProjectMember } from '../model';
 import { ContentSeparator, UserPersona } from '.';
-import { useOrg, useUser, useProject, useProjectMembers } from '../hooks';
+import { useOrg, useUser, useProject, useProjectMembers, useDeleteProject } from '../hooks';
+import { ConfirmationButton } from './common/ConfirmationButton';
 
 export const ProjectSettingsOverview: React.FC = () => {
 
@@ -17,6 +18,7 @@ export const ProjectSettingsOverview: React.FC = () => {
 
     const [owner, setOwner] = useState<ProjectMember>();
 
+    const deleteProject = useDeleteProject();
     const theme = getTheme();
 
     useEffect(() => {
@@ -123,7 +125,7 @@ export const ProjectSettingsOverview: React.FC = () => {
                         <Text>This will affect all contents and members of this organization.</Text>
                     </Stack.Item>
                     <Stack.Item styles={{ root: { paddingTop: '12px' } }}>
-                        <PrimaryButton
+                        <ConfirmationButton
                             disabled={!(owner && user && owner.user.id === user.id)}
                             text='Delete'
                             styles={{
@@ -131,7 +133,11 @@ export const ProjectSettingsOverview: React.FC = () => {
                                 rootHovered: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
                                 rootPressed: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
                                 label: { fontWeight: 700 }
-                            }} />
+                            }} 
+                            confirmationTitle='Delete project' 
+                            confirmationBody={`Are you sure you want to delete the "${project.displayName}" project?\nYou will loose all provisioned component instances (incl. contained data).`}
+                            confirmationValue={project.displayName} 
+                            onClick={(evt) => deleteProject(project)}/>
                     </Stack.Item>
                 </Stack>
             </Stack.Item>

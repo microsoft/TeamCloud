@@ -87,6 +87,16 @@ export const body1 = {
     parameterPath: ["options", "body"],
     mapper: ComponentTaskDefinitionMapper
 };
+export const taskId = {
+    parameterPath: "taskId",
+    mapper: {
+        serializedName: "taskId",
+        required: true,
+        type: {
+            name: "String"
+        }
+    }
+};
 export const id = {
     parameterPath: "id",
     mapper: {
