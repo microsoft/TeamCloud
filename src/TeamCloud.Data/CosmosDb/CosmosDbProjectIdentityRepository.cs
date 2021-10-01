@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
@@ -97,22 +98,16 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'";
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.projectId = @identifier")
+                .WithParameter("@identifier", projectIdParsed.ToString());
 
-            var query = new QueryDefinition(queryString);
+            var projectIdentities = container
+                .GetItemQueryIterator<ProjectIdentity>(query, requestOptions: GetQueryRequestOptions(projectId))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            var queryIterator = container
-                .GetItemQueryIterator<ProjectIdentity>(query, requestOptions: GetQueryRequestOptions(projectId));
-
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
-            }
+            await foreach(var projectIdentity in projectIdentities)
+                yield return projectIdentity;
         }
 
         public override async Task<ProjectIdentity> RemoveAsync(ProjectIdentity document)

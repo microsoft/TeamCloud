@@ -284,30 +284,14 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
-            var queryIterator = container
-                .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: GetQueryRequestOptions(organization));
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
+            var projects = container
+                .GetItemQueryIterator<ProjectTemplate>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => repositoryService.UpdateProjectTemplateAsync(item).ContinueWith(t => ExpandAsync(t.Result), TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap())
+                .ConfigureAwait(false);
 
-                var tasks = queryResponse
-                    .Select(qr => repositoryService.UpdateProjectTemplateAsync(qr))
-                    .ToList();
-
-                while (tasks.Any())
-                {
-                    var completed = await Task
-                        .WhenAny(tasks)
-                        .ConfigureAwait(false);
-
-                    yield return await ExpandAsync(completed.Result).ConfigureAwait(false);
-
-                    tasks.Remove(completed);
-                }
-            }
+            await foreach (var project in projects)
+                yield return project;
         }
 
         public override async Task<ProjectTemplate> RemoveAsync(ProjectTemplate projectTemplate)

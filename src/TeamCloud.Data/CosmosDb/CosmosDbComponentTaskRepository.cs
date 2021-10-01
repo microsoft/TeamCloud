@@ -91,22 +91,16 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var queryString = $"SELECT * FROM c WHERE c.componentId = '{componentIdParsed}'";
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.componentId = @componentId")
+                .WithParameter("@componentId", componentIdParsed.ToString());
 
-            var query = new QueryDefinition(queryString);
+            var componentTasks = container
+                .GetItemQueryIterator<ComponentTask>(query, requestOptions: GetQueryRequestOptions(componentId))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            var queryIterator = container
-                .GetItemQueryIterator<ComponentTask>(query, requestOptions: GetQueryRequestOptions(componentId));
-
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
-            }
+            await foreach (var componentTask in componentTasks)
+                yield return componentTask;
         }
 
         public async Task RemoveAllAsync(string componentId)

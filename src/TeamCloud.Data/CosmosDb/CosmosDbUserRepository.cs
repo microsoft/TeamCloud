@@ -108,19 +108,17 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT * FROM u WHERE u.id = '{userId}'");
+            var query = new QueryDefinition($"SELECT * FROM u WHERE u.id = @identifier")
+                .WithParameter("@identifier", userId);
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { MaxBufferedItemCount = -1, MaxConcurrency = -1 });
+            var organizations = container
+                .GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { MaxBufferedItemCount = -1, MaxConcurrency = -1 })
+                .ReadAllAsync()
+                .Select(item => item.Organization)
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var user in queryResponse)
-                    yield return user.Organization;
-            }
+            await foreach (var organization in organizations)
+                yield return organization;
         }
 
         public override async IAsyncEnumerable<User> ListAsync(string organization)
@@ -130,17 +128,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM u");
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
+            var users = container
+                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var user in queryResponse)
-                    yield return await ExpandAsync(user).ConfigureAwait(false);
-            }
+            await foreach (var user in users)
+                yield return user;
         }
 
         public async IAsyncEnumerable<User> ListAsync(string organization, string projectId)
@@ -148,19 +142,16 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
+            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId)")
+                .WithParameter("@projectId", projectId);
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
+            var users = container
+                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var user in queryResponse)
-                    yield return await ExpandAsync(user).ConfigureAwait(false);
-            }
+            await foreach (var user in users)
+                yield return user;
         }
 
         public async IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId = null)
@@ -169,20 +160,19 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = string.IsNullOrWhiteSpace(projectId)
-                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = '{OrganizationUserRole.Owner}'")
-                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Owner}')");
+                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
+                    .WithParameter("@role", OrganizationUserRole.Owner.ToString())
+                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @role)")
+                    .WithParameter("@role", ProjectUserRole.Owner.ToString())
+                    .WithParameter("@projectId", projectId);
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
+            var users = container
+                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var user in queryResponse)
-                    yield return await ExpandAsync(user).ConfigureAwait(false);
-            }
+            await foreach (var user in users)
+                yield return user;
         }
 
         public async IAsyncEnumerable<User> ListAdminsAsync(string organization, string projectId = null)
@@ -191,20 +181,19 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = string.IsNullOrWhiteSpace(projectId)
-                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = '{OrganizationUserRole.Admin}'")
-                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}' AND m.role = '{ProjectUserRole.Admin}')");
+                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
+                    .WithParameter("@role", OrganizationUserRole.Admin.ToString())
+                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @role)")
+                    .WithParameter("@role", ProjectUserRole.Admin.ToString())
+                    .WithParameter("@projectId", projectId);
 
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
+            var users = container
+                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var user in queryResponse)
-                    yield return await ExpandAsync(user).ConfigureAwait(false);
-            }
+            await foreach (var user in users)
+                yield return user;
         }
 
         public override async Task<User> SetAsync(User user)

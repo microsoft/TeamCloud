@@ -137,6 +137,7 @@ namespace TeamCloud.Orchestrator
             builder.Services
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
                 .AddSingleton<IDocumentExpander, DeploymentScopeExpander>()
+                .AddSingleton<IDocumentExpander, ProjectExpander>()
                 .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
                 .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
                 .AddSingleton<IDocumentExpander, ComponentExpander>()

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -76,10 +77,10 @@ namespace TeamCloud.Data.CosmosDb
                     .CreateItemAsync(project)
                     .ConfigureAwait(false);
 
-                await PopulateUsersAsync(response.Resource)
+                project = await ExpandAsync(response.Resource)
                     .ConfigureAwait(false);
 
-                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                return await NotifySubscribersAsync(project, DocumentSubscriptionEvent.Create)
                     .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
@@ -112,7 +113,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = @identifier OR LOWER(c.displayName) = @identifier")
+                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = @identifier OFFSET 0 LIMIT 1")
                     .WithParameter("@identifier", identifier.ToLowerInvariant());
 
                 var queryIterator = container
@@ -127,9 +128,6 @@ namespace TeamCloud.Data.CosmosDb
                     project = queryResults.FirstOrDefault();
                 }
             }
-
-            await PopulateUsersAsync(project)
-                .ConfigureAwait(false);
 
             return await ExpandAsync(project, expand)
                 .ConfigureAwait(false);
@@ -159,10 +157,10 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync(project, GetPartitionKey(project))
                 .ConfigureAwait(false);
 
-            await PopulateUsersAsync(response.Resource)
+            project = await ExpandAsync(response.Resource)
                 .ConfigureAwait(false);
 
-            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+            return await NotifySubscribersAsync(project, DocumentSubscriptionEvent.Update)
                 .ConfigureAwait(false);
         }
 
@@ -173,24 +171,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM p");
 
-            var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
-
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var project in queryResponse)
-                {
-                    await PopulateUsersAsync(project)
-                        .ConfigureAwait(false);
-
-                    yield return await ExpandAsync(project)
-                        .ConfigureAwait(false);
-                }
-            }
+            var projects = container
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
+            
+            await foreach(var project in projects)
+                yield return project;
         }
 
         public async IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> identifiers)
@@ -198,27 +185,17 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var search = "'" + string.Join("', '", identifiers) + "'";
-            var searchLower = "'" + string.Join("', '", identifiers.Select(i => i.ToLowerInvariant())) + "'";
-            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.slug IN ({searchLower}) OR LOWER(p.displayName) in ({searchLower})");
+            var query = new QueryDefinition($"SELECT * FROM p WHERE ARRAY_CONTAINS(@ids, p.id) OR ARRAY_CONTAINS(@slugs, p.slug)")
+                .WithParameter("@ids", TeamCloudSerialize.SerializeObject(identifiers.ToArray()))
+                .WithParameter("@slugs", TeamCloudSerialize.SerializeObject(identifiers.Select(item => item?.ToLowerInvariant()).ToArray()));
 
-            var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
+            var projects = container
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var project in queryResponse)
-                {
-                    await PopulateUsersAsync(project)
-                        .ConfigureAwait(false);
-
-                    yield return project;
-                }
-            }
+            await foreach (var project in projects)
+                yield return project;
         }
 
 
@@ -227,25 +204,16 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT VALUE p FROM p WHERE p.template = '{template}'");
+            var query = new QueryDefinition("SELECT VALUE p FROM p WHERE p.template = @template")
+                .WithParameter("@template", template);
 
-            var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
+            var projects = container
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var project in queryResponse)
-                {
-                    await PopulateUsersAsync(project)
-                        .ConfigureAwait(false);
-
-                    yield return project;
-                }
-            }
+            await foreach (var project in projects)
+                yield return project;
         }
 
         public override Task<Project> RemoveAsync(Project project)
@@ -288,19 +256,6 @@ namespace TeamCloud.Data.CosmosDb
                     return null; // already deleted
                 }
             }
-        }
-
-        private async Task<Project> PopulateUsersAsync(Project project)
-        {
-            if (project != null)
-            {
-                project.Users = await userRepository
-                    .ListAsync(project.Organization, project.Id)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
-            }
-
-            return project;
         }
     }
 }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters;
 using TeamCloud.Model.Data;
@@ -18,7 +19,7 @@ namespace TeamCloud.Data.Expanders
     {
         private readonly IAdapterProvider adapterProvider;
 
-        public DeploymentScopeExpander(IAdapterProvider adapterProvider) : base(false)
+        public DeploymentScopeExpander(IAdapterProvider adapterProvider, TelemetryClient telemetryClient) : base(false, telemetryClient)
         {
             this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }

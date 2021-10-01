@@ -74,7 +74,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = @identifier OR LOWER(o.displayName) = @identifier")
+                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = @identifier OFFSET 0 LIMIT 1")
                     .WithParameter("@identifier", id.ToLowerInvariant());
 
                 var queryIterator = container
@@ -108,25 +108,21 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'";
+            var queryString = $"SELECT * FROM c WHERE c.projectId = @projectId";
 
             if (!includeDeleted)
                 queryString += " AND NOT IS_DEFINED(c.deleted)";
 
-            var query = new QueryDefinition(queryString);
+            var query = new QueryDefinition(queryString)
+                .WithParameter("@projectId", projectIdParsed.ToString());
 
-            var queryIterator = container
-                .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(projectId));
+            var components = container
+                .GetItemQueryIterator<Component>(query)
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
-            }
+            await foreach (var component in components)
+                yield return component;
         }
 
 
@@ -154,18 +150,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition(queryString);
 
-            var queryIterator = container
-                .GetItemQueryIterator<Component>(query, requestOptions: GetQueryRequestOptions(projectId));
+            var components = container
+                .GetItemQueryIterator<Component>(query)
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return queryResult;
-            }
+            await foreach (var component in components)
+                yield return component;
         }
 
         public override Task<Component> RemoveAsync(Component component)
@@ -176,9 +167,6 @@ namespace TeamCloud.Data.CosmosDb
             if (component is null)
                 throw new ArgumentNullException(nameof(component));
 
-            if (soft && component.Deleted.HasValue && component.TTL.HasValue)
-                return component;
-
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
@@ -186,14 +174,10 @@ namespace TeamCloud.Data.CosmosDb
             {
                 if (soft)
                 {
-                    component.Deleted = DateTime.UtcNow;
-                    component.TTL = GetSoftDeleteTTL();
+                    component.Deleted ??= DateTime.UtcNow;
+                    component.TTL ??= GetSoftDeleteTTL();
 
-                    var response = await container
-                        .UpsertItemAsync(component, GetPartitionKey(component))
-                        .ConfigureAwait(false);
-
-                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                    return await SetAsync(component)
                         .ConfigureAwait(false);
                 }
                 else
@@ -230,25 +214,22 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var queryString = $"SELECT * FROM c WHERE c.deploymentScopeId = '{deploymentScopeIdParsed}'";
+            var queryString = $"SELECT * FROM c WHERE c.deploymentScopeId = @deploymentScopeId";
 
             if (!includeDeleted)
                 queryString += " AND NOT IS_DEFINED(c.deleted)";
 
-            var query = new QueryDefinition(queryString);
+            var query = new QueryDefinition(queryString)
+                .WithParameter("@deploymentScopeId", deploymentScopeIdParsed.ToString());
 
-            var queryIterator = container
-                .GetItemQueryIterator<Component>(query);
+            var components = container
+                .GetItemQueryIterator<Component>(query)
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
+            await foreach (var component in components)
+                yield return component;
 
-                foreach (var queryResult in queryResponse)
-                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
-            }
         }
 
         public override async Task<Component> SetAsync(Component component)

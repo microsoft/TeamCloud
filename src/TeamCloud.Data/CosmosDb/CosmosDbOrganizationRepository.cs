@@ -93,7 +93,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = @identifier OR LOWER(o.displayName) = @identifier")
+                var query = new QueryDefinition($"SELECT * FROM o WHERE o.slug = @identifier OFFSET 0 LIMIT 1")
                     .WithParameter("@identifier", identifier.ToLowerInvariant());
 
                 var queryIterator = container
@@ -120,18 +120,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM o");
 
-            var queryIterator = container
-                .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant));
+            var organizations = container
+                .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
-            }
+            await foreach(var organization in organizations)
+                yield return organization; 
         }
 
         public async IAsyncEnumerable<Organization> ListAsync(string tenant, IEnumerable<string> identifiers)
@@ -143,18 +138,13 @@ namespace TeamCloud.Data.CosmosDb
             var searchLower = "'" + string.Join("', '", identifiers.Select(i => i.ToLowerInvariant())) + "'";
             var query = new QueryDefinition($"SELECT * FROM o WHERE o.id IN ({search}) OR o.slug IN ({searchLower}) OR LOWER(o.displayName) in ({searchLower})");
 
-            var queryIterator = container
-                .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant));
+            var organizations = container
+                .GetItemQueryIterator<Organization>(query, requestOptions: GetQueryRequestOptions(tenant))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var org in queryResponse)
-                    yield return org;
-            }
+            await foreach (var organization in organizations)
+                yield return organization;
         }
 
         public override async Task<Organization> RemoveAsync(Organization organization)

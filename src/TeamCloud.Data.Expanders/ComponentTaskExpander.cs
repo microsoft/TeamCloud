@@ -21,6 +21,7 @@ using TeamCloud.Audit;
 using System.Text;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Azure.Directory;
+using Microsoft.ApplicationInsights;
 
 namespace TeamCloud.Data.Expanders
 {
@@ -35,7 +36,7 @@ namespace TeamCloud.Data.Expanders
         private readonly ICommandAuditReader commandAuditReader;
         private readonly IMemoryCache cache;
 
-        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IAzureDirectoryService azureDirectoryService, ICommandAuditReader commandAuditReader, IMemoryCache cache) : base(true)
+        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IAzureDirectoryService azureDirectoryService, ICommandAuditReader commandAuditReader, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

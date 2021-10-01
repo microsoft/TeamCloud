@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
@@ -42,8 +44,21 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             try
             {
                 commandResult.Result = await componentRepository
-                    .RemoveAsync(command.Payload)
+                    .RemoveAsync(command.Payload, true)
                     .ConfigureAwait(false);
+
+                var existingComponentTasks = componentTaskRepository
+                    .ListAsync(commandResult.Result.Id)
+                    .Where(ct => ct.Type == ComponentTaskType.Custom && ct.TaskState.IsActive());
+
+                await foreach (var existingComponentTask in existingComponentTasks)
+                {
+                    var cancelCommand = new ComponentTaskCancelCommand(command.User, existingComponentTask);
+
+                    await commandQueue
+                        .AddAsync(cancelCommand)
+                        .ConfigureAwait(false);
+                }
 
                 var componentTask = new ComponentTask
                 {

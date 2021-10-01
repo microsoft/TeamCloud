@@ -86,7 +86,8 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
                         .CreateItem(deploymentScope);
 
-                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
+                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @identifier")
+                        .WithParameter("@identifier", deploymentScope.Id);
 
                     var queryIterator = container
                         .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
@@ -168,7 +169,7 @@ namespace TeamCloud.Data.CosmosDb
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = @identifier OR LOWER(c.displayName) = @identifier")
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.slug = @identifier OFFSET 0 LIMIT 1")
                     .WithParameter("@identifier", identifier.ToLowerInvariant());
 
                 var queryIterator = container
@@ -278,7 +279,8 @@ namespace TeamCloud.Data.CosmosDb
                     .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
                     .UpsertItem(deploymentScope);
 
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @deploymentScopeId")
+                    .WithParameter("@deploymentScopeId", deploymentScope.Id);
 
                 var queryIterator = container
                     .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
@@ -328,18 +330,14 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
-            var queryIterator = container
-                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
+            var deploymentScopes = container
+                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-                foreach (var queryResult in queryResponse)
-                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
-            }
+            await foreach (var deploymentScope in deploymentScopes)
+                yield return deploymentScope;
         }
 
         public override async Task<DeploymentScope> RemoveAsync(DeploymentScope deploymentScope)

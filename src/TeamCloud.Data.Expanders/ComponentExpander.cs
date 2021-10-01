@@ -5,6 +5,7 @@
 
 using Azure.Storage.Sas;
 using Flurl.Http;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
@@ -23,7 +24,7 @@ namespace TeamCloud.Data.Expanders
         private readonly IAzureResourceService azureResourceService;
         private readonly IMemoryCache cache;
 
-        public ComponentExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IMemoryCache cache) : base(true)
+        public ComponentExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

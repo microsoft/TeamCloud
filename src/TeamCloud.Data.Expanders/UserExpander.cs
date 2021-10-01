@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Model.Data;
 
@@ -16,7 +17,7 @@ namespace TeamCloud.Data.Expanders
     {
         private readonly IAzureDirectoryService azureDirectoryService;
 
-        public UserExpander(IAzureDirectoryService azureDirectoryService) : base(true)
+        public UserExpander(IAzureDirectoryService azureDirectoryService, TelemetryClient telemetryClient) : base(true, telemetryClient)
         {
             this.azureDirectoryService = azureDirectoryService ?? throw new System.ArgumentNullException(nameof(azureDirectoryService));
         }

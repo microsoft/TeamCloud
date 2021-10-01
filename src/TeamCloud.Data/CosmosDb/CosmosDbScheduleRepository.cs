@@ -93,9 +93,8 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'";
-
-            var query = new QueryDefinition(queryString);
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.projectId = @projectId")
+                .WithParameter("@projectId", projectIdParsed.ToString());
 
             var queryIterator = container
                 .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId));
@@ -137,18 +136,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition(queryString);
 
-            var queryIterator = container
-                .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId));
+            var schedules = container
+                .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return queryResult;
-            }
+            await foreach (var schedule in schedules)
+                yield return schedule;
         }
 
         public async Task RemoveAllAsync(string projectId)
