@@ -5,9 +5,11 @@
 
 using System;
 using System.Threading.Tasks;
+using DurableTask.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Services.CircuitBreaker;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -25,8 +27,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 {
     public sealed class ComponentTaskRunCommandHandler : CommandHandler<ComponentTaskRunCommand>
     {
-        public ComponentTaskRunCommandHandler() : base(true)
-        { }
+        public override bool Orchestration => true;
 
         public override async Task<ICommandResult> HandleAsync(ComponentTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
 
@@ -45,10 +46,6 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             var commandResult = command.CreateResult();
 
-            commandResult.Result = await orchestrationContext
-                .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskGetActivity), new ComponentTaskGetActivity.Input() { ComponentTaskId = command.Payload.Id, ComponentId = command.Payload.ComponentId })
-                .ConfigureAwait(true) ?? command.Payload;
-
             var organization = await WaitForOrganizationInitAsync(orchestrationContext, command)
                 .ConfigureAwait(true);
             
@@ -61,190 +58,189 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             using (await orchestrationContext.LockContainerDocumentAsync(component).ConfigureAwait(true))
             {
-                try
+                commandResult.Result = await orchestrationContext
+                    .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskGetActivity), new ComponentTaskGetActivity.Input() { ComponentTaskId = command.Payload.Id, ComponentId = command.Payload.ComponentId })
+                    .ConfigureAwait(true) ?? command.Payload;
+
+                if (commandResult.Result.TaskState != TaskState.Canceled)
                 {
-                    commandResult.Result = await UpdateComponentTaskAsync(commandResult.Result, TaskState.Initializing)
-                        .ConfigureAwait(true);
-
-                    if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var _))
+                    try
                     {
-                        // ensure every component has an identity assigned that can be used
-                        // as the identity of the task runner container to access azure or
-                        // call back into teamcloud using the azure cli extension
-
-                        component = await orchestrationContext
-                            .CallActivityWithRetryAsync<Component>(nameof(ComponentIdentityActivity), new ComponentIdentityActivity.Input() { Component = component })
+                        commandResult.Result = await UpdateComponentTaskAsync(orchestrationContext, commandResult.Result, TaskState.Initializing)
                             .ConfigureAwait(true);
-                    }
 
-                    if (command.Payload.Type == ComponentTaskType.Create)
-                    {
-                        try
+                        if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var _))
                         {
-                            component = await UpdateComponentAsync(component, ResourceState.Provisioning)
-                                .ConfigureAwait(true);
+                            // ensure every component has an identity assigned that can be used
+                            // as the identity of the task runner container to access azure or
+                            // call back into teamcloud using the azure cli extension
 
                             component = await orchestrationContext
-                                .CallActivityWithRetryAsync<Component>(nameof(AdapterCreateComponentActivity), new AdapterCreateComponentActivity.Input() { Component = component, User = command.User })
-                                .ConfigureAwait(true);
-
-                            component = await UpdateComponentAsync(component, ResourceState.Provisioned)
+                                .CallActivityWithRetryAsync<Component>(nameof(ComponentIdentityActivity), new ComponentIdentityActivity.Input() { Component = component })
                                 .ConfigureAwait(true);
                         }
-                        catch
+
+                        commandResult.Result = await UpdateComponentTaskAsync(orchestrationContext, commandResult.Result, TaskState.Processing)
+                            .ConfigureAwait(true);
+
+                        await (command.Payload.Type switch
                         {
-                            component = await UpdateComponentAsync(component, ResourceState.Failed)
-                                .ConfigureAwait(true);
+                            ComponentTaskType.Create => ProcessCreateCommandAsync(),
+                            ComponentTaskType.Delete => ProcessDeleteCommandAsync(),
+                            ComponentTaskType.Custom => ProcessCustomCommandAsync(),
 
-                            throw;
-                        }
+                            _ => throw new NotSupportedException($"The command type '{command.Payload.Type}' is not supported")
+
+                        }).ConfigureAwait(true);
+
+                        commandResult.Result = await UpdateComponentTaskAsync(orchestrationContext, commandResult.Result, TaskState.Succeeded)
+                            .ConfigureAwait(true);
                     }
-
-                    if (component.ResourceState == ResourceState.Provisioned || command.Payload.Type == ComponentTaskType.Delete)
+                    catch
                     {
-                        // lets do the dirty work and run the script associated with the current component task using our container based task runner infrasturcture
+                        commandResult.Result = await UpdateComponentTaskAsync(orchestrationContext, commandResult.Result, TaskState.Failed)
+                            .ConfigureAwait(true);
+
+                        throw;
+                    }
+                    finally
+                    {
+                        // finally do some cleanup work and get rid of the component task runner if exists
 
                         commandResult.Result = await orchestrationContext
-                            .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskRunnerActivity), new ComponentTaskRunnerActivity.Input() { ComponentTask = commandResult.Result })
-                            .ConfigureAwait(true);
-
-                        // as we don't control the script execution itself we need to monitor/poll the state of the task runner container instance until it reaches a final state
-
-                        while (!commandResult.Result.TaskState.IsFinal())
-                        {
-                            if (commandResult.Result.Created.AddMinutes(30) < orchestrationContext.CurrentUtcDateTime)
-                                throw new TimeoutException($"Maximum task execution time (30min) exceeded.");
-
-                            await orchestrationContext
-                                .CreateTimer(TimeSpan.FromSeconds(2))
-                                .ConfigureAwait(true);
-
-                            commandResult.Result = await orchestrationContext
-                                .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentDeploymentMonitorActivity), new ComponentDeploymentMonitorActivity.Input() { ComponentTask = commandResult.Result })
-                                .ConfigureAwait(true);
-                        }
-                    }
-                    else if (command.Payload.Type != ComponentTaskType.Delete)
-                    {
-                        // all command task types except delete require a successfully provisioned and healty component - if not given we throw an exception
-
-                        throw new NotSupportedException($"Unable to process {command.CommandAction} task on component {component} when in state {component.ResourceState}");
-                    }
-
-                    if (command.Payload.Type == ComponentTaskType.Delete)
-                    {
-                        try
-                        {
-                            component = await UpdateComponentAsync(component, ResourceState.Deprovisioning)
-                                .ConfigureAwait(true);
-
-                            component = await orchestrationContext
-                                .CallActivityWithRetryAsync<Component>(nameof(AdapterDeleteComponentActivity), new AdapterDeleteComponentActivity.Input() { Component = component, User = command.User })
-                                .ConfigureAwait(true);
-
-                            component = await UpdateComponentAsync(component, ResourceState.Deprovisioned)
-                                .ConfigureAwait(true);
-                        }
-                        catch
-                        {
-                            component = await UpdateComponentAsync(component, ResourceState.Failed)
-                                .ConfigureAwait(true);
-
-                            throw;
-                        }
-                    }
-                    else
-                    {
-                        await commandQueue
-                            .AddAsync(new ComponentUpdateCommand(command.User, component))
+                            .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskTerminateActivity), new ComponentTaskTerminateActivity.Input() { ComponentTask = commandResult.Result })
                             .ConfigureAwait(true);
                     }
-
-                    if (commandResult.Result.ExitCode.GetValueOrDefault(0) == 0)
-                    {
-                        // if no exit code was provided by the task runner we assume success
-                        commandResult.Result = await UpdateComponentTaskAsync(commandResult.Result, TaskState.Succeeded)
-                            .ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        // the task runner returned with an exit code other the 0 (zero)
-                        commandResult.Result = await UpdateComponentTaskAsync(commandResult.Result, TaskState.Failed)
-                            .ConfigureAwait(true);
-                    }
-                }
-                catch
-                {
-                    commandResult.Result = await UpdateComponentTaskAsync(commandResult.Result, TaskState.Failed)
-                        .ConfigureAwait(true);
-
-                    throw;
-                }
-                finally
-                {
-
-                    switch (commandResult.Result.Type)
-                    {
-                        case ComponentTaskType.Create:
-
-                            if (component.ResourceState == ResourceState.Failed)
-                            {
-                                // component provisioning failed - let's initiate a delete task to break down the related resource
-
-                                await commandQueue
-                                    .AddAsync(new ComponentDeleteCommand(command.User, component))
-                                    .ConfigureAwait(true);
-                            }
-
-                            break;
-
-                        case ComponentTaskType.Delete:
-
-                            if (component.ResourceState == ResourceState.Deprovisioned)
-                            {
-                                // the component was successfully deprovisioned - let's get rid of the component itself
-                            
-                                await orchestrationContext
-                                    .CallActivityWithRetryAsync(nameof(ComponentRemoveActivity), new ComponentRemoveActivity.Input() { ComponentId = component.Id, ProjectId = component.ProjectId })
-                                    .ConfigureAwait(true);
-                            }
-                            else if (component.Deleted.HasValue)
-                            {
-                                // deprovisioning failed for whatever reason - remove the deleted flag to do some cleanup work
-
-                                component.Deleted = null;
-
-                                _ = await UpdateComponentAsync(component).ConfigureAwait(true);
-                            }
-
-                            break;
-
-                    }
-
-                    // finally do some cleanup work and get rid of the component task runner if exists
-
-                    commandResult.Result = await orchestrationContext
-                        .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskTerminateActivity), new ComponentTaskTerminateActivity.Input() { ComponentTask = commandResult.Result })
-                        .ConfigureAwait(true);
                 }
             }
 
             return commandResult;
 
-            Task<Component> UpdateComponentAsync(Component component, ResourceState? resourceState = null)
+            async Task ProcessCreateCommandAsync()
             {
-                component.ResourceState = resourceState.GetValueOrDefault(component.ResourceState);
+                try
+                {
+                    component = await UpdateComponentAsync(orchestrationContext, component, ResourceState.Provisioning)
+                        .ConfigureAwait(true);
 
-                return orchestrationContext.CallActivityWithRetryAsync<Component>(nameof(ComponentSetActivity), new ComponentSetActivity.Input() { Component = component });
+                    component = await orchestrationContext
+                        .CallActivityWithRetryAsync<Component>(nameof(AdapterCreateComponentActivity), new AdapterCreateComponentActivity.Input() { Component = component, User = command.User })
+                        .ConfigureAwait(true);
+
+                    await RunComponentTaskAsync()
+                        .ConfigureAwait(true);
+
+                    component = await UpdateComponentAsync(orchestrationContext, component, ResourceState.Provisioned)
+                        .ConfigureAwait(true);
+
+                    await commandQueue
+                        .AddAsync(new ComponentUpdateCommand(command.User, component))
+                        .ConfigureAwait(true);
+
+                }
+                catch
+                {
+                    // component provisioning failed - let's initiate a delete task to break down the related resource
+
+                    await commandQueue
+                        .AddAsync(new ComponentDeleteCommand(command.User, component))
+                        .ConfigureAwait(true);
+
+                    await UpdateComponentAsync(orchestrationContext, component, ResourceState.Failed)
+                        .ConfigureAwait(true);
+
+                    throw;
+                }
             }
 
-            Task<ComponentTask> UpdateComponentTaskAsync(ComponentTask componentTask, TaskState? taskState = null)
+            async Task ProcessDeleteCommandAsync()
             {
-                componentTask.TaskState = taskState.GetValueOrDefault(componentTask.TaskState);
+                try
+                {
+                    component = await UpdateComponentAsync(orchestrationContext, component, ResourceState.Deprovisioning)
+                        .ConfigureAwait(true);
 
-                return orchestrationContext.CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskSetActivity), new ComponentTaskSetActivity.Input() { ComponentTask = componentTask });
+                    await RunComponentTaskAsync()
+                        .ConfigureAwait(true);
+
+                    component = await orchestrationContext
+                        .CallActivityWithRetryAsync<Component>(nameof(AdapterDeleteComponentActivity), new AdapterDeleteComponentActivity.Input() { Component = component, User = command.User })
+                        .ConfigureAwait(true);
+
+                    component = await UpdateComponentAsync(orchestrationContext, component, ResourceState.Deprovisioned)
+                        .ConfigureAwait(true);
+
+
+                    await orchestrationContext
+                        .CallActivityWithRetryAsync(nameof(ComponentRemoveActivity), new ComponentRemoveActivity.Input() { ComponentId = component.Id, ProjectId = component.ProjectId })
+                        .ConfigureAwait(true);
+                }
+                catch
+                {
+                    component.Deleted = null;
+                    component.TTL = null;
+
+                    component = await UpdateComponentAsync(orchestrationContext, component, ResourceState.Provisioned)
+                        .ConfigureAwait(true);
+
+                    throw;
+                }
+            }
+
+            async Task ProcessCustomCommandAsync()
+            {
+                if (component.ResourceState != ResourceState.Provisioned)
+                    throw new NotSupportedException($"Unable to process task '{commandResult.Result.TypeName}' when component is in state '{component.ResourceState}'");
+
+                await RunComponentTaskAsync()
+                    .ConfigureAwait(true);
+                    
+                await commandQueue
+                    .AddAsync(new ComponentUpdateCommand(command.User, component))
+                    .ConfigureAwait(true);
+            }
+
+            async Task RunComponentTaskAsync()
+            {
+                commandResult.Result = await orchestrationContext
+                    .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskRunnerActivity), new ComponentTaskRunnerActivity.Input() { ComponentTask = commandResult.Result })
+                    .ConfigureAwait(true);
+
+                while (!commandResult.Result.TaskState.IsFinal())
+                {
+                    if (commandResult.Result.Created.AddMinutes(30) < orchestrationContext.CurrentUtcDateTime)
+                        throw new TimeoutException($"Maximum task execution time (30min) exceeded.");
+
+                    await orchestrationContext
+                        .CreateTimer(TimeSpan.FromSeconds(2))
+                        .ConfigureAwait(true);
+
+                    commandResult.Result = await orchestrationContext
+                        .CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentDeploymentMonitorActivity), new ComponentDeploymentMonitorActivity.Input() { ComponentTask = commandResult.Result })
+                        .ConfigureAwait(true);
+                }
+
+                if (commandResult.Result.ExitCode.GetValueOrDefault(0) != 0)
+                {
+                    throw new Exception($"Component task '{commandResult.Result.Id}' exit with code {commandResult.Result.ExitCode}");
+                }
             }
         }
+
+        private Task<Component> UpdateComponentAsync(IDurableOrchestrationContext orchestrationContext, Component component, ResourceState? resourceState = null)
+        {
+            component.ResourceState = resourceState.GetValueOrDefault(component.ResourceState);
+
+            return orchestrationContext.CallActivityWithRetryAsync<Component>(nameof(ComponentSetActivity), new ComponentSetActivity.Input() { Component = component });
+        }
+
+        private Task<ComponentTask> UpdateComponentTaskAsync(IDurableOrchestrationContext orchestrationContext, ComponentTask componentTask, TaskState? taskState = null)
+        {
+            componentTask.TaskState = taskState.GetValueOrDefault(componentTask.TaskState);
+
+            return orchestrationContext.CallActivityWithRetryAsync<ComponentTask>(nameof(ComponentTaskSetActivity), new ComponentTaskSetActivity.Input() { ComponentTask = componentTask });
+        }
+
 
         private static async Task<Project> WaitForProjectInitAsync(IDurableOrchestrationContext orchestrationContext, ComponentTaskRunCommand command)
         {

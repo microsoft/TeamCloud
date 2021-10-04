@@ -22,6 +22,12 @@ namespace TeamCloud.Azure.Resources
 {
     public static class Extensions
     {
+        public static bool IsFinal(this AzureResourceProvisioningState provisioningState)
+            => provisioningState == AzureResourceProvisioningState.Succeeded || provisioningState == AzureResourceProvisioningState.Failed || provisioningState == AzureResourceProvisioningState.Canceled;
+
+        public static bool IsActive(this AzureResourceProvisioningState provisioningState)
+            => !provisioningState.IsFinal() && provisioningState != AzureResourceProvisioningState.Unknown;
+
         public static IAzureConfiguration AddResources(this IAzureConfiguration azureConfiguration)
         {
             if (azureConfiguration is null)

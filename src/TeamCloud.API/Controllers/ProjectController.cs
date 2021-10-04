@@ -84,10 +84,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetProjects", Summary = "Gets all Projects.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Projects.", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
+        public Task<IActionResult> Get() => WithContextAsync<Organization>(async (contextUser, organization) =>
         {
             var projects = await projectRepository
-                .ListAsync(context.Organization.Id)
+                .ListAsync(organization.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -104,10 +104,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified Name or ID was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string projectId) => ExecuteAsync<TeamCloudProjectContext>(context =>
+        public Task<IActionResult> Get([FromRoute] string projectId) => WithContextAsync<Project>((contextUser, project) =>
         {
             return DataResult<Project>
-                .Ok(context.Project)
+                .Ok(project)
                 .ToActionResultAsync();
         });
 
@@ -120,7 +120,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Started creating the new Project. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project already exists with the name specified in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition) => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
+        public Task<IActionResult> Post([FromBody] ProjectDefinition projectDefinition) => WithContextAsync<Organization>(async (contextUser, organization) =>
         {
             if (projectDefinition is null)
                 throw new ArgumentNullException(nameof(projectDefinition));
@@ -133,7 +133,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var nameExists = await projectRepository
-                .NameExistsAsync(context.Organization.Id, projectDefinition.DisplayName)
+                .NameExistsAsync(organization.Id, projectDefinition.DisplayName)
                 .ConfigureAwait(false);
 
             if (nameExists)
@@ -143,13 +143,13 @@ namespace TeamCloud.API.Controllers
 
             var projectId = Guid.NewGuid().ToString();
 
-            var users = await ResolveUsersAsync(context.Organization.Id, projectDefinition, projectId)
+            var users = await ResolveUsersAsync(organization.Id, projectDefinition, projectId)
                 .ConfigureAwait(false);
 
             var project = new Project
             {
                 Id = projectId,
-                Organization = context.Organization.Id,
+                Organization = organization.Id,
                 Users = users,
                 DisplayName = projectDefinition.DisplayName
             };
@@ -159,7 +159,7 @@ namespace TeamCloud.API.Controllers
             if (!string.IsNullOrEmpty(projectDefinition.Template))
             {
                 template = await projectTemplateRepository
-                    .GetAsync(context.Organization.Id, projectDefinition.Template)
+                    .GetAsync(organization.Id, projectDefinition.Template)
                     .ConfigureAwait(false);
 
                 if (template is null)
@@ -170,7 +170,7 @@ namespace TeamCloud.API.Controllers
             else
             {
                 template = await projectTemplateRepository
-                    .GetDefaultAsync(context.Organization.Id)
+                    .GetDefaultAsync(organization.Id)
                     .ConfigureAwait(false);
 
                 if (template is null)
@@ -211,9 +211,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the specified name or ID was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string projectId) => ExecuteAsync<TeamCloudProjectContext>(async context =>
+        public Task<IActionResult> Delete([FromRoute] string projectId) => WithContextAsync<Project>(async (contextUser, project) =>
         {
-            var command = new ProjectDeleteCommand(context.ContextUser, context.Project);
+            var command = new ProjectDeleteCommand(contextUser, project);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

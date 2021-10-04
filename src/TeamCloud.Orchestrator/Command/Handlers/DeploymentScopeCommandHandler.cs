@@ -41,6 +41,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
         }
 
+        public override bool Orchestration => false;
+
         public async Task<ICommandResult> HandleAsync(DeploymentScopeCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)

@@ -27,15 +27,19 @@ namespace TeamCloud.Serialization.Converter
 
         public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            if (objectType != null && !objectType.IsInterface && typeof(T).IsAssignableFrom(objectType))
-            {
-                // there is no need to rely on the embedded type information if a explicit object type was requested by the serializer
-                return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, objectType);
-            }
 
             try
             {
-                return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, typeof(object));
+                if (objectType != null && !objectType.IsInterface && typeof(T).IsAssignableFrom(objectType))
+                {
+                    // there is no need to rely on the embedded type information if a explicit object type was requested by the serializer
+                    return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, objectType);
+                }
+                else
+                {
+                    // enforce deserialization as a simple object to utitlize the type information embedded in JSON and cast to the requested type
+                    return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, typeof(object));
+                }
             }
             catch (Exception exc)
             {

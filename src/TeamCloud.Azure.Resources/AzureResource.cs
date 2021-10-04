@@ -114,8 +114,33 @@ namespace TeamCloud.Azure.Resources
             }
         }
 
+        public async Task<AzureResourceProvisioningState> GetProvisioningStateAsync()
+        {
+            var json = await GetJsonAsync()
+                .ConfigureAwait(false);
+
+            var value = json.SelectToken("$.properites.provisioningState")?.ToString();
+
+            if (!string.IsNullOrEmpty(value) && Enum.TryParse(typeof(AzureResourceProvisioningState), value, out var provisioningState))
+                return (AzureResourceProvisioningState)provisioningState;
+
+            return AzureResourceProvisioningState.Unknown;
+        }
+
         public virtual async Task DeleteAsync(bool deleteLocks = false)
         {
+            var provisioningState = await GetProvisioningStateAsync()
+                .ConfigureAwait(false);
+
+            while (provisioningState.IsActive())
+            {
+                provisioningState = await Task
+                    .Delay(1000)
+                    .ContinueWith(_ => GetProvisioningStateAsync())
+                    .Unwrap()
+                    .ConfigureAwait(false);
+            }
+
             if (deleteLocks)
             {
                 await DeleteLocksAsync(true)

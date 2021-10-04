@@ -24,6 +24,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         }
 
+        public override bool Orchestration => false;
+
         public override async Task<ICommandResult> HandleAsync(ComponentCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)

@@ -24,8 +24,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 {
     public sealed class OrganizationDeployCommandHandler : CommandHandler<OrganizationDeployCommand>
     {
-        public OrganizationDeployCommandHandler() : base(true)
-        { }
+        public override bool Orchestration => true;
 
         public override async Task<ICommandResult> HandleAsync(OrganizationDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {

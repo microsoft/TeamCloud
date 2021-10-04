@@ -44,6 +44,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         }
 
+        public override bool Orchestration => false;
+
         public override bool CanHandle(ICommand command)
         {
             if (command is null)

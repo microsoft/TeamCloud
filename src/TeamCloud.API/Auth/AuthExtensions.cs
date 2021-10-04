@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -165,6 +167,8 @@ namespace TeamCloud.API.Auth
             {
                 claims.AddRange(await httpContext.ResolveUserClaimsAsync(orgPath, user).ConfigureAwait(false));
             }
+
+            Debug.WriteLine($"User {userId} => {string.Join(", ", claims.Select(c => c.Value))}");
 
             return claims;
         }

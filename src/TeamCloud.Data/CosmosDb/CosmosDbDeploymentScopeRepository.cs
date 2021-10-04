@@ -22,7 +22,7 @@ namespace TeamCloud.Data.CosmosDb
         private readonly IMemoryCache cache;
 
         public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
@@ -73,7 +73,7 @@ namespace TeamCloud.Data.CosmosDb
             if (defaultdeploymentScope is null)
             {
                 // ensure we have a default
-                // project type if none is defined
+                // deployment scope if none is defined
 
                 deploymentScope.IsDefault = true;
             }
@@ -86,7 +86,8 @@ namespace TeamCloud.Data.CosmosDb
                         .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
                         .CreateItem(deploymentScope);
 
-                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
+                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @identifier")
+                        .WithParameter("@identifier", deploymentScope.Id);
 
                     var queryIterator = container
                         .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
@@ -144,7 +145,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<DeploymentScope> GetAsync(string organization, string identifier, bool expand = false)
+        public override Task<DeploymentScope> GetAsync(string organization, string identifier, bool expand = false) => GetCachedAsync(organization, identifier, async cached =>
         {
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
@@ -160,13 +161,16 @@ namespace TeamCloud.Data.CosmosDb
                     .ReadItemAsync<DeploymentScope>(identifier, GetPartitionKey(organization))
                     .ConfigureAwait(false);
 
-                deploymentScope = response.Resource;
+                deploymentScope = SetCached(organization, identifier, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+            {
+                deploymentScope = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var identifierLower = identifier.ToLowerInvariant();
-
-                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = '{identifierLower}' OR LOWER(c.displayName) = '{identifierLower}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.slug = @identifier OFFSET 0 LIMIT 1")
+                    .WithParameter("@identifier", identifier.ToLowerInvariant());
 
                 var queryIterator = container
                     .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
@@ -179,13 +183,11 @@ namespace TeamCloud.Data.CosmosDb
 
                     deploymentScope = queryResults.FirstOrDefault();
                 }
-
-                // return null;
             }
 
             return await ExpandAsync(deploymentScope, expand)
                 .ConfigureAwait(false);
-        }
+        });
 
         public async Task<DeploymentScope> GetDefaultAsync(string organization)
         {
@@ -277,7 +279,8 @@ namespace TeamCloud.Data.CosmosDb
                     .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
                     .UpsertItem(deploymentScope);
 
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != '{deploymentScope.Id}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @deploymentScopeId")
+                    .WithParameter("@deploymentScopeId", deploymentScope.Id);
 
                 var queryIterator = container
                     .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
@@ -327,18 +330,14 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
 
             var query = new QueryDefinition($"SELECT * FROM c");
-            var queryIterator = container
-                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
+            var deploymentScopes = container
+                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-                foreach (var queryResult in queryResponse)
-                    yield return await ExpandAsync(queryResult).ConfigureAwait(false);
-            }
+            await foreach (var deploymentScope in deploymentScopes)
+                yield return deploymentScope;
         }
 
         public override async Task<DeploymentScope> RemoveAsync(DeploymentScope deploymentScope)

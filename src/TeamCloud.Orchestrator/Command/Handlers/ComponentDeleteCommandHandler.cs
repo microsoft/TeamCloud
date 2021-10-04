@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Orchestrator.Command.Handlers
@@ -27,6 +29,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         }
 
+        public override bool Orchestration => false;
+
         public override async Task<ICommandResult> HandleAsync(ComponentDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
             if (command is null)
@@ -40,29 +44,39 @@ namespace TeamCloud.Orchestrator.Command.Handlers
             try
             {
                 commandResult.Result = await componentRepository
-                    .RemoveAsync(command.Payload)
+                    .RemoveAsync(command.Payload, true)
                     .ConfigureAwait(false);
 
-                if (commandResult.Result.Type == ComponentType.Environment)
-                {
-                    var componentTask = new ComponentTask
-                    {
-                        Organization = commandResult.Result.Organization,
-                        ComponentId = commandResult.Result.Id,
-                        ProjectId = commandResult.Result.ProjectId,
-                        Type = ComponentTaskType.Delete,
-                        RequestedBy = command.User.Id,
-                        InputJson = commandResult.Result.InputJson
-                    };
+                var existingComponentTasks = componentTaskRepository
+                    .ListAsync(commandResult.Result.Id)
+                    .Where(ct => ct.Type == ComponentTaskType.Custom && ct.TaskState.IsActive());
 
-                    componentTask = await componentTaskRepository
-                        .AddAsync(componentTask)
-                        .ConfigureAwait(false);
+                await foreach (var existingComponentTask in existingComponentTasks)
+                {
+                    var cancelCommand = new ComponentTaskCancelCommand(command.User, existingComponentTask);
 
                     await commandQueue
-                        .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
+                        .AddAsync(cancelCommand)
                         .ConfigureAwait(false);
                 }
+
+                var componentTask = new ComponentTask
+                {
+                    Organization = commandResult.Result.Organization,
+                    ComponentId = commandResult.Result.Id,
+                    ProjectId = commandResult.Result.ProjectId,
+                    Type = ComponentTaskType.Delete,
+                    RequestedBy = command.User.Id,
+                    InputJson = commandResult.Result.InputJson
+                };
+
+                componentTask = await componentTaskRepository
+                    .AddAsync(componentTask)
+                    .ConfigureAwait(false);
+
+                await commandQueue
+                    .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
+                    .ConfigureAwait(false);
 
                 commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }

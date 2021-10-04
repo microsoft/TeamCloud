@@ -6,11 +6,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.Utilities;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
@@ -27,17 +29,25 @@ namespace TeamCloud.Data.CosmosDb.Core
     public abstract class CosmosDbRepository<T> : ICosmosDbRepository, IDocumentRepository<T>
         where T : class, IContainerDocument, new()
     {
+        private static readonly MemoryCacheEntryOptions MemoryCacheOptions = new MemoryCacheEntryOptions()
+        {
+            Priority = CacheItemPriority.Low,
+            SlidingExpiration = TimeSpan.FromMinutes(1)
+        };
+
         private readonly Lazy<CosmosClient> cosmosClient;
-        private readonly ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>> cosmosContainers = new ConcurrentDictionary<Type, AsyncLazy<(Container, ChangeFeedProcessor)>>();
+        private readonly ConcurrentDictionary<Type, AsyncLazy<Container>> cosmosContainers = new ConcurrentDictionary<Type, AsyncLazy<Container>>();
         private readonly IDocumentExpanderProvider expanderProvider;
         private readonly IDocumentSubscriptionProvider subscriptionProvider;
+        private readonly IMemoryCache memoryCache;
 
-        protected CosmosDbRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+        protected CosmosDbRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null, IMemoryCache memoryCache = null)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
 
             this.expanderProvider = expanderProvider ?? NullExpanderProvider.Instance;
             this.subscriptionProvider = subscriptionProvider ?? NullSubscriptionProvider.Instance;
+            this.memoryCache = memoryCache;
 
             cosmosClient = new Lazy<CosmosClient>(() => new CosmosClient(options.ConnectionString, new CosmosClientOptions()
             {
@@ -49,14 +59,18 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public Type ContainerDocumentType { get; } = typeof(T);
 
-        protected QueryRequestOptions GetQueryRequestOptions(PartitionKey partitionKey)
-            => new QueryRequestOptions { PartitionKey = partitionKey };
+        protected QueryRequestOptions GetQueryRequestOptions(PartitionKey partitionKey, QueryRequestOptions options = null)
+        {
+            if (options != null) options.PartitionKey = partitionKey;
 
-        protected QueryRequestOptions GetQueryRequestOptions(string partitionKeyValue)
-            => GetQueryRequestOptions(GetPartitionKey(partitionKeyValue));
+            return options ?? new QueryRequestOptions { PartitionKey = partitionKey };
+        }
 
-        protected QueryRequestOptions GetQueryRequestOptions(T containerDocument)
-            => GetQueryRequestOptions(GetPartitionKey(containerDocument));
+        protected QueryRequestOptions GetQueryRequestOptions(string partitionKeyValue, QueryRequestOptions options = null)
+            => GetQueryRequestOptions(GetPartitionKey(partitionKeyValue), options);
+
+        protected QueryRequestOptions GetQueryRequestOptions(T containerDocument, QueryRequestOptions options = null)
+            => GetQueryRequestOptions(GetPartitionKey(containerDocument), options);
 
         protected PartitionKey GetPartitionKey(string partitionKeyValue)
             => new PartitionKey(partitionKeyValue);
@@ -102,14 +116,12 @@ namespace TeamCloud.Data.CosmosDb.Core
                 .ConfigureAwait(false);
 
             var containerEntry = cosmosContainers.GetOrAdd(typeof(T), containerType
-                => new AsyncLazy<(Container, ChangeFeedProcessor)>(() => CreateContainerAsync(database, typeof(T)), LazyThreadSafetyMode.PublicationOnly));
+                => new AsyncLazy<Container>(() => CreateContainerAsync(database, typeof(T)), LazyThreadSafetyMode.PublicationOnly));
 
-            var (container, processor) = await containerEntry.Value.ConfigureAwait(false);
-
-            return container;
+            return await containerEntry.Value.ConfigureAwait(false);
         }
 
-        private static async Task<(Container, ChangeFeedProcessor)> CreateContainerAsync(Database database, Type containerType)
+        private static async Task<Container> CreateContainerAsync(Database database, Type containerType)
         {
             var containerName = ContainerNameAttribute.GetNameOrDefault(containerType);
             var containerPartitionKey = PartitionKeyAttribute.GetPath(containerType, true);
@@ -137,7 +149,7 @@ namespace TeamCloud.Data.CosmosDb.Core
                 .CreateIfNotExistsAsync()
                 .ConfigureAwait(false);
 
-            return (database.GetContainer(containerName), null);
+            return database.GetContainer(containerName);
         }
 
         public abstract Task<T> AddAsync(T document);
@@ -149,6 +161,51 @@ namespace TeamCloud.Data.CosmosDb.Core
         public abstract IAsyncEnumerable<T> ListAsync(string partitionId);
 
         public abstract Task<T> RemoveAsync(T document);
+
+        private string GetCacheKey(string partitionId, string documentId)
+            => $"{typeof(T)}|{partitionId}|{documentId}";
+
+        protected async Task<T> GetCachedAsync(string partitionId, string documentId, Func<T, Task<T>> callback)
+        {
+            if (string.IsNullOrWhiteSpace(partitionId))
+                throw new ArgumentException($"'{nameof(partitionId)}' cannot be null or whitespace.", nameof(partitionId));
+
+            if (string.IsNullOrWhiteSpace(documentId))
+                throw new ArgumentException($"'{nameof(documentId)}' cannot be null or whitespace.", nameof(documentId));
+
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
+
+            if (memoryCache is null)
+                return await callback(default(T)).ConfigureAwait(false);
+
+            var cacheKey = GetCacheKey(partitionId, documentId);
+            var cacheItem = memoryCache.Get<T>(cacheKey);
+
+            if (cacheItem is ICloneable cloneable)
+                cacheItem = (T) cloneable.Clone();
+
+            return await callback(cacheItem)
+                .ConfigureAwait(false);
+        }
+
+        protected T SetCached(string partitionId, string documentId, T document)
+        {
+            if (string.IsNullOrWhiteSpace(partitionId))
+                throw new ArgumentException($"'{nameof(partitionId)}' cannot be null or whitespace.", nameof(partitionId));
+
+            if (string.IsNullOrWhiteSpace(documentId))
+                throw new ArgumentException($"'{nameof(documentId)}' cannot be null or whitespace.", nameof(documentId));
+
+            if (memoryCache != null && document != null)
+            {
+                var cacheKey = GetCacheKey(partitionId, documentId);
+
+                memoryCache.Set(cacheKey, document, MemoryCacheOptions);
+            }
+
+            return document;
+        }
 
         protected async Task<IEnumerable<T>> NotifySubscribersAsync(IEnumerable<T> documents, DocumentSubscriptionEvent subscriptionEvent)
         {
@@ -187,8 +244,15 @@ namespace TeamCloud.Data.CosmosDb.Core
         {
             if (document != null)
             {
-                foreach (var expander in expanderProvider.GetExpanders(document, includeOptional))
-                    document = (T)await expander.ExpandAsync(document).ConfigureAwait(false);
+                var duration = Stopwatch.StartNew();
+
+                await expanderProvider
+                    .GetExpanders(document, includeOptional)
+                    .Select(expander => expander.ExpandAsync(document))
+                    .WhenAll()
+                    .ConfigureAwait(false);
+
+                Debug.WriteLine($"Expanding {document} took {duration.ElapsedMilliseconds} msec");
             }
 
             return document;

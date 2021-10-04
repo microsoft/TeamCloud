@@ -407,6 +407,8 @@ export interface Project {
   sharedVaultId?: string;
   secretsVaultId?: string;
   storageId?: string;
+  deleted?: Date;
+  ttl?: number;
   id: string;
 }
 
@@ -668,6 +670,7 @@ export enum KnownComponentTaskState {
   Initializing = "Initializing",
   Processing = "Processing",
   Succeeded = "Succeeded",
+  Canceled = "Canceled",
   Failed = "Failed"
 }
 
@@ -680,6 +683,7 @@ export enum KnownComponentTaskState {
  * **Initializing** \
  * **Processing** \
  * **Succeeded** \
+ * **Canceled** \
  * **Failed**
  */
 export type ComponentTaskState = string;
@@ -1063,6 +1067,20 @@ export interface TeamCloudGetComponentTaskOptionalParams
 
 /** Contains response data for the getComponentTask operation. */
 export type TeamCloudGetComponentTaskResponse = ComponentTaskDataResult;
+
+/** Optional parameters. */
+export interface TeamCloudCancelComponentTaskOptionalParams
+  extends coreClient.OperationOptions {}
+
+/** Contains response data for the cancelComponentTask operation. */
+export type TeamCloudCancelComponentTaskResponse = ComponentTaskDataResult;
+
+/** Optional parameters. */
+export interface TeamCloudReRunComponentTaskOptionalParams
+  extends coreClient.OperationOptions {}
+
+/** Contains response data for the reRunComponentTask operation. */
+export type TeamCloudReRunComponentTaskResponse = ComponentTaskDataResult;
 
 /** Optional parameters. */
 export interface TeamCloudGetComponentTemplatesOptionalParams

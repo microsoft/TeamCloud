@@ -23,8 +23,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 {
     public sealed class ProjectDeployCommandHandler : CommandHandler<ProjectDeployCommand>
     {
-        public ProjectDeployCommandHandler() : base(true)
-        { }
+        public override bool Orchestration => true;
 
         public override async Task<ICommandResult> HandleAsync(ProjectDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
         {
@@ -95,6 +94,5 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             return commandResult;
         }
-
     }
 }

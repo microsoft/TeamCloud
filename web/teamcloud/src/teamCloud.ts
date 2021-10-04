@@ -29,6 +29,10 @@ import {
   TeamCloudCreateComponentTaskResponse,
   TeamCloudGetComponentTaskOptionalParams,
   TeamCloudGetComponentTaskResponse,
+  TeamCloudCancelComponentTaskOptionalParams,
+  TeamCloudCancelComponentTaskResponse,
+  TeamCloudReRunComponentTaskOptionalParams,
+  TeamCloudReRunComponentTaskResponse,
   TeamCloudGetComponentTemplatesOptionalParams,
   TeamCloudGetComponentTemplatesResponse,
   TeamCloudGetComponentTemplateOptionalParams,
@@ -283,22 +287,64 @@ export class TeamCloud extends TeamCloudContext {
 
   /**
    * Gets the Component Task.
-   * @param id
+   * @param taskId
    * @param organizationId
    * @param projectId
    * @param componentId
    * @param options The options parameters.
    */
   getComponentTask(
-    id: string | null,
+    taskId: string | null,
     organizationId: string,
     projectId: string,
     componentId: string | null,
     options?: TeamCloudGetComponentTaskOptionalParams
   ): Promise<TeamCloudGetComponentTaskResponse> {
     return this.sendOperationRequest(
-      { id, organizationId, projectId, componentId, options },
+      { taskId, organizationId, projectId, componentId, options },
       getComponentTaskOperationSpec
+    );
+  }
+
+  /**
+   * Rerun a Project Component Task.
+   * @param organizationId
+   * @param projectId
+   * @param componentId
+   * @param taskId
+   * @param options The options parameters.
+   */
+  cancelComponentTask(
+    organizationId: string,
+    projectId: string,
+    componentId: string | null,
+    taskId: string | null,
+    options?: TeamCloudCancelComponentTaskOptionalParams
+  ): Promise<TeamCloudCancelComponentTaskResponse> {
+    return this.sendOperationRequest(
+      { organizationId, projectId, componentId, taskId, options },
+      cancelComponentTaskOperationSpec
+    );
+  }
+
+  /**
+   * Cancel an active Project Component Task.
+   * @param organizationId
+   * @param projectId
+   * @param componentId
+   * @param taskId
+   * @param options The options parameters.
+   */
+  reRunComponentTask(
+    organizationId: string,
+    projectId: string,
+    componentId: string | null,
+    taskId: string | null,
+    options?: TeamCloudReRunComponentTaskOptionalParams
+  ): Promise<TeamCloudReRunComponentTaskResponse> {
+    return this.sendOperationRequest(
+      { organizationId, projectId, componentId, taskId, options },
+      reRunComponentTaskOperationSpec
     );
   }
 
@@ -421,17 +467,17 @@ export class TeamCloud extends TeamCloudContext {
 
   /**
    * Authorize an existing Deployment Scope.
-   * @param deploymentScopeId
    * @param organizationId
+   * @param deploymentScopeId
    * @param options The options parameters.
    */
   authorizeDeploymentScope(
-    deploymentScopeId: string | null,
     organizationId: string,
+    deploymentScopeId: string | null,
     options?: TeamCloudAuthorizeDeploymentScopeOptionalParams
   ): Promise<TeamCloudAuthorizeDeploymentScopeResponse> {
     return this.sendOperationRequest(
-      { deploymentScopeId, organizationId, options },
+      { organizationId, deploymentScopeId, options },
       authorizeDeploymentScopeOperationSpec
     );
   }
@@ -1468,7 +1514,7 @@ const createComponentTaskOperationSpec: coreClient.OperationSpec = {
 };
 const getComponentTaskOperationSpec: coreClient.OperationSpec = {
   path:
-    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}",
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}",
   httpMethod: "GET",
   responses: {
     200: {
@@ -1488,7 +1534,67 @@ const getComponentTaskOperationSpec: coreClient.OperationSpec = {
     Parameters.organizationId,
     Parameters.projectId,
     Parameters.componentId,
-    Parameters.id
+    Parameters.taskId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const cancelComponentTaskOperationSpec: coreClient.OperationSpec = {
+  path:
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/cancel",
+  httpMethod: "PUT",
+  responses: {
+    200: {
+      bodyMapper: Mappers.ComponentTaskDataResult
+    },
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId,
+    Parameters.componentId,
+    Parameters.taskId
+  ],
+  headerParameters: [Parameters.accept],
+  serializer
+};
+const reRunComponentTaskOperationSpec: coreClient.OperationSpec = {
+  path:
+    "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/rerun",
+  httpMethod: "PUT",
+  responses: {
+    201: {
+      bodyMapper: Mappers.ComponentTaskDataResult
+    },
+    202: {
+      bodyMapper: Mappers.StatusResult
+    },
+    400: {
+      bodyMapper: Mappers.ErrorResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [
+    Parameters.$host,
+    Parameters.organizationId,
+    Parameters.projectId,
+    Parameters.componentId,
+    Parameters.taskId
   ],
   headerParameters: [Parameters.accept],
   serializer

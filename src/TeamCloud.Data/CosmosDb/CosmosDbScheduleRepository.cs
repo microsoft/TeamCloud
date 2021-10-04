@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
@@ -20,8 +21,8 @@ namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbScheduleRepository : CosmosDbRepository<Schedule>, IScheduleRepository
     {
-        public CosmosDbScheduleRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+        public CosmosDbScheduleRepository(ICosmosDbOptions options, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         { }
 
         public override async Task<Schedule> AddAsync(Schedule schedule)
@@ -44,7 +45,7 @@ namespace TeamCloud.Data.CosmosDb
                 .ConfigureAwait(false);
         }
 
-        public override async Task<Schedule> GetAsync(string projectId, string id, bool expand = false)
+        public override Task<Schedule> GetAsync(string projectId, string id, bool expand = false) => GetCachedAsync(projectId, id, async cached =>
         {
             if (projectId is null)
                 throw new ArgumentNullException(nameof(projectId));
@@ -58,20 +59,28 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
+            Schedule schedule = null;
+
             try
             {
                 var response = await container
                     .ReadItemAsync<Schedule>(idParsed.ToString(), GetPartitionKey(projectId))
                     .ConfigureAwait(false);
 
-                return await ExpandAsync(response.Resource, expand)
-                    .ConfigureAwait(false);
+                schedule = SetCached(projectId, id, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            {
+                schedule = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
-        }
+
+            return await ExpandAsync(schedule, expand)
+                .ConfigureAwait(false);
+        });
 
         public override async IAsyncEnumerable<Schedule> ListAsync(string projectId)
         {
@@ -84,9 +93,8 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var queryString = $"SELECT * FROM c WHERE c.projectId = '{projectIdParsed}'";
-
-            var query = new QueryDefinition(queryString);
+            var query = new QueryDefinition("SELECT * FROM c WHERE c.projectId = @projectId")
+                .WithParameter("@projectId", projectIdParsed.ToString());
 
             var queryIterator = container
                 .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId));
@@ -128,18 +136,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition(queryString);
 
-            var queryIterator = container
-                .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId));
+            var schedules = container
+                .GetItemQueryIterator<Schedule>(query, requestOptions: GetQueryRequestOptions(projectId))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var queryResult in queryResponse)
-                    yield return queryResult;
-            }
+            await foreach (var schedule in schedules)
+                yield return schedule;
         }
 
         public async Task RemoveAllAsync(string projectId)

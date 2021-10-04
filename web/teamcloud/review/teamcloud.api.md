@@ -491,6 +491,8 @@ export enum KnownComponentResourceState {
 // @public
 export enum KnownComponentTaskState {
     // (undocumented)
+    Canceled = "Canceled",
+    // (undocumented)
     Failed = "Failed",
     // (undocumented)
     Initializing = "Initializing",
@@ -787,6 +789,8 @@ export type OrganizationResourceState = string;
 // @public (undocumented)
 export interface Project {
     // (undocumented)
+    deleted?: Date;
+    // (undocumented)
     displayName: string;
     // (undocumented)
     id: string;
@@ -811,6 +815,8 @@ export interface Project {
     template: string;
     // (undocumented)
     templateInput?: string;
+    // (undocumented)
+    ttl?: number;
     // (undocumented)
     users?: User[];
     readonly vaultId?: string;
@@ -1155,7 +1161,8 @@ export interface StringListDataResult {
 // @public (undocumented)
 export class TeamCloud extends TeamCloudContext {
     constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
-    authorizeDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
+    authorizeDeploymentScope(organizationId: string, deploymentScopeId: string | null, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
+    cancelComponentTask(organizationId: string, projectId: string, componentId: string | null, taskId: string | null, options?: TeamCloudCancelComponentTaskOptionalParams): Promise<TeamCloudCancelComponentTaskResponse>;
     createComponent(organizationId: string, projectId: string, options?: TeamCloudCreateComponentOptionalParams): Promise<TeamCloudCreateComponentResponse>;
     createComponentTask(organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudCreateComponentTaskOptionalParams): Promise<TeamCloudCreateComponentTaskResponse>;
     createDeploymentScope(organizationId: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
@@ -1182,7 +1189,7 @@ export class TeamCloud extends TeamCloudContext {
     getAuditEntry(commandId: string, organizationId: string, options?: TeamCloudGetAuditEntryOptionalParams): Promise<TeamCloudGetAuditEntryResponse>;
     getComponent(componentId: string | null, organizationId: string, projectId: string, options?: TeamCloudGetComponentOptionalParams): Promise<TeamCloudGetComponentResponse>;
     getComponents(organizationId: string, projectId: string, options?: TeamCloudGetComponentsOptionalParams): Promise<TeamCloudGetComponentsResponse>;
-    getComponentTask(id: string | null, organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudGetComponentTaskOptionalParams): Promise<TeamCloudGetComponentTaskResponse>;
+    getComponentTask(taskId: string | null, organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudGetComponentTaskOptionalParams): Promise<TeamCloudGetComponentTaskResponse>;
     getComponentTasks(organizationId: string, projectId: string, componentId: string | null, options?: TeamCloudGetComponentTasksOptionalParams): Promise<TeamCloudGetComponentTasksResponse>;
     getComponentTemplate(id: string | null, organizationId: string, projectId: string, options?: TeamCloudGetComponentTemplateOptionalParams): Promise<TeamCloudGetComponentTemplateResponse>;
     getComponentTemplates(organizationId: string, projectId: string, options?: TeamCloudGetComponentTemplatesOptionalParams): Promise<TeamCloudGetComponentTemplatesResponse>;
@@ -1211,6 +1218,7 @@ export class TeamCloud extends TeamCloudContext {
     getUserProjects(organizationId: string, userId: string | null, options?: TeamCloudGetUserProjectsOptionalParams): Promise<TeamCloudGetUserProjectsResponse>;
     getUserProjectsMe(organizationId: string, options?: TeamCloudGetUserProjectsMeOptionalParams): Promise<TeamCloudGetUserProjectsMeResponse>;
     negotiateSignalR(organizationId: string, projectId: string, options?: TeamCloudNegotiateSignalROptionalParams): Promise<void>;
+    reRunComponentTask(organizationId: string, projectId: string, componentId: string | null, taskId: string | null, options?: TeamCloudReRunComponentTaskOptionalParams): Promise<TeamCloudReRunComponentTaskResponse>;
     runSchedule(scheduleId: string | null, organizationId: string, projectId: string, options?: TeamCloudRunScheduleOptionalParams): Promise<TeamCloudRunScheduleResponse>;
     updateDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     updateOrganizationUser(userId: string | null, organizationId: string, options?: TeamCloudUpdateOrganizationUserOptionalParams): Promise<TeamCloudUpdateOrganizationUserResponse>;
@@ -1231,6 +1239,13 @@ export interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreCli
 
 // @public
 export type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult;
+
+// @public
+export interface TeamCloudCancelComponentTaskOptionalParams extends coreClient.OperationOptions {
+}
+
+// @public
+export type TeamCloudCancelComponentTaskResponse = ComponentTaskDataResult;
 
 // @public (undocumented)
 export class TeamCloudContext extends coreClient.ServiceClient {
@@ -1655,6 +1670,13 @@ export interface TeamCloudNegotiateSignalROptionalParams extends coreClient.Oper
 export interface TeamCloudOptionalParams extends coreClient.ServiceClientOptions {
     endpoint?: string;
 }
+
+// @public
+export interface TeamCloudReRunComponentTaskOptionalParams extends coreClient.OperationOptions {
+}
+
+// @public
+export type TeamCloudReRunComponentTaskResponse = ComponentTaskDataResult;
 
 // @public
 export interface TeamCloudRunScheduleOptionalParams extends coreClient.OperationOptions {

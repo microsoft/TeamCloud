@@ -72,12 +72,16 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the provided identifier was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Get([FromRoute] string organizationId) => ExecuteAsync<TeamCloudOrganizationContext>(context =>
+        public async Task<IActionResult> Get([FromRoute] string organizationId) 
         {
+            var organization = await organizationRepository
+                .GetAsync(UserService.CurrentUserTenant, organizationId)
+                .ConfigureAwait(false);
+
             return DataResult<Organization>
-                .Ok(context.Organization)
-                .ToActionResultAsync();
-        });
+                .Ok(organization)
+                .ToActionResult();
+        }
 
 
         [HttpPost("orgs")]
@@ -191,9 +195,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status202Accepted, "Starts deleting the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the identifier provided was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string organizationId) => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
+        public Task<IActionResult> Delete([FromRoute] string organizationId) => WithContextAsync<Organization>(async (contextUser, organization) =>
         {
-            var command = new OrganizationDeleteCommand(context.ContextUser, context.Organization);
+            var command = new OrganizationDeleteCommand(contextUser, organization);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

@@ -37,8 +37,8 @@ namespace TeamCloud.Orchestrator.Services
         }
 
         [FunctionName(nameof(SchedulePoller))]
-        public async Task Run([
-            TimerTrigger("0 */5 * * * *")] TimerInfo timer,
+        public async Task Run(
+            [TimerTrigger("0 */5 * * * *", RunOnStartup = true)] TimerInfo timer,
             [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
             ILogger log)
         {

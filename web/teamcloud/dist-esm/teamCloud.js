@@ -86,14 +86,36 @@ export class TeamCloud extends TeamCloudContext {
     }
     /**
      * Gets the Component Task.
-     * @param id
+     * @param taskId
      * @param organizationId
      * @param projectId
      * @param componentId
      * @param options The options parameters.
      */
-    getComponentTask(id, organizationId, projectId, componentId, options) {
-        return this.sendOperationRequest({ id, organizationId, projectId, componentId, options }, getComponentTaskOperationSpec);
+    getComponentTask(taskId, organizationId, projectId, componentId, options) {
+        return this.sendOperationRequest({ taskId, organizationId, projectId, componentId, options }, getComponentTaskOperationSpec);
+    }
+    /**
+     * Rerun a Project Component Task.
+     * @param organizationId
+     * @param projectId
+     * @param componentId
+     * @param taskId
+     * @param options The options parameters.
+     */
+    cancelComponentTask(organizationId, projectId, componentId, taskId, options) {
+        return this.sendOperationRequest({ organizationId, projectId, componentId, taskId, options }, cancelComponentTaskOperationSpec);
+    }
+    /**
+     * Cancel an active Project Component Task.
+     * @param organizationId
+     * @param projectId
+     * @param componentId
+     * @param taskId
+     * @param options The options parameters.
+     */
+    reRunComponentTask(organizationId, projectId, componentId, taskId, options) {
+        return this.sendOperationRequest({ organizationId, projectId, componentId, taskId, options }, reRunComponentTaskOperationSpec);
     }
     /**
      * Gets all Component Templates for a Project.
@@ -159,12 +181,12 @@ export class TeamCloud extends TeamCloudContext {
     }
     /**
      * Authorize an existing Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    authorizeDeploymentScope(deploymentScopeId, organizationId, options) {
-        return this.sendOperationRequest({ deploymentScopeId, organizationId, options }, authorizeDeploymentScopeOperationSpec);
+    authorizeDeploymentScope(organizationId, deploymentScopeId, options) {
+        return this.sendOperationRequest({ organizationId, deploymentScopeId, options }, authorizeDeploymentScopeOperationSpec);
     }
     /**
      * Negotiates the SignalR connection.
@@ -800,7 +822,7 @@ const createComponentTaskOperationSpec = {
     serializer
 };
 const getComponentTaskOperationSpec = {
-    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}",
+    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}",
     httpMethod: "GET",
     responses: {
         200: {
@@ -820,7 +842,65 @@ const getComponentTaskOperationSpec = {
         Parameters.organizationId,
         Parameters.projectId,
         Parameters.componentId,
-        Parameters.id
+        Parameters.taskId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const cancelComponentTaskOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/cancel",
+    httpMethod: "PUT",
+    responses: {
+        200: {
+            bodyMapper: Mappers.ComponentTaskDataResult
+        },
+        202: {
+            bodyMapper: Mappers.StatusResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId,
+        Parameters.componentId,
+        Parameters.taskId
+    ],
+    headerParameters: [Parameters.accept],
+    serializer
+};
+const reRunComponentTaskOperationSpec = {
+    path: "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/rerun",
+    httpMethod: "PUT",
+    responses: {
+        201: {
+            bodyMapper: Mappers.ComponentTaskDataResult
+        },
+        202: {
+            bodyMapper: Mappers.StatusResult
+        },
+        400: {
+            bodyMapper: Mappers.ErrorResult
+        },
+        401: {},
+        403: {},
+        404: {
+            bodyMapper: Mappers.ErrorResult
+        }
+    },
+    urlParameters: [
+        Parameters.$host,
+        Parameters.organizationId,
+        Parameters.projectId,
+        Parameters.componentId,
+        Parameters.taskId
     ],
     headerParameters: [Parameters.accept],
     serializer

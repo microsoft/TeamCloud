@@ -132,11 +132,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     disabled={!formEnabled}
                     onSubmit={_submitForm}
                     onChange={_changeForm}
-                    // FieldTemplate={TeamCloudFieldTemplate}
-                    // widgets={TeamCloudForm.Widgets}
-                    // fields={TeamCloudForm.Fields}
                     FieldTemplate={TCFieldTemplate}
-
                     formData={JSON.parse(scopeTypeData ?? '{}')}
                     schema={JSON.parse(scopeTypeSchema ?? '{}')}
                     uiSchema={JSON.parse(scopeTypeForm ?? '{}')}>

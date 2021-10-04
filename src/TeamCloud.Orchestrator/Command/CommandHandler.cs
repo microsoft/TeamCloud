@@ -15,9 +15,6 @@ namespace TeamCloud.Orchestrator.Command
     public abstract class CommandHandler<TCommand> : CommandHandler, ICommandHandler<TCommand>
         where TCommand : class, ICommand
     {
-        public CommandHandler(bool orchestration = false) : base(orchestration)
-        { }
-
         public abstract Task<ICommandResult> HandleAsync(TCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
     }
 
@@ -26,12 +23,7 @@ namespace TeamCloud.Orchestrator.Command
         public const string ProcessorQueue = "command-processor";
         public const string MonitorQueue = "command-monitor";
 
-        public CommandHandler(bool orchestration = false)
-        {
-            Orchestration = orchestration;
-        }
-
-        public bool Orchestration { get; }
+        public abstract bool Orchestration { get; }
 
         public virtual bool CanHandle(ICommand command)
         {

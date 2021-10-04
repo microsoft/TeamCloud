@@ -6,6 +6,7 @@ import { Route, Switch } from 'react-router-dom';
 import { OrgSettingsNav, ProjectNav, ProjectSettingsNav, RootNav } from '../components';
 
 export const NavRouter: React.FC = () => (
+    <div style={{ height:"calc(100vh - 70px)", overflow:"scroll", overflowX:"hidden", overflowY: "auto" }}>
     <Switch>
         <Route exact path={[
             '/',
@@ -39,4 +40,5 @@ export const NavRouter: React.FC = () => (
             <ProjectNav {...{}} />
         </Route>
     </Switch>
+    </div>
 );

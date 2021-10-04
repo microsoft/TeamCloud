@@ -24,6 +24,8 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
             this.notificationSmtpSender = notificationSmtpSender;
         }
 
+        public override bool Orchestration => false;
+
         public override bool CanHandle(ICommand command)
         {
             if (command is null)

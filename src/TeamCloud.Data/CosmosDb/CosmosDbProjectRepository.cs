@@ -14,6 +14,7 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -24,7 +25,7 @@ namespace TeamCloud.Data.CosmosDb
         private readonly IUserRepository userRepository;
 
         public CosmosDbProjectRepository(ICosmosDbOptions options, IUserRepository userRepository, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider)
+            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -76,10 +77,10 @@ namespace TeamCloud.Data.CosmosDb
                     .CreateItemAsync(project)
                     .ConfigureAwait(false);
 
-                await PopulateUsersAsync(response.Resource)
+                project = await ExpandAsync(response.Resource)
                     .ConfigureAwait(false);
 
-                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Create)
+                return await NotifySubscribersAsync(project, DocumentSubscriptionEvent.Create)
                     .ConfigureAwait(false);
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
@@ -88,7 +89,7 @@ namespace TeamCloud.Data.CosmosDb
             }
         }
 
-        public override async Task<Project> GetAsync(string organization, string identifier, bool expand = false)
+        public override Task<Project> GetAsync(string organization, string identifier, bool expand = false) => GetCachedAsync(organization, identifier, async cached =>
         {
             if (identifier is null)
                 throw new ArgumentNullException(nameof(identifier));
@@ -101,16 +102,19 @@ namespace TeamCloud.Data.CosmosDb
             try
             {
                 var response = await container
-                    .ReadItemAsync<Project>(identifier, GetPartitionKey(organization))
+                    .ReadItemAsync<Project>(identifier, GetPartitionKey(organization), cached?.GetItemNoneMatchRequestOptions())
                     .ConfigureAwait(false);
 
-                project = response.Resource;
+                project = SetCached(organization, identifier, response.Resource);
+            }
+            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+            {
+                project = cached;
             }
             catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
             {
-                var identifierLower = identifier.ToLowerInvariant();
-
-                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = '{identifierLower}' OR LOWER(c.displayName) = '{identifierLower}'");
+                var query = new QueryDefinition($"SELECT * FROM c WHERE  c.slug = @identifier OFFSET 0 LIMIT 1")
+                    .WithParameter("@identifier", identifier.ToLowerInvariant());
 
                 var queryIterator = container
                     .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
@@ -125,12 +129,9 @@ namespace TeamCloud.Data.CosmosDb
                 }
             }
 
-            await PopulateUsersAsync(project)
-                .ConfigureAwait(false);
-
             return await ExpandAsync(project, expand)
                 .ConfigureAwait(false);
-        }
+        });
 
         public async Task<bool> NameExistsAsync(string organization, string name)
         {
@@ -156,10 +157,10 @@ namespace TeamCloud.Data.CosmosDb
                 .UpsertItemAsync(project, GetPartitionKey(project))
                 .ConfigureAwait(false);
 
-            await PopulateUsersAsync(response.Resource)
+            project = await ExpandAsync(response.Resource)
                 .ConfigureAwait(false);
 
-            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+            return await NotifySubscribersAsync(project, DocumentSubscriptionEvent.Update)
                 .ConfigureAwait(false);
         }
 
@@ -170,24 +171,13 @@ namespace TeamCloud.Data.CosmosDb
 
             var query = new QueryDefinition($"SELECT * FROM p");
 
-            var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
-
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var project in queryResponse)
-                {
-                    await PopulateUsersAsync(project)
-                        .ConfigureAwait(false);
-
-                    yield return await ExpandAsync(project)
-                        .ConfigureAwait(false);
-                }
-            }
+            var projects = container
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
+            
+            await foreach(var project in projects)
+                yield return project;
         }
 
         public async IAsyncEnumerable<Project> ListAsync(string organization, IEnumerable<string> identifiers)
@@ -195,27 +185,17 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var search = "'" + string.Join("', '", identifiers) + "'";
-            var searchLower = "'" + string.Join("', '", identifiers.Select(i => i.ToLowerInvariant())) + "'";
-            var query = new QueryDefinition($"SELECT * FROM p WHERE p.id IN ({search}) OR p.slug IN ({searchLower}) OR LOWER(p.displayName) in ({searchLower})");
+            var query = new QueryDefinition($"SELECT * FROM p WHERE ARRAY_CONTAINS(@ids, p.id) OR ARRAY_CONTAINS(@slugs, p.slug)")
+                .WithParameter("@ids", TeamCloudSerialize.SerializeObject(identifiers.ToArray()))
+                .WithParameter("@slugs", TeamCloudSerialize.SerializeObject(identifiers.Select(item => item?.ToLowerInvariant()).ToArray()));
 
-            var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
+            var projects = container
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var project in queryResponse)
-                {
-                    await PopulateUsersAsync(project)
-                        .ConfigureAwait(false);
-
-                    yield return project;
-                }
-            }
+            await foreach (var project in projects)
+                yield return project;
         }
 
 
@@ -224,65 +204,58 @@ namespace TeamCloud.Data.CosmosDb
             var container = await GetContainerAsync()
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT VALUE p FROM p WHERE p.template = '{template}'");
+            var query = new QueryDefinition("SELECT VALUE p FROM p WHERE p.template = @template")
+                .WithParameter("@template", template);
 
-            var queryIterator = container
-                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization));
+            var projects = container
+                .GetItemQueryIterator<Project>(query, requestOptions: GetQueryRequestOptions(organization))
+                .ReadAllAsync(item => ExpandAsync(item))
+                .ConfigureAwait(false);
 
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                foreach (var project in queryResponse)
-                {
-                    await PopulateUsersAsync(project)
-                        .ConfigureAwait(false);
-
-                    yield return project;
-                }
-            }
+            await foreach (var project in projects)
+                yield return project;
         }
 
-        public override async Task<Project> RemoveAsync(Project project)
+        public override Task<Project> RemoveAsync(Project project)
+            => RemoveAsync(project, soft: true);
+
+        public async Task<Project> RemoveAsync(Project project, bool soft)
         {
             if (project is null)
                 throw new ArgumentNullException(nameof(project));
 
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            try
+            if (soft)
             {
-                var response = await container
-                    .DeleteItemAsync<Project>(project.Id, GetPartitionKey(project))
-                    .ConfigureAwait(false);
+                project.Deleted ??= DateTime.UtcNow;
+                project.TTL = GetSoftDeleteTTL();
 
-                RemoveCachedIds(project);
-
-                await userRepository
-                    .RemoveProjectMembershipsAsync(project.Organization, project.Id)
-                    .ConfigureAwait(false);
-
-                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
-                    .ConfigureAwait(false);
+                return await SetAsync(project).ConfigureAwait(false);
             }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            else
             {
-                return null; // already deleted
-            }
-        }
-
-        private async Task<Project> PopulateUsersAsync(Project project)
-        {
-            if (project != null)
-                project.Users = await userRepository
-                    .ListAsync(project.Organization, project.Id)
-                    .ToListAsync()
+                var container = await GetContainerAsync()
                     .ConfigureAwait(false);
 
-            return project;
+                try
+                {
+                    var response = await container
+                        .DeleteItemAsync<Project>(project.Id, GetPartitionKey(project))
+                        .ConfigureAwait(false);
+
+                    RemoveCachedIds(project);
+
+                    await userRepository
+                        .RemoveProjectMembershipsAsync(project.Organization, project.Id)
+                        .ConfigureAwait(false);
+
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                        .ConfigureAwait(false);
+                }
+                catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return null; // already deleted
+                }
+            }
         }
     }
 }

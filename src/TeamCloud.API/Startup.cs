@@ -79,6 +79,7 @@ namespace TeamCloud.API
                     .UseDeveloperExceptionPage()
                     .UseCors(builder => builder
                         .SetIsOriginAllowed(origin => true)
+                        .SetPreflightMaxAge(TimeSpan.FromDays(1))
                         .AllowAnyHeader()
                         .AllowAnyMethod()
                         .AllowCredentials());
@@ -103,7 +104,6 @@ namespace TeamCloud.API
             app
                 .UseRouting()
                 .UseAuthentication()
-                .UseMiddleware<RequestBenchmarkMiddleware>()
                 .UseMiddleware<EnsureTeamCloudModelMiddleware>()
                 .UseAuthorization()
                 .UseEndpoints(endpoints => endpoints.MapControllers());
@@ -164,6 +164,7 @@ namespace TeamCloud.API
 
             services
                 .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+                .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
                 .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
                 .AddSingleton<IUserRepository, CosmosDbUserRepository>()
                 .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
@@ -178,8 +179,7 @@ namespace TeamCloud.API
                 .AddSingleton<OrchestratorService>()
                 .AddSingleton<UserService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
-                .AddScoped<EnsureTeamCloudModelMiddleware>()
-                .AddScoped<RequestBenchmarkMiddleware>();
+                .AddSingleton<EnsureTeamCloudModelMiddleware>();
 
 
             services
@@ -209,6 +209,7 @@ namespace TeamCloud.API
                 .AddApplicationInsightsTelemetry()
                 .AddMvc();
 
+
             services
                 .AddRouting(options =>
                 {
@@ -218,6 +219,7 @@ namespace TeamCloud.API
                     options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
                     options.ConstraintMap.Add("deploymentScopeId", typeof(DeploymentScopeIdentifierConstraint));
                     options.ConstraintMap.Add("commandId", typeof(CommandIdentifierRouteConstraint));
+                    options.ConstraintMap.Add("taskId", typeof(TaskIdentifierRouteConstraint));
                 })
                 .AddControllers()
                 .AddNewtonsoftJson()

@@ -55,6 +55,7 @@ export var KnownComponentTaskState;
     KnownComponentTaskState["Initializing"] = "Initializing";
     KnownComponentTaskState["Processing"] = "Processing";
     KnownComponentTaskState["Succeeded"] = "Succeeded";
+    KnownComponentTaskState["Canceled"] = "Canceled";
     KnownComponentTaskState["Failed"] = "Failed";
 })(KnownComponentTaskState || (KnownComponentTaskState = {}));
 /** Known values of {@link RepositoryReferenceProvider} that the service accepts. */

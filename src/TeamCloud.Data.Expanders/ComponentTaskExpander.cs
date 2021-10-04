@@ -3,30 +3,49 @@
  *  Licensed under the MIT License.
  */
 
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TeamCloud.Azure.Resources;
+using TeamCloud.Azure.Resources; 
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Model.Data;
+using Flurl;
+using Flurl.Http;
+using System.Net;
+using Azure.Storage.Sas;
+using TeamCloud.Model.Common;
+using TeamCloud.Audit;
+using System.Text;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Azure.Directory;
+using Microsoft.ApplicationInsights;
 
 namespace TeamCloud.Data.Expanders
 {
     public sealed class ComponentTaskExpander : DocumentExpander,
         IDocumentExpander<ComponentTask>
     {
+        private const string Seperator = "\r\n-----\r\n\r\n";
+
         private readonly IProjectRepository projectRepository;
         private readonly IAzureResourceService azureResourceService;
+        private readonly IAzureDirectoryService azureDirectoryService;
+        private readonly ICommandAuditReader commandAuditReader;
+        private readonly IMemoryCache cache;
 
-        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService) : base(true)
+        public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IAzureDirectoryService azureDirectoryService, ICommandAuditReader commandAuditReader, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
         {
             this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+            this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+            this.commandAuditReader = commandAuditReader ?? throw new ArgumentNullException(nameof(commandAuditReader));
+            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<ComponentTask> ExpandAsync(ComponentTask document)
+        public async Task ExpandAsync(ComponentTask document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
@@ -35,6 +54,7 @@ namespace TeamCloud.Data.Expanders
             {
                 var results = await Task.WhenAll(
 
+                    GetAuditAsync(document),
                     GetEventsAsync(document),
                     GetOutputAsync(document)
 
@@ -42,44 +62,32 @@ namespace TeamCloud.Data.Expanders
 
                 if (results.Any(result => !string.IsNullOrEmpty(result)))
                 {
-                    document.Output = string.Join(Environment.NewLine, results); // do some empty line trimming (left & right)
-                    document.Output = Regex.Replace(document.Output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
-                    document.Output = Regex.Replace(document.Output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
+                    var output = string.Join(Seperator, results.Where(result => !string.IsNullOrEmpty(result)));
+
+                    // do some empty line trimming (left & right)
+                    output = Regex.Replace(output, @"^([\s])*", string.Empty, RegexOptions.Singleline);
+                    output = Regex.Replace(output, @"([\s])*$", string.Empty, RegexOptions.Singleline);
+
+                    document.Output = output;
                 }
             }
-
-            return document;
         }
 
         private async Task<string> GetEventsAsync(ComponentTask document)
         {
-            if (AzureResourceIdentifier.TryParse(document.ResourceId, out var resourceId))
+            if (document.TaskState.IsActive() && AzureResourceIdentifier.TryParse(document.ResourceId, out var resourceId))
             {
                 try
                 {
-                    var session = await azureResourceService.AzureSessionService
-                        .CreateSessionAsync(resourceId.SubscriptionId)
+                    var containerGroup = await azureResourceService
+                        .GetResourceAsync<AzureContainerGroupResource>(resourceId.ToString())
                         .ConfigureAwait(false);
 
-                    var runner = await session.ContainerGroups
-                        .GetByIdAsync(resourceId.ToString())
-                        .ConfigureAwait(false);
-
-                    var container = runner?.Containers
-                        .SingleOrDefault()
-                        .Value;
-
-                    if (container?.InstanceView != null)
+                    if (containerGroup != null)
                     {
-                        var lines = container.InstanceView.Events
-                            .Where(e => e.LastTimestamp.HasValue)
-                            .OrderBy(e => e.LastTimestamp)
-                            .Select(e => $"{e.LastTimestamp.Value:yyyy-MM-dd hh:mm:ss}\t{e.Name}\t\t{e.Message}");
-
-                        if (lines.Any())
-                            lines = lines.Append(string.Empty);
-
-                        return string.Join(Environment.NewLine, lines);
+                        return await containerGroup
+                            .GetEventContentAsync("runner")
+                            .ConfigureAwait(false);
                     }
                 }
                 catch
@@ -93,39 +101,60 @@ namespace TeamCloud.Data.Expanders
 
         private async Task<string> GetOutputAsync(ComponentTask document)
         {
-            var project = await projectRepository
-                .GetAsync(document.Organization, document.ProjectId)
+            var output = default(string);
+
+            var outputUrl = await cache
+                .GetOrCreateAsync($"{GetType()}|{document.GetType()}|{document.Id}", GetOutputUrlAsync)
                 .ConfigureAwait(false);
 
-            if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+            if (outputUrl != null)
+            {
+                if (document.TaskState.IsActive())
+                {
+                    output = await GetOutputLogAsync(null)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    output = await cache
+                        .GetOrCreateAsync(outputUrl, GetOutputLogAsync)
+                        .ConfigureAwait(false);
+                }
+            }
+
+            return output;
+
+            async Task<string> GetOutputLogAsync(ICacheEntry entry)
             {
                 try
                 {
-                    var storageAccount = await azureResourceService
-                        .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                    using var stream = await outputUrl.ToString()
+                        .WithHeader("responsecontent-disposition", "file; attachment")
+                        .WithHeader("responsecontent-type", "binary")
+                        .GetStreamAsync()
                         .ConfigureAwait(false);
 
-                    if (storageAccount != null)
+                    if ((stream?.Length ?? 0) > 0)
                     {
-                        var shareClient = await storageAccount
-                            .CreateShareClientAsync(document.ComponentId)
-                            .ConfigureAwait(false);
+                        using var reader = new StreamReader(stream);
 
-                        var directoryClient = shareClient
-                            .GetDirectoryClient(".output");
-
-                        await directoryClient
-                            .CreateIfNotExistsAsync()
-                            .ConfigureAwait(false);
-
-                        var fileClient = directoryClient
-                            .GetFileClient($"{document.Id}");
-
-                        if (await fileClient.ExistsAsync().ConfigureAwait(false))
+                        if (entry != null)
                         {
-                            using var reader = new StreamReader(await fileClient.OpenReadAsync().ConfigureAwait(false));
+                            entry.AbsoluteExpiration = DateTime.UtcNow.AddDays(1);
 
-                            return await reader.ReadToEndAsync().ConfigureAwait(false);
+                            entry.Value = await reader
+                                .ReadToEndAsync()
+                                .ConfigureAwait(false);
+
+                            // add entry to cache if not null
+                            if (entry.Value != null) entry.Dispose();
+                        }
+                        else
+                        {
+
+                            return await reader
+                                .ReadToEndAsync()
+                                .ConfigureAwait(false);
                         }
                     }
                 }
@@ -133,6 +162,79 @@ namespace TeamCloud.Data.Expanders
                 {
                     // swallow
                 }
+
+                return entry?.Value as string;
+            }
+
+            async Task<Uri> GetOutputUrlAsync(ICacheEntry entry)
+            {
+                try
+                {
+                    var project = await projectRepository
+                        .GetAsync(document.Organization, document.ProjectId)
+                        .ConfigureAwait(false);
+
+                    if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+                    {
+                        var storageAccount = await azureResourceService
+                            .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                            .ConfigureAwait(false);
+
+                        if (storageAccount != null)
+                        {
+                            entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
+
+                            entry.Value = await storageAccount // create a shared access token with an additional expiration offset to avoid time sync issues when fetching the output
+                                .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
+                                .ConfigureAwait(false);
+
+                            // add entry to cache if not null
+                            if (entry.Value != null) entry.Dispose();
+                        }
+                    }
+                }
+                catch
+                {
+                    // swallow
+                }
+
+                return entry?.Value as Uri;
+            }
+        }
+
+        private async Task<string> GetAuditAsync(ComponentTask document)
+        {
+            var audit = await commandAuditReader
+                .GetAsync(Guid.Parse(document.Organization), Guid.Parse(document.Id))
+                .ConfigureAwait(false);
+
+            if (audit != null)
+            {
+                var username = await azureDirectoryService
+                    .GetDisplayNameAsync(audit.UserId)
+                    .ConfigureAwait(false);
+
+                var output = new StringBuilder();
+
+                output.AppendLine($"User:       {username}");
+                output.AppendLine($"Created:    {audit.Created}");
+
+                if (audit.RuntimeStatus.IsActive())
+                {
+                    output.AppendLine($"Updated:    {audit.Updated}");
+                }
+                else
+                {
+                    output.AppendLine($"Finished:   {audit.Updated}");
+                }
+
+                if (!string.IsNullOrEmpty(audit.Errors))
+                {
+                    output.AppendLine(Seperator);
+                    output.AppendLine(audit.Errors);
+                }
+
+                return output.ToString();
             }
 
             return default;

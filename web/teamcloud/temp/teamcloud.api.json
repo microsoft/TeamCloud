@@ -2709,7 +2709,7 @@
         {
           "kind": "TypeAlias",
           "canonicalReference": "teamcloud!ComponentTaskState:type",
-          "docComment": "/**\n * Defines values for ComponentTaskState. \\ {@link KnownComponentTaskState} can be used interchangeably with ComponentTaskState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Processing** \\ **Succeeded** \\ **Failed**\n */\n",
+          "docComment": "/**\n * Defines values for ComponentTaskState. \\ {@link KnownComponentTaskState} can be used interchangeably with ComponentTaskState, this enum contains the known values that the service supports. ### Known values supported by the service **Pending** \\ **Initializing** \\ **Processing** \\ **Succeeded** \\ **Canceled** \\ **Failed**\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -5086,6 +5086,27 @@
           "releaseTag": "Public",
           "name": "KnownComponentTaskState",
           "members": [
+            {
+              "kind": "EnumMember",
+              "canonicalReference": "teamcloud!KnownComponentTaskState.Canceled:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "Canceled = "
+                },
+                {
+                  "kind": "Content",
+                  "text": "\"Canceled\""
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "Canceled",
+              "initializerTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
             {
               "kind": "EnumMember",
               "canonicalReference": "teamcloud!KnownComponentTaskState.Failed:member",
@@ -7713,6 +7734,32 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#deleted:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "deleted?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Date",
+                  "canonicalReference": "!Date:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "deleted",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!Project#displayName:member",
               "docComment": "",
               "excerptTokens": [
@@ -8007,6 +8054,31 @@
               ],
               "releaseTag": "Public",
               "name": "templateInput",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!Project#ttl:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "ttl?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "releaseTag": "Public",
+              "name": "ttl",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -11656,23 +11728,23 @@
             {
               "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#authorizeDeploymentScope:member(1)",
-              "docComment": "/**\n * Authorize an existing Deployment Scope.\n *\n * @param deploymentScopeId - \n *\n * @param organizationId - \n *\n * @param options - The options parameters.\n */\n",
+              "docComment": "/**\n * Authorize an existing Deployment Scope.\n *\n * @param organizationId - \n *\n * @param deploymentScopeId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "authorizeDeploymentScope(deploymentScopeId: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string | null"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", organizationId: "
+                  "text": "authorizeDeploymentScope(organizationId: "
                 },
                 {
                   "kind": "Content",
                   "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", deploymentScopeId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
                 },
                 {
                   "kind": "Content",
@@ -11719,14 +11791,14 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "deploymentScopeId",
+                  "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
                   }
                 },
                 {
-                  "parameterName": "organizationId",
+                  "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
@@ -11741,6 +11813,125 @@
                 }
               ],
               "name": "authorizeDeploymentScope"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#cancelComponentTask:member(1)",
+              "docComment": "/**\n * Rerun a Project Component Task.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param componentId - \n *\n * @param taskId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "cancelComponentTask(organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", componentId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", taskId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudCancelComponentTaskOptionalParams",
+                  "canonicalReference": "teamcloud!TeamCloudCancelComponentTaskOptionalParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudCancelComponentTaskResponse",
+                  "canonicalReference": "teamcloud!TeamCloudCancelComponentTaskResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 11,
+                "endIndex": 15
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "projectId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "componentId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                },
+                {
+                  "parameterName": "taskId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 9,
+                    "endIndex": 10
+                  }
+                }
+              ],
+              "name": "cancelComponentTask"
             },
             {
               "kind": "Method",
@@ -13984,11 +14175,11 @@
             {
               "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#getComponentTask:member(1)",
-              "docComment": "/**\n * Gets the Component Task.\n *\n * @param id - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param componentId - \n *\n * @param options - The options parameters.\n */\n",
+              "docComment": "/**\n * Gets the Component Task.\n *\n * @param taskId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param componentId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "getComponentTask(id: "
+                  "text": "getComponentTask(taskId: "
                 },
                 {
                   "kind": "Content",
@@ -14063,7 +14254,7 @@
               "overloadIndex": 1,
               "parameters": [
                 {
-                  "parameterName": "id",
+                  "parameterName": "taskId",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
@@ -16555,6 +16746,125 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "teamcloud!TeamCloud#reRunComponentTask:member(1)",
+              "docComment": "/**\n * Cancel an active Project Component Task.\n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param componentId - \n *\n * @param taskId - \n *\n * @param options - The options parameters.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "reRunComponentTask(organizationId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", projectId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", componentId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", taskId: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string | null"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudReRunComponentTaskOptionalParams",
+                  "canonicalReference": "teamcloud!TeamCloudReRunComponentTaskOptionalParams:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "TeamCloudReRunComponentTaskResponse",
+                  "canonicalReference": "teamcloud!TeamCloudReRunComponentTaskResponse:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 11,
+                "endIndex": 15
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "organizationId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  }
+                },
+                {
+                  "parameterName": "projectId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  }
+                },
+                {
+                  "parameterName": "componentId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 5,
+                    "endIndex": 6
+                  }
+                },
+                {
+                  "parameterName": "taskId",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 7,
+                    "endIndex": 8
+                  }
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 9,
+                    "endIndex": 10
+                  }
+                }
+              ],
+              "name": "reRunComponentTask"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "teamcloud!TeamCloud#runSchedule:member(1)",
               "docComment": "/**\n * Runs a Project Schedule.\n *\n * @param scheduleId - \n *\n * @param organizationId - \n *\n * @param projectId - \n *\n * @param options - The options parameters.\n */\n",
               "excerptTokens": [
@@ -17576,6 +17886,65 @@
           ],
           "releaseTag": "Public",
           "name": "TeamCloudAuthorizeDeploymentScopeResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!TeamCloudCancelComponentTaskOptionalParams:interface",
+          "docComment": "/**\n * Optional parameters.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TeamCloudCancelComponentTaskOptionalParams extends "
+            },
+            {
+              "kind": "Content",
+              "text": "coreClient."
+            },
+            {
+              "kind": "Reference",
+              "text": "OperationOptions",
+              "canonicalReference": "@azure/core-client!OperationOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudCancelComponentTaskOptionalParams",
+          "members": [],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 4
+            }
+          ]
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudCancelComponentTaskResponse:type",
+          "docComment": "/**\n * Contains response data for the cancelComponentTask operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudCancelComponentTaskResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ComponentTaskDataResult",
+              "canonicalReference": "teamcloud!ComponentTaskDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudCancelComponentTaskResponse",
           "typeTokenRange": {
             "startIndex": 1,
             "endIndex": 2
@@ -21382,6 +21751,65 @@
               "endIndex": 4
             }
           ]
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "teamcloud!TeamCloudReRunComponentTaskOptionalParams:interface",
+          "docComment": "/**\n * Optional parameters.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface TeamCloudReRunComponentTaskOptionalParams extends "
+            },
+            {
+              "kind": "Content",
+              "text": "coreClient."
+            },
+            {
+              "kind": "Reference",
+              "text": "OperationOptions",
+              "canonicalReference": "@azure/core-client!OperationOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudReRunComponentTaskOptionalParams",
+          "members": [],
+          "extendsTokenRanges": [
+            {
+              "startIndex": 1,
+              "endIndex": 4
+            }
+          ]
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "teamcloud!TeamCloudReRunComponentTaskResponse:type",
+          "docComment": "/**\n * Contains response data for the reRunComponentTask operation.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare type TeamCloudReRunComponentTaskResponse = "
+            },
+            {
+              "kind": "Reference",
+              "text": "ComponentTaskDataResult",
+              "canonicalReference": "teamcloud!ComponentTaskDataResult:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "releaseTag": "Public",
+          "name": "TeamCloudReRunComponentTaskResponse",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Interface",

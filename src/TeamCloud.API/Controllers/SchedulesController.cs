@@ -46,10 +46,10 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetSchedules", Summary = "Gets all Schedule.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Schedule", typeof(DataResult<List<Schedule>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudProjectContext>(async context =>
+        public Task<IActionResult> Get() => WithContextAsync<Project>(async (contextUser, project) =>
         {
             var componenetTasks = await scheduleRepository
-                .ListAsync(context.Project.Id)
+                .ListAsync(project.Id)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -65,7 +65,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a Schedule", typeof(DataResult<Schedule>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Schedule with the provided id was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get([FromRoute] string scheduleId) => ExecuteAsync<TeamCloudProjectContext>(async context =>
+        public Task<IActionResult> Get([FromRoute] string scheduleId) => WithContextAsync<Project>(async (contextUser, project) =>
         {
             if (string.IsNullOrWhiteSpace(scheduleId))
                 return ErrorResult
@@ -73,12 +73,12 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var schedule = await scheduleRepository
-                .GetAsync(context.Project.Id, scheduleId, true)
+                .GetAsync(project.Id, scheduleId, true)
                 .ConfigureAwait(false);
 
             if (schedule is null)
                 return ErrorResult
-                    .NotFound($"A Schedule with the id '{scheduleId}' could not be found for Project {context.Project.Id}.")
+                    .NotFound($"A Schedule with the id '{scheduleId}' could not be found for Project {project.Id}.")
                     .ToActionResult();
 
             return DataResult<Schedule>
@@ -95,7 +95,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Schedule already exists with the id provided in the request body.", typeof(ErrorResult))]
-        public Task<IActionResult> Post([FromBody] ScheduleDefinition scheduleDefinition) => ExecuteAsync<TeamCloudProjectContext>(async context =>
+        public Task<IActionResult> Post([FromBody] ScheduleDefinition scheduleDefinition) => WithContextAsync<Project>(async (contextUser, project) =>
         {
             if (scheduleDefinition is null)
                 return ErrorResult
@@ -112,15 +112,15 @@ namespace TeamCloud.API.Controllers
                 .Distinct();
 
             var components = await componentRepository
-                .ListAsync(context.Project.Id, componentIds)
+                .ListAsync(project.Id, componentIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
 
-            if (!context.ContextUser.IsAdmin(context.Project.Id))
+            if (!contextUser.IsAdmin(project.Id))
             {
                 var notAllowedComponents = components
-                    .Where(c => c.Creator != context.ContextUser.Id);
+                    .Where(c => c.Creator != contextUser.Id);
 
                 if (notAllowedComponents.Any())
                     return ErrorResult
@@ -143,7 +143,7 @@ namespace TeamCloud.API.Controllers
                 .Distinct();
 
             var componentTemplates = await componentTemplateRepository
-                .ListAsync(context.Organization.Id, context.Project.Id, componentTemplateIds)
+                .ListAsync(project.Organization, project.Id, componentTemplateIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -167,18 +167,18 @@ namespace TeamCloud.API.Controllers
 
             var schedule = new Schedule
             {
-                Organization = context.Organization.Id,
-                ProjectId = context.Project.Id,
+                Organization = project.Organization,
+                ProjectId = project.Id,
                 Enabled = scheduleDefinition.Enabled,
                 Recurring = scheduleDefinition.Recurring,
                 DaysOfWeek = scheduleDefinition.DaysOfWeek,
                 UtcHour = scheduleDefinition.UtcHour,
                 UtcMinute = scheduleDefinition.UtcMinute,
-                Creator = context.ContextUser.Id,
+                Creator = contextUser.Id,
                 ComponentTasks = scheduleDefinition.ComponentTasks
             };
 
-            var command = new ScheduleCreateCommand(context.ContextUser, schedule);
+            var command = new ScheduleCreateCommand(contextUser, schedule);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -195,39 +195,39 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status409Conflict, "A Project Schedule id provided in the could not be found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Put([FromRoute] string scheduleId, [FromBody] Schedule updatedSchedule) => ExecuteAsync<TeamCloudScheduleContext>(async context =>
+        public Task<IActionResult> Put([FromRoute] string scheduleId, [FromBody] Schedule scheduleUpdate) => WithContextAsync<Schedule>(async (contextUser, schedule) =>
         {
-            if (updatedSchedule is null)
+            if (scheduleUpdate is null)
                 return ErrorResult
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!updatedSchedule.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!scheduleUpdate.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();
 
 
-            if (!context.Schedule.Id.Equals(updatedSchedule.Id, StringComparison.Ordinal))
+            if (!schedule.Id.Equals(scheduleUpdate.Id, StringComparison.Ordinal))
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "id", Message = $"Schedule's id does match the identifier provided in the path." })
                     .ToActionResult();
 
 
-            var componentIds = updatedSchedule.ComponentTasks
+            var componentIds = scheduleUpdate.ComponentTasks
                 .Select(ct => ct.ComponentId)
                 .Distinct();
 
             var components = await componentRepository
-                .ListAsync(context.Project.Id, componentIds)
+                .ListAsync(schedule.ProjectId, componentIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
 
-            if (!context.ContextUser.IsAdmin(context.Project.Id))
+            if (!contextUser.IsAdmin(schedule.ProjectId))
             {
                 var notAllowedComponents = components
-                    .Where(c => c.Creator != context.ContextUser.Id);
+                    .Where(c => c.Creator != contextUser.Id);
 
                 if (notAllowedComponents.Any())
                     return ErrorResult
@@ -250,7 +250,7 @@ namespace TeamCloud.API.Controllers
                 .Distinct();
 
             var componentTemplates = await componentTemplateRepository
-                .ListAsync(context.Organization.Id, context.Project.Id, componentTemplateIds)
+                .ListAsync(schedule.Organization, schedule.ProjectId, componentTemplateIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -263,7 +263,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
 
-            var notFoundComponentTaskTemplateIds = updatedSchedule.ComponentTasks
+            var notFoundComponentTaskTemplateIds = scheduleUpdate.ComponentTasks
                 .Where(ctr => !componentTemplates.First(ct => ct.Id == components.First(c => c.Id == ctr.ComponentId).TemplateId).Tasks.Any(t => t.Id == ctr.ComponentTaskTemplateId));
 
             if (notFoundComponentTaskTemplateIds.Any())
@@ -272,18 +272,18 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
 
-            if (updatedSchedule.Creator != context.Schedule.Creator)
+            if (scheduleUpdate.Creator != schedule.Creator)
                 return ErrorResult
                     .BadRequest(new ValidationError { Field = "creator", Message = $"The Schedule's creator field cannot be changed." })
                     .ToActionResult();
 
-            updatedSchedule.LastUpdatedBy = context.ContextUser.Id;
-            updatedSchedule.LastUpdated = DateTime.UtcNow;
+            scheduleUpdate.LastUpdatedBy = contextUser.Id;
+            scheduleUpdate.LastUpdated = DateTime.UtcNow;
 
-            updatedSchedule.Created = context.Schedule.Created;
-            updatedSchedule.LastRun = context.Schedule.LastRun;
+            scheduleUpdate.Created = schedule.Created;
+            scheduleUpdate.LastRun = schedule.LastRun;
 
-            var command = new ScheduleUpdateCommand(context.ContextUser, updatedSchedule);
+            var command = new ScheduleUpdateCommand(contextUser, scheduleUpdate);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)
@@ -299,22 +299,22 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Project with the provided projectId was not found.", typeof(ErrorResult))]
         [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Run([FromRoute] string scheduleId) => ExecuteAsync<TeamCloudScheduleContext>(async context =>
+        public Task<IActionResult> Run([FromRoute] string scheduleId) => WithContextAsync<Schedule>(async (contextUser, schedule) =>
         {
-            var componentIds = context.Schedule.ComponentTasks
+            var componentIds = schedule.ComponentTasks
                 .Select(ct => ct.ComponentId)
                 .Distinct();
 
             var components = await componentRepository
-                .ListAsync(context.Project.Id, componentIds)
+                .ListAsync(schedule.ProjectId, componentIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
 
-            if (!context.ContextUser.IsAdmin(context.Project.Id))
+            if (!contextUser.IsAdmin(schedule.ProjectId))
             {
                 var notAllowedComponents = components
-                    .Where(c => c.Creator != context.ContextUser.Id);
+                    .Where(c => c.Creator != contextUser.Id);
 
                 if (notAllowedComponents.Any())
                     return ErrorResult
@@ -337,7 +337,7 @@ namespace TeamCloud.API.Controllers
                 .Distinct();
 
             var componentTemplates = await componentTemplateRepository
-                .ListAsync(context.Organization.Id, context.Project.Id, componentTemplateIds)
+                .ListAsync(schedule.Organization, schedule.ProjectId, componentTemplateIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -350,7 +350,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
 
-            var notFoundComponentTaskTemplateIds = context.Schedule.ComponentTasks
+            var notFoundComponentTaskTemplateIds = schedule.ComponentTasks
                 .Where(ctr => !componentTemplates.First(ct => ct.Id == components.First(c => c.Id == ctr.ComponentId).TemplateId).Tasks.Any(t => t.Id == ctr.ComponentTaskTemplateId));
 
             if (notFoundComponentTaskTemplateIds.Any())
@@ -358,7 +358,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The following tasks could not be found on the specified components: {string.Join(", ", notFoundComponentTaskTemplateIds.Select(ctr => ctr.ComponentTaskTemplateId))}.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            var command = new ScheduleRunCommand(context.ContextUser, context.Schedule);
+            var command = new ScheduleRunCommand(contextUser, schedule);
 
             return await Orchestrator
                 .InvokeAndReturnActionResultAsync(command, Request)

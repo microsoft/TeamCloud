@@ -12,8 +12,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Model.Data
 {
+    [SoftDelete(60 * 60 * 24)] // 24 hours
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class Project : ContainerDocument, IOrganizationContext, ISlug, IEquatable<Project>, IResourceReference
+    public sealed class Project : ContainerDocument, ISoftDelete, IOrganizationContext, ISlug, IEquatable<Project>, IResourceReference
     {
         [PartitionKey]
         [JsonProperty(Required = Required.Always)]
@@ -55,6 +56,16 @@ namespace TeamCloud.Model.Data
         public string SecretsVaultId { get; set; }
 
         public string StorageId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timestamp when the component was deleted.
+        /// </summary>
+        public DateTime? Deleted { get; set; }
+
+        /// <summary>
+        /// Gets or sets the time to live once the component is soft deleted.
+        /// </summary>
+        public int? TTL { get; set; }
 
         public bool Equals(Project other)
             => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

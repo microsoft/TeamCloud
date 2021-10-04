@@ -36,9 +36,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided userId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get() => ExecuteAsync<TeamCloudOrganizationUserContext>(async context =>
+        public Task<IActionResult> Get() => WithContextAsync<User>(async (contextUser, user) =>
         {
-            var projectIds = context.User.ProjectMemberships.Select(pm => pm.ProjectId);
+            var projectIds = user.ProjectMemberships.Select(pm => pm.ProjectId);
 
             if (!projectIds.Any())
                 return DataResult<List<Project>>
@@ -46,7 +46,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var projects = await projectRepository
-                .ListAsync(context.Organization.Id, projectIds)
+                .ListAsync(OrganizationId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 
@@ -62,9 +62,9 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all User Projects", typeof(DataResult<List<Project>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A User with the provided userId was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> GetMe() => ExecuteAsync<TeamCloudOrganizationContext>(async context =>
+        public Task<IActionResult> GetMe() => WithContextAsync(async contextUser =>
         {
-            var projectIds = context.ContextUser.ProjectMemberships.Select(pm => pm.ProjectId);
+            var projectIds = contextUser.ProjectMemberships.Select(pm => pm.ProjectId);
 
             if (!projectIds.Any())
                 return DataResult<List<Project>>
@@ -72,7 +72,7 @@ namespace TeamCloud.API.Controllers
                     .ToActionResult();
 
             var projects = await projectRepository
-                .ListAsync(context.Organization.Id, projectIds)
+                .ListAsync(OrganizationId, projectIds)
                 .ToListAsync()
                 .ConfigureAwait(false);
 

@@ -26,7 +26,6 @@ namespace TeamCloud.API.Data.Results
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IList<ResultError> Errors { get; set; }
 
-
         public static ErrorResult BadRequest(List<ResultError> errors = null)
             => new ErrorResult { Code = StatusCodes.Status400BadRequest, Status = "BadRequest", Errors = errors };
 

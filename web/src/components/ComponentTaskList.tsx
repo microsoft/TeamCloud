@@ -3,10 +3,13 @@
 
 import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IDetailsRowProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
-import { ComponentTask } from 'teamcloud';
+import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IconButton, IContextualMenuProps, IDetailsRowProps, IIconProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
+import { ComponentTask, KnownComponentTaskState } from 'teamcloud';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
 import { ComponentTaskConsole } from '.';
+import { isActiveComponentTaskState, isFinalComponentTaskState } from '../Utils';
+import { useCancelProjectComponentTask } from '../hooks/useCancelProjectComponentTask';
+import { useRerunProjectComponentTask } from '../hooks/useRerunProjectComponentTask';
 
 export interface IComponentTaskListProps { }
 
@@ -24,6 +27,8 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     const { data: componentTask } = useProjectComponentTask();
     const { data: componentTasks } = useProjectComponentTasks();
 
+    const cancelProjectComponentTask = useCancelProjectComponentTask();
+    const rerunProjectComponentTask = useRerunProjectComponentTask();
 
     useEffect(() => {
         if (!subitemId && org && project && component && componentTasks && componentTasks.length > 0) {
@@ -32,16 +37,45 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     }, [org, project, component, componentTasks, componentTask, subitemId, history]);
 
     const _getStateIcon = (task?: ComponentTask) => {
-        if (task?.taskState)
-            switch (task.taskState) {
-                case 'Pending': return 'ProgressLoopOuter'; // UnknownSolid, AwayStatus, DRM, Blocked2
-                case 'Initializing': return 'Running'; // Running, Rocket
-                case 'Processing': return 'Rocket'; // Processing,
-                case 'Succeeded': return 'CompletedSolid'; // BoxCheckmarkSolid, CheckboxComposite, Accept, CompletedSolid
-                case 'Failed': return 'StatusErrorFull'; // BoxMultiplySolid, Error, ErrorBadge StatusErrorFull, IncidentTriangle
-                default: return undefined;
-            }
+        switch (task?.taskState) {
+            case 'Pending': return 'ProgressLoopOuter'; // UnknownSolid, AwayStatus, DRM, Blocked2
+            case 'Canceled': return 'CircleStopSolid';
+            case 'Initializing': return 'Running'; // Running, Rocket
+            case 'Processing': return 'Rocket'; // Processing,
+            case 'Succeeded': return 'CompletedSolid'; // BoxCheckmarkSolid, CheckboxComposite, Accept, CompletedSolid
+            case 'Failed': return 'StatusErrorFull'; // BoxMultiplySolid, Error, ErrorBadge StatusErrorFull, IncidentTriangle
+            default: return undefined;
+        }
     };
+
+    const _getIconProps = (task?: ComponentTask) => {
+        return { 
+            iconName: _getStateIcon(task),
+            className: `deployment-state-icon-${task?.taskState?.toLowerCase() ?? 'pending'}`
+
+        } as IIconProps
+    }
+
+    const _getMenuProps = (task?: ComponentTask) => {
+        return {
+            items : [
+                {
+                    key: 'cancel',
+                    text: 'Cancel Task',
+                    iconProps: { iconName: 'Cancel' },
+                    disabled: task?.type !== "Custom" || isFinalComponentTaskState(task?.taskState as KnownComponentTaskState),
+                    onClick: () => task && cancelProjectComponentTask(task)
+                },
+                {
+                    key: 'rerun',
+                    text: 'Rerun Task',
+                    iconProps: { iconName: 'Rerun' },
+                    disabled: task?.type !== "Custom" || isActiveComponentTaskState(task?.taskState as KnownComponentTaskState),
+                    onClick: () => task && rerunProjectComponentTask(task)
+                }
+            ]
+        } as IContextualMenuProps
+    }
 
     const _onActiveItemChanged = (item?: ComponentTask, index?: number | undefined) => {
         history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${item?.id}`);
@@ -72,7 +106,11 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                         </Stack.Item>)
                     }
                     <Stack.Item>
-                        <FontIcon iconName={_getStateIcon(t)} className={`deployment-state-icon-${t.taskState?.toLowerCase() ?? 'pending'}`} />
+                    <IconButton
+                        menuProps={_getMenuProps(t)}
+                        iconProps={_getIconProps(t)}
+                        title={t?.taskState}
+                        />
                     </Stack.Item>
                 </Stack>
             )
@@ -81,7 +119,6 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     const _onRenderRow: IRenderFunction<IDetailsRowProps> = (rowProps?: IDetailsRowProps, defaultRender?: (rowProps?: IDetailsRowProps) => JSX.Element | null): JSX.Element | null => {
         if (rowProps) rowProps.styles = {
-            // root: { borderBottom: (props.noHeader ?? false) && items.length === 1 ? 0 : undefined },
             fields: { alignItems: 'center' }, check: { minHeight: '62px' }, cell: { fontSize: '14px' }
         }
         return defaultRender ? defaultRender(rowProps) : null;
@@ -97,7 +134,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     const _getTaskStatus = (t?: ComponentTask) => {
         if (t?.taskState) {
-            if (t.taskState.toLowerCase() === 'succeeded' || t.taskState.toLowerCase() === 'failed') {
+            if (isFinalComponentTaskState(t.taskState as KnownComponentTaskState)) {
                 return t.finished ? `${t.taskState} ${t.finished.toLocaleString()}` : t.taskState;
             } else {
                 return t.taskState;

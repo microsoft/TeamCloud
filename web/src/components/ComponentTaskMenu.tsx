@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { DefaultButton, Dialog, DialogFooter, DialogType, getTheme, PrimaryButton, Separator, Stack } from '@fluentui/react';
+import { DefaultButton, getTheme, Separator, Stack } from '@fluentui/react';
 import { ComponentTaskTemplate } from 'teamcloud';
-import { useCreateProjectComponentTask, useOrg, useProjectComponent, useProjectComponentTemplates, useDeleteProjectComponent } from '../hooks';
+import { useCreateProjectComponentTask, useProjectComponent, useProjectComponentTemplates, useDeleteProjectComponent } from '../hooks';
+import { ConfirmationButton } from './common/ConfirmationButton';
 
 export interface IComponentTaskMenuProps { }
 
@@ -12,18 +13,16 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
 
     const theme = getTheme();
 
-    const { data: org } = useOrg();
     const { data: component } = useProjectComponent();
     const { data: templates } = useProjectComponentTemplates();
 
     const createComponentTask = useCreateProjectComponentTask();
     const deleteComponent = useDeleteProjectComponent();
 
-    const [dialogHidden, setDialogHidden] = useState<boolean>(true);
     const [taskTemplates, setTaskTemplates] = useState<ComponentTaskTemplate[]>();
 
     useEffect(() => {
-        if (org && component && templates && templates.length > 0) {
+        if (component && templates && templates.length > 0) {
             let template = templates.find(t => t.id === component.templateId);
             if (template && template.tasks) {
                 // console.log(stringify(template.tasks));
@@ -32,10 +31,10 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
             }
         }
         setTaskTemplates(new Array<ComponentTaskTemplate>());
-    }, [org, component, templates]);
+    }, [component, templates]);
 
     const onClickTaskButton = async (componentTaskTemplate: ComponentTaskTemplate) => {
-        if (org && component && componentTaskTemplate.id) {
+        if (component && componentTaskTemplate.id) {
             await createComponentTask({
                 taskId: componentTaskTemplate.id
             });
@@ -43,25 +42,10 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
     }
 
     const onClickDeleteButton = async () => {
-        if (org && component) {
-            if (dialogHidden) {
-                showDialog();
-            } else {
-                await deleteComponent(component);
-                hideDialog();
-            }
+        if (component) {
+            await deleteComponent(component);
         }
     }
-
-    const hideDialog = () => setDialogHidden(true);
-
-    const showDialog = () => setDialogHidden(false);
-
-    const dialogContentProps = {
-        type: DialogType.normal,
-        title: 'Delete Component',
-        subText: `Do you want to delete component ${component?.displayName}?`
-    };
 
     return (
         <>
@@ -80,10 +64,10 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
                 {(taskTemplates && taskTemplates.length > 0) && (<Stack.Item key='Seperator'><Separator vertical /></Stack.Item>)}
                 <Stack.Item
                     key='delete'>
-                    <PrimaryButton
+                    <ConfirmationButton
                         theme={theme}
                         text='Delete'
-                        hidden={!(org && component)}
+                        hidden={!(component)}
                         styles={{
                             root: { backgroundColor: theme.palette.red, border: '1px solid transparent' },
                             rootHovered: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
@@ -91,22 +75,9 @@ export const ComponentTaskMenu: React.FunctionComponent<IComponentTaskMenuProps>
                             label: { fontWeight: 700 }
                         }}
                         disabled={component === undefined || component.deleted !== undefined}
+                        confirmationTitle='Delete component'
+                        confirmationBody={`Do you want to delete component ${component?.displayName}?`}
                         onClick={() => onClickDeleteButton()} />
-                    <Dialog
-                        hidden={dialogHidden}
-                        onDismiss={hideDialog}
-                        dialogContentProps={dialogContentProps}
-                        modalProps={{ isBlocking: true }}>
-                        <DialogFooter>
-                            <PrimaryButton styles={{
-                                root: { backgroundColor: theme.palette.red, border: '1px solid transparent' },
-                                rootHovered: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
-                                rootPressed: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
-                                label: { fontWeight: 700 }
-                            }} onClick={onClickDeleteButton} text="Delete" />
-                            <DefaultButton onClick={hideDialog} text="Cancel" />
-                        </DialogFooter>
-                    </Dialog>
                 </Stack.Item>
             </Stack>
 
