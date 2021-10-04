@@ -16,8 +16,8 @@ namespace TeamCloud.Data
 {
     public abstract class DocumentExpander : IDocumentExpander
     {
-        private static readonly ConcurrentDictionary<Type, bool> expandableDocumentTypes = new ConcurrentDictionary<Type, bool>();
-        private static readonly ConcurrentDictionary<Type, MethodInfo> expandMethods = new ConcurrentDictionary<Type, MethodInfo>();
+        private static readonly ConcurrentDictionary<string, bool> expandableDocumentTypes = new ConcurrentDictionary<string, bool>();
+        private static readonly ConcurrentDictionary<string, MethodInfo> expandMethods = new ConcurrentDictionary<string, MethodInfo>();
         private static readonly ConcurrentDictionary<Type, Metric> expandMetrics = new ConcurrentDictionary<Type, Metric>();    
 
         private readonly TelemetryClient telemetryClient;
@@ -33,13 +33,16 @@ namespace TeamCloud.Data
 
         public bool Optional { get; }
 
+        private string GetLookupKey(IContainerDocument document)
+            => $"{this.GetType()}|{document.GetType()}";
+
         public virtual bool CanExpand(IContainerDocument document)
         {
             if (document is null)
                 throw new ArgumentNullException(nameof(document));
 
-            return expandableDocumentTypes.GetOrAdd(document.GetType(), type => 
-                typeof(IDocumentExpander<>).MakeGenericType(type).IsAssignableFrom(GetType()));
+           return expandableDocumentTypes.GetOrAdd(GetLookupKey(document), _ => 
+                typeof(IDocumentExpander<>).MakeGenericType(document.GetType()).IsAssignableFrom(GetType()));
         }
 
         public virtual async Task ExpandAsync(IContainerDocument document)
@@ -51,8 +54,8 @@ namespace TeamCloud.Data
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                var expandMethod = expandMethods.GetOrAdd(document.GetType(), type =>
-                    typeof(IDocumentExpander<>).MakeGenericType(type).GetMethod(nameof(ExpandAsync), new Type[] { type }));
+                var expandMethod = expandMethods.GetOrAdd(GetLookupKey(document), _ =>
+                    typeof(IDocumentExpander<>).MakeGenericType(document.GetType()).GetMethod(nameof(ExpandAsync), new Type[] { document.GetType() }));
 
                 var expandTask = (Task)expandMethod.Invoke(this, new object[] { document });
 
