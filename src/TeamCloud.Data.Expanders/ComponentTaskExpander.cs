@@ -103,11 +103,17 @@ namespace TeamCloud.Data.Expanders
         {
             var output = default(string);
 
+            var outputKey = $"{GetType()}|{document.GetType()}|{document.Id}";
+
             var outputUrl = await cache
-                .GetOrCreateAsync($"{GetType()}|{document.GetType()}|{document.Id}", GetOutputUrlAsync)
+                .GetOrCreateAsync(outputKey, GetOutputUrlAsync)
                 .ConfigureAwait(false);
 
-            if (outputUrl != null)
+            if (outputUrl is null)
+            {
+                cache.Remove(outputKey);
+            }
+            else
             {
                 if (document.TaskState.IsActive())
                 {

@@ -557,7 +557,7 @@ class ComponentTask(msrest.serialization.Model):
     :param resource_id:
     :type resource_id: str
     :param task_state:  Possible values include: "Pending", "Initializing", "Processing",
-     "Succeeded", "Failed".
+     "Succeeded", "Canceled", "Failed".
     :type task_state: str or ~teamcloud.models.ComponentTaskState
     :param exit_code:
     :type exit_code: int
@@ -1559,6 +1559,10 @@ class Project(msrest.serialization.Model):
     :type secrets_vault_id: str
     :param storage_id:
     :type storage_id: str
+    :param deleted:
+    :type deleted: ~datetime.datetime
+    :param ttl:
+    :type ttl: int
     :param id: Required.
     :type id: str
     """
@@ -1586,6 +1590,8 @@ class Project(msrest.serialization.Model):
         'shared_vault_id': {'key': 'sharedVaultId', 'type': 'str'},
         'secrets_vault_id': {'key': 'secretsVaultId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
+        'deleted': {'key': 'deleted', 'type': 'iso-8601'},
+        'ttl': {'key': 'ttl', 'type': 'int'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -1605,6 +1611,8 @@ class Project(msrest.serialization.Model):
         shared_vault_id: Optional[str] = None,
         secrets_vault_id: Optional[str] = None,
         storage_id: Optional[str] = None,
+        deleted: Optional[datetime.datetime] = None,
+        ttl: Optional[int] = None,
         **kwargs
     ):
         super(Project, self).__init__(**kwargs)
@@ -1621,6 +1629,8 @@ class Project(msrest.serialization.Model):
         self.shared_vault_id = shared_vault_id
         self.secrets_vault_id = secrets_vault_id
         self.storage_id = storage_id
+        self.deleted = deleted
+        self.ttl = ttl
         self.id = id
 
 

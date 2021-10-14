@@ -59,6 +59,7 @@ class ComponentTaskState(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):
     INITIALIZING = "Initializing"
     PROCESSING = "Processing"
     SUCCEEDED = "Succeeded"
+    CANCELED = "Canceled"
     FAILED = "Failed"
 
 class ComponentTaskTemplateType(with_metaclass(_CaseInsensitiveEnumMeta, str, Enum)):

@@ -22,7 +22,7 @@ The remainder of this file is configuration details used by AutoRest.
 ### Inputs
 
 ``` yaml
-use: '@autorest/python@latest'
+use: '@autorest/python@5.8.4'
 input-file: openapi.yaml
 namespace: teamcloud
 add-credentials: true
