@@ -14,7 +14,7 @@ namespace TeamCloud.Adapters.Authorization
 {
     public sealed class AuthorizationTokenClient : IAuthorizationTokenClient
     {
-        public const string TableName = "AuthorizationToken";
+        public const string TableName = "Adapters";
 
         private readonly IAuthorizationTokenOptions options;
 
@@ -22,7 +22,7 @@ namespace TeamCloud.Adapters.Authorization
 
         public AuthorizationTokenClient(IAuthorizationTokenOptions options)
         {
-            this.options = options ?? AuthorizationTokenOptions.Default;
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
 
             tableInstance = new AsyncLazy<CloudTable>(async () =>
             {

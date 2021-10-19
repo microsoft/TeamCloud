@@ -125,17 +125,6 @@ export const body3 = {
     parameterPath: ["options", "body"],
     mapper: DeploymentScopeMapper
 };
-export const contentType1 = {
-    parameterPath: ["options", "contentType"],
-    mapper: {
-        defaultValue: "application/json-patch+json",
-        isConstant: true,
-        serializedName: "Content-Type",
-        type: {
-            name: "String"
-        }
-    }
-};
 export const timeRange = {
     parameterPath: ["options", "timeRange"],
     mapper: {

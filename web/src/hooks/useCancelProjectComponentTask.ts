@@ -33,10 +33,8 @@ export const useCancelProjectComponentTask = () => {
         onSuccess: data => {
             if (data) {
 
-                var componentTasksSanitized = componentTasks?.map(ct => ct.id === data.id ? data : ct);
-
-                queryClient.setQueryData(['org', org?.id, 'project', project?.id, 'component', component?.id, 'componenttask', data.id], data)
-                queryClient.setQueryData(['org', org?.id, 'project', project?.id, 'component', component?.id, 'componenttask', data.id, 'componenttask'], componentTasksSanitized)
+                queryClient.setQueryData(['org', data.organization, 'project', data.projectId, 'component', data.componentId, 'componenttask'], componentTasks?.map(ct => ct.id === data.id ? data : ct))
+                queryClient.setQueryData(['org', data.organization, 'project', data.projectId, 'component', data.componentId, 'componenttask', data.id], data)
 
                 history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${data.id}`);
             }

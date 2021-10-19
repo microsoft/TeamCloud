@@ -9,7 +9,7 @@ import { ContentList } from '.';
 import { useOrg, useDeploymentScopes } from '../hooks';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
-import { api } from '../API';
+import { useAuthorizeDeployemntScope } from '../hooks/useAuthorizeDeploymentScope';
 
 export const DeploymentScopeList: React.FC = () => {
 
@@ -18,6 +18,7 @@ export const DeploymentScopeList: React.FC = () => {
     const { data: org } = useOrg();
     const { data: scopes } = useDeploymentScopes();
 
+    const authorizeDeploymentScope = useAuthorizeDeployemntScope();
 
     const columns: IColumn[] = [
         { key: 'displayName', name: 'Name', minWidth: 200, fieldName: 'displayName' },
@@ -30,10 +31,10 @@ export const DeploymentScopeList: React.FC = () => {
     ];
 
     const _onItemAuthorize = async (scope: DeploymentScope): Promise<void> => {
-        // console.log(JSON.stringify(scope));
-        let response = await api.authorizeDeploymentScope(scope.id, scope.organization, { body: scope });
-        if (response && response.data && response.data.authorizeUrl) {
-            window.open(response.data.authorizeUrl, "_blank");
+        if (scope?.authorizeUrl) {
+            let authorizedScope = await authorizeDeploymentScope(scope);
+            window.open(authorizedScope?.authorizeUrl ?? scope?.authorizeUrl, "_blank");
+            // window.open(scope?.authorizeUrl, "_self");
         }
     };
 

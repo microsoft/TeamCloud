@@ -154,39 +154,39 @@ export class TeamCloud extends TeamCloudContext {
     }
     /**
      * Gets a Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    getDeploymentScope(deploymentScopeId, organizationId, options) {
-        return this.sendOperationRequest({ deploymentScopeId, organizationId, options }, getDeploymentScopeOperationSpec);
+    getDeploymentScope(organizationId, deploymentScopeId, options) {
+        return this.sendOperationRequest({ organizationId, deploymentScopeId, options }, getDeploymentScopeOperationSpec);
     }
     /**
      * Updates an existing Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    updateDeploymentScope(deploymentScopeId, organizationId, options) {
-        return this.sendOperationRequest({ deploymentScopeId, organizationId, options }, updateDeploymentScopeOperationSpec);
+    updateDeploymentScope(organizationId, deploymentScopeId, options) {
+        return this.sendOperationRequest({ organizationId, deploymentScopeId, options }, updateDeploymentScopeOperationSpec);
     }
     /**
      * Deletes a Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    deleteDeploymentScope(deploymentScopeId, organizationId, options) {
-        return this.sendOperationRequest({ deploymentScopeId, organizationId, options }, deleteDeploymentScopeOperationSpec);
+    deleteDeploymentScope(organizationId, deploymentScopeId, options) {
+        return this.sendOperationRequest({ organizationId, deploymentScopeId, options }, deleteDeploymentScopeOperationSpec);
     }
     /**
-     * Authorize an existing Deployment Scope.
+     * Initialize a new authorization session for a deployment scope.
      * @param organizationId
      * @param deploymentScopeId
      * @param options The options parameters.
      */
-    authorizeDeploymentScope(organizationId, deploymentScopeId, options) {
-        return this.sendOperationRequest({ organizationId, deploymentScopeId, options }, authorizeDeploymentScopeOperationSpec);
+    initializeAuthorization(organizationId, deploymentScopeId, options) {
+        return this.sendOperationRequest({ organizationId, deploymentScopeId, options }, initializeAuthorizationOperationSpec);
     }
     /**
      * Negotiates the SignalR connection.
@@ -1067,9 +1067,9 @@ const deleteDeploymentScopeOperationSpec = {
     headerParameters: [Parameters.accept],
     serializer
 };
-const authorizeDeploymentScopeOperationSpec = {
-    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize",
-    httpMethod: "PUT",
+const initializeAuthorizationOperationSpec = {
+    path: "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize/initialize",
+    httpMethod: "GET",
     responses: {
         200: {
             bodyMapper: Mappers.DeploymentScopeDataResult
@@ -1078,19 +1078,14 @@ const authorizeDeploymentScopeOperationSpec = {
             bodyMapper: Mappers.ErrorResult
         },
         401: {},
-        403: {},
-        404: {
-            bodyMapper: Mappers.ErrorResult
-        }
+        403: {}
     },
-    requestBody: Parameters.body3,
     urlParameters: [
         Parameters.$host,
         Parameters.organizationId,
         Parameters.deploymentScopeId
     ],
-    headerParameters: [Parameters.accept, Parameters.contentType1],
-    mediaType: "json",
+    headerParameters: [Parameters.accept],
     serializer
 };
 const negotiateSignalROperationSpec = {

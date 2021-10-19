@@ -312,14 +312,12 @@ namespace TeamCloud.Azure.Directory
         private static async Task<ServicePrincipalInner> GetServicePrincipalInnerAsync(GraphRbacManagementClient client, string identifier)
         {
             var query = new ODataQuery<ServicePrincipalInner>();
-
-            var httpIdentifier = $"http://{identifier}";
-            var httpsIdentifier = $"https://{identifier}";
+            var fqIdentifier = $"api://{identifier}";
 
             if (identifier.IsGuid())
                 query.SetFilter(sp => sp.ObjectId == identifier || sp.AppId == identifier || sp.ServicePrincipalNames.Contains(identifier));
-            else if (!identifier.StartsWithHttp())
-                query.SetFilter(sp => sp.ServicePrincipalNames.Contains(identifier) || sp.ServicePrincipalNames.Contains(httpIdentifier) || sp.ServicePrincipalNames.Contains(httpsIdentifier));
+            else if (!identifier.StartsWith("api://"))
+                query.SetFilter(sp => sp.ServicePrincipalNames.Contains(identifier) || sp.ServicePrincipalNames.Contains(fqIdentifier));
             else
                 query.SetFilter(sp => sp.ServicePrincipalNames.Contains(identifier));
 
@@ -416,18 +414,20 @@ namespace TeamCloud.Azure.Directory
             if (name is null)
                 throw new ArgumentNullException(nameof(name));
 
-            name = SanitizeServicePrincipalName(name);
-
-            using var client = await azureSessionService
-                .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
-                .ConfigureAwait(false);
-
-            var parameters = new ApplicationCreateParameters()
+            try
             {
-                DisplayName = name,
-                AvailableToOtherTenants = false,
-                IdentifierUris = new List<string> { $"http://{name}" },
-                RequiredResourceAccess = new List<RequiredResourceAccess> {
+                name = SanitizeServicePrincipalName(name);
+
+                using var client = await azureSessionService
+                    .CreateClientAsync<GraphRbacManagementClient>(AzureEndpoint.GraphEndpoint)
+                    .ConfigureAwait(false);
+
+                var parameters = new ApplicationCreateParameters()
+                {
+                    DisplayName = name,
+                    AvailableToOtherTenants = false,
+                    IdentifierUris = new List<string> { $"api://{name}" },
+                    RequiredResourceAccess = new List<RequiredResourceAccess> {
                     new RequiredResourceAccess {
                         ResourceAppId = "00000003-0000-0000-c000-000000000000",
                         ResourceAccess = new List<ResourceAccess> {
@@ -438,22 +438,22 @@ namespace TeamCloud.Azure.Directory
                         }
                     }
                 }
-            };
+                };
 
-            var application = await client.Applications
-                .CreateAsync(parameters)
-                .ConfigureAwait(false);
+                var application = await client.Applications
+                    .CreateAsync(parameters)
+                    .ConfigureAwait(false);
 
-            var principal = await client.ServicePrincipals
-                .CreateAsync(new ServicePrincipalCreateParameters { AppId = application.AppId })
-                .ConfigureAwait(false);
+                var principal = await client.ServicePrincipals
+                    .CreateAsync(new ServicePrincipalCreateParameters { AppId = application.AppId })
+                    .ConfigureAwait(false);
 
-            var expiresOn = DateTime.UtcNow.AddYears(1);
+                var expiresOn = DateTime.UtcNow.AddYears(1);
 
-            password ??= CreateServicePrincipalPassword();
+                password ??= CreateServicePrincipalPassword();
 
-            await client.Applications
-                .UpdatePasswordCredentialsAsync(application.ObjectId, new List<PasswordCredential> {
+                await client.Applications
+                    .UpdatePasswordCredentialsAsync(application.ObjectId, new List<PasswordCredential> {
                     new PasswordCredential {
                         StartDate = DateTime.UtcNow,
                         EndDate = expiresOn,
@@ -461,19 +461,24 @@ namespace TeamCloud.Azure.Directory
                         Value = password,
                         CustomKeyIdentifier = Encoding.UTF8.GetBytes(SECRET_DESCRIPTION)
                     }
-                }).ConfigureAwait(false);
+                    }).ConfigureAwait(false);
 
-            var azureServicePrincipal = new AzureServicePrincipal()
+                var azureServicePrincipal = new AzureServicePrincipal()
+                {
+                    ObjectId = Guid.Parse(principal.ObjectId),
+                    ApplicationId = Guid.Parse(principal.AppId),
+                    TenantId = Guid.Parse(principal.AppOwnerTenantId),
+                    Name = principal.ServicePrincipalNames.FirstOrDefault(),
+                    Password = password,
+                    ExpiresOn = expiresOn
+                };
+
+                return azureServicePrincipal;
+            }
+            catch
             {
-                ObjectId = Guid.Parse(principal.ObjectId),
-                ApplicationId = Guid.Parse(principal.AppId),
-                TenantId = Guid.Parse(principal.AppOwnerTenantId),
-                Name = principal.ServicePrincipalNames.FirstOrDefault(),
-                Password = password,
-                ExpiresOn = expiresOn
-            };
-
-            return azureServicePrincipal;
+                throw;
+            }
         }
 
         public async Task<AzureServicePrincipal> RefreshServicePrincipalAsync(string identifier, string password = null)

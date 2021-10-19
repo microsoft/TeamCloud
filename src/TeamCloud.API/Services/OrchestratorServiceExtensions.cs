@@ -13,7 +13,7 @@ using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services
 {
-    public static class OrchestratorExtensions
+    public static class OrchestratorServiceExtensions
     {
         public static ICommandResult SetResultLinks(this ICommandResult commandResult, IHttpContextAccessor httpContextAccessor, HttpResponseMessage commandResponse, string projectId)
         {

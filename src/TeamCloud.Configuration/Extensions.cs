@@ -92,16 +92,11 @@ namespace TeamCloud.Configuration
             }
         }
 
-        public static IServiceCollection AddTeamCloudOptions(this IServiceCollection services, Assembly assembly, params Assembly[] additionalAssemblies)
+        public static IServiceCollection AddTeamCloudOptions(this IServiceCollection services, params Assembly[] additionalAssemblies)
         {
-            if (assembly is null)
-            {
-                throw new ArgumentNullException(nameof(assembly));
-            }
-
             var assemblies = new HashSet<Assembly>(additionalAssemblies)
             {
-                assembly
+                Assembly.GetCallingAssembly()
             };
 
             var optionsMap = assemblies

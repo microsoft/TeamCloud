@@ -662,13 +662,12 @@ paths:
       summary: Gets a Deployment Scope.
       operationId: GetDeploymentScope
       parameters:
-        - name: deploymentScopeId
+        - name: organizationId
           in: path
           required: true
           schema:
             type: string
-            nullable: true
-        - name: organizationId
+        - name: deploymentScopeId
           in: path
           required: true
           schema:
@@ -702,13 +701,12 @@ paths:
       summary: Updates an existing Deployment Scope.
       operationId: UpdateDeploymentScope
       parameters:
-        - name: deploymentScopeId
+        - name: organizationId
           in: path
           required: true
           schema:
             type: string
-            nullable: true
-        - name: organizationId
+        - name: deploymentScopeId
           in: path
           required: true
           schema:
@@ -747,13 +745,12 @@ paths:
       summary: Deletes a Deployment Scope.
       operationId: DeleteDeploymentScope
       parameters:
-        - name: deploymentScopeId
+        - name: organizationId
           in: path
           required: true
           schema:
             type: string
-            nullable: true
-        - name: organizationId
+        - name: deploymentScopeId
           in: path
           required: true
           schema:
@@ -781,12 +778,12 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-  '/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize':
-    put:
+  '/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize/initialize':
+    get:
       tags:
-        - DeploymentScopes
-      summary: Authorize an existing Deployment Scope.
-      operationId: AuthorizeDeploymentScope
+        - DeploymentScopesAuthorization
+      summary: Initialize a new authorization session for a deployment scope.
+      operationId: InitializeAuthorization
       parameters:
         - name: organizationId
           in: path
@@ -798,35 +795,15 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/DeploymentScope'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeploymentScope'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/DeploymentScope'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/DeploymentScope'
       responses:
         '200':
-          description: The DeploymentScope was updated.
+          description: Returns the DeploymentScope that was initialized for an authorization session
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeploymentScopeDataResult'
         '400':
           description: A validation error occured.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResult'
-        '404':
-          description: A DeploymentScope with the id provided was not found.
           content:
             application/json:
               schema:

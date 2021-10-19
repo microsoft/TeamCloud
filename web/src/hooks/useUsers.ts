@@ -12,7 +12,7 @@ export const useUsers = () => {
 
     const isAuthenticated = useIsAuthenticated();
 
-    return useQuery(['org', org?.id, 'user'], async () => {
+    return useQuery(['org', org?.id, 'users'], async () => {
 
         const { data } = await api.getOrganizationUsers(org!.id, {
             onResponse: (raw, flat) => {

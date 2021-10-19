@@ -7,9 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Flurl;
 using Microsoft.ApplicationInsights;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters;
+using TeamCloud.Adapters.Authorization;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders
@@ -18,10 +20,12 @@ namespace TeamCloud.Data.Expanders
         IDocumentExpander<DeploymentScope>
     {
         private readonly IAdapterProvider adapterProvider;
+        private readonly IAuthorizationEndpointsResolver authorizationEndpointsResolver;
 
-        public DeploymentScopeExpander(IAdapterProvider adapterProvider, TelemetryClient telemetryClient) : base(false, telemetryClient)
+        public DeploymentScopeExpander(IAdapterProvider adapterProvider, IAuthorizationEndpointsResolver authorizationEndpointsResolver, TelemetryClient telemetryClient) : base(false, telemetryClient)
         {
             this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
+            this.authorizationEndpointsResolver = authorizationEndpointsResolver ?? throw new ArgumentNullException(nameof(authorizationEndpointsResolver));
         }
 
         public async Task ExpandAsync(DeploymentScope document)
@@ -42,14 +46,20 @@ namespace TeamCloud.Data.Expanders
                 if (adapter is IAdapterAuthorize adapterAuthorize)
                 {
                     document.Authorizable = true;
+
                     document.Authorized = await adapterAuthorize
                         .IsAuthorizedAsync(document)
                         .ConfigureAwait(false);
+
+                    document.AuthorizeUrl = (await authorizationEndpointsResolver
+                        .GetAuthorizationEndpointsAsync(document)
+                        .ConfigureAwait(false))?.AuthorizationUrl;
                 }
                 else
                 {
                     document.Authorizable = false;
                     document.Authorized = !(adapter is null);
+                    document.AuthorizeUrl = null;
                 }
 
                 if (document.Type == DeploymentScopeType.AzureResourceManager && !string.IsNullOrWhiteSpace(document.InputData))

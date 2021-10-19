@@ -13,6 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    [ContainerPath("/orgs/{Organization}/scopes/{Id}")]
     public sealed class DeploymentScope : ContainerDocument, IOrganizationContext, ISlug, IEquatable<DeploymentScope>, IValidatable
     {
         [PartitionKey]

@@ -5,7 +5,7 @@
 
 namespace TeamCloud.API.Services
 {
-    public interface IOrchestratorOptions
+    public interface IOrchestratorServiceOptions
     {
         public string Url { get; }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,6 +11,20 @@ namespace TeamCloud
 {
     internal static class GlobalExtensions
     {
+        internal static string ToHexString(this byte[] bytes)
+        {
+            var builder = new StringBuilder(bytes.Length * 2);
+
+            foreach (byte b in bytes)
+                builder.AppendFormat("{0:x2}", b);
+
+            return builder.ToString();
+        }
+
+        internal static bool HasCustomAttribute<T>(this MemberInfo memberInfo, bool inherit)
+            where T: Attribute
+            => memberInfo is null ? throw new ArgumentNullException(nameof(memberInfo)) : memberInfo.GetCustomAttributes(typeof(T), inherit).Any();
+
         internal static void Add(this List<Task> tasks, Func<Task> callback)
         {
             if (tasks is null)

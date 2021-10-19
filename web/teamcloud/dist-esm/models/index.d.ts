@@ -1001,11 +1001,10 @@ export interface TeamCloudDeleteDeploymentScopeOptionalParams extends coreClient
 /** Contains response data for the deleteDeploymentScope operation. */
 export declare type TeamCloudDeleteDeploymentScopeResponse = DeploymentScopeDataResult;
 /** Optional parameters. */
-export interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreClient.OperationOptions {
-    body?: DeploymentScope;
+export interface TeamCloudInitializeAuthorizationOptionalParams extends coreClient.OperationOptions {
 }
-/** Contains response data for the authorizeDeploymentScope operation. */
-export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult;
+/** Contains response data for the initializeAuthorization operation. */
+export declare type TeamCloudInitializeAuthorizationResponse = DeploymentScopeDataResult;
 /** Optional parameters. */
 export interface TeamCloudNegotiateSignalROptionalParams extends coreClient.OperationOptions {
 }

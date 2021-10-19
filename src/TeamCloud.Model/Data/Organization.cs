@@ -13,6 +13,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    [ContainerPath("/orgs/{Id}")]
     public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organization>, ITags, IResourceReference
     {
         [PartitionKey]
@@ -43,6 +44,8 @@ namespace TeamCloud.Model.Data
         public string ResourceId { get; set; }
 
         public ResourceState ResourceState { get; set; } = ResourceState.Pending;
+
+        public string SecretsVaultId { get; set; }
 
         public string GalleryId { get; set; }
 

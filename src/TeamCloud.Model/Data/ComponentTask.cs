@@ -12,6 +12,7 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    [ContainerPath("/orgs/{Organization}/projects/{ProjectId}/components/{ComponentId}/tasks/{Id}")]
     public sealed class ComponentTask : ContainerDocument, IEquatable<ComponentTask>, IValidatable, IResourceReference, IComponentContext
     {
         private string typeName;

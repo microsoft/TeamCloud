@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.DevOps.Licensing.WebApi;
 using Microsoft.Azure.WebJobs;
@@ -57,7 +58,7 @@ using UserType = TeamCloud.Model.Data.UserType;
 
 namespace TeamCloud.Adapters.AzureDevOps
 {
-    public sealed class AzureDevOpsAdapter : Adapter, IAdapterAuthorize
+    public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
     {
         private const string VisualStudioAuthUrl = "https://app.vssps.visualstudio.com/oauth2/authorize";
         private const string VisualStudioTokenUrl = "https://app.vssps.visualstudio.com/oauth2/token";
@@ -130,24 +131,16 @@ namespace TeamCloud.Adapters.AzureDevOps
             return !(token is null);
         }
 
-        Task IAdapterAuthorize.CreateSessionAsync(DeploymentScope deploymentScope)
+        Task<AzureServicePrincipal> IAdapterAuthorize.ResolvePrincipalAsync(DeploymentScope deploymentScope, HttpRequest request)
+            => Task.FromResult<AzureServicePrincipal>(null);
+
+        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            if (deploymentScope.Type != Type)
-                throw new ArgumentException("Argument value can not be handled", nameof(deploymentScope));
-
-            return SessionClient.SetAsync(new AzureDevOpsSession(deploymentScope));
-        }
-
-        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
-        {
-            if (deploymentScope is null)
-                throw new ArgumentNullException(nameof(deploymentScope));
-
-            if (requestMessage is null)
-                throw new ArgumentNullException(nameof(requestMessage));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
@@ -156,23 +149,27 @@ namespace TeamCloud.Adapters.AzureDevOps
                 .GetAsync<AzureDevOpsSession>(deploymentScope)
                 .ConfigureAwait(false);
 
-            var task = requestMessage.Method switch
+            authorizationSession ??= await SessionClient
+                .SetAsync(new AzureDevOpsSession(deploymentScope))
+                .ConfigureAwait(false);
+
+            var task = request.Method.ToUpperInvariant() switch
             {
-                HttpMethod m when m == HttpMethod.Get => HandleAuthorizeGetAsync(deploymentScope, authorizationSession, requestMessage, authorizationEndpoints),
-                HttpMethod m when m == HttpMethod.Post => HandleAuthorizePostAsync(deploymentScope, authorizationSession, requestMessage, authorizationEndpoints),
+                "GET" => HandleAuthorizeGetAsync(deploymentScope, authorizationSession, request, authorizationEndpoints),
+                "POST" => HandleAuthorizePostAsync(deploymentScope, authorizationSession, request, authorizationEndpoints),
                 _ => Task.FromException<IActionResult>(new NotImplementedException())
             };
 
             return await task.ConfigureAwait(false);
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
+        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            if (requestMessage is null)
-                throw new ArgumentNullException(nameof(requestMessage));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
@@ -186,13 +183,11 @@ namespace TeamCloud.Adapters.AzureDevOps
                 return new NotFoundResult();
             }
 
-            var queryParams = requestMessage.RequestUri.ParseQueryString();
-
-            if (queryParams.TryGetValue("error", out string error))
+            if (request.Query.TryGetValue("error", out var error))
             {
                 return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("error", error));
             }
-            else if (!queryParams.TryGetValue("state", out string state) || !authorizationSession.SessionState.Equals(state, StringComparison.OrdinalIgnoreCase))
+            else if (!request.Query.TryGetValue("state", out var state) || !authorizationSession.SessionState.Equals(state, StringComparison.OrdinalIgnoreCase))
             {
                 return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("error", "Authorization state invalid"));
             }
@@ -203,7 +198,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                     client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
                     client_assertion = authorizationSession.ClientSecret,
                     grant_type = "urn:ietf:params:oauth:grant-type:jwt-bearer",
-                    assertion = queryParams.Get("code"),
+                    assertion = request.Query.GetValueOrDefault("code").ToString(),
                     redirect_uri = authorizationEndpoints.CallbackUrl
                 };
 
@@ -268,16 +263,15 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
         }
 
-        private async Task<IActionResult> HandleAuthorizeGetAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
+        private async Task<IActionResult> HandleAuthorizeGetAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
         {
-            var queryParams = Url.ParseQueryParams(requestMessage.RequestUri.Query);
-            var queryError = queryParams.GetValueOrDefault("error", StringComparison.OrdinalIgnoreCase);
+            var queryError = request.Query.GetValueOrDefault("error").ToString();
 
             if (!string.IsNullOrEmpty(queryError))
             {
                 log.LogWarning($"Authorization failed: {queryError}");
             }
-            else if (queryParams.ContainsKey("succeeded"))
+            else if (request.Query.ContainsKey("succeeded"))
             {
                 log.LogInformation($"Authorization succeeded");
             }
@@ -297,15 +291,15 @@ namespace TeamCloud.Adapters.AzureDevOps
                     data = data,
                     session = authorizationSession,
                     error = queryError ?? string.Empty,
-                    succeeded = queryParams.ContainsKey("succeeded")
+                    succeeded = request.Query.ContainsKey("succeeded")
                 })
             };
         }
 
-        private async Task<IActionResult> HandleAuthorizePostAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
+        private async Task<IActionResult> HandleAuthorizePostAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
         {
-            var payload = await requestMessage.Content
-                .ReadAsStringAsync()
+            var payload = await request
+                .ReadStringAsync()
                 .ConfigureAwait(false);
 
             var payloadParams = Url.ParseQueryParams(payload);
@@ -1180,7 +1174,7 @@ namespace TeamCloud.Adapters.AzureDevOps
         });
 
         public override Task<NetworkCredential> GetServiceCredentialAsync(Component component)
-            => ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, comonentProject) =>
+            => WithContextAsync(component, async (componentOrganization, componentDeploymentScope, comonentProject) =>
             {
                 var token = await TokenClient
                     .GetAsync<AzureDevOpsToken>(componentDeploymentScope)

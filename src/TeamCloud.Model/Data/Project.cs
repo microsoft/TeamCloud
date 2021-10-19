@@ -14,6 +14,7 @@ namespace TeamCloud.Model.Data
 {
     [SoftDelete(60 * 60 * 24)] // 24 hours
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    [ContainerPath("/orgs/{Organization}/projects/{Id}")]
     public sealed class Project : ContainerDocument, ISoftDelete, IOrganizationContext, ISlug, IEquatable<Project>, IResourceReference
     {
         [PartitionKey]

@@ -40,7 +40,10 @@ namespace TeamCloud.Git.Caching
                 throw new ArgumentNullException(nameof(endpoint));
 
             // so let's get hacky and do some custom stuff
-            var key = endpoint.Replace("/", "[s]", StringComparison.Ordinal).Replace("?", "[q]", StringComparison.Ordinal).Replace("#", "[h]", StringComparison.Ordinal);
+            var key = endpoint
+                .Replace("/", "[s]", StringComparison.Ordinal)
+                .Replace("?", "[q]", StringComparison.Ordinal)
+                .Replace("#", "[h]", StringComparison.Ordinal);
 
             return key;
         }

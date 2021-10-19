@@ -1053,32 +1053,32 @@ export declare class TeamCloud extends TeamCloudContext {
     createDeploymentScope(organizationId: string, options?: TeamCloudCreateDeploymentScopeOptionalParams): Promise<TeamCloudCreateDeploymentScopeResponse>;
     /**
      * Gets a Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    getDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudGetDeploymentScopeOptionalParams): Promise<TeamCloudGetDeploymentScopeResponse>;
+    getDeploymentScope(organizationId: string, deploymentScopeId: string, options?: TeamCloudGetDeploymentScopeOptionalParams): Promise<TeamCloudGetDeploymentScopeResponse>;
     /**
      * Updates an existing Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    updateDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
+    updateDeploymentScope(organizationId: string, deploymentScopeId: string, options?: TeamCloudUpdateDeploymentScopeOptionalParams): Promise<TeamCloudUpdateDeploymentScopeResponse>;
     /**
      * Deletes a Deployment Scope.
-     * @param deploymentScopeId
      * @param organizationId
+     * @param deploymentScopeId
      * @param options The options parameters.
      */
-    deleteDeploymentScope(deploymentScopeId: string | null, organizationId: string, options?: TeamCloudDeleteDeploymentScopeOptionalParams): Promise<TeamCloudDeleteDeploymentScopeResponse>;
+    deleteDeploymentScope(organizationId: string, deploymentScopeId: string, options?: TeamCloudDeleteDeploymentScopeOptionalParams): Promise<TeamCloudDeleteDeploymentScopeResponse>;
     /**
-     * Authorize an existing Deployment Scope.
+     * Initialize a new authorization session for a deployment scope.
      * @param organizationId
      * @param deploymentScopeId
      * @param options The options parameters.
      */
-    authorizeDeploymentScope(organizationId: string, deploymentScopeId: string | null, options?: TeamCloudAuthorizeDeploymentScopeOptionalParams): Promise<TeamCloudAuthorizeDeploymentScopeResponse>;
+    initializeAuthorization(organizationId: string, deploymentScopeId: string, options?: TeamCloudInitializeAuthorizationOptionalParams): Promise<TeamCloudInitializeAuthorizationResponse>;
     /**
      * Negotiates the SignalR connection.
      * @param organizationId
@@ -1425,14 +1425,6 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     getUserProjectsMe(organizationId: string, options?: TeamCloudGetUserProjectsMeOptionalParams): Promise<TeamCloudGetUserProjectsMeResponse>;
 }
-
-/** Optional parameters. */
-export declare interface TeamCloudAuthorizeDeploymentScopeOptionalParams extends coreClient.OperationOptions {
-    body?: DeploymentScope;
-}
-
-/** Contains response data for the authorizeDeploymentScope operation. */
-export declare type TeamCloudAuthorizeDeploymentScopeResponse = DeploymentScopeDataResult;
 
 /** Optional parameters. */
 export declare interface TeamCloudCancelComponentTaskOptionalParams extends coreClient.OperationOptions {
@@ -1848,6 +1840,13 @@ export declare interface TeamCloudGetUserProjectsOptionalParams extends coreClie
 
 /** Contains response data for the getUserProjects operation. */
 export declare type TeamCloudGetUserProjectsResponse = ProjectListDataResult;
+
+/** Optional parameters. */
+export declare interface TeamCloudInitializeAuthorizationOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the initializeAuthorization operation. */
+export declare type TeamCloudInitializeAuthorizationResponse = DeploymentScopeDataResult;
 
 /** Optional parameters. */
 export declare interface TeamCloudNegotiateSignalROptionalParams extends coreClient.OperationOptions {

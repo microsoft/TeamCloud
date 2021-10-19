@@ -15,10 +15,10 @@ namespace TeamCloud.API.Services
 {
     public sealed class OrchestratorService
     {
-        private readonly IOrchestratorOptions options;
+        private readonly IOrchestratorServiceOptions options;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public OrchestratorService(IOrchestratorOptions options, IHttpContextAccessor httpContextAccessor)
+        public OrchestratorService(IOrchestratorServiceOptions options, IHttpContextAccessor httpContextAccessor)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
