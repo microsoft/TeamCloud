@@ -12,7 +12,15 @@ export const useAzureManagementGroups = () => {
     return useQuery(['azure', 'managementGroups'], async () => {
         try {
             const groups = await getManagementGroups();
-            return groups ?? [];
+            return (groups ?? []).sort((mg1, mg2) =>{
+                if ((mg1.displayName ?? mg1.name) < (mg2.displayName ?? mg2.name)) {
+                    return -1;
+                } else if ((mg1.displayName ?? mg1.name) > (mg2.displayName ?? mg2.name)) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
         } catch (error) {
             console.error(error);
             return [];
