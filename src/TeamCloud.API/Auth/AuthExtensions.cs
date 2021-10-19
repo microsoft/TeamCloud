@@ -9,8 +9,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using TeamCloud.API.Auth.Schemes;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
@@ -117,6 +119,21 @@ namespace TeamCloud.API.Auth
                                            ProjectUserRole.Admin.AuthPolicy(),
                                            UserRolePolicies.ScheduleWritePolicy);
                     });
+
+                    options.AddPolicy(AuthPolicies.AdapterAuthorizationInit, policy =>
+                    {
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy());
+                    });
+
+                    options.AddPolicy(AuthPolicies.AdapterAuthorizationFlow, policy =>
+                    {
+                        policy.AddAuthenticationSchemes(AdapterAuthenticationDefaults.AuthenticationScheme);
+
+                        policy.RequireRole(OrganizationUserRole.Owner.AuthPolicy(),
+                                           OrganizationUserRole.Admin.AuthPolicy(),
+                                           OrganizationUserRole.Adapter.AuthPolicy());
+                    });
                 });
 
             return services;
@@ -145,7 +162,7 @@ namespace TeamCloud.API.Auth
                 return claims;
 
             var userRepository = httpContext.RequestServices
-                .GetRequiredService<IUserRepository>();
+                .GetRequiredService<TeamCloud.Data.IUserRepository>();
 
             var user = await userRepository
                 .GetAsync(organizationId, userId)

@@ -13,17 +13,15 @@ namespace TeamCloud.Orchestrator.Options
     [Options]
     public sealed class TeamCloudAdapterAuthorizeOptions : IAuthorizationSessionOptions, IAuthorizationTokenOptions
     {
-        private readonly AdapterSessionStorageOptions sessionStorageOptions;
-        private readonly AdapterTokenStorageOptions tokenStorageOptions;
+        private readonly AzureStorageOptions azureStorageOptions;
 
-        public TeamCloudAdapterAuthorizeOptions(AdapterSessionStorageOptions sessionStorageOptions, AdapterTokenStorageOptions tokenStorageOptions)
+        public TeamCloudAdapterAuthorizeOptions(AzureStorageOptions azureStorageOptions)
         {
-            this.sessionStorageOptions = sessionStorageOptions ?? throw new ArgumentNullException(nameof(sessionStorageOptions));
-            this.tokenStorageOptions = tokenStorageOptions ?? throw new ArgumentNullException(nameof(tokenStorageOptions));
+            this.azureStorageOptions = azureStorageOptions ?? throw new ArgumentNullException(nameof(azureStorageOptions));
         }
 
-        string IAuthorizationSessionOptions.ConnectionString => sessionStorageOptions.ConnectionString;
+        string IAuthorizationSessionOptions.ConnectionString => azureStorageOptions.ConnectionString;
 
-        string IAuthorizationTokenOptions.ConnectionString => tokenStorageOptions.ConnectionString;
+        string IAuthorizationTokenOptions.ConnectionString => azureStorageOptions.ConnectionString;
     }
 }

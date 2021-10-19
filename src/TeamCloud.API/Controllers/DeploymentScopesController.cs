@@ -12,10 +12,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using TeamCloud.Adapters.Authorization;
+using TeamCloud.Adapters;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
+using TeamCloud.API.Swagger;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
@@ -43,7 +46,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerOperation(OperationId = "GetDeploymentScopes", Summary = "Gets all Deployment Scopes.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Returns all Deployment Scopes.", typeof(DataResult<List<DeploymentScope>>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get() 
+        public async Task<IActionResult> List() 
         {
             var deploymentScopes = await deploymentScopeRepository
                 .ListAsync(OrganizationId)
@@ -62,7 +65,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Returns a DeploymentScope.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A DeploymentScope with the id provided was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Get(string deploymentScopeId) => WithContextAsync<DeploymentScope>((contextUser, deploymentScope) =>
+        public Task<IActionResult> Get() => WithContextAsync<DeploymentScope>((contextUser, deploymentScope) =>
         {
             return DataResult<DeploymentScope>
                 .Ok(deploymentScope)
@@ -114,8 +117,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "The DeploymentScope was updated.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A Deployment Scope with the ID provided in the request body could not be found.", typeof(ErrorResult))]
-        [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Put([FromRoute] string deploymentScopeId, [FromBody] DeploymentScope deploymentScopeUpdate) => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>
+        public Task<IActionResult> Put([FromBody] DeploymentScope deploymentScopeUpdate) => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>
         {
             if (deploymentScopeUpdate is null)
                 return ErrorResult
@@ -176,8 +178,7 @@ namespace TeamCloud.API.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent, "The DeploymentScope was deleted.", typeof(DataResult<DeploymentScope>))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "A DeploymentScope with the id provided was not found.", typeof(ErrorResult))]
-        [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-        public Task<IActionResult> Delete([FromRoute] string deploymentScopeId) => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>
+        public Task<IActionResult> Delete() => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>
         {
             var command = new DeploymentScopeDeleteCommand(contextUser, deploymentScope);
 
@@ -186,34 +187,6 @@ namespace TeamCloud.API.Controllers
                 .ConfigureAwait(false);
         });
 
-        [HttpPut("{deploymentScopeId:deploymentScopeId}/authorize")]
-        [Authorize(Policy = AuthPolicies.OrganizationAdmin)]
-        [SwaggerOperation(OperationId = "AuthorizeDeploymentScope", Summary = "Authorize an existing Deployment Scope.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "The DeploymentScope was updated.", typeof(DataResult<DeploymentScope>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "A DeploymentScope with the id provided was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> Authorize([FromBody] DeploymentScope deploymentScopeAuthorize) => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>
-        {
-            if (deploymentScopeAuthorize is null)
-                return ErrorResult
-                    .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
-                    .ToActionResult();
 
-            if (!deploymentScopeAuthorize.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
-                return ErrorResult
-                    .BadRequest(validationResult)
-                    .ToActionResult();
-
-            if (!deploymentScopeAuthorize.Id.Equals(deploymentScope.Id, StringComparison.Ordinal))
-                return ErrorResult
-                    .BadRequest(new ValidationError { Field = "id", Message = $"DeploymentScopes's id does match the identifier provided in the path." })
-                    .ToActionResult();
-
-            var command = new DeploymentScopeAuthorizeCommand(contextUser, deploymentScope);
-
-            return await Orchestrator
-                .InvokeAndReturnActionResultAsync(command, Request)
-                .ConfigureAwait(false);
-        });
     }
 }

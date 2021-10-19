@@ -4,6 +4,8 @@
  */
 
 using System;
+using System.Globalization;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TeamCloud.Model.Common;
@@ -50,21 +52,13 @@ namespace TeamCloud.Model.Data.Core
             return clone;
         }
 
-        public override string ToString() => this switch
+        public override string ToString()
         {
-            IProjectContext projectContext
-                => $"/orgs/{projectContext.Organization}/projects/{projectContext.ProjectId}/{this.GetType().Name.ToLowerInvariant()}s/{this.Id}",
+            var attribute = GetType()
+                .GetCustomAttributes(typeof(ContainerPathAttribute), false)
+                .FirstOrDefault() as ContainerPathAttribute;
 
-            IOrganizationContext organizationContext
-                => $"/orgs/{organizationContext.Organization}/{this.GetType().Name.ToLowerInvariant()}s/{this.Id}",
-
-            Organization organization
-                => $"/orgs/{organization.Id}",
-
-            IIdentifiable identifiable
-                => $"{GetType().Name}[{identifiable.Id}]",
-
-            _ => base.ToString()
-        };
+            return attribute?.ResolvePath(this) ?? $"{GetType().Name}@{Id}";
+        }
     }
 }

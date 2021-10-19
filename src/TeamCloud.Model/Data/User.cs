@@ -15,6 +15,8 @@ namespace TeamCloud.Model.Data
 {
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    [ContainerPath("/orgs/{Organization}/users/{Id}")]
+
     public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<User>, IProperties, INotificationRecipient
     {
         [PartitionKey]

@@ -26,8 +26,10 @@ export const useCreateDeploymentScope = () => {
         return data;
     }, {
         onSuccess: data => {
-            if (data)
-                queryClient.setQueryData(['org', org!.id, 'scopes'], [data]);
+            if (data) {
+                queryClient.invalidateQueries(['org', org!.id, 'scopes']);
+                queryClient.invalidateQueries(['org', org?.id, 'user']);
+            }
         }
     }).mutateAsync
 }

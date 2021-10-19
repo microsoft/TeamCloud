@@ -10,7 +10,7 @@ using TeamCloud.Configuration.Options;
 namespace TeamCloud.API.Options
 {
     [Options]
-    public class TeamCloudEndpointOptions : IOrchestratorOptions
+    public class TeamCloudEndpointOptions : IOrchestratorServiceOptions
     {
         private readonly EndpointOrchestratorOptions endpointOrchestratorOptions;
 
@@ -21,8 +21,8 @@ namespace TeamCloud.API.Options
 
         public string Orchestrator => endpointOrchestratorOptions?.Url;
 
-        string IOrchestratorOptions.Url => endpointOrchestratorOptions?.Url;
+        string IOrchestratorServiceOptions.Url => endpointOrchestratorOptions?.Url;
 
-        string IOrchestratorOptions.AuthCode => endpointOrchestratorOptions?.AuthCode;
+        string IOrchestratorServiceOptions.AuthCode => endpointOrchestratorOptions?.AuthCode;
     }
 }

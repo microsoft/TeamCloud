@@ -14,6 +14,8 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+    [ContainerPath("/orgs/{Organization}/projects/{ProjectId}/schedules/{Id}")]
+
     public sealed class Schedule : ContainerDocument, IProjectContext, IEquatable<Schedule>, IValidatable
     {
         [JsonProperty(Required = Required.Always)]

@@ -6,21 +6,28 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos.Core;
 using Microsoft.Azure.Management.CosmosDB.Fluent.Models;
 using Microsoft.Azure.Management.DevTestLabs.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Microsoft.OData.Json;
+using Newtonsoft.Json;
 using Octokit;
 using Octokit.Internal;
 using Org.BouncyCastle.Asn1.Crmf;
@@ -46,7 +53,7 @@ using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Adapters.GitHub
 {
-    public sealed partial class GitHubAdapter : Adapter, IAdapterAuthorize, IAdapterIdentity
+    public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthorize
     {
         private static readonly IJsonSerializer GitHubSerializer = new SimpleJsonSerializer();
 
@@ -122,35 +129,78 @@ namespace TeamCloud.Adapters.GitHub
             return !(token is null);
         }
 
-        Task IAdapterAuthorize.CreateSessionAsync(DeploymentScope deploymentScope)
+        async Task<AzureServicePrincipal> IAdapterAuthorize.ResolvePrincipalAsync(DeploymentScope deploymentScope, HttpRequest request)
         {
+            const string SignatureHeader = "X-Hub-Signature-256";
+
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            if (deploymentScope.Type != Type)
-                throw new ArgumentException("Argument value can not be handled", nameof(deploymentScope));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
-            return SessionClient.SetAsync<GitHubSession>(new GitHubSession(deploymentScope));
+            if (request.Headers.TryGetValue(SignatureHeader, out var signatureValue) && !string.IsNullOrEmpty(signatureValue))
+            {
+                var token = await TokenClient
+                    .GetAsync<GitHubToken>(deploymentScope)
+                    .ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(token?.WebhookSecret))
+                {
+                    var signature = signatureValue
+                        .ToString()
+                        .Substring(signatureValue.ToString().IndexOf('=') + 1);
+
+                    // CAUTION - we need to read the body but leave
+                    // the request's body stream open so it stays 
+                    // available for subsequent requests
+
+                    var body = await request
+                        .ReadStringAsync(leaveOpen: true)
+                        .ConfigureAwait(false);
+
+                    var secret = Encoding.ASCII
+                        .GetBytes(token.WebhookSecret);
+
+                    using var hmac = new HMACSHA256(secret);
+
+                    var hash = hmac
+                        .ComputeHash(Encoding.ASCII.GetBytes(body))
+                        .ToHexString();
+
+                    if (hash.Equals(signature))
+                    {
+                        // signature successfully validated - lets use the adapters identity to proceed
+                        return await GetServiceIdentityAsync(deploymentScope).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            return null;
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
+        async Task<IActionResult> IAdapterAuthorize.HandleAuthorizeAsync(DeploymentScope deploymentScope, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            if (requestMessage is null)
-                throw new ArgumentNullException(nameof(requestMessage));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
 
-            var queryParams = Flurl.Url.ParseQueryParams(requestMessage.RequestUri.Query);
+            var queryParams = Url.ParseQueryParams(request.QueryString.ToString());
             var queryState = queryParams.GetValueOrDefault("state", StringComparison.OrdinalIgnoreCase);
             var queryCode = queryParams.GetValueOrDefault("code", StringComparison.OrdinalIgnoreCase);
             var queryError = queryParams.GetValueOrDefault("error", StringComparison.OrdinalIgnoreCase);
 
-            var authorizationSession = await SessionClient
+            var session = await SessionClient
                 .GetAsync<GitHubSession>(deploymentScope)
+                .ConfigureAwait(false);
+
+            session ??= await SessionClient
+                .SetAsync(new GitHubSession(deploymentScope))
                 .ConfigureAwait(false);
 
             var data = string.IsNullOrWhiteSpace(deploymentScope.InputData)
@@ -163,8 +213,7 @@ namespace TeamCloud.Adapters.GitHub
 
             if (string.IsNullOrEmpty(queryError) && Guid.TryParse(queryState, out var stateId))
             {
-
-                if (!stateId.ToString().Equals(authorizationSession.SessionId, StringComparison.OrdinalIgnoreCase))
+                if (!stateId.ToString().Equals(session.SessionId, StringComparison.OrdinalIgnoreCase))
                 {
                     return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("error", "Session timed out.").ToString());
                 }
@@ -223,25 +272,25 @@ namespace TeamCloud.Adapters.GitHub
                 authorizationEndpoints = authorizationEndpoints,
                 token = token,
                 data = data,
-                session = authorizationSession,
+                session = session,
                 error = queryError ?? string.Empty,
                 succeeded = queryParams.ContainsKey("succeeded")
             };
         }
 
-        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequestMessage requestMessage, IAuthorizationEndpoints authorizationEndpoints)
+        async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
         {
             if (deploymentScope is null)
                 throw new ArgumentNullException(nameof(deploymentScope));
 
-            if (requestMessage is null)
-                throw new ArgumentNullException(nameof(requestMessage));
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
 
             if (authorizationEndpoints is null)
                 throw new ArgumentNullException(nameof(authorizationEndpoints));
 
-            var json = await requestMessage.Content
-                .ReadAsJsonAsync()
+            var json = await request
+                .ReadJsonAsync()
                 .ConfigureAwait(false);
 
             var appId = json
@@ -398,7 +447,7 @@ namespace TeamCloud.Adapters.GitHub
             if (callback is null)
                 throw new ArgumentNullException(nameof(callback));
 
-            return base.ExecuteAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
+            return base.WithContextAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
             {
                 var token = await TokenClient
                     .GetAsync<GitHubToken>(componentDeploymentScope)
@@ -466,7 +515,7 @@ namespace TeamCloud.Adapters.GitHub
                     .ListAdminsAsync(component.Organization)
                     .ToArrayAsync()
                     .ConfigureAwait(false);
-                
+
                 await Task.WhenAll(
 
                     EnsurePermissionAsync(projectTeam, project, "write"),
@@ -536,7 +585,7 @@ namespace TeamCloud.Adapters.GitHub
                             .CreateForOrganization(token.Owner.Login, projectDefinition)
                             .ConfigureAwait(false);
                     }
-                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity) 
+                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
                         // the project already exists - try to re-fetch project information
 
@@ -678,66 +727,78 @@ namespace TeamCloud.Adapters.GitHub
 
             while (repository is null)
             {
-                try
+                repositoryTemplateUrl ??= await GetTemplateRepositoryUrlAsync().ConfigureAwait(false);
+
+                var repositoryTemplate = string.IsNullOrEmpty(repositoryTemplateUrl)
+                    ? null // as there is no repository template url available we won't find a repo
+                    : await GetTemplateRepositoryAsync(repositoryTemplateUrl).ConfigureAwait(false);
+
+                if (repositoryTemplate is null)
                 {
-                    repositoryTemplateUrl ??= await GetTemplateRepositoryUrlAsync().ConfigureAwait(false);
+                    // the fact that there is no repository template just means that
+                    // we can't use the repo templating factory provided by GitHub, but
+                    // need to fall back to a classic repository import later on if a
+                    // template repository git url is given.
 
-                    var repositoryTemplate = string.IsNullOrEmpty(repositoryTemplateUrl)
-                        ? null // as there is no repository template url available we won't find a repo
-                        : await GetTemplateRepositoryAsync(repositoryTemplateUrl).ConfigureAwait(false);
+                    var data = string.IsNullOrWhiteSpace(componentDeploymentScope.InputData)
+                        ? default
+                        : TeamCloudSerialize.DeserializeObject<GitHubData>(componentDeploymentScope.InputData);
 
-                    if (repositoryTemplate is null)
+                    var repoSettings = new NewRepository(repositoryName)
                     {
-                        // the fact that there is no repository template just means that
-                        // we can't use the repo templating factory provided by GitHub, but
-                        // need to fall back to a classic repository import later on if a
-                        // template repository git url is given.
+                        Description = repositoryDescription,
+                        AutoInit = string.IsNullOrWhiteSpace(repositoryTemplateUrl),
+                        Private = !(data?.PublicRepository ?? false)
+                    };
 
-                        var data = string.IsNullOrWhiteSpace(componentDeploymentScope.InputData)
-                            ? default
-                            : TeamCloudSerialize.DeserializeObject<GitHubData>(componentDeploymentScope.InputData);
-
-                        var repoSettings = new NewRepository(repositoryName)
-                        {
-                            Description = repositoryDescription,
-                            AutoInit = string.IsNullOrWhiteSpace(repositoryTemplateUrl),
-                            Private = !(data?.PublicRepository ?? false)
-                        };
-
+                    try
+                    {
                         repository = await client.Repository
                             .Create(owner.Login, repoSettings)
                             .ConfigureAwait(false);
                     }
+                    catch (RepositoryExistsException)
+                    {
+                        repositoryName = GetRepositoryName(componentProject, component, ++repositoryCount);
+                    }
+                }
+                else
+                {
+                    // use the GitHub template repository as a blueprint to create a new
+                    // repository. as this API call isn't supported by the Octokit client
+                    // library we need to fall back to a raw API call via Flurl.
+
+                    var payload = new
+                    {
+                        owner = owner.Login,
+                        name = repositoryName,
+                        description = repositoryDescription
+                    };
+
+                    var response = await repositoryTemplate.Url.ToString()
+                        .AppendPathSegment("generate")
+                        .WithGitHubHeaders("baptiste-preview")
+                        .WithGitHubCredentials(client.Credentials)
+                        .AllowHttpStatus(HttpStatusCode.UnprocessableEntity)
+                        .PostJsonAsync(payload)
+                        .ConfigureAwait(false);
+
+                    if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+                    {
+                        // the generate from template repo operation returns this
+                        // status code if the target repo name already exists.
+                        // lets make the repo name unique and try again.
+
+                        repositoryName = GetRepositoryName(componentProject, component, ++repositoryCount);
+                    }
                     else
                     {
-                        // use the GitHub template repository as a blueprint to create a new
-                        // repository. as this API call isn't supported by the Octokit client
-                        // library we need to fall back to a raw API call via Flurl.
-
-                        var payload = new
-                        {
-                            owner = owner.Login,
-                            name = repositoryName,
-                            description = repositoryDescription
-                        };
-
-                        var response = await repositoryTemplate.Url.ToString()
-                            .AppendPathSegment("generate")
-                            .WithGitHubHeaders("baptiste-preview")
-                            .WithGitHubCredentials(client.Credentials)
-                            .PostJsonAsync(payload)
-                            .ConfigureAwait(false);
-
                         var json = await response.Content
                             .ReadAsStringAsync()
                             .ConfigureAwait(false);
 
                         repository = GitHubSerializer.Deserialize<Repository>(json);
                     }
-                }
-                catch (RepositoryExistsException)
-                {
-                    repositoryName = GetRepositoryName(componentProject, component, ++repositoryCount);
                 }
             }
 

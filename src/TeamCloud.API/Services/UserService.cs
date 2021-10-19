@@ -44,22 +44,25 @@ namespace TeamCloud.API.Services
         {
             User user = null;
 
-            if (!string.IsNullOrEmpty(organizationId))
+            if (!string.IsNullOrEmpty(CurrentUserId))
             {
-                user = await userRepository
-                    .GetAsync(organizationId, CurrentUserId)
-                    .ConfigureAwait(false);
-            }
-
-            if (user is null && allowUnsafe)
-            {
-                user = new User
+                if (!string.IsNullOrEmpty(organizationId))
                 {
-                    Id = CurrentUserId,
-                    Organization = organizationId,
-                    Role = OrganizationUserRole.None,
-                    UserType = UserType.User
-                };
+                    user = await userRepository
+                        .GetAsync(organizationId, CurrentUserId)
+                        .ConfigureAwait(false);
+                }
+
+                if (user is null && allowUnsafe)
+                {
+                    user = new User
+                    {
+                        Id = CurrentUserId,
+                        Organization = organizationId,
+                        Role = OrganizationUserRole.None,
+                        UserType = UserType.User
+                    };
+                }
             }
 
             return user;

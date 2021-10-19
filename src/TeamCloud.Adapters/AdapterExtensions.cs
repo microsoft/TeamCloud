@@ -16,6 +16,7 @@ using Newtonsoft.Json.Schema;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Adapters.Diagnostics;
 using TeamCloud.Adapters.Threading;
+using TeamCloud.Configuration;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters
@@ -46,19 +47,19 @@ namespace TeamCloud.Adapters
                 throw new ArgumentNullException(nameof(configuration));
 
             services
+                .AddTeamCloudOptions();
+
+            services
                 .TryAddSingleton<IAdapterInitializationLoggerFactory, AdapterInitializationLoggerFactory>();
 
             services
                 .TryAddSingleton<IDistributedLockManager, BlobStorageDistributedLockManager>();
 
             services
-                .TryAddTransient(provider => AuthorizationSessionOptions.Default);
+                .TryAddSingleton<IAuthorizationEndpointsResolver, AuthorizationEndpointsResolver>();
 
             services
                 .TryAddSingleton<IAuthorizationSessionClient, AuthorizationSessionClient>();
-
-            services
-                .TryAddTransient(provider => AuthorizationTokenOptions.Default);
 
             services
                 .TryAddSingleton<IAuthorizationTokenClient, AuthorizationTokenClient>();

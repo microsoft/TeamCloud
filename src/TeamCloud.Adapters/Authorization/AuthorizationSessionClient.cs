@@ -15,14 +15,14 @@ namespace TeamCloud.Adapters.Authorization
 
     public sealed class AuthorizationSessionClient : IAuthorizationSessionClient
     {
-        public const string TableName = "AuthorizationSession";
+        public const string TableName = "Adapters";
 
         private readonly IAuthorizationSessionOptions options;
         private readonly AsyncLazy<CloudTable> tableInstance;
 
         public AuthorizationSessionClient(IAuthorizationSessionOptions options)
         {
-            this.options = options ?? AuthorizationSessionOptions.Default;
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
 
             tableInstance = new AsyncLazy<CloudTable>(async () =>
             {
@@ -57,11 +57,15 @@ namespace TeamCloud.Adapters.Authorization
             var session = response.Result as TAuthorizationSession;
 
             if (session?.Active ?? false)
+            {
                 return session;
-
-            await table
-                .ExecuteAsync(TableOperation.Delete(session))
-                .ConfigureAwait(false);
+            }
+            else if (session != null)
+            {
+                await table
+                    .ExecuteAsync(TableOperation.Delete(session))
+                    .ConfigureAwait(false);
+            }
 
             return null;
         }

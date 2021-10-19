@@ -6,11 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -34,10 +37,12 @@ using TeamCloud.Adapters.AzureDevOps;
 using TeamCloud.Adapters.AzureResourceManager;
 using TeamCloud.Adapters.GitHub;
 using TeamCloud.API.Auth;
+using TeamCloud.API.Auth.Schemes;
 using TeamCloud.API.Middleware;
 using TeamCloud.API.Options;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
+using TeamCloud.API.Swagger;
 using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -93,12 +98,12 @@ namespace TeamCloud.API
 
             app
                 .UseSwagger()
-                .UseSwaggerUI(c =>
+                .UseSwaggerUI(setup =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
-                    c.OAuthClientId(resourceManagerOptions.ClientId);
-                    c.OAuthClientSecret("");
-                    c.OAuthUsePkce();
+                    setup.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                    setup.OAuthClientId(resourceManagerOptions.ClientId);
+                    setup.OAuthClientSecret("");
+                    setup.OAuthUsePkce();
                 });
 
             app
@@ -178,6 +183,7 @@ namespace TeamCloud.API
                 .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
                 .AddSingleton<OrchestratorService>()
                 .AddSingleton<UserService>()
+                .AddSingleton<OneTimeTokenService>()
                 .AddSingleton<IRepositoryService, RepositoryService>()
                 .AddSingleton<EnsureTeamCloudModelMiddleware>();
 
@@ -251,6 +257,8 @@ namespace TeamCloud.API
             services
                 .AddSwaggerGen(options =>
                 {
+                    options.DocumentFilter<SwaggerDocumentFilter>();
+
                     options.SwaggerDoc("v1", new OpenApiInfo
                     {
                         Version = "v1",
@@ -314,7 +322,8 @@ namespace TeamCloud.API
                 {
                     options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
                     options.TenantId = azureResourceManagerOptions.TenantId;
-                });
+                })
+                .AddAdapterAuthentication();
 
             services
                 .AddHttpContextAccessor()

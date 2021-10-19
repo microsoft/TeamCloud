@@ -60,57 +60,78 @@
 				},
 				"mode": "Incremental",
 				"parameters": {},
-				"template": {
-					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-					"contentVersion": "1.0.0.0",
-					"variables": {
-						"resourcePrefix": "tc",
-						"organizationSharedImageGallery": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
-						"organizationContainerRegistry": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
-						"organizationStorageAccount": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]"
-					},
-					"resources": [
-						{
-							"name": "[variables('organizationSharedImageGallery')]",
-							"type": "Microsoft.Compute/galleries",
-							"apiVersion": "2020-09-30",
-							"location": "[resourceGroup().location]"
-						},
-						{
-							"name": "[variables('organizationContainerRegistry')]",
-							"type": "Microsoft.ContainerRegistry/registries",
-							"apiVersion": "2019-12-01-preview",
-							"location": "[resourceGroup().location]",
-							"sku": {
-								"name": "Standard"
-							},
-							"properties": {
-								"adminUserEnabled": false
-							}
-						},
-						{
-							"name": "[variables('organizationStorageAccount')]",
-							"type": "Microsoft.Storage/storageAccounts",
-							"apiVersion": "2019-06-01",
-							"location": "[resourceGroup().location]",
-							"sku": {
-								"name": "Premium_LRS"
-							},
-							"kind": "StorageV2"
-						}
-					],
-					"outputs": {
-						"organizationData": {
-							"type": "object",
-							"value": {
-								"resourceId": "[resourceGroup().id]",
-								"galleryId": "[resourceId('Microsoft.Compute/galleries', variables('organizationSharedImageGallery'))]",
-								"registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('organizationContainerRegistry'))]",
-								"storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('organizationStorageAccount'))]"
-							}
-						}
-					}
-				}
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "outputs": {
+            "organizationData": {
+              "type": "object",
+              "value": {
+                "resourceId": "[resourceGroup().id]",
+                "secretsVaultId": "[resourceId('Microsoft.KeyVault/vaults',variables('organizationSecretsVault'))]",
+                "galleryId": "[resourceId('Microsoft.Compute/galleries', variables('organizationSharedImageGallery'))]",
+                "registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('organizationContainerRegistry'))]",
+                "storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('organizationStorageAccount'))]"
+              }
+            }
+          },
+          "resources": [
+            {
+              "name": "[variables('organizationSecretsVault')]",
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2019-09-01",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "sku": {
+                  "name": "Standard",
+                  "family": "A"
+                },
+                "enabledForDeployment": true,
+                "enabledForDiskEncryption": true,
+                "enabledForTemplateDeployment": true,
+                "enableSoftDelete": true,
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": []
+              }
+            },
+            {
+              "name": "[variables('organizationSharedImageGallery')]",
+              "type": "Microsoft.Compute/galleries",
+              "apiVersion": "2020-09-30",
+              "location": "[resourceGroup().location]",
+              "properties": {}
+            },
+            {
+              "name": "[variables('organizationContainerRegistry')]",
+              "type": "Microsoft.ContainerRegistry/registries",
+              "apiVersion": "2019-12-01-preview",
+              "location": "[resourceGroup().location]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "adminUserEnabled": false
+              }
+            },
+            {
+              "apiVersion": "2019-06-01",
+              "kind": "StorageV2",
+              "location": "[resourceGroup().location]",
+              "name": "[variables('organizationStorageAccount')]",
+              "sku": {
+                "name": "Premium_LRS"
+              },
+              "type": "Microsoft.Storage/storageAccounts"
+            }
+          ],
+          "variables": {
+            "resourcePrefix": "tc",
+            "organizationSecretsVault": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id), '-secrets')]",
+            "organizationSharedImageGallery": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+            "organizationContainerRegistry": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+            "organizationStorageAccount": "[concat(variables('resourcePrefix'), uniqueString(resourceGroup().id))]"
+          }
+        }
 			}
 		},
 		{

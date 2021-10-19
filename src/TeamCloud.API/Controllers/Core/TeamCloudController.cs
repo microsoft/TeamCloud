@@ -66,7 +66,7 @@ namespace TeamCloud.API.Controllers.Core
 
             try
             {
-                var contextUser = await GetService<UserService>()
+                var contextUser = await UserService
                     .CurrentUserAsync(OrganizationId)
                     .ConfigureAwait(false);
 
@@ -89,7 +89,7 @@ namespace TeamCloud.API.Controllers.Core
             {
                 var tasks = new List<Task>()
                 {
-                    GetService<UserService>().CurrentUserAsync(OrganizationId),
+                    UserService.CurrentUserAsync(OrganizationId),
                     GetContextDocumentAsync<T1>()
                 };
 
@@ -118,7 +118,7 @@ namespace TeamCloud.API.Controllers.Core
             {
                 var tasks = new List<Task>()
                 {
-                    GetService<UserService>().CurrentUserAsync(OrganizationId),
+                    UserService.CurrentUserAsync(OrganizationId),
                     GetContextDocumentAsync<T1>(),
                     GetContextDocumentAsync<T2>()
                 };
@@ -149,7 +149,7 @@ namespace TeamCloud.API.Controllers.Core
             {
                 var tasks = new List<Task>()
                 {
-                    GetService<UserService>().CurrentUserAsync(OrganizationId),
+                    UserService.CurrentUserAsync(OrganizationId),
                     GetContextDocumentAsync<T1>(),
                     GetContextDocumentAsync<T2>(),
                     GetContextDocumentAsync<T3>()
@@ -176,7 +176,7 @@ namespace TeamCloud.API.Controllers.Core
             var task = typeof(T) switch
             {
                 _ when typeof(T) == typeof(Organization) => GetService<IOrganizationRepository>()
-                    .GetAsync(GetService<UserService>().CurrentUserTenant, OrganizationId)
+                    .GetAsync(UserService.CurrentUserTenant, OrganizationId)
                     .ContinueWith(task => OnNull(task.Result as T, $"A Organization with the slug or id '{OrganizationId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
 
                 _ when typeof(T) == typeof(Project) => GetService<IProjectRepository>()
@@ -199,7 +199,7 @@ namespace TeamCloud.API.Controllers.Core
                     .GetAsync(ComponentId, TaskId)
                     .ContinueWith(task => OnNull(task.Result as T, $"A Component task with id '{TaskId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion),
 
-                _ when typeof(T) == typeof(User) => GetService<UserService>()
+                _ when typeof(T) == typeof(User) => UserService
                     .GetUserIdAsync(UserId)
                     .ContinueWith(task => OnNull(task.Result, $"A User with the name or id '{UserId}' was not found."), TaskContinuationOptions.OnlyOnRanToCompletion)
                     .ContinueWith(task => GetService<IUserRepository>().GetAsync(OrganizationId, task.Result), TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap()

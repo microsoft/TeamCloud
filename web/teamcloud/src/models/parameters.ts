@@ -161,18 +161,6 @@ export const body3: OperationParameter = {
   mapper: DeploymentScopeMapper
 };
 
-export const contentType1: OperationParameter = {
-  parameterPath: ["options", "contentType"],
-  mapper: {
-    defaultValue: "application/json-patch+json",
-    isConstant: true,
-    serializedName: "Content-Type",
-    type: {
-      name: "String"
-    }
-  }
-};
-
 export const timeRange: OperationQueryParameter = {
   parameterPath: ["options", "timeRange"],
   mapper: {

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,8 +21,11 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Http.Telemetry;
@@ -31,6 +35,62 @@ namespace TeamCloud.Http
 
     public static class Extensions
     {
+        public static async Task<string> ReadStringAsync(this HttpRequest request, bool leaveOpen = false)
+        {
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (leaveOpen)
+                request.EnableBuffering();
+
+            try
+            {
+                using var reader = new StreamReader(
+                    request.Body, 
+                    Encoding.UTF8, 
+                    detectEncodingFromByteOrderMarks: true, 
+                    bufferSize: 4096, 
+                    leaveOpen: leaveOpen);
+
+                return await reader
+                    .ReadToEndAsync()
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                if (leaveOpen)
+                    request.Body.Position = 0;
+            }
+        }
+
+        public static async Task<JToken> ReadJsonAsync(this HttpRequest request, bool leaveOpen = false)
+        {
+            if (request is null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (leaveOpen)
+                request.EnableBuffering();
+
+            try
+            {
+                using var reader = new StreamReader(
+                        request.Body,
+                        Encoding.UTF8,
+                        detectEncodingFromByteOrderMarks: true,
+                        bufferSize: 4096,
+                        leaveOpen: leaveOpen);
+
+                return await JToken
+                    .ReadFromAsync(new JsonTextReader(reader))
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                if (leaveOpen)
+                    request.Body.Position = 0;
+            }
+        }
+
         public static IServiceCollection AddTeamCloudHttp(this IServiceCollection services, Action<GlobalFlurlHttpSettings> configure = null)
         {
             services.AddSingleton<ITelemetryInitializer>(new TeamCloudTelemetryInitializer(Assembly.GetCallingAssembly()));
@@ -80,10 +140,23 @@ namespace TeamCloud.Http
         public static string GetValueOrDefault(this QueryParamCollection queryParameters, string name, StringComparison comparisonType = StringComparison.Ordinal)
             => queryParameters.FirstOrDefault(qp => qp.Name.Equals(name, comparisonType))?.Value as string;
 
+        public static StringValues GetValueOrDefault(this IQueryCollection queryCollection, string key)
+            => queryCollection.TryGetValue(key, out var value) ? value : StringValues.Empty;
+
+        public static Url ClearQueryParams(this string url)
+            => new Url(url).ClearQueryParams();
+
+        public static Url ClearQueryParams(this Url url)
+        {
+            url.QueryParams.Clear();
+            return url;
+        }
+
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
         public static Task<JObject> GetJObjectAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
             => request.GetJsonAsync<JObject>(cancellationToken, completionOption);
 
+        
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
         public static Task<JObject> GetJObjectAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
             => url.GetJsonAsync<JObject>(cancellationToken, completionOption);

@@ -13,7 +13,6 @@ export declare const id: OperationURLParameter;
 export declare const body2: OperationParameter;
 export declare const deploymentScopeId: OperationURLParameter;
 export declare const body3: OperationParameter;
-export declare const contentType1: OperationParameter;
 export declare const timeRange: OperationQueryParameter;
 export declare const commands: OperationQueryParameter;
 export declare const commandId: OperationURLParameter;
