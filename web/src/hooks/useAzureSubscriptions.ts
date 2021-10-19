@@ -12,7 +12,15 @@ export const useAzureSubscriptions = () => {
     return useQuery(['azure', 'subscriptions'], async () => {
         try {
             const subs = await getSubscriptions();
-            return subs ?? [];
+            return (subs ?? []).sort((s1, s2) => {
+                if (s1.displayName < s2.displayName) {
+                    return -1;
+                } else if (s1.displayName > s2.displayName) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
         } catch (error) {
             console.error(error);
             return [];
