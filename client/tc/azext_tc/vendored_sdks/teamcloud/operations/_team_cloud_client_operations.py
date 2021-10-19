@@ -531,7 +531,7 @@ class TeamCloudClientOperationsMixin(object):
 
     def get_component_task(
         self,
-        id,  # type: str
+        task_id,  # type: str
         organization_id,  # type: str
         project_id,  # type: str
         component_id,  # type: str
@@ -542,8 +542,8 @@ class TeamCloudClientOperationsMixin(object):
 
         Gets the Component Task.
 
-        :param id:
-        :type id: str
+        :param task_id:
+        :type task_id: str
         :param organization_id:
         :type organization_id: str
         :param project_id:
@@ -565,7 +565,7 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.get_component_task.metadata['url']  # type: ignore
         path_format_arguments = {
-            'id': self._serialize.url("id", id, 'str'),
+            'taskId': self._serialize.url("task_id", task_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
             'projectId': self._serialize.url("project_id", project_id, 'str'),
             'componentId': self._serialize.url("component_id", component_id, 'str'),
@@ -601,7 +601,161 @@ class TeamCloudClientOperationsMixin(object):
             return cls(pipeline_response, deserialized, {})
 
         return deserialized
-    get_component_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{id}'}  # type: ignore
+    get_component_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}'}  # type: ignore
+
+    def cancel_component_task(
+        self,
+        organization_id,  # type: str
+        project_id,  # type: str
+        component_id,  # type: str
+        task_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        """Rerun a Project Component Task.
+
+        Rerun a Project Component Task.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :param component_id:
+        :type component_id: str
+        :param task_id:
+        :type task_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentTaskDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentTaskDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.cancel_component_task.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'taskId': self._serialize.url("task_id", task_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.put(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 202, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('ComponentTaskDataResult', pipeline_response)
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    cancel_component_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/cancel'}  # type: ignore
+
+    def re_run_component_task(
+        self,
+        organization_id,  # type: str
+        project_id,  # type: str
+        component_id,  # type: str
+        task_id,  # type: str
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        """Cancel an active Project Component Task.
+
+        Cancel an active Project Component Task.
+
+        :param organization_id:
+        :type organization_id: str
+        :param project_id:
+        :type project_id: str
+        :param component_id:
+        :type component_id: str
+        :param task_id:
+        :type task_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: ComponentTaskDataResult or StatusResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.ComponentTaskDataResult or ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+        accept = "application/json"
+
+        # Construct URL
+        url = self.re_run_component_task.metadata['url']  # type: ignore
+        path_format_arguments = {
+            'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'projectId': self._serialize.url("project_id", project_id, 'str'),
+            'componentId': self._serialize.url("component_id", component_id, 'str'),
+            'taskId': self._serialize.url("task_id", task_id, 'str'),
+        }
+        url = self._client.format_url(url, **path_format_arguments)
+
+        # Construct parameters
+        query_parameters = {}  # type: Dict[str, Any]
+
+        # Construct headers
+        header_parameters = {}  # type: Dict[str, Any]
+        header_parameters['Accept'] = self._serialize.header("accept", accept, 'str')
+
+        request = self._client.put(url, query_parameters, header_parameters)
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [201, 202, 400, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 201:
+            deserialized = self._deserialize('ComponentTaskDataResult', pipeline_response)
+
+        if response.status_code == 202:
+            deserialized = self._deserialize('StatusResult', pipeline_response)
+
+        if response.status_code == 400:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+    re_run_component_task.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/rerun'}  # type: ignore
 
     def get_component_templates(
         self,
@@ -1082,8 +1236,8 @@ class TeamCloudClientOperationsMixin(object):
 
     def authorize_deployment_scope(
         self,
-        deployment_scope_id,  # type: str
         organization_id,  # type: str
+        deployment_scope_id,  # type: str
         body=None,  # type: Optional["_models.DeploymentScope"]
         **kwargs  # type: Any
     ):
@@ -1092,10 +1246,10 @@ class TeamCloudClientOperationsMixin(object):
 
         Authorize an existing Deployment Scope.
 
-        :param deployment_scope_id:
-        :type deployment_scope_id: str
         :param organization_id:
         :type organization_id: str
+        :param deployment_scope_id:
+        :type deployment_scope_id: str
         :param body:
         :type body: ~teamcloud.models.DeploymentScope
         :keyword callable cls: A custom type or function that will be passed the direct response
@@ -1114,8 +1268,8 @@ class TeamCloudClientOperationsMixin(object):
         # Construct URL
         url = self.authorize_deployment_scope.metadata['url']  # type: ignore
         path_format_arguments = {
-            'deploymentScopeId': self._serialize.url("deployment_scope_id", deployment_scope_id, 'str'),
             'organizationId': self._serialize.url("organization_id", organization_id, 'str'),
+            'deploymentScopeId': self._serialize.url("deployment_scope_id", deployment_scope_id, 'str'),
         }
         url = self._client.format_url(url, **path_format_arguments)
 
