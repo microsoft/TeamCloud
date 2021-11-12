@@ -130,6 +130,8 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
             <Stack.Item>
                 <FuiForm
                     disabled={!formEnabled}
+                    omitExtraData={true}
+                    liveOmit={true}
                     onSubmit={_submitForm}
                     onChange={_changeForm}
                     FieldTemplate={TCFieldTemplate}
