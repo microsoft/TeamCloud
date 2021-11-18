@@ -6,12 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Broadcast;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Validation;
 
 namespace TeamCloud.Model
 {
@@ -102,7 +104,7 @@ namespace TeamCloud.Model
 
                 resource.Tags = keyValuePairs
                     .GroupBy(kvp => kvp.Key)
-                    .Where(kvp => kvp.First().Value != null)
+                    .Where(kvp => kvp.First().Value is not null)
                     .ToDictionary(kvp => kvp.Key, kvp => kvp.First().Value);
             }
         }
@@ -126,7 +128,7 @@ namespace TeamCloud.Model
 
                 resource.Properties = keyValuePairs
                     .GroupBy(kvp => kvp.Key)
-                    .Where(kvp => kvp.First().Value != null)
+                    .Where(kvp => kvp.First().Value is not null)
                     .ToDictionary(kvp => kvp.Key, kvp => kvp.First().Value);
             }
         }

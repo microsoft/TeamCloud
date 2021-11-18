@@ -52,7 +52,7 @@ namespace TeamCloud.Orchestrator.Command
 
             if (commandStatus.Output.HasValues)
             {
-                if (commandStatus.Output.SelectToken("$type") != null)
+                if (commandStatus.Output.SelectToken("$type") is not null)
                 {
                     commandResult = commandStatus.Output
                         .ToObject<ICommandResult>(serializer);

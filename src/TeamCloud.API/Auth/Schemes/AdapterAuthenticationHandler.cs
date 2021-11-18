@@ -115,7 +115,7 @@ namespace TeamCloud.API.Auth.Schemes
                         .InvalidateTokenAsync(queryValue.ToString())
                         .ConfigureAwait(false);
 
-                    if (oneTimeTokenEntity != null)
+                    if (oneTimeTokenEntity is not null)
                     {
                         var user = await userRepository
                             .GetAsync(oneTimeTokenEntity.OrganizationId.ToString(), oneTimeTokenEntity.UserId.ToString(), expand: true)
@@ -171,7 +171,7 @@ namespace TeamCloud.API.Auth.Schemes
                         .ResolvePrincipalAsync(deploymentScope, Context.Request)
                         .ConfigureAwait(false);
 
-                    if (servicePrincial != null)
+                    if (servicePrincial is not null)
                     {
                         var claimsIdentity = servicePrincial.ToClaimsIdentity(AdapterAuthenticationDefaults.AuthenticationType);
 

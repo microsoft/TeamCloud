@@ -48,7 +48,7 @@ namespace TeamCloud.Model.Data.Core
                         .FirstOrDefault(p => p.Name.Equals(match.Value, StringComparison.OrdinalIgnoreCase));
                 });
 
-                if (property != null)
+                if (property is not null)
                 {
                     return $"{property.GetValue(containerDocument)}";
                 }
@@ -65,7 +65,7 @@ namespace TeamCloud.Model.Data.Core
                         .FirstOrDefault(f => f.Name.Equals(match.Value, StringComparison.OrdinalIgnoreCase));
                 });
 
-                if (field != null)
+                if (field is not null)
                 {
                     return $"{field.GetValue(containerDocument)}";
                 }

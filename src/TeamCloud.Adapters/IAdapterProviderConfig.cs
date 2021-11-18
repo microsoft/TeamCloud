@@ -5,9 +5,9 @@
 
 namespace TeamCloud.Adapters
 {
-    public interface IAdapterConfiguration
+    public interface IAdapterProviderConfig
     {
-        IAdapterConfiguration Register<TAdapter>()
+        IAdapterProviderConfig Register<TAdapter>()
             where TAdapter: class, IAdapter;
     }
 }

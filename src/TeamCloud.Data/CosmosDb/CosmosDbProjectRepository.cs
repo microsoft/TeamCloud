@@ -13,7 +13,8 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Data.CosmosDb
@@ -24,8 +25,8 @@ namespace TeamCloud.Data.CosmosDb
 
         private readonly IUserRepository userRepository;
 
-        public CosmosDbProjectRepository(ICosmosDbOptions options, IUserRepository userRepository, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+        public CosmosDbProjectRepository(ICosmosDbOptions options, IUserRepository userRepository, IMemoryCache cache, IValidatorProvider validatorProvider, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -65,7 +66,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(project));
 
             await project
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
@@ -138,7 +139,7 @@ namespace TeamCloud.Data.CosmosDb
             var project = await ResolveIdAsync(organization, name)
                 .ConfigureAwait(false);
 
-            return project != null;
+            return project is not null;
         }
 
         public override async Task<Project> SetAsync(Project project)
@@ -147,7 +148,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(project));
 
             await project
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()

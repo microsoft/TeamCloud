@@ -150,10 +150,10 @@ namespace TeamCloud.Adapters.AzureDevOps
                     };
                 }
 
-                if (azureDevOpsIdentifier != null) break;
+                if (azureDevOpsIdentifier is not null) break;
             }
 
-            return (azureDevOpsIdentifier != null);
+            return (azureDevOpsIdentifier is not null);
         }
 
         public string Organization { get; set; }
@@ -186,7 +186,7 @@ namespace TeamCloud.Adapters.AzureDevOps
 
             value = ResourcePairs.FirstOrDefault(kvp => kvp.Key.Equals(key, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)).Value;
 
-            return (value != null);
+            return (value is not null);
         }
 
         public override string ToString()

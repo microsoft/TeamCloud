@@ -49,7 +49,7 @@ namespace TeamCloud.Serialization
 
             var converter = converters.FirstOrDefault(c => c.CanConvert(objectType));
 
-            if (converter != null)
+            if (converter is not null)
             {
                 return converter;
             }
@@ -80,9 +80,9 @@ namespace TeamCloud.Serialization
 
             var valueProvider = base.CreateMemberValueProvider(member);
 
-            if (member.GetCustomAttribute<EncryptedAttribute>() != null)
+            if (member.GetCustomAttribute<EncryptedAttribute>() is not null)
                 return new EncryptedValueProvider(member, valueProvider, dataProtectionProvider);
-            else if (member.GetCustomAttribute<CompressAttribute>() != null)
+            else if (member.GetCustomAttribute<CompressAttribute>() is not null)
                 return new CompressValueProvider(member, valueProvider);
 
             return valueProvider; // we stick with the default value provider
@@ -95,7 +95,7 @@ namespace TeamCloud.Serialization
             if (member is PropertyInfo propertyInfo && !prop.Writable)
             {
                 // enable private property setter deserialization for types with default constructor
-                prop.Writable = propertyInfo.GetSetMethod(true) != null;
+                prop.Writable = propertyInfo.GetSetMethod(true) is not null;
             }
 
             return prop;

@@ -4,14 +4,19 @@
  */
 
 using FluentValidation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Data.Validators
 {
-    public sealed class ProjectTemplateDefinitionValidator : AbstractValidator<ProjectTemplateDefinition>
+    public sealed class ProjectTemplateDefinitionValidator : Validator<ProjectTemplateDefinition>
     {
-        public ProjectTemplateDefinitionValidator()
+        public ProjectTemplateDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
         {
-            RuleFor(obj => obj.Repository).SetValidator(new RepositoryDefinitionValidator());
+            RuleFor(obj => obj.Repository)
+                .Cascade(CascadeMode.Stop)
+                .NotNull()
+                .SetValidator(ValidatorProvider);
         }
     }
 }

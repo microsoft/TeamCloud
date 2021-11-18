@@ -147,7 +147,7 @@ namespace TeamCloud.Azure.Resources
                     .GetResourceAsync(resource.Id)
                     .ConfigureAwait(false);
 
-                if (resourceGeneric != null)
+                if (resourceGeneric is not null)
                     yield return resourceGeneric;
             }
         }

@@ -14,7 +14,7 @@ namespace TeamCloud.Model.Data
     [SoftDelete(60 * 60 * 24)] // 24 hours
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     [ContainerPath("/orgs/{Organization}/projects/{ProjectId}/components/{Id}")]
-    public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext, IDeploymentScopeContext, IEquatable<Component>, IValidatable, ISlug, IResourceReference
+    public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext, IDeploymentScopeContext, IEquatable<Component>, ISlug, IResourceReference
     {
         /// <summary>
         /// Gets or sets a browsable link pointing to the component resource.

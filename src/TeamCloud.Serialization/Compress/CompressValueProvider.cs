@@ -85,7 +85,7 @@ namespace TeamCloud.Serialization.Compress
         {
             var value = innerValueProvider.GetValue(target);
 
-            if (IsSupported(member) && value != null)
+            if (IsSupported(member) && value is not null)
             {
                 Debug.WriteLine($"Compress {member.Name} @ {target}");
 
@@ -97,7 +97,7 @@ namespace TeamCloud.Serialization.Compress
 
         public void SetValue(object target, object value)
         {
-            if (IsSupported(member) && value != null)
+            if (IsSupported(member) && value is not null)
             {
                 Debug.WriteLine($"Decompress {member.Name} @ {target}");
 

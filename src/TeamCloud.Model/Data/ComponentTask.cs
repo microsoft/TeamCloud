@@ -8,12 +8,13 @@ using System;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
+using TeamCloud.Validation;
 
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     [ContainerPath("/orgs/{Organization}/projects/{ProjectId}/components/{ComponentId}/tasks/{Id}")]
-    public sealed class ComponentTask : ContainerDocument, IEquatable<ComponentTask>, IValidatable, IResourceReference, IComponentContext
+    public sealed class ComponentTask : ContainerDocument, IEquatable<ComponentTask>, IResourceReference, IComponentContext
     {
         private string typeName;
 

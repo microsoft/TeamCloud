@@ -604,7 +604,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                         .ConfigureAwait(false);
                 }
 
-                if (project != null && !AzureDevOpsIdentifier.TryParse(component.ResourceId, out var _))
+                if (project is not null && !AzureDevOpsIdentifier.TryParse(component.ResourceId, out var _))
                 {
                     component.ResourceId = AzureDevOpsIdentifier
                         .FromUrl(project.Url)
@@ -906,7 +906,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                                 g.DisplayName.Equals("Project Administrators", StringComparison.Ordinal))
                             .ConfigureAwait(false);
 
-                        if (projectAdministratorsGroup != null && !await graphClient.CheckMembershipExistenceAsync(group.Descriptor, projectAdministratorsGroup.Descriptor).ConfigureAwait(false))
+                        if (projectAdministratorsGroup is not null && !await graphClient.CheckMembershipExistenceAsync(group.Descriptor, projectAdministratorsGroup.Descriptor).ConfigureAwait(false))
                         {
                             // owner and admin groups managed by TeamCloud will become a member of the Project Administrators group of the target project in Azure DevOps
 
@@ -964,7 +964,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                                 .GetResourceGroupAsync(projectResourceId.SubscriptionId, projectResourceId.ResourceGroup)
                                 .ConfigureAwait(false);
 
-                            if (projectResourceGroup != null)
+                            if (projectResourceGroup is not null)
                             {
                                 // ensure our service principal has at least read access on a restricted scope
                                 // inside of the project's home subscription. otherwise the corresponding service
@@ -1154,7 +1154,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                         .GetRepositoryAsync(repositoryId)
                         .ConfigureAwait(false);
 
-                    if (gitRepo != null)
+                    if (gitRepo is not null)
                     {
                         await gitClient
                             .DeleteRepositoryAsync(gitRepo.ProjectReference.Id, gitRepo.Id)

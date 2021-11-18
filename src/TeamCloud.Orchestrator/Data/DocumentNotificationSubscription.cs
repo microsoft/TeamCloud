@@ -57,7 +57,7 @@ namespace TeamCloud.Orchestrator.Command.Data
 
             })?.MakeGenericType(containerDocument.GetType());
 
-            if (broadcastCommandType != null)
+            if (broadcastCommandType is not null)
             {
                 var commandUser = Guid.TryParse((containerDocument as IOrganizationContext)?.Organization, out var organizationId)
                     ? await GetCommandUserAsync(organizationId).ConfigureAwait(false)

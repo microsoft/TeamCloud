@@ -21,7 +21,7 @@ namespace TeamCloud.Adapters.Authorization
         {
             var entityId = Guid.Empty;
 
-            if (deploymentScope != null)
+            if (deploymentScope is not null)
             {
                 var result = Merge(Guid.Parse(deploymentScope.Organization), Guid.Parse(deploymentScope.Id));
 
@@ -62,7 +62,7 @@ namespace TeamCloud.Adapters.Authorization
 
             return properties.Union(ResolvePropertiesCache.GetOrAdd(type, (type) => type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && (IsEdmType(pi.PropertyType) || IsComplexType(pi.PropertyType)) && (pi.CanWrite || pi.GetSetMethod(true) != null))));
+                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && (IsEdmType(pi.PropertyType) || IsComplexType(pi.PropertyType)) && (pi.CanWrite || pi.GetSetMethod(true) is not null))));
         }
 
         private IEnumerable<PropertyInfo> EntityProperties => ResolveProperties(this.GetType());

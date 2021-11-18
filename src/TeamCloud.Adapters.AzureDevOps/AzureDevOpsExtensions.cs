@@ -43,7 +43,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                 ? match.Groups[groupNumber]
                 : null;
 
-            return (group != null);
+            return (group is not null);
         }
 
         internal static bool TryMatch(this Regex expression, string input, string groupName, out Group group)
@@ -52,7 +52,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                 ? match.Groups.FirstOrDefault(g => g.Name == groupName)
                 : null;
 
-            return (group != null);
+            return (group is not null);
         }
 
         internal static string UrlDecode(this string source)
@@ -121,8 +121,8 @@ namespace TeamCloud.Adapters.AzureDevOps
                     yield return element;
                 }
 
-            } while (currentPage.ContinuationToken != null &&
-                    (currentPage = await getNextPage(currentPage.ContinuationToken).ConfigureAwait(false)) != null);
+            } while (currentPage.ContinuationToken is not null &&
+                    (currentPage = await getNextPage(currentPage.ContinuationToken).ConfigureAwait(false)) is not null);
         }
 
         internal static async IAsyncEnumerable<GraphUser> AsContinuousCollectionAsync(
@@ -150,7 +150,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                 }
 
             } while ((currentPage.ContinuationToken?.Any() ?? false) &&
-                    (currentPage = await getNextPage(currentPage.ContinuationToken.First()).ConfigureAwait(false)) != null);
+                    (currentPage = await getNextPage(currentPage.ContinuationToken.First()).ConfigureAwait(false)) is not null);
         }
 
         internal static async IAsyncEnumerable<GraphUser> ListAllUsersAsync(this GraphHttpClient client)
@@ -191,7 +191,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                 }
 
             } while ((currentPage.ContinuationToken?.Any() ?? false) &&
-                    (currentPage = await getNextPage(currentPage.ContinuationToken.First()).ConfigureAwait(false)) != null);
+                    (currentPage = await getNextPage(currentPage.ContinuationToken.First()).ConfigureAwait(false)) is not null);
         }
 
         internal static async IAsyncEnumerable<GraphGroup> ListAllGroupsAsync(this GraphHttpClient client, string scopeDescriptor = null)

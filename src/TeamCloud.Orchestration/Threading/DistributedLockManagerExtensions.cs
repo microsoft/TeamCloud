@@ -41,7 +41,7 @@ namespace TeamCloud.Orchestration.Threading
                     .TryLockAsync(null, lockId, lockOwner, null, lockPeriod.GetValueOrDefault(TimeSpan.FromMinutes(1)), linkedCancellationTokenSource.Token)
                     .ConfigureAwait(false);
 
-                if (distributedLock != null)
+                if (distributedLock is not null)
                     return distributedLock;
             }
 

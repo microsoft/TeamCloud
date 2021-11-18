@@ -65,7 +65,7 @@ namespace TeamCloud.Adapters.Authorization
 
             var table = await tableInstance.ConfigureAwait(false);
 
-            if (authorizationToken.Entity.ETag != null && force)
+            if (authorizationToken.Entity.ETag is not null && force)
                 authorizationToken.Entity.ETag = "*";
 
             var tableOperation = authorizationToken.Entity.ETag is null || force

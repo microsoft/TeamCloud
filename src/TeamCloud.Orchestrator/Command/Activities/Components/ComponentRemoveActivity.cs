@@ -38,7 +38,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
                     .GetAsync(input.ProjectId, input.ComponentId)
                     .ConfigureAwait(false);
 
-                if (component != null && component.Deleted.HasValue)
+                if (component is not null && component.Deleted.HasValue)
                 {
                     _ = await componentRepository
                         .RemoveAsync(component, soft: false)

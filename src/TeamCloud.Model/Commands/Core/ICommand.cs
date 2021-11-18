@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation;
 
 namespace TeamCloud.Model.Commands.Core
 {

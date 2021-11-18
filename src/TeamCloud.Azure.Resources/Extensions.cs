@@ -85,8 +85,8 @@ namespace TeamCloud.Azure.Resources
                     yield return element;
                 }
 
-            } while (currentPage.NextPageLink != null &&
-                    (currentPage = await getNextPage(currentPage.NextPageLink).ConfigureAwait(false)) != null);
+            } while (currentPage.NextPageLink is not null &&
+                    (currentPage = await getNextPage(currentPage.NextPageLink).ConfigureAwait(false)) is not null);
         }
 
         public static Task<IEnumerable<string>> GetApiVersionsAsync(this IAzureResourceService azureResourceService, AzureResourceIdentifier azureResourceIdentifier, bool includePreviewVersions = false)
@@ -121,7 +121,7 @@ namespace TeamCloud.Azure.Resources
             {
                 try
                 {
-                    if (call.Request.RequestUri.ToString().StartsWith(environment.ResourceManagerEndpoint, StringComparison.OrdinalIgnoreCase) && call.Response != null)
+                    if (call.Request.RequestUri.ToString().StartsWith(environment.ResourceManagerEndpoint, StringComparison.OrdinalIgnoreCase) && call.Response is not null)
                     {
                         await call.Response.Content
                             .LoadIntoBufferAsync()

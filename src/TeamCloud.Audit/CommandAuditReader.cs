@@ -48,7 +48,7 @@ namespace TeamCloud.Audit
 
                 var entity = result.Result as CommandAuditEntity;
 
-                if (entity != null && includeJsonDumps) await Task.WhenAll(
+                if (entity is not null && includeJsonDumps) await Task.WhenAll(
 
                     ReadBlobAsync(entity.GetCommandPath())
                         .ContinueWith(t => entity.CommandJson = t.Result, TaskContinuationOptions.OnlyOnRanToCompletion),

@@ -124,7 +124,7 @@ namespace TeamCloud.Azure.Directory
             var groupId = await GetGroupIdAsync(identifier)
                 .ConfigureAwait(false);
 
-            if (groupId != null)
+            if (groupId is not null)
             {
                 var uniqueMembers = new HashSet<Guid>();
 
@@ -589,12 +589,12 @@ namespace TeamCloud.Azure.Directory
             var principal = await GetServicePrincipalInnerAsync(client, identifier)
                 .ConfigureAwait(false);
 
-            if (principal != null)
+            if (principal is not null)
             {
                 var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
                     .ConfigureAwait(false);
 
-                if (application != null)
+                if (application is not null)
                 {
                     await client.Applications
                         .DeleteAsync(application.ObjectId)
@@ -615,7 +615,7 @@ namespace TeamCloud.Azure.Directory
             var principal = await GetServicePrincipalInnerAsync(client, servicePrincipalIdentifier)
                 .ConfigureAwait(false);
 
-            if (principal != null)
+            if (principal is not null)
             {
                 var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
                     .ConfigureAwait(false);
@@ -641,12 +641,12 @@ namespace TeamCloud.Azure.Directory
             var principal = await GetServicePrincipalInnerAsync(client, servicePrincipalIdentifier)
                 .ConfigureAwait(false);
 
-            if (principal != null)
+            if (principal is not null)
             {
                 var application = await GetServiceApplicationInnerAsync(client, principal.AppId)
                     .ConfigureAwait(false);
 
-                if (application != null)
+                if (application is not null)
                 {
                     var parameters = new ApplicationUpdateParameters()
                     {

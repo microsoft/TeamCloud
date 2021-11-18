@@ -6,13 +6,14 @@
 using System;
 using FluentValidation;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Data.Validators
 {
-    public class ComponentTaskDefinitionValidator : AbstractValidator<ComponentTaskDefinition>
+    public class ComponentTaskDefinitionValidator : Validator<ComponentTaskDefinition>
     {
-        public ComponentTaskDefinitionValidator()
+        public ComponentTaskDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             RuleFor(obj => obj.TaskId)
                 .NotNull()

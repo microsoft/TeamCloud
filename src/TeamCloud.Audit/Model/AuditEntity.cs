@@ -36,7 +36,7 @@ namespace TeamCloud.Audit.Model
 
             return properties.Union(ResolvePropertiesCache.GetOrAdd(type, (type) => type
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && IsEdmType(pi.PropertyType) && (pi.CanWrite || pi.GetSetMethod(true) != null))));
+                .Where(pi => !pi.IsDefined(typeof(IgnorePropertyAttribute)) && IsEdmType(pi.PropertyType) && (pi.CanWrite || pi.GetSetMethod(true) is not null))));
         }
 
         private IEnumerable<PropertyInfo> EntityProperties => ResolveProperties(this.GetType());

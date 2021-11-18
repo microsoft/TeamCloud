@@ -6,6 +6,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>aspnet-TeamCloud.API-57B738A5-7F9D-4178-9564-0FCBB29DD28F</UserSecretsId>
     <WebProject_DirectoryAccessLevelKey>1</WebProject_DirectoryAccessLevelKey>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -45,6 +46,7 @@
     <ProjectReference Include="..\TeamCloud.Adapters.AzureDevOps\TeamCloud.Adapters.AzureDevOps.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters.AzureResourceManager\TeamCloud.Adapters.AzureResourceManager.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters.GitHub\TeamCloud.Adapters.GitHub.csproj" />
+    <ProjectReference Include="..\TeamCloud.Adapters.Kubernetes\TeamCloud.Adapters.Kubernetes.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters\TeamCloud.Adapters.csproj" />
     <ProjectReference Include="..\TeamCloud.Audit\TeamCloud.Audit.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />

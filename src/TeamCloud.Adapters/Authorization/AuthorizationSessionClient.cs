@@ -60,7 +60,7 @@ namespace TeamCloud.Adapters.Authorization
             {
                 return session;
             }
-            else if (session != null)
+            else if (session is not null)
             {
                 await table
                     .ExecuteAsync(TableOperation.Delete(session))

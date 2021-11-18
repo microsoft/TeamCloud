@@ -14,7 +14,7 @@ using TeamCloud.Serialization.Encryption;
 namespace TeamCloud.Model.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ProjectIdentity : ContainerDocument, IIdentifiable, IProjectContext, IEquatable<ProjectIdentity>, IValidatable
+    public sealed class ProjectIdentity : ContainerDocument, IIdentifiable, IProjectContext, IEquatable<ProjectIdentity>
     {
         [JsonProperty(Required = Required.Always)]
         [PartitionKey]

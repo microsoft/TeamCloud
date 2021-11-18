@@ -220,9 +220,9 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                         .ConfigureAwait(true);
                 }
 
-                if (commandResult.Result.ExitCode.GetValueOrDefault(0) != 0)
+                if (commandResult.Result.TaskState == TaskState.Failed)
                 {
-                    throw new Exception($"Component task '{commandResult.Result.Id}' exit with code {commandResult.Result.ExitCode}");
+                    throw new Exception($"Component task '{commandResult.Result.Id}' exit with code {commandResult.Result.ExitCode?.ToString() ?? "UNKNOWN"}");
                 }
             }
         }

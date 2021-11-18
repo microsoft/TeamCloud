@@ -24,6 +24,7 @@ using TeamCloud.Adapters;
 using TeamCloud.Adapters.AzureDevOps;
 using TeamCloud.Adapters.AzureResourceManager;
 using TeamCloud.Adapters.GitHub;
+using TeamCloud.Adapters.Kubernetes;
 using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
@@ -39,6 +40,7 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Model.Validation;
 using TeamCloud.Notification.Smtp;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
@@ -48,6 +50,7 @@ using TeamCloud.Orchestrator.Command.Data;
 using TeamCloud.Orchestrator.Options;
 using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
+using TeamCloud.Validation.Providers;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestratorStartup))]
 [assembly: FunctionsImport(typeof(TeamCloudOrchestrationStartup))]
@@ -76,6 +79,12 @@ namespace TeamCloud.Orchestrator
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
+                .AddTeamCloudValidationProvider(configuration =>
+                {
+                    configuration
+                        .Register(Assembly.GetExecutingAssembly())
+                        .RegisterModelValidators();
+                })
                 .AddTeamCloudHttp()
                 .AddTeamCloudAudit()
                 .AddTeamCloudSecrets()
@@ -83,12 +92,13 @@ namespace TeamCloud.Orchestrator
                 .AddNewtonsoftJson();
 
             builder.Services
-                .AddTeamCloudAdapters(configuration =>
+                .AddTeamCloudAdapterProvider(configuration =>
                 {
                     configuration
                         .Register<AzureResourceManagerAdapter>()
                         .Register<AzureDevOpsAdapter>()
-                        .Register<GitHubAdapter>();
+                        .Register<GitHubAdapter>()
+                        .Register<KubernetesAdapter>();
                 });
 
             var notificationSmtpOptions = builder.Services
@@ -172,23 +182,6 @@ namespace TeamCloud.Orchestrator
 
             foreach (var commandHandlerType in commandHandlerTypes)
                 builder.Services.AddScoped(typeof(ICommandHandler), commandHandlerType);
-
-            //builder.Services
-            //    .AddScoped<ICommandHandler, BroadcastCommandHandler>()
-            //    .AddScoped<ICommandHandler, NotificationCommandHandler>()
-            //    .AddScoped<ICommandHandler, ComponentCommandHandler>()
-            //    .AddScoped<ICommandHandler, DeploymentScopeCommandHandler>()
-            //    .AddScoped<ICommandHandler, OrganizationCommandHandler>()
-            //    .AddScoped<ICommandHandler, OrganizationUserCommandHandler>()
-            //    .AddScoped<ICommandHandler, ProjectCommandHandler>()
-            //    .AddScoped<ICommandHandler, ProjectTemplateCommandHandler>()
-            //    .AddScoped<ICommandHandler, ProjectIdentityCommandHandler>()
-            //    .AddScoped<ICommandHandler, ProjectUserCommandHandler>()
-            //    .AddScoped<ICommandHandler, OrganizationDeployCommandHandler>()
-            //    .AddScoped<ICommandHandler, ProjectDeployCommandHandler>()
-            //    .AddScoped<ICommandHandler, ComponentTaskRunCommandHandler>()
-            //    .AddScoped<ICommandHandler, ComponentUpdateCommandHandler>()
-            //    .AddScoped<ICommandHandler, ScheduleCommandHandler>();
         }
 
         private static IConfiguration GetConfiguration(IServiceCollection services)

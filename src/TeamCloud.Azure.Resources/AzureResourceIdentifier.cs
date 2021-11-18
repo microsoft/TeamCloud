@@ -78,11 +78,11 @@ namespace TeamCloud.Azure.Resources
                             azureResourceIdentifier = new AzureResourceIdentifier(Guid.Empty, resourceNamespace: match.Groups[1].Value, resourceTypes: ParseResourceSegment(match.Groups[2].Value));
                     }
 
-                    if (azureResourceIdentifier != null) break;
+                    if (azureResourceIdentifier is not null) break;
                 }
             }
 
-            return (azureResourceIdentifier != null);
+            return (azureResourceIdentifier is not null);
 
             KeyValuePair<string, string>[] ParseResourceSegment(string resourceSegment)
             {

@@ -83,7 +83,7 @@ namespace TeamCloud.Data.Expanders
                         .GetResourceAsync<AzureContainerGroupResource>(resourceId.ToString())
                         .ConfigureAwait(false);
 
-                    if (containerGroup != null)
+                    if (containerGroup is not null)
                     {
                         return await containerGroup
                             .GetEventContentAsync("runner")
@@ -102,7 +102,6 @@ namespace TeamCloud.Data.Expanders
         private async Task<string> GetOutputAsync(ComponentTask document)
         {
             var output = default(string);
-
             var outputKey = $"{GetType()}|{document.GetType()}|{document.Id}";
 
             var outputUrl = await cache
@@ -125,6 +124,11 @@ namespace TeamCloud.Data.Expanders
                     output = await cache
                         .GetOrCreateAsync(outputUrl, GetOutputLogAsync)
                         .ConfigureAwait(false);
+
+                    if (string.IsNullOrEmpty(output))
+                    {
+                        cache.Remove(outputUrl);
+                    }
                 }
             }
 
@@ -144,16 +148,13 @@ namespace TeamCloud.Data.Expanders
                     {
                         using var reader = new StreamReader(stream);
 
-                        if (entry != null)
+                        if (entry is not null)
                         {
                             entry.AbsoluteExpiration = DateTime.UtcNow.AddDays(1);
 
                             entry.Value = await reader
                                 .ReadToEndAsync()
                                 .ConfigureAwait(false);
-
-                            // add entry to cache if not null
-                            if (entry.Value != null) entry.Dispose();
                         }
                         else
                         {
@@ -186,16 +187,13 @@ namespace TeamCloud.Data.Expanders
                             .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
                             .ConfigureAwait(false);
 
-                        if (storageAccount != null)
+                        if (storageAccount is not null)
                         {
                             entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
 
                             entry.Value = await storageAccount // create a shared access token with an additional expiration offset to avoid time sync issues when fetching the output
                                 .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
                                 .ConfigureAwait(false);
-
-                            // add entry to cache if not null
-                            if (entry.Value != null) entry.Dispose();
                         }
                     }
                 }
@@ -214,7 +212,7 @@ namespace TeamCloud.Data.Expanders
                 .GetAsync(Guid.Parse(document.Organization), Guid.Parse(document.Id))
                 .ConfigureAwait(false);
 
-            if (audit != null)
+            if (audit is not null)
             {
                 var username = await azureDirectoryService
                     .GetDisplayNameAsync(audit.UserId)

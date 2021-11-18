@@ -54,7 +54,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                 projectIdentity.ClientId = servicePrincipal.ApplicationId;
                 projectIdentity.ClientSecret = servicePrincipal.Password;
 
-                if (projectIdentity.RedirectUrls != null)
+                if (projectIdentity.RedirectUrls is not null)
                 {
                     projectIdentity.RedirectUrls = await azureDirectoryService
                         .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls)
@@ -92,7 +92,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
 
             try
             {
-                if (projectIdentity.RedirectUrls != null)
+                if (projectIdentity.RedirectUrls is not null)
                 {
                     projectIdentity.RedirectUrls = await azureDirectoryService
                         .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls)

@@ -95,7 +95,7 @@ namespace TeamCloud.Audit
             auditEntity.Created = GetTableStorageMinDate(auditEntity.Created, commandResult?.CreatedTime, timestamp);
             auditEntity.Updated = GetTableStorageMaxDate(auditEntity.Updated, commandResult?.LastUpdatedTime, timestamp);
 
-            if (commandResult != null)
+            if (commandResult is not null)
             {
                 auditEntity.RuntimeStatus = commandResult.RuntimeStatus;
                 auditEntity.CustomStatus = commandResult.CustomStatus ?? string.Empty;

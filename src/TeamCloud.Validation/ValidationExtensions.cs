@@ -1,181 +1,27 @@
-﻿/**
- *  Copyright (c) Microsoft Corporation.
- *  Licensed under the MIT License.
- */
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Text;
 using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Common;
-using TeamCloud.Model.Data;
+using System.Text.RegularExpressions;
+using System.Linq;
+using Newtonsoft.Json.Schema;
+using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.Model.Validation
+namespace TeamCloud.Validation
 {
-    public static class ValidatorExtensions
+    public static class ValidationExtensions
     {
-        public static bool TryValidate(this IValidatable validatable, out ValidationResult validationResult, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null)
-        {
-            validationResult = validatable.Validate(validatorFactory, serviceProvider);
+        public static IRuleBuilderOptions<T, TProperty> SetValidator<T, TProperty>(this IRuleBuilderInitial<T, TProperty> ruleBuilder, IValidatorProvider validatorProvider)
+            => ruleBuilder.SetValidator(validatorProvider.ToValidator<TProperty>());
 
-            return validationResult.IsValid;
-        }
+        public static IRuleBuilderOptions<T, TProperty> SetValidator<T, TProperty>(this IRuleBuilderInitialCollection<T, TProperty> ruleBuilder, IValidatorProvider validatorProvider)
+            => ruleBuilder.SetValidator(validatorProvider.ToValidator<TProperty>());
 
-        public static ValidationResult Validate(this IValidatable validatable, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
-        {
-            if (validatable is null)
-                throw new ArgumentNullException(nameof(validatable));
-
-            var validators = (validatorFactory ?? ValidatorFactory.DefaultFactory).GetValidators(validatable.GetType(), serviceProvider);
-
-            if (validators.Any())
-            {
-                var context = new ValidationContext<IValidatable>(validatable);
-
-                var validationResult = validators
-                    .Select(validator => validator.Validate(context))
-                    .MergeValidationResults();
-
-                if (!validationResult.IsValid && throwOnValidationError)
-                    throw validationResult.ToException();
-
-                return validationResult;
-            }
-
-            if (throwOnNoValidatorFound)
-                throw new NotSupportedException($"Validation of type {validatable.GetType()} is not supported");
-
-            return new ValidationResult();
-        }
-
-        public static bool TryValidate<T>(this IValidatable validatable, out ValidationResult validationResult, IServiceProvider serviceProvider = null)
-            where T : class, IValidator
-        {
-            validationResult = validatable.Validate<T>(serviceProvider);
-
-            return validationResult.IsValid;
-        }
-
-        public static ValidationResult Validate<T>(this IValidatable validatable, IServiceProvider serviceProvider = null, bool throwOnNotValidable = false, bool throwOnValidationError = false)
-            where T : class, IValidator
-        {
-            if (validatable is null)
-                throw new ArgumentNullException(nameof(validatable));
-
-            var validator = serviceProvider is null
-                ? Activator.CreateInstance<T>()
-                : ActivatorUtilities.CreateInstance<T>(serviceProvider);
-
-            if (validator.CanValidateInstancesOfType(validatable.GetType()))
-            {
-                var context = new ValidationContext<IValidatable>(validatable);
-
-                var validationResult = validator.Validate(context);
-
-                if (!validationResult.IsValid && throwOnValidationError)
-                    throw validationResult.ToException();
-
-                return validationResult;
-            }
-            else if (throwOnNotValidable)
-            {
-                throw new NotSupportedException($"Validator or type {typeof(T)} does not support objects of type {validatable.GetType()}");
-            }
-
-            return new ValidationResult();
-        }
-
-        public static async Task<ValidationResult> ValidateAsync(this IValidatable validatable, IValidatorFactory validatorFactory = null, IServiceProvider serviceProvider = null, bool throwOnNoValidatorFound = false, bool throwOnValidationError = false)
-        {
-            if (validatable is null)
-                throw new ArgumentNullException(nameof(validatable));
-
-            var validators = (validatorFactory ?? ValidatorFactory.DefaultFactory).GetValidators(validatable.GetType(), serviceProvider);
-
-            if (validators.Any())
-            {
-                var context = new ValidationContext<IValidatable>(validatable);
-
-                var validationTasks = validators
-                    .Select(validator => validator.ValidateAsync(context));
-
-                var validationResults = await Task
-                    .WhenAll(validationTasks)
-                    .ConfigureAwait(false);
-
-                var validationResult = validationResults
-                    .MergeValidationResults();
-
-                if (!validationResult.IsValid && throwOnValidationError)
-                    throw validationResult.ToException();
-
-                return validationResult;
-            }
-
-            if (throwOnNoValidatorFound)
-                throw new NotSupportedException($"Validation of type {validatable.GetType()} is not supported");
-
-            return new ValidationResult();
-        }
-
-        public static async Task<ValidationResult> ValidateAsync<T>(this IValidatable validatable, IServiceProvider serviceProvider = null, bool throwOnNotValidable = false, bool throwOnValidationError = false)
-            where T : class, IValidator
-        {
-            if (validatable is null)
-                throw new ArgumentNullException(nameof(validatable));
-
-            var validator = serviceProvider is null
-                ? Activator.CreateInstance<T>()
-                : ActivatorUtilities.CreateInstance<T>(serviceProvider);
-
-            if (validator.CanValidateInstancesOfType(validatable.GetType()))
-            {
-                var context = new ValidationContext<IValidatable>(validatable);
-
-                var validationResult = await validator
-                    .ValidateAsync(context)
-                    .ConfigureAwait(false);
-
-                if (!validationResult.IsValid && throwOnValidationError)
-                    throw validationResult.ToException();
-
-                return validationResult;
-            }
-            else if (throwOnNotValidable)
-            {
-                throw new NotSupportedException($"Validator or type {typeof(T)} does not support objects of type {validatable.GetType()}");
-            }
-
-            return new ValidationResult();
-        }
-
-        private static ValidationResult MergeValidationResults(this IEnumerable<ValidationResult> validationResults)
-            => new ValidationResult(validationResults.SelectMany(validationResult => validationResult.Errors));
-
-        public static ValidationException ToException(this ValidationResult validationResult)
-            => (validationResult ?? throw new ArgumentNullException(nameof(validationResult))).IsValid ? null : new ValidationException(validationResult.Errors);
-
-        public static ICommandResult ApplyValidationResult(this ICommandResult commandResult, ValidationResult validationResult)
-        {
-            if (commandResult is null)
-                throw new ArgumentNullException(nameof(commandResult));
-
-            if (validationResult is null)
-                throw new ArgumentNullException(nameof(validationResult));
-
-            if (!validationResult.IsValid)
-                commandResult.Errors.Add(validationResult.ToException());
-
-            return commandResult;
-        }
+        public static IRuleBuilderOptions<T, TProperty> SetValidator<T, TProperty>(this IRuleBuilderOptions<T, TProperty> ruleBuilder, IValidatorProvider validatorProvider)
+            => ruleBuilder.SetValidator(validatorProvider.ToValidator<TProperty>());
 
         public static IRuleBuilderOptions<T, IList<TElement>> MustContainAtLeast<T, TElement>(this IRuleBuilderInitial<T, IList<TElement>> ruleBuilder, int min)
             => ruleBuilder
@@ -204,6 +50,13 @@ namespace TeamCloud.Model.Validation
                 .NotEmpty()
                 .Must(BeAzureRegion)
                     .WithMessage("'{PropertyName}' must be a valid Azure Region. See https://azure.microsoft.com/en-us/global-infrastructure/regions/ for more information on Azure Regions");
+
+        public static IRuleBuilderOptions<T, string> MustMatchSchema<T>(this IRuleBuilderInitial<T, string> ruleBuilder, string schema)
+            => ruleBuilder
+                .Cascade(CascadeMode.Stop)
+                .MustBeJson()
+                .Must((json) => JToken.Parse(json).IsValid(JSchema.Parse(schema)))
+                    .WithMessage("'{PropertyName}' must match the given schema.");
 
 
         public static IRuleBuilderOptions<T, string> MustBeEmail<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
@@ -249,26 +102,6 @@ namespace TeamCloud.Model.Validation
                 .Must(BeUrl)
                     .WithMessage("'{PropertyName}' must be a valid url.");
 
-        public static IRuleBuilderOptions<T, string> MustBeUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
-            => ruleBuilder
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty()
-                .Must(BeUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner', 'Admin', 'Member', 'None'.");
-
-        public static IRuleBuilderOptions<T, string> MustBeProjectUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
-            => ruleBuilder
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty()
-                .Must(BeProjectUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Project users are 'Owner', 'Admin', 'Member', and 'None'.");
-
-        public static IRuleBuilderOptions<T, string> MustBeOrganizationUserRole<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
-            => ruleBuilder
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty()
-                .Must(BeOrganizationUserRole)
-                    .WithMessage("'{PropertyName}' must be a valid Role. Valid roles for Organization users are 'Owner', 'Admin', 'Member' and 'None'.");
 
         public static IRuleBuilderOptions<T, string> MustBeProviderId<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
             => ruleBuilder
@@ -329,18 +162,7 @@ namespace TeamCloud.Model.Validation
         private static bool BeUserIdentifier(string identifier)
             => !string.IsNullOrWhiteSpace(identifier);
 
-        private static bool BeUserRole(string role)
-            => !string.IsNullOrEmpty(role)
-            && (Enum.TryParse<OrganizationUserRole>(role, true, out _)
-                || Enum.TryParse<ProjectUserRole>(role, true, out _));
 
-        private static bool BeProjectUserRole(string role)
-            => !string.IsNullOrEmpty(role)
-            && Enum.TryParse<ProjectUserRole>(role, true, out _);
-
-        private static bool BeOrganizationUserRole(string role)
-            => !string.IsNullOrEmpty(role)
-            && Enum.TryParse<OrganizationUserRole>(role, true, out _);
 
         private static bool BeAzureRegion(string region)
             => !string.IsNullOrEmpty(region)
@@ -552,5 +374,6 @@ namespace TeamCloud.Model.Validation
         }
 
         public override string ToString() => this.Name;
+
     }
 }

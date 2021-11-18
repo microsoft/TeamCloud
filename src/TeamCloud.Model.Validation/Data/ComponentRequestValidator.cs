@@ -9,7 +9,7 @@
 
 // namespace TeamCloud.Model.Validation.Data
 // {
-//     public sealed class ComponentRequestValidator : AbstractValidator<ComponentRequest>
+//     public sealed class ComponentRequestValidator : Validator<ComponentRequest>
 //     {
 //         public ComponentRequestValidator()
 //         {

@@ -108,10 +108,10 @@ namespace TeamCloud.Adapters.GitHub
                     };
                 }
 
-                if (gitHubIdentifier != null) break;
+                if (gitHubIdentifier is not null) break;
             }
 
-            return (gitHubIdentifier != null);
+            return (gitHubIdentifier is not null);
         }
 
         public string Organization { get; set; }

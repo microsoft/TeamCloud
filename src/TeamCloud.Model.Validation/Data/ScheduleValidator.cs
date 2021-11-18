@@ -5,12 +5,14 @@
 
 using FluentValidation;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Model.Validation.Data
 {
-    public sealed class ScheduleValidator : AbstractValidator<Schedule>
+    public sealed class ScheduleValidator : Validator<Schedule>
     {
-        public ScheduleValidator()
+        public ScheduleValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             RuleFor(obj => obj.Id)
                 .MustBeGuid();

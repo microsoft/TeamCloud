@@ -12,6 +12,7 @@ namespace TeamCloud.Model.Data
     public enum ComponentType
     {
         Environment,
-        Repository
+        Repository,
+        Namespace
     }
 }

@@ -17,7 +17,7 @@ namespace TeamCloud.Data.CosmosDb.Serialization
         private static readonly ConcurrentDictionary<Type, PropertyInfo> PartitionKeyProperties = new ConcurrentDictionary<Type, PropertyInfo>();
 
         private static PropertyInfo GetPartitionKeyProperty(Type type) => PartitionKeyProperties
-            .GetOrAdd(type, (type) => type.GetProperties().Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() != null).SingleOrDefault());
+            .GetOrAdd(type, (type) => type.GetProperties().Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() is not null).SingleOrDefault());
 
         public object GetValue(object target)
         {

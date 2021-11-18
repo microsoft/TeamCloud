@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using DotLiquid;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +17,11 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
-using TeamCloud.API.Data.Validators;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation.Data;
+using TeamCloud.Validation;
 
 namespace TeamCloud.API.Controllers
 {
@@ -103,11 +101,9 @@ namespace TeamCloud.API.Controllers
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new OrganizationUserDefinitionValidator().Validate(userDefinition);
-
-            if (!validation.IsValid)
+            if (!userDefinition.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             var newUserId = await UserService
@@ -123,7 +119,7 @@ namespace TeamCloud.API.Controllers
                 .GetAsync(organization.Id, newUserId)
                 .ConfigureAwait(false);
 
-            if (user != null)
+            if (user is not null)
                 return ErrorResult
                     .Conflict($"The user '{userDefinition.Identifier}' already exists on this Organization. Please try your request again with a unique user or call PUT to update the existing User.")
                     .ToActionResult();
@@ -159,11 +155,9 @@ namespace TeamCloud.API.Controllers
             if (userUpdate is null)
                 throw new ArgumentNullException(nameof(userUpdate));
 
-            var validation = new UserValidator().Validate(userUpdate);
-
-            if (!validation.IsValid)
+            if (!userUpdate.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             if (user.IsOwner() && !userUpdate.IsOwner())
@@ -197,11 +191,9 @@ namespace TeamCloud.API.Controllers
             if (user is null)
                 throw new ArgumentNullException(nameof(user));
 
-            var validation = new UserValidator().Validate(user);
-
-            if (!validation.IsValid)
+            if (!user.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             if (!contextUser.Id.Equals(user.Id, StringComparison.OrdinalIgnoreCase))

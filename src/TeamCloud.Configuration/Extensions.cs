@@ -32,7 +32,7 @@ namespace TeamCloud.Configuration
                 section = null;
             }
 
-            return (section != null);
+            return (section is not null);
         }
 
         public static bool TryBind<TOptions>(this IConfiguration configuration, string key, out TOptions options)
@@ -52,7 +52,7 @@ namespace TeamCloud.Configuration
                 options = null;
             }
 
-            return (options != null);
+            return (options is not null);
         }
 
         private static readonly MethodInfo AddOptionsMethod = typeof(Extensions).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)

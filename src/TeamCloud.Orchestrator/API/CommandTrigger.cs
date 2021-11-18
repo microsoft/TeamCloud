@@ -25,7 +25,8 @@ using TeamCloud.Data;
 using TeamCloud.Http;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Serialization;
 
@@ -37,13 +38,19 @@ namespace TeamCloud.Orchestrator.API
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ICommandAuditWriter commandAuditWriter;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
+        private readonly IValidatorProvider validatorProvider;
 
-        public CommandTrigger(ICommandHandler[] commandHandlers, IHttpContextAccessor httpContextAccessor, ICommandAuditWriter commandAuditWriter, IDeploymentScopeRepository deploymentScopeRepository)
+        public CommandTrigger(ICommandHandler[] commandHandlers,
+                              IHttpContextAccessor httpContextAccessor,
+                              ICommandAuditWriter commandAuditWriter,
+                              IDeploymentScopeRepository deploymentScopeRepository,
+                              IValidatorProvider validatorProvider)
         {
             this.commandHandlers = commandHandlers ?? throw new ArgumentNullException(nameof(commandHandlers));
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.commandAuditWriter = commandAuditWriter ?? throw new ArgumentNullException(nameof(commandAuditWriter));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+            this.validatorProvider = validatorProvider ?? throw new ArgumentNullException(nameof(validatorProvider));
         }
 
         [FunctionName(nameof(CommandTrigger) + nameof(Receive))]
@@ -120,7 +127,7 @@ namespace TeamCloud.Orchestrator.API
             {
                 var command = TeamCloudSerialize.DeserializeObject<ICommand>(commandMessage.AsString);
 
-                command.Validate(throwOnValidationError: true);
+                command.Validate(validatorProvider, throwOnValidationError: true);
 
                 _ = await ProcessCommandAsync(durableClient, command, commandQueue, commandMonitor, log)
                     .ConfigureAwait(false);
@@ -216,7 +223,7 @@ namespace TeamCloud.Orchestrator.API
                 if (command is null)
                     return new BadRequestResult();
 
-                command.Validate(throwOnValidationError: true);
+                command.Validate(validatorProvider, throwOnValidationError: true);
             }
             catch (ValidationException exc)
             {

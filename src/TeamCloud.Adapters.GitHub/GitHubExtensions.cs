@@ -160,7 +160,7 @@ namespace TeamCloud.Adapters.GitHub
                     .Get(owner, name)
                     .ConfigureAwait(false);
 
-                return repo != null;
+                return repo is not null;
             }
             catch (ApiException exc) when (exc.HttpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -178,7 +178,7 @@ namespace TeamCloud.Adapters.GitHub
                     .Get(repositoryId)
                     .ConfigureAwait(false);
 
-                return repo != null;
+                return repo is not null;
             }
             catch (ApiException exc) when (exc.HttpResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
             {

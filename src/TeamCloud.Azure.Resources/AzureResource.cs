@@ -93,7 +93,7 @@ namespace TeamCloud.Azure.Resources
 
             var identity = json.SelectToken("$.identity");
 
-            if (identity != null)
+            if (identity is not null)
             {
                 if (identity.SelectToken("type")?.ToString().Equals("SystemAssigned", StringComparison.OrdinalIgnoreCase) ?? false)
                     yield return identity.ToObject<AzureIdentity>();
@@ -276,7 +276,7 @@ namespace TeamCloud.Azure.Resources
             var apiVersion = await GetLatestApiVersionAsync()
                 .ConfigureAwait(false);
 
-            if (resource.Properties != null)
+            if (resource.Properties is not null)
             {
                 // we need to ensure that the update call doesn't contain
                 // a provisioning state information - otherwise the update
@@ -320,13 +320,13 @@ namespace TeamCloud.Azure.Resources
                 {
                     resource.Tags = resource.Tags
                         .Override(tags)
-                        .Where(kvp => kvp.Value != null)
+                        .Where(kvp => kvp.Value is not null)
                         .ToDictionary();
                 }
                 else
                 {
                     resource.Tags = tags
-                        .Where(kvp => kvp.Value != null)
+                        .Where(kvp => kvp.Value is not null)
                         .ToDictionary();
                 }
             }

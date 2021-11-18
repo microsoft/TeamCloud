@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Include="..\GlobalSuppressions.cs" Link="GlobalSuppressions.cs" />
     <Compile Include="..\GlobalExtensions.cs" Link="GlobalExtensions.cs" />
+    <Compile Include="..\GlobalUtilities.cs" Link="GlobalUtilities.cs" />
   </ItemGroup>
 
   <ItemGroup>

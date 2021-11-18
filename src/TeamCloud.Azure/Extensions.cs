@@ -79,7 +79,7 @@ namespace TeamCloud.Azure
                 propertyInfo = null;
             }
 
-            return propertyInfo != null;
+            return propertyInfo is not null;
         }
     }
 }

@@ -91,7 +91,7 @@ namespace TeamCloud.Model.Data
 
                 properties = keyValuePairs
                     .GroupBy(kvp => kvp.Key)
-                    .Where(kvp => kvp.First().Value != null)
+                    .Where(kvp => kvp.First().Value is not null)
                     .ToDictionary(kvp => kvp.Key, kvp => kvp.First().Value);
             }
 
@@ -175,7 +175,7 @@ namespace TeamCloud.Model.Data
             if (user is null) throw new ArgumentNullException(nameof(user));
 
             user.Role = role;
-            if (properties != null)
+            if (properties is not null)
                 user.MergeProperties(properties, overwriteExistingValues: true);
         }
 

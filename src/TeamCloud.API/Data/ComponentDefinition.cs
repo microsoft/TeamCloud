@@ -4,8 +4,8 @@
  */
 
 using Newtonsoft.Json;
-using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
+using TeamCloud.Validation;
 
 namespace TeamCloud.API.Data
 {

@@ -75,10 +75,18 @@ namespace TeamCloud.Serialization.Forms
 
                 foreach (var additionalPropertiesToken in token.SelectTokens("$..additionalProperties").Reverse())
                 {
-                    // additionalProperties tokens will raise error on the json form side when
+                    // additionalProperties tokens will raise errors on the json form side when
                     // validating the form data. to avoid this we simply remove this information.
 
                     additionalPropertiesToken.Parent.Remove();
+                }
+
+                foreach (var schemaToken in token.SelectTokens("$..$schema").Reverse())
+                {
+                    // schema reference tokens will raise errors on the json form side when
+                    // validating the form data. to avoid this we simply remove this information.
+
+                    schemaToken.Parent.Remove();
                 }
 
                 return Task.FromResult(token);

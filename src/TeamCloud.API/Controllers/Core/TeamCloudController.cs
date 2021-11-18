@@ -5,28 +5,27 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using DotLiquid.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos.Serialization.HybridRow.Layouts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using TeamCloud.API;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Controllers.Core
 {
     public abstract class TeamCloudController : ControllerBase
     {
-        protected TeamCloudController(ILogger log = null)
+        protected TeamCloudController(IValidatorProvider validatorProvider = null, ILogger log = null)
         {
+            ValidatorProvider = validatorProvider ?? NullValidatorProvider.Instance;
             Log = log ?? NullLogger.Instance;
         }
 
@@ -58,6 +57,8 @@ namespace TeamCloud.API.Controllers.Core
             => GetService<OrchestratorService>();
 
         protected ILogger Log { get; }
+
+        protected IValidatorProvider ValidatorProvider {  get; } 
 
         protected async Task<IActionResult> WithContextAsync(Func<User, Task<IActionResult>> callback)
         {

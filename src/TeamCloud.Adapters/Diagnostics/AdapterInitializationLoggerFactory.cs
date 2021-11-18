@@ -44,7 +44,7 @@ namespace TeamCloud.Adapters.Diagnostics
                         .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
                         .ConfigureAwait(false);
 
-                    if (storageAccount != null)
+                    if (storageAccount is not null)
                     {
                         var shareClient = await storageAccount
                             .CreateShareClientAsync(componentTask.ComponentId)

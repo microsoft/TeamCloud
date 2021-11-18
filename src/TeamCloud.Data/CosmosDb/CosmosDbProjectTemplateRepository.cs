@@ -14,7 +14,8 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Git.Services;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -22,8 +23,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IRepositoryService repositoryService;
 
-        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IRepositoryService repositoryService, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+        public CosmosDbProjectTemplateRepository(ICosmosDbOptions options, IValidatorProvider validatorProvider, IRepositoryService repositoryService, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
         }
@@ -39,7 +40,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(projectTemplate));
 
             await projectTemplate
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
@@ -207,7 +208,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(projectTemplate));
 
             await projectTemplate
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             if (!projectTemplate.IsDefault)

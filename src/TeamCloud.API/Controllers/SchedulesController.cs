@@ -19,7 +19,8 @@ using TeamCloud.API.Data.Results;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Controllers
 {
@@ -33,7 +34,10 @@ namespace TeamCloud.API.Controllers
 
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ScheduleController(IScheduleRepository scheduleRepository, IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository) : base()
+        public ScheduleController(IScheduleRepository scheduleRepository,
+                                  IComponentRepository componentRepository,
+                                  IComponentTemplateRepository componentTemplateRepository,
+                                  IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             this.scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
@@ -102,7 +106,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!scheduleDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!scheduleDefinition.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();
@@ -202,7 +206,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!scheduleUpdate.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!scheduleUpdate.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();

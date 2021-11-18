@@ -6,11 +6,12 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
+using TeamCloud.Validation;
 
 namespace TeamCloud.API.Data
 {
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class UserDefinition
+    public sealed class UserDefinition : IValidatable
     {
         [JsonProperty(Required = Required.Always)]
         public string Identifier { get; set; }

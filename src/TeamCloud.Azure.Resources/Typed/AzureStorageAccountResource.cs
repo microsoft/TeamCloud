@@ -66,6 +66,26 @@ namespace TeamCloud.Azure.Resources.Typed
             return new CloudStorageAccount(storageCredentials, true).ToString(true);
         }
 
+        public async Task EnsureDirectoryPathAsync(string shareName, string directoryPath)
+        {
+            if (string.IsNullOrEmpty(shareName))
+                throw new ArgumentException($"'{nameof(shareName)}' cannot be null or empty.", nameof(shareName));
+
+            if (string.IsNullOrEmpty(directoryPath))
+                throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or empty.", nameof(directoryPath));
+
+            var directoryNames = directoryPath.Split('/');
+
+            for(int i = 0; i < directoryNames.Length; i++)
+            {
+                var path = string.Join('/', directoryNames.Take(i + 1));
+
+                await CreateShareDirectoryClientAsync(shareName, path)
+                    .ContinueWith(client => client.Result.CreateIfNotExistsAsync()).Unwrap()
+                    .ConfigureAwait(false);
+            }
+        }
+
         public async Task<ShareClient> CreateShareClientAsync(string shareName, bool useSharedKey = false, ShareClientOptions options = null) 
         {
             if (string.IsNullOrWhiteSpace(shareName))

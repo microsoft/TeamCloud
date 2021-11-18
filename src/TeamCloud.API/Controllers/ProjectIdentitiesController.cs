@@ -16,11 +16,11 @@ using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
-using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Controllers
 {
@@ -31,7 +31,7 @@ namespace TeamCloud.API.Controllers
     {
         private readonly IProjectIdentityRepository projectIdentityRepository;
 
-        public ProjectIdentitiesController(IProjectIdentityRepository projectIdentityRepository) : base()
+        public ProjectIdentitiesController(IProjectIdentityRepository projectIdentityRepository, IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             this.projectIdentityRepository = projectIdentityRepository ?? throw new ArgumentNullException(nameof(projectIdentityRepository));
         }
@@ -114,7 +114,7 @@ namespace TeamCloud.API.Controllers
                 throw new ArgumentNullException(nameof(projectIdentityUpdate));
 
             var validation = await projectIdentityUpdate
-                .ValidateAsync()
+                .ValidateAsync(ValidatorProvider)
                 .ConfigureAwait(false);
 
             if (!validation.IsValid)

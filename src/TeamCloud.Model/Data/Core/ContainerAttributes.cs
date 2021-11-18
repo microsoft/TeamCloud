@@ -56,7 +56,7 @@ namespace TeamCloud.Model.Data.Core
             return PropertyCache.GetOrAdd(type, (key) =>
             {
                 var property = type.GetProperties()
-                    .Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() != null)
+                    .Where(p => p.GetCustomAttribute<PartitionKeyAttribute>() is not null)
                     .SingleOrDefault();
 
                 if (property.PropertyType != typeof(string))
@@ -109,7 +109,7 @@ namespace TeamCloud.Model.Data.Core
             var resolver = new CamelCasePropertyNamesContractResolver();
 
             return type.GetProperties()
-                .Where(p => p.GetCustomAttribute<UniqueKeyAttribute>() != null)
+                .Where(p => p.GetCustomAttribute<UniqueKeyAttribute>() is not null)
                 .Select(p => $"/{(camelCase ? resolver.GetResolvedPropertyName(p.Name) : p.Name)}");
         }
     }

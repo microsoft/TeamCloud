@@ -35,7 +35,7 @@ namespace TeamCloud.Data.Expanders
 
             var adapter = adapterProvider.GetAdapter(document.Type);
 
-            if (adapter != null)
+            if (adapter is not null)
             {
                 document.InputDataSchema = await adapter
                     .GetInputDataSchemaAsync()

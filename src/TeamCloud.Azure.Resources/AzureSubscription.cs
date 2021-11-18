@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Rest.Azure;
+using Newtonsoft.Json.Linq;
 using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Resources
@@ -136,7 +137,7 @@ namespace TeamCloud.Azure.Resources
                 operation = "Replace",
                 properties = new
                 {
-                    tags = tags.Where(tag => tag.Value != null).ToDictionary()
+                    tags = tags.Where(tag => tag.Value is not null).ToDictionary()
                 }
             };
 
@@ -146,6 +147,62 @@ namespace TeamCloud.Azure.Resources
                 .WithOAuthBearerToken(token)
                 .PatchJsonAsync(payload)
                 .ConfigureAwait(false);
+        }
+
+        public async IAsyncEnumerable<Region> GetRegionsAsync()
+        {
+            var token = await AzureResourceService.AzureSessionService
+                .AcquireTokenAsync()
+                .ConfigureAwait(false);
+
+            var json = await AzureResourceService.AzureSessionService.Environment.ResourceManagerEndpoint
+                .AppendPathSegment($"subscriptions/{this.ResourceId.SubscriptionId}/locations")
+                .SetQueryParam("api-version", "2020-01-01")
+                .WithOAuthBearerToken(token)
+                .GetJObjectAsync()
+                .ConfigureAwait(false);
+
+            while(true)
+            {
+                foreach (var item in json.SelectTokens("value[*]"))
+                {
+
+                    var paired = item
+                        .SelectTokens("metadata.pairedRegion[*].name")
+                        .Select(token => token.ToString())
+                        .ToArray();
+
+                    yield return new Region()
+                    {
+                        Name = item.SelectToken("name")?.ToString(),
+                        DisplayName = item.SelectToken("displayName")?.ToString(),
+                        Group = item.SelectToken("metadata.geographyGroup")?.ToString(),
+                        Paired = paired
+                    };
+                }
+
+                var nextLink = json.SelectToken("nextLink")?.ToString();
+
+                if (string.IsNullOrEmpty(nextLink))
+                    break;
+
+                json = await nextLink
+                    .SetQueryParam("api-version", "2020-01-01")
+                    .WithOAuthBearerToken(token)
+                    .GetJObjectAsync()
+                    .ConfigureAwait(false);
+            }
+        }
+
+        public sealed class Region
+        {
+            public string Name { get; internal set; }
+
+            public string DisplayName { get; internal set; }
+
+            public string Group { get; internal set; }
+
+            public string[] Paired { get; internal set; }
         }
     }
 }

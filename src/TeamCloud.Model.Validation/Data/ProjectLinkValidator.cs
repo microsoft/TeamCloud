@@ -8,7 +8,7 @@
 
 // namespace TeamCloud.Model.Validation.Data
 // {
-//     public sealed class ProjectLinkValidator : AbstractValidator<ProjectLink>
+//     public sealed class ProjectLinkValidator : Validator<ProjectLink>
 //     {
 //         public ProjectLinkValidator()
 //         {

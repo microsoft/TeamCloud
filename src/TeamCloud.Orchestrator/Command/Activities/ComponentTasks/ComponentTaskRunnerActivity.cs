@@ -93,6 +93,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             }
             else
             {
+                var pairedRegionFallback = false;
+                pairedRegionFallback:
+
                 try
                 {
                     var tenantId = await azureSessionService
@@ -117,19 +120,27 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                     var (componentShareAccount, componentShareName, componentShareKey) = await GetComponentShareInfoAsync(project, component)
                         .ConfigureAwait(false);
 
-                    var componentLocation = await GetComponentRunnerLocationAsync(component)
-                        .ConfigureAwait(false);
+                    var runnerCPUCount = 2;
+                    var runnerMemoryCount = 4;
+                    var runnerLocation = await GetComponentRunnerLocationAsync(component, projectResourceId.SubscriptionId, runnerCPUCount, runnerMemoryCount, pairedRegionFallback).ConfigureAwait(false);
+
+                    if (pairedRegionFallback)
+                        log.LogInformation($"Falling back to region '{runnerLocation}' for component task {componentTask}");
+                    else
+                        log.LogInformation($"Executin component task {componentTask} in region {runnerLocation}");
 
                     // we must not use the component task's id as runner label as this
                     // will violate the maximum length of a SSL certificats CN name.
-                    var componentRunnerRoot = $".{componentLocation}.azurecontainer.io";
+
+                    var componentRunnerRoot = $".{runnerLocation}.azurecontainer.io";
                     var componentRunnerLabelName = GetComponentRunnerLabel(componentTask, 64 - componentRunnerRoot.Length);
                     var componentRunnerHostName = string.Concat(componentRunnerLabelName, componentRunnerRoot);
                     var componentRunnerContainer = await ResolveContainerImage(componentTemplate, organizationRegistry, log).ConfigureAwait(false);
 
+
                     var componentRunnerDefinition = new
                     {
-                        location = componentLocation,
+                        location = runnerLocation,
                         identity = new
                         {
                             type = "UserAssigned",
@@ -151,15 +162,21 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                                         image = componentRunnerContainer,
                                         ports = new []
                                         {
-                                            new { port = 80 },
-                                            new { port = 443 }
+                                            new {
+                                                protocol = "tcp",
+                                                port = 80
+                                            },
+                                            new {
+                                                protocol = "tcp",
+                                                port = 443
+                                            }
                                         },
                                         resources = new
                                         {
                                             requests = new
                                             {
-                                                cpu = 1,
-                                                memoryInGB = 1
+                                                cpu = runnerCPUCount,
+                                                memoryInGB = runnerMemoryCount
                                             }
                                         },
                                         environmentVariables = GetEnvironmentVariables(),
@@ -224,7 +241,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                                     name = "templates",
                                     gitRepo = new
                                     {
-                                        directory = "root",
+                                        directory = ".",
                                         repository = componentTemplate.Repository.Url,
                                         revision = componentTemplate.Repository.Ref
                                     }
@@ -262,18 +279,63 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                         .AcquireTokenAsync()
                         .ConfigureAwait(false);
 
-                    var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
-                        .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
-                        .SetQueryParam("api-version", "2019-12-01")
-                        .WithOAuthBearerToken(token)
-                        .PutJsonAsync(componentRunnerDefinition)
-                        .ConfigureAwait(false);
+                    try
+                    {
+                        var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
+                            .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
+                            .SetQueryParam("api-version", "2019-12-01")
+                            .WithOAuthBearerToken(token)
+                            .PutJsonAsync(componentRunnerDefinition)
+                            .ConfigureAwait(false);
 
-                    var responseJson = await response.Content
-                        .ReadAsJsonAsync()
-                        .ConfigureAwait(false);
+                        var responseJson = await response.Content
+                            .ReadAsJsonAsync()
+                            .ConfigureAwait(false);
 
-                    componentTask.ResourceId = responseJson.SelectToken("$.id").ToString();
+                        componentTask.ResourceId = responseJson.SelectToken("$.id").ToString();
+                    }
+                    catch (FlurlHttpException apiExc) when (apiExc.Call.HttpStatus == HttpStatusCode.Conflict)
+                    {
+                        if (pairedRegionFallback)
+                        {
+                            // give azure time to do its work 
+
+                            await Task
+                                .Delay(TimeSpan.FromMinutes(1))
+                                .ConfigureAwait(false);
+                        }
+
+                        var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
+                            .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
+                            .SetQueryParam("api-version", "2019-12-01")
+                            .AllowHttpStatus(HttpStatusCode.NotFound)
+                            .WithOAuthBearerToken(token)
+                            .GetAsync()
+                            .ConfigureAwait(false);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseJson = await response.Content
+                                .ReadAsJsonAsync()
+                                .ConfigureAwait(false);
+
+                            componentTask.ResourceId = responseJson
+                                .SelectToken("$.id")?
+                                .ToString();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    catch (FlurlHttpException apiExc) when (apiExc.Call.HttpStatus == HttpStatusCode.GatewayTimeout && !pairedRegionFallback)
+                    {
+                        // enable paired region fallback - this will affect error handling 
+                        pairedRegionFallback = true;
+
+                        // goto paired region fallback label and restart processing
+                        goto pairedRegionFallback;
+                    }
 
                     componentTask = await componentTaskRepository
                         .SetAsync(componentTask)
@@ -286,9 +348,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                         envVariables["TaskId"] = componentTask.Id;
                         envVariables["TaskHost"] = componentRunnerHostName;
                         envVariables["TaskType"] = componentTask.TypeName ?? componentTask.Type.ToString();
-                        envVariables["ComponentLocation"] = componentLocation;
+                        envVariables["ComponentLocation"] = organization.Location;
                         envVariables["ComponentTemplateBaseUrl"] = $"http://{componentRunnerHostName}/{componentTemplate.Folder.Trim().TrimStart('/')}";
-                        envVariables["ComponentTemplateFolder"] = $"file:///mnt/templates/root/{componentTemplate.Folder.Trim().TrimStart('/')}";
+                        envVariables["ComponentTemplateFolder"] = $"file:///mnt/templates/{componentTemplate.Folder.Trim().TrimStart('/')}";
                         envVariables["ComponentTemplateParameters"] = string.IsNullOrWhiteSpace(component.InputJson) ? "{}" : component.InputJson;
                         envVariables["ComponentResourceId"] = component.ResourceId;
 
@@ -298,14 +360,17 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                             envVariables["ComponentSubscription"] = componentResourceId.SubscriptionId.ToString();
                         }
 
-                        return envVariables.Select(kvp => new { name = kvp.Key, value = kvp.Value }).ToArray();
+                        return envVariables
+                            .Where(kvp => kvp.Value is not null)
+                            .Select(kvp => new { name = kvp.Key, value = kvp.Value })
+                            .ToArray();
                     }
 
                     async Task<object[]> GetRegistryCredentialsAsync(string containerImageName)
                     {
                         var credentials = new List<object>();
 
-                        if (organizationRegistry != null)
+                        if (organizationRegistry is not null)
                         {
                             var registryCredentials = await organizationRegistry
                                 .GetCredentialsAsync(containerImageName)
@@ -327,20 +392,18 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                 }
                 catch (Exception exc)
                 {
-                    if (exc is FlurlHttpException httpExc)
+                    var errorMessage = exc.Message;
+
+                    if (exc is FlurlHttpException flurlExc && flurlExc.Call.Completed)
                     {
-                        var error = await httpExc.Call.Response
+                        var error = await flurlExc.Call.Response
                             .ReadAsJsonAsync()
                             .ConfigureAwait(false);
 
-                        var errorMessage = error.SelectToken("..message")?.ToString() ?? exc.Message;
+                        errorMessage = error.SelectToken("..message")?.ToString() ?? errorMessage;
+                    }
 
-                        log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {errorMessage}");
-                    }
-                    else
-                    {
-                        log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {exc.Message}");
-                    }
+                    log.LogError(exc, $"Failed to create runner for component deployment {componentTask}: {errorMessage}");
 
                     throw exc.AsSerializable();
                 }
@@ -571,13 +634,13 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
             var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
 
-            if (adapter != null)
+            if (adapter is not null)
             {
                 var credential = await adapter
                     .GetServiceCredentialAsync(component)
                     .ConfigureAwait(false);
 
-                if (credential != null)
+                if (credential is not null)
                 {
                     credentialProperties.Add(new KeyValuePair<string, object>("domain", EncodeValue(credential.Domain)));
                     credentialProperties.Add(new KeyValuePair<string, object>("username", EncodeValue(credential.UserName)));
@@ -593,7 +656,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             return credentialObject;
         }
 
-        private async Task<string> GetComponentRunnerLocationAsync(Component component)
+        private async Task<string> GetComponentRunnerLocationAsync(Component component, Guid subscriptionId, int runnerCPU, int runnerMemory, bool usePairedRegion = false)
         {
             var tenantId = await azureSessionService
                 .GetTenantIdAsync()
@@ -603,7 +666,48 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                 .GetAsync(tenantId.ToString(), component.Organization)
                 .ConfigureAwait(false);
 
-            return organization.Location;
+            var location = organization.Location;
+
+            if (usePairedRegion || !await IsRegionCapableAsync(location))
+            {
+                var subscription = await azureResourceService
+                    .GetSubscriptionAsync(subscriptionId)
+                    .ConfigureAwait(false);
+
+                var region = await subscription
+                    .GetRegionsAsync()
+                    .SingleOrDefaultAsync(r => r.Name.Equals(location))
+                    .ConfigureAwait(false);
+
+                if (region?.Paired is not null)
+                {
+                    var pairedInfo = region.Paired
+                        .Select(pr => new { Region = pr, Capable = IsRegionCapableAsync(pr) });
+
+                    await pairedInfo
+                        .Select(pi => pi.Capable)
+                        .WhenAll()
+                        .ConfigureAwait(false);
+
+                    location = pairedInfo
+                        .FirstOrDefault(pi => pi.Capable.Result)?.Region ?? location;
+                }
+            }
+
+            return location;
+
+            async Task<bool> IsRegionCapableAsync(string region)
+            {
+                var capabilities = AzureContainerGroupResource
+                    .GetCapabilitiesAsync(azureResourceService, subscriptionId, region);
+
+                return await capabilities
+                    .AnyAsync(c => c.OsType.Equals("Linux", StringComparison.OrdinalIgnoreCase)
+                                   && c.Gpu.Equals("None", StringComparison.OrdinalIgnoreCase)
+                                   && c.CapabilitiesProperty.MaxCpu >= runnerCPU
+                                   && c.CapabilitiesProperty.MaxMemoryInGB >= runnerMemory)
+                    .ConfigureAwait(false);
+            }
         }
 
         private static string GetComponentRunnerLabel(ComponentTask componentTask, int length)

@@ -30,7 +30,7 @@ namespace TeamCloud.Http.Telemetry
                 .OfType<QuickPulseTelemetryProcessor>()
                 .LastOrDefault();
 
-            if (quickPulseProcessor != null)
+            if (quickPulseProcessor is not null)
             {
                 var quickPulseModule = telemetryModules
                     .OfType<QuickPulseTelemetryModule>()

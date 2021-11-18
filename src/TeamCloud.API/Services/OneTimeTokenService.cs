@@ -88,7 +88,7 @@ namespace TeamCloud.API.Services
                         .ConfigureAwait(false);
                 }
 
-                if (response.ContinuationToken != null)
+                if (response.ContinuationToken is not null)
                 {
                     response = await table
                         .ExecuteQuerySegmentedAsync(new TableQuery<OneTimeTokenServiceEntity>().Where(filter), response.ContinuationToken)

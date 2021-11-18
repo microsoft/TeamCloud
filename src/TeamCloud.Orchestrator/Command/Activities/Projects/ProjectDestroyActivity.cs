@@ -45,7 +45,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Projects
                     .GetResourceGroupAsync(resourceId.SubscriptionId, resourceId.ResourceGroup)
                     .ConfigureAwait(false);
 
-                if (resourceGroup != null)
+                if (resourceGroup is not null)
                 {
                     await resourceGroup
                         .DeleteAsync(true)

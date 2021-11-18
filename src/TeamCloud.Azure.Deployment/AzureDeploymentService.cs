@@ -254,7 +254,7 @@ namespace TeamCloud.Azure.Deployment
             if (template.Parameters?.Any() ?? false)
             {
                 deploymentParameters = template.Parameters
-                    .Where(param => param.Value != null)
+                    .Where(param => param.Value is not null)
                     .Aggregate(new ExpandoObject() as IDictionary<string, object>, (a, kv) => { a.Add(kv.Key, new { value = kv.Value }); return a; });
             }
 

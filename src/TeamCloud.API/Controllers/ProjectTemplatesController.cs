@@ -21,7 +21,8 @@ using TeamCloud.Data;
 using TeamCloud.Git.Services;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Controllers
 {
@@ -33,7 +34,7 @@ namespace TeamCloud.API.Controllers
         private readonly IProjectTemplateRepository projectTemplateRepository;
         private readonly IRepositoryService repositoryService;
 
-        public ProjectTemplatesController(IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService) : base()
+        public ProjectTemplatesController(IProjectTemplateRepository projectTemplateRepository, IRepositoryService repositoryService, IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
             this.repositoryService = repositoryService ?? throw new ArgumentNullException(nameof(repositoryService));
@@ -131,7 +132,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!projectTemplateUpdate.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!projectTemplateUpdate.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();

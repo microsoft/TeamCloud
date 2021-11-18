@@ -5,24 +5,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using TeamCloud.Adapters.Authorization;
 using TeamCloud.Adapters;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Controllers.Core;
 using TeamCloud.API.Data;
 using TeamCloud.API.Data.Results;
-using TeamCloud.API.Swagger;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Controllers
 {
@@ -31,13 +29,18 @@ namespace TeamCloud.API.Controllers
     [Produces("application/json")]
     public class DeploymentScopesController : TeamCloudController
     {
-        private readonly IComponentRepository componentRepository;
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
+        private readonly IComponentRepository componentRepository;
+        private readonly IAdapterProvider adapterProvider;
 
-        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository, IComponentRepository componentRepository) : base()
+        public DeploymentScopesController(IDeploymentScopeRepository deploymentScopeRepository,
+                                          IComponentRepository componentRepository,
+                                          IAdapterProvider adapterProvider,
+                                          IValidatorProvider validatorProvider) : base(validatorProvider)
         {
-            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
+            this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         }
 
 
@@ -87,9 +90,9 @@ namespace TeamCloud.API.Controllers
                    .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                    .ToActionResult();
 
-           if (!deploymentScopeDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+           if (!deploymentScopeDefinition.TryValidate(ValidatorProvider, out var definitionValidationResult))
                return ErrorResult
-                   .BadRequest(validationResult)
+                   .BadRequest(definitionValidationResult)
                    .ToActionResult();
 
            var deploymentScope = new DeploymentScope
@@ -99,8 +102,14 @@ namespace TeamCloud.API.Controllers
                Type = deploymentScopeDefinition.Type,
                DisplayName = deploymentScopeDefinition.DisplayName,
                InputData = deploymentScopeDefinition.InputData,
+               InputDataSchema = await adapterProvider.GetAdapter(deploymentScopeDefinition.Type).GetInputDataSchemaAsync().ConfigureAwait(false),
                IsDefault = deploymentScopeDefinition.IsDefault
            };
+
+           if (!deploymentScope.TryValidate(ValidatorProvider, out var entityValidationResult))
+               return ErrorResult
+                   .BadRequest(entityValidationResult)
+                   .ToActionResult();
 
            var command = new DeploymentScopeCreateCommand(contextUser, deploymentScope);
 
@@ -124,7 +133,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest("Request body must not be empty.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!deploymentScopeUpdate.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!deploymentScopeUpdate.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();

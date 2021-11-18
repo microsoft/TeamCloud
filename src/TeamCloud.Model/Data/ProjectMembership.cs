@@ -30,7 +30,7 @@ namespace TeamCloud.Model.Data
         public bool Equals(ProjectMembership x, ProjectMembership y)
         {
             if (ReferenceEquals(x, y)
-            || x != null && y != null
+            || x is not null && y is not null
                && x.ProjectId == y.ProjectId
                && x.Role == y.Role
                && x.Properties.SequenceEqual(y.Properties))

@@ -5,17 +5,19 @@
 
 using FluentValidation;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Model.Validation.Commands
 {
-    public class CommandMessageValidator : AbstractValidator<ICommandMessage>
+    public class CommandMessageValidator : Validator<ICommandMessage>
     {
-        public CommandMessageValidator()
+        public CommandMessageValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             RuleFor(obj => obj.Command)
                 .Cascade(CascadeMode.Stop)
                 .NotNull()
-                .SetValidator(new CommandValidator());
+                .SetValidator(ValidatorProvider);
         }
     }
 }

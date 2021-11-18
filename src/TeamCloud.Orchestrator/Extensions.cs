@@ -54,7 +54,7 @@ namespace TeamCloud.Orchestrator
 
             return keyValuePairs
                 .GroupBy(kvp => kvp.Key)
-                .Where(kvp => kvp.Last().Value != null)
+                .Where(kvp => kvp.Last().Value is not null)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
         }
 
@@ -91,7 +91,7 @@ namespace TeamCloud.Orchestrator
                     }
                 }
 
-                if (!(itemValue != null) || !removeNull)
+                if (!(itemValue is not null) || !removeNull)
                 {
                     resolvedProperties.Add(item.Key, itemValue);
                 }

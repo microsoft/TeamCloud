@@ -10,17 +10,21 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using TeamCloud.Model.Commands.Core;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Services
 {
     public sealed class OrchestratorService
     {
         private readonly IOrchestratorServiceOptions options;
+        private readonly IValidatorProvider validatorProvider;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public OrchestratorService(IOrchestratorServiceOptions options, IHttpContextAccessor httpContextAccessor)
+        public OrchestratorService(IOrchestratorServiceOptions options, IValidatorProvider validatorProvider, IHttpContextAccessor httpContextAccessor)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
+            this.validatorProvider = validatorProvider ?? throw new ArgumentNullException(nameof(validatorProvider));
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
@@ -58,6 +62,13 @@ namespace TeamCloud.API.Services
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
+            if (command is IValidatable validatable)
+            {
+                _ = await validatable
+                    .ValidateAsync(validatorProvider, throwOnValidationError: true)
+                    .ConfigureAwait(false);
+            }
+                
             var commandResult = command.CreateResult();
 
             try

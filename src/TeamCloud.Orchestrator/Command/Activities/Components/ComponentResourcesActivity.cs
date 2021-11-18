@@ -48,7 +48,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
                         .GetSubscriptionAsync(componentResourceId.SubscriptionId)
                         .ConfigureAwait(false);
 
-                    if (subscription != null)
+                    if (subscription is not null)
                     {
                         resources = subscription.GetResourceGroupsAsync()
                             .SelectMany(rg => rg.GetResourcesAsync());
@@ -60,7 +60,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components
                         .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
                         .ConfigureAwait(false);
 
-                    if (resourceGroup != null)
+                    if (resourceGroup is not null)
                     {
                         resources = resourceGroup.GetResourcesAsync();
                     }

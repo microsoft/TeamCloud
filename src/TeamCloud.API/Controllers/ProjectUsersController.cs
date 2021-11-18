@@ -22,6 +22,7 @@ using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Validation.Data;
+using TeamCloud.Validation;
 
 namespace TeamCloud.API.Controllers
 {
@@ -105,11 +106,9 @@ namespace TeamCloud.API.Controllers
             if (userDefinition is null)
                 throw new ArgumentNullException(nameof(userDefinition));
 
-            var validation = new ProjectUserDefinitionValidator().Validate(userDefinition);
-
-            if (!validation.IsValid)
+            if (!userDefinition.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             var user = await UserService
@@ -159,11 +158,9 @@ namespace TeamCloud.API.Controllers
             if (userUpdate is null)
                 throw new ArgumentNullException(nameof(userUpdate));
 
-            var validation = new UserValidator().Validate(userUpdate);
-
-            if (!validation.IsValid)
+            if (!userUpdate.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             if (!userUpdate.Id.Equals(user.Id, StringComparison.Ordinal))
@@ -211,11 +208,9 @@ namespace TeamCloud.API.Controllers
             if (userUpdate is null)
                 throw new ArgumentNullException(nameof(userUpdate));
 
-            var validation = new UserValidator().Validate(userUpdate);
-
-            if (!validation.IsValid)
+            if (!userUpdate.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             if (!userUpdate.Id.Equals(contextUser.Id, StringComparison.Ordinal))

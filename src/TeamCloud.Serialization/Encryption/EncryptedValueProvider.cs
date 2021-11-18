@@ -46,7 +46,7 @@ namespace TeamCloud.Serialization.Encryption
         {
             var value = innerValueProvider.GetValue(target);
 
-            if (IsSupported(member) && value != null)
+            if (IsSupported(member) && value is not null)
             {
                 Debug.WriteLine($"Encrypt {member.Name} @ {target}");
 
@@ -60,7 +60,7 @@ namespace TeamCloud.Serialization.Encryption
 
         public void SetValue(object target, object value)
         {
-            if (IsSupported(member) && value != null)
+            if (IsSupported(member) && value is not null)
             {
                 Debug.WriteLine($"Decrypt {member.Name} @ {target}");
 

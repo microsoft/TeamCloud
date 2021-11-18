@@ -218,7 +218,7 @@ namespace TeamCloud.Azure
                         if (parameters[i].ParameterType != parameterTypes[i]
                         && !parameters[i].ParameterType.IsAssignableFrom(parameterTypes[i]))
                         {
-                            if (i == (parameters.Length - 1) && parameters[i].GetCustomAttribute<ParamArrayAttribute>() != null)
+                            if (i == (parameters.Length - 1) && parameters[i].GetCustomAttribute<ParamArrayAttribute>() is not null)
                             {
                                 // edge case - the last parameter of the constructor can also
                                 // be an "params" parameter. means the parametertype is a array

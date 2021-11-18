@@ -14,7 +14,9 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Data.Core;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
+
 using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Data.CosmosDb
@@ -23,10 +25,11 @@ namespace TeamCloud.Data.CosmosDb
     {
         public CosmosDbUserRepository(ICosmosDbOptions options,
                                       IMemoryCache cache,
+                                      IValidatorProvider validatorProvider,
                                       IDocumentExpanderProvider expanderProvider = null,
                                       IDocumentSubscriptionProvider subscriptionProvider = null,
                                       IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         { }
 
         public override async Task<User> AddAsync(User user)
@@ -35,7 +38,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(user));
 
             await user
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
@@ -202,7 +205,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(user));
 
             await user
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()

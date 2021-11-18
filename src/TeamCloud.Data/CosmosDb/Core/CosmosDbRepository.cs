@@ -16,6 +16,8 @@ using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.Utilities;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Data.CosmosDb.Core
 {
@@ -37,14 +39,16 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         private readonly Lazy<CosmosClient> cosmosClient;
         private readonly ConcurrentDictionary<Type, AsyncLazy<Container>> cosmosContainers = new ConcurrentDictionary<Type, AsyncLazy<Container>>();
+        private readonly IValidatorProvider validatorProvider;
         private readonly IDocumentExpanderProvider expanderProvider;
         private readonly IDocumentSubscriptionProvider subscriptionProvider;
         private readonly IMemoryCache memoryCache;
 
-        protected CosmosDbRepository(ICosmosDbOptions options, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null, IMemoryCache memoryCache = null)
+        protected CosmosDbRepository(ICosmosDbOptions options, IValidatorProvider validatorProvider = null, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null, IMemoryCache memoryCache = null)
         {
             Options = options ?? throw new ArgumentNullException(nameof(options));
 
+            this.validatorProvider = validatorProvider ?? NullValidatorProvider.Instance;
             this.expanderProvider = expanderProvider ?? NullExpanderProvider.Instance;
             this.subscriptionProvider = subscriptionProvider ?? NullSubscriptionProvider.Instance;
             this.memoryCache = memoryCache;
@@ -59,9 +63,11 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public Type ContainerDocumentType { get; } = typeof(T);
 
+        protected IValidatorProvider ValidatorProvider { get => validatorProvider; }
+
         protected QueryRequestOptions GetQueryRequestOptions(PartitionKey partitionKey, QueryRequestOptions options = null)
         {
-            if (options != null) options.PartitionKey = partitionKey;
+            if (options is not null) options.PartitionKey = partitionKey;
 
             return options ?? new QueryRequestOptions { PartitionKey = partitionKey };
         }
@@ -197,7 +203,7 @@ namespace TeamCloud.Data.CosmosDb.Core
             if (string.IsNullOrWhiteSpace(documentId))
                 throw new ArgumentException($"'{nameof(documentId)}' cannot be null or whitespace.", nameof(documentId));
 
-            if (memoryCache != null && document != null)
+            if (memoryCache is not null && document is not null)
             {
                 var cacheKey = GetCacheKey(partitionId, documentId);
 
@@ -222,7 +228,7 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         protected Task<T> NotifySubscribersAsync(T document, DocumentSubscriptionEvent subscriptionEvent)
         {
-            if (document != null)
+            if (document is not null)
             {
                 var tasks = subscriptionProvider
                     .GetSubscriptions(document)
@@ -242,7 +248,7 @@ namespace TeamCloud.Data.CosmosDb.Core
 
         public virtual async Task<T> ExpandAsync(T document, bool includeOptional = false)
         {
-            if (document != null)
+            if (document is not null)
             {
                 var duration = Stopwatch.StartNew();
 

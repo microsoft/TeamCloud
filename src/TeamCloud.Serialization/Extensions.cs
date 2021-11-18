@@ -44,7 +44,7 @@ namespace TeamCloud.Serialization
 
             token = instance.SelectToken(path);
 
-            return token != null;
+            return token is not null;
         }
 
         public static Exception AsSerializable(this Exception exception)

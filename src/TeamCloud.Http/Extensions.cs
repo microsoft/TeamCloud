@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -35,6 +36,9 @@ namespace TeamCloud.Http
 
     public static class Extensions
     {
+        public static HttpClient CreateHttpClient(this IHttpClientFactory factory)
+            => factory.CreateHttpClient(factory.CreateMessageHandler());
+
         public static async Task<string> ReadStringAsync(this HttpRequest request, bool leaveOpen = false)
         {
             if (request is null)
@@ -93,6 +97,12 @@ namespace TeamCloud.Http
 
         public static IServiceCollection AddTeamCloudHttp(this IServiceCollection services, Action<GlobalFlurlHttpSettings> configure = null)
         {
+
+#if DEBUG
+            // disable SSL cert validation in DEBUG builds so we can use SSL with localhost and self signed certificates
+            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
+#endif
+
             services.AddSingleton<ITelemetryInitializer>(new TeamCloudTelemetryInitializer(Assembly.GetCallingAssembly()));
 
             if (services.Any(sd => sd.ServiceType == typeof(IHttpClientFactory) && sd.ImplementationType == typeof(DefaultHttpClientFactory)))
@@ -149,7 +159,7 @@ namespace TeamCloud.Http
         public static Url ClearQueryParams(this Url url)
         {
             url.QueryParams.Clear();
-            return url;
+            return url; 
         }
 
         [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
@@ -165,6 +175,20 @@ namespace TeamCloud.Http
         [SuppressMessage("Design", "CA1054:Uri parameters should not be strings", Justification = "Following the method syntax of Flurl")]
         public static Task<JObject> GetJObjectAsync(this string url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
             => url.GetJsonAsync<JObject>(cancellationToken, completionOption);
+
+        [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
+        public static Task<JArray> GetJArrayAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
+            => request.GetJsonAsync<JArray>(cancellationToken, completionOption);
+
+
+        [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
+        public static Task<JArray> GetJArrayAsync(this Url url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
+            => url.GetJsonAsync<JArray>(cancellationToken, completionOption);
+
+        [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
+        [SuppressMessage("Design", "CA1054:Uri parameters should not be strings", Justification = "Following the method syntax of Flurl")]
+        public static Task<JArray> GetJArrayAsync(this string url, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
+            => url.GetJsonAsync<JArray>(cancellationToken, completionOption);
 
         public static T WithHeaders<T>(this T clientOrRequest, HttpHeaders headers)
             where T : IHttpSettingsContainer

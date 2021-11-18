@@ -74,7 +74,7 @@ namespace TeamCloud.Http
 
         private static async Task TraceErrorAsync(HttpRequestMessage request, HttpResponseMessage response)
         {
-            if (response != null)
+            if (response is not null)
             {
                 // load the response into buffer
                 // to make it available later on

@@ -129,9 +129,6 @@ namespace TeamCloud.Adapters.AzureResourceManager
             return json.ToString(Newtonsoft.Json.Formatting.None);
         }
 
-        public override Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
-            => azureSessionService.GetIdentityAsync().ContinueWith(identity => identity != null, TaskScheduler.Current);
-
         protected override async Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
         {
             if (component is null)
@@ -200,7 +197,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                         .GetSubscriptionAsync(componentResourceId.SubscriptionId, throwIfNotExists: true)
                         .ConfigureAwait(false);
 
-                    if (subscription != null)
+                    if (subscription is not null)
                         await subscription.SetRoleAssignmentsAsync(roleAssignmentMap).ConfigureAwait(false);
                 }
                 else
@@ -209,7 +206,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                         .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup, throwIfNotExists: true)
                         .ConfigureAwait(false);
 
-                    if (resourceGroup != null)
+                    if (resourceGroup is not null)
                         await resourceGroup.SetRoleAssignmentsAsync(roleAssignmentMap).ConfigureAwait(false);
                 }
             }
@@ -239,7 +236,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                         .GetSubscriptionAsync(componentResourceId.SubscriptionId)
                         .ConfigureAwait(false);
 
-                    if (subscription != null)
+                    if (subscription is not null)
                         await subscription.SetTagsAsync(tags, true).ConfigureAwait(false);
                 }
                 else
@@ -248,7 +245,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                         .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
                         .ConfigureAwait(false);
 
-                    if (resourceGroup != null)
+                    if (resourceGroup is not null)
                         await resourceGroup.SetTagsAsync(tags, true).ConfigureAwait(false);
                 }
             }
@@ -265,7 +262,7 @@ namespace TeamCloud.Adapters.AzureResourceManager
                     .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
                     .ConfigureAwait(false);
 
-                if (resourceGroup != null)
+                if (resourceGroup is not null)
                 {
                     await resourceGroup
                         .DeleteAsync(true)

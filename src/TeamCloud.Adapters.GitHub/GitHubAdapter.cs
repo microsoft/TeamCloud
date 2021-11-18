@@ -6,12 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,17 +17,10 @@ using Flurl.Http;
 using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos.Core;
-using Microsoft.Azure.Management.CosmosDB.Fluent.Models;
-using Microsoft.Azure.Management.DevTestLabs.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Extensions.Logging;
-using Microsoft.OData.Json;
-using Newtonsoft.Json;
 using Octokit;
 using Octokit.Internal;
-using Org.BouncyCastle.Asn1.Crmf;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Directory;
@@ -338,7 +328,7 @@ namespace TeamCloud.Adapters.GitHub
                         break;
                 }
 
-                if (token != null)
+                if (token is not null)
                 {
                     _ = await TokenClient
                         .SetAsync(token)
@@ -913,7 +903,7 @@ namespace TeamCloud.Adapters.GitHub
                         .Get(componentResourceId.Organization, componentResourceId.Repository)
                         .ConfigureAwait(false);
 
-                    if (repository != null)
+                    if (repository is not null)
                     {
                         var servicePrincipalJson = GitHubExtensions.ToJson(servicePrincipal, (Guid)projectResourceId.SubscriptionId);
 

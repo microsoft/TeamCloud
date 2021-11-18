@@ -22,7 +22,9 @@ using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
+
 using ValidationError = TeamCloud.API.Data.Results.ValidationError;
 
 namespace TeamCloud.API.Controllers
@@ -38,7 +40,12 @@ namespace TeamCloud.API.Controllers
         private readonly IDeploymentScopeRepository deploymentScopeRepository;
         private readonly IAdapterProvider adapterProvider;
 
-        public ComponentsController(IComponentRepository componentRepository, IComponentTemplateRepository componentTemplateRepository, IProjectTemplateRepository projectTemplateRepository, IDeploymentScopeRepository deploymentScopeRepository, IAdapterProvider adapterProvider) : base()
+        public ComponentsController(IComponentRepository componentRepository,
+                                    IComponentTemplateRepository componentTemplateRepository,
+                                    IProjectTemplateRepository projectTemplateRepository,
+                                    IDeploymentScopeRepository deploymentScopeRepository,
+                                    IAdapterProvider adapterProvider,
+                                    IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
@@ -95,7 +102,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!componentDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!componentDefinition.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();

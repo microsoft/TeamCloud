@@ -15,6 +15,8 @@ namespace TeamCloud.Model.Data
 
         AzureDevOps,
 
-        GitHub
+        GitHub,
+
+        Kubernetes
     }
 }

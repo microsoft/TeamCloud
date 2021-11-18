@@ -6,12 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Adapters
 {
-    public sealed class AdapterProvider : IAdapterProvider, IAdapterConfiguration
+    public sealed class AdapterProvider : IAdapterProvider, IAdapterProviderConfig
     {
         private static readonly HashSet<Type> adapterTypes = new HashSet<Type>();
 
@@ -28,9 +30,16 @@ namespace TeamCloud.Adapters
         public IAdapter GetAdapter(DeploymentScopeType deploymentScopeType)
             => GetAdapters().SingleOrDefault(adapter => adapter.Type == deploymentScopeType);
 
-        IAdapterConfiguration IAdapterConfiguration.Register<TAdapter>()
+        IAdapterProviderConfig IAdapterProviderConfig.Register<TAdapter>()
         {
             adapterTypes.Add(typeof(TAdapter));
+
+            var validatorProvider = serviceProvider.GetService<IValidatorProvider>();
+
+            if (validatorProvider is IValidatorProviderConfig config)
+            {
+                config?.Register(typeof(TAdapter).Assembly);
+            }
 
             return this; // fluent style
         }

@@ -30,7 +30,7 @@ namespace TeamCloud.Serialization.Converter
 
             try
             {
-                if (objectType != null && !objectType.IsInterface && typeof(T).IsAssignableFrom(objectType))
+                if (objectType is not null && !objectType.IsInterface && typeof(T).IsAssignableFrom(objectType))
                 {
                     // there is no need to rely on the embedded type information if a explicit object type was requested by the serializer
                     return (T)serializer.WithContractResolver(GetContractResolver()).WithTypeNameHandling(TypeNameHandling.Auto).Deserialize(reader, objectType);

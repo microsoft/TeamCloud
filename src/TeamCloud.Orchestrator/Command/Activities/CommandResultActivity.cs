@@ -37,7 +37,7 @@ namespace TeamCloud.Orchestrator.Command.Activities
                     .GetStatusAsync(commandResult.CommandId.ToString())
                     .ConfigureAwait(false);
 
-                if (commandStatus != null)
+                if (commandStatus is not null)
                 {
                     commandResult.ApplyStatus(commandStatus);
 

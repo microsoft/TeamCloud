@@ -13,14 +13,15 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Data.CosmosDb
 {
     public sealed class CosmosDbComponentTaskRepository : CosmosDbRepository<ComponentTask>, IComponentTaskRepository
     {
-        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+        public CosmosDbComponentTaskRepository(ICosmosDbOptions options, IMemoryCache cache, IValidatorProvider validatorProvider, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         { }
 
         public override async Task<ComponentTask> AddAsync(ComponentTask task)
@@ -29,7 +30,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(task));
 
             await task
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
@@ -161,7 +162,7 @@ namespace TeamCloud.Data.CosmosDb
             var component = await GetAsync(componentId, id)
                 .ConfigureAwait(false);
 
-            if (component != null)
+            if (component is not null)
             {
                 await RemoveAsync(component)
                     .ConfigureAwait(false);
@@ -174,7 +175,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(task));
 
             await task
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()

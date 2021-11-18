@@ -63,7 +63,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                         .GetStatusAsync(commandResult.Result.Id, showInput: false)
                         .ConfigureAwait(Orchestration);
 
-                    if (status != null && status.RuntimeStatus.IsActive())
+                    if (status is not null && status.RuntimeStatus.IsActive())
                     {
                         await orchestrationClient
                             .TerminateAsync(commandResult.Result.Id, $"Canceled by user {command.User.DisplayName}")
@@ -76,7 +76,7 @@ namespace TeamCloud.Orchestrator.Command.Handlers
                             .GetResourceAsync<AzureContainerGroupResource>(resourceId.ToString())
                             .ConfigureAwait(false);
 
-                        if (containerGroup != null)
+                        if (containerGroup is not null)
                         {
                             await containerGroup
                                 .DeleteAsync(true)

@@ -71,7 +71,7 @@ namespace TeamCloud.Data.CosmosDb.Serialization
         {
             var property = base.CreateProperty(member, memberSerialization);
 
-            if (member.GetCustomAttribute<PartitionKeyAttribute>() != null)
+            if (member.GetCustomAttribute<PartitionKeyAttribute>() is not null)
             {
                 // properties marked with the PartitionKeyAttribute
                 // must use a special converter to ensure the partionkey
@@ -79,7 +79,7 @@ namespace TeamCloud.Data.CosmosDb.Serialization
 
                 property.ValueProvider = new CosmosDbPartitionKeyProvider();
             }
-            else if (member.GetCustomAttribute<DatabaseIgnoreAttribute>() != null)
+            else if (member.GetCustomAttribute<DatabaseIgnoreAttribute>() is not null)
             {
                 // properties marked with the DatabaseIgnoreAttribute
                 // must not be serialized and persisted to the database

@@ -4,13 +4,14 @@
  */
 
 using FluentValidation;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API.Data.Validators
 {
-    public class ComponentDefinitionValidator : AbstractValidator<ComponentDefinition>
+    public class ComponentDefinitionValidator : Validator<ComponentDefinition>
     {
-        public ComponentDefinitionValidator()
+        public ComponentDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             RuleFor(obj => obj.TemplateId)
                 .MustBeGuid();

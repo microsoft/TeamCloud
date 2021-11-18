@@ -46,7 +46,7 @@ namespace TeamCloud.Azure.Deployment
 
         private async Task<JObject> GetDeploymentJsonAsync()
         {
-            if (deploymentJsonFinal != null)
+            if (deploymentJsonFinal is not null)
                 return deploymentJsonFinal;
 
             try

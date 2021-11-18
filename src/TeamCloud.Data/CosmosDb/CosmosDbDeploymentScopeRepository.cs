@@ -13,7 +13,8 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -21,8 +22,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IMemoryCache cache;
 
-        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IMemoryCache cache, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IMemoryCache cache, IValidatorProvider validatorProvider = null, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
@@ -61,7 +62,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(deploymentScope));
 
             await deploymentScope
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
@@ -227,7 +228,7 @@ namespace TeamCloud.Data.CosmosDb
                         });
                 }
 
-                if (nonDefaultBatch != null)
+                if (nonDefaultBatch is not null)
                 {
                     var nonDefaultBatchResponse = await nonDefaultBatch
                         .ExecuteAsync()
@@ -258,7 +259,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(deploymentScope));
 
             await deploymentScope
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             if (!deploymentScope.IsDefault)

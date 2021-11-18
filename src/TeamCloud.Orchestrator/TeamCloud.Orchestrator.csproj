@@ -6,6 +6,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
     <FunctionsInDependencies>true</FunctionsInDependencies>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'DEBUG'">
@@ -52,6 +53,7 @@
     <ProjectReference Include="..\TeamCloud.Adapters.AzureDevOps\TeamCloud.Adapters.AzureDevOps.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters.AzureResourceManager\TeamCloud.Adapters.AzureResourceManager.csproj" />
     <ProjectReference Include="..\TeamCloud.Adapters.GitHub\TeamCloud.Adapters.GitHub.csproj" />
+    <ProjectReference Include="..\TeamCloud.Adapters.Kubernetes\TeamCloud.Adapters.Kubernetes.csproj" />
     <ProjectReference Include="..\TeamCloud.Audit\TeamCloud.Audit.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />

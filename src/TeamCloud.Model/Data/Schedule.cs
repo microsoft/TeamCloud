@@ -16,7 +16,7 @@ namespace TeamCloud.Model.Data
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
     [ContainerPath("/orgs/{Organization}/projects/{ProjectId}/schedules/{Id}")]
 
-    public sealed class Schedule : ContainerDocument, IProjectContext, IEquatable<Schedule>, IValidatable
+    public sealed class Schedule : ContainerDocument, IProjectContext, IEquatable<Schedule>
     {
         [JsonProperty(Required = Required.Always)]
         public string Organization { get; set; }

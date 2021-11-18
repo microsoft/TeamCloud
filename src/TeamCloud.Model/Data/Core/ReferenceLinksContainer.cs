@@ -36,7 +36,7 @@ namespace TeamCloud.Model.Data.Core
 
             if (!ReferenceEquals(Context, context))
             {
-                if (Context != null)
+                if (Context is not null)
                     throw new NotSupportedException("The context cannot be changed once it was set.");
 
                 reference.SetTarget(context);

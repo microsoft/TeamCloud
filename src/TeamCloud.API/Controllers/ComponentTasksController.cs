@@ -23,7 +23,9 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
+
 using ValidationError = TeamCloud.API.Data.Results.ValidationError;
 
 namespace TeamCloud.API.Controllers
@@ -36,7 +38,9 @@ namespace TeamCloud.API.Controllers
         private readonly IComponentTaskRepository componentTaskRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
-        public ComponentTasksController(IComponentTaskRepository componentTaskRepository, IComponentTemplateRepository componentTemplateRepository) : base()
+        public ComponentTasksController(IComponentTaskRepository componentTaskRepository,
+                                        IComponentTemplateRepository componentTemplateRepository,
+                                        IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
@@ -96,7 +100,7 @@ namespace TeamCloud.API.Controllers
                     .BadRequest($"The request body must not be EMPTY.", ResultErrorCode.ValidationError)
                     .ToActionResult();
 
-            if (!componentTaskDefinition.TryValidate(out var validationResult, serviceProvider: HttpContext.RequestServices))
+            if (!componentTaskDefinition.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
                     .BadRequest(validationResult)
                     .ToActionResult();

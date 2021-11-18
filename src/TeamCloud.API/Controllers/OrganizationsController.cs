@@ -22,6 +22,7 @@ using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation;
 
 namespace TeamCloud.API.Controllers
 {
@@ -97,18 +98,16 @@ namespace TeamCloud.API.Controllers
             if (organizationDefinition is null)
                 throw new ArgumentNullException(nameof(organizationDefinition));
 
-            var validation = new OrganizationDefinitionValidator().Validate(organizationDefinition);
-
-            if (!validation.IsValid)
+            if (!organizationDefinition.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             var organization = await organizationRepository
                 .GetAsync(UserService.CurrentUserTenant, organizationDefinition.Slug)
                 .ConfigureAwait(false);
 
-            if (organization != null)
+            if (organization is not null)
                 return ErrorResult
                     .Conflict($"The Organication '{organizationDefinition.Slug}' already exists. Please try your request again with a unique Organization Name or Id.")
                     .ToActionResult();

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RunAnalyzers>false</RunAnalyzers>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="KubernetesDataTests.file-valid.json" />
+    <None Remove="KubernetesDataTests.yaml-valid.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="KubernetesDataTests.file-valid.json" />
+    <EmbeddedResource Include="KubernetesDataTests.yaml-valid.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="xunit" Version="2.4.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="coverlet.collector" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Adapters.Kubernetes\TeamCloud.Adapters.Kubernetes.csproj" />
+    <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
+    <ProjectReference Include="..\TeamCloud.Validation\TeamCloud.Validation.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -13,7 +13,8 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.Data.CosmosDb.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Data.CosmosDb
 {
@@ -21,8 +22,8 @@ namespace TeamCloud.Data.CosmosDb
     {
         private readonly IComponentTaskRepository componentTaskRepository;
 
-        public CosmosDbComponentRepository(ICosmosDbOptions options, IMemoryCache cache, IComponentTaskRepository componentTaskRepository, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+        public CosmosDbComponentRepository(ICosmosDbOptions options, IMemoryCache cache, IComponentTaskRepository componentTaskRepository, IValidatorProvider validatorProvider, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
         {
             this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         }
@@ -33,7 +34,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(component));
 
             await component
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()
@@ -238,7 +239,7 @@ namespace TeamCloud.Data.CosmosDb
                 throw new ArgumentNullException(nameof(component));
 
             await component
-                .ValidateAsync(throwOnValidationError: true)
+                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
                 .ConfigureAwait(false);
 
             var container = await GetContainerAsync()

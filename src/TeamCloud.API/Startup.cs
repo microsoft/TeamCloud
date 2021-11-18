@@ -36,6 +36,7 @@ using TeamCloud.Adapters;
 using TeamCloud.Adapters.AzureDevOps;
 using TeamCloud.Adapters.AzureResourceManager;
 using TeamCloud.Adapters.GitHub;
+using TeamCloud.Adapters.Kubernetes;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Auth.Schemes;
 using TeamCloud.API.Middleware;
@@ -58,8 +59,10 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Model.Validation;
 using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.API
 {
@@ -129,6 +132,20 @@ namespace TeamCloud.API
                         .AddDeployment()
                         .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
                 })
+                .AddTeamCloudValidationProvider(configuration =>
+                {
+                    configuration
+                        .Register(Assembly.GetExecutingAssembly())
+                        .RegisterModelValidators();
+                })
+                .AddTeamCloudAdapterProvider(configuration =>
+                {
+                    configuration
+                        .Register<AzureResourceManagerAdapter>()
+                        .Register<AzureDevOpsAdapter>()
+                        .Register<GitHubAdapter>()
+                        .Register<KubernetesAdapter>();
+                })
                 .AddTeamCloudAudit()
                 .AddTeamCloudHttp()
                 .AddTeamCloudSecrets();
@@ -192,15 +209,6 @@ namespace TeamCloud.API
                 .AddSingleton<RecyclableMemoryStreamManager>()
                 .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
                 .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
-
-            services
-                .AddTeamCloudAdapters(configuration =>
-                {
-                    configuration
-                        .Register<AzureResourceManagerAdapter>()
-                        .Register<AzureDevOpsAdapter>()
-                        .Register<GitHubAdapter>();
-                });
 
             services
                 .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
@@ -277,7 +285,6 @@ namespace TeamCloud.API
                         }
                     });
 
-                    // options.AddFluentValidationRules();
                     options.EnableAnnotations();
                     options.UseInlineDefinitionsForEnums();
 

@@ -4,9 +4,7 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +15,6 @@ using TeamCloud.Adapters.Authorization;
 using TeamCloud.Adapters.Diagnostics;
 using TeamCloud.Adapters.Threading;
 using TeamCloud.Configuration;
-using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters
 {
@@ -38,7 +35,7 @@ namespace TeamCloud.Adapters
             return sb.ToString();
         }
 
-        public static IServiceCollection AddTeamCloudAdapters(this IServiceCollection services, Action<IAdapterConfiguration> configuration)
+        public static IServiceCollection AddTeamCloudAdapterProvider(this IServiceCollection services, Action<IAdapterProviderConfig> configuration)
         {
             if (services is null)
                 throw new ArgumentNullException(nameof(services));
@@ -69,8 +66,8 @@ namespace TeamCloud.Adapters
 
             var serviceProvider = services.BuildServiceProvider();
 
-            var adapterConfiguration = serviceProvider.GetService<IAdapterConfiguration>()
-                ?? serviceProvider.GetService<IAdapterProvider>() as IAdapterConfiguration;
+            var adapterConfiguration = serviceProvider.GetService<IAdapterProviderConfig>()
+                ?? serviceProvider.GetService<IAdapterProvider>() as IAdapterProviderConfig;
 
             configuration(adapterConfiguration);
 

@@ -7,14 +7,25 @@ using System.Threading.Tasks;
 using TeamCloud.Model.Data;
 using TeamCloud.Model.Commands;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Model.Validation.Tests.Commands
 {
     public class CommandValidatorTests
     {
+        private readonly IValidatorProvider validatorProvider;
+
         public CommandValidatorTests()
         {
-            ReferenceLink.BaseUrl = "http://localhost/";
+            var serviceCollection = new ServiceCollection().AddTeamCloudValidationProvider(config =>
+            {
+                config.Register(Assembly.GetExecutingAssembly());
+            });
+
+            validatorProvider = serviceCollection.BuildServiceProvider().GetService<IValidatorProvider>();
         }
 
         [Fact]
@@ -22,7 +33,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         {
             var command = new ProjectCreateCommand(new User(), new Project());
 
-            var result = command.Validate();
+            var result = command.Validate(validatorProvider);
 
             Assert.True(result.IsValid);
         }
@@ -32,7 +43,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         {
             var command = new ProjectCreateCommand(new User(), new Project());
 
-            var result = await command.ValidateAsync().ConfigureAwait(false);
+            var result = await command.ValidateAsync(validatorProvider).ConfigureAwait(false);
 
             Assert.True(result.IsValid);
         }
@@ -42,7 +53,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         {
             var command = new ProjectCreateCommand(null, new Project());
 
-            var result = command.Validate();
+            var result = command.Validate(validatorProvider);
 
             Assert.False(result.IsValid);
         }
@@ -52,7 +63,7 @@ namespace TeamCloud.Model.Validation.Tests.Commands
         {
             var command = new ProjectCreateCommand(null, new Project());
 
-            var result = await command.ValidateAsync().ConfigureAwait(false);
+            var result = await command.ValidateAsync(validatorProvider).ConfigureAwait(false);
 
             Assert.False(result.IsValid);
         }

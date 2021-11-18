@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization;
+using TeamCloud.Validation;
 
 namespace TeamCloud.Model.Data
 {
@@ -28,7 +29,7 @@ namespace TeamCloud.Model.Data
     }
 
     [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class ComponentTemplate : ContainerDocument, IOrganizationContext, IRepositoryReference, IValidatable
+    public class ComponentTemplate : ContainerDocument, IOrganizationContext, IRepositoryReference
     {
         /// <summary>
         /// Gets or sets the organization this component template belongs to.

@@ -143,7 +143,7 @@ namespace TeamCloud.Orchestration
             if (!TryGetFunctionMethod(functionName, out var functionMethod))
                 return null;
 
-            if (!functionMethod.GetParameters().Any(p => p.GetCustomAttribute<HttpTriggerAttribute>() != null))
+            if (!functionMethod.GetParameters().Any(p => p.GetCustomAttribute<HttpTriggerAttribute>() is not null))
                 return null;
 
             var adminKey = await GetAdminKeyAsync()

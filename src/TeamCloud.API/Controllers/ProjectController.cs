@@ -24,6 +24,7 @@ using TeamCloud.API.Services;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation;
 using ValidationError = TeamCloud.API.Data.Results.ValidationError;
 
 namespace TeamCloud.API.Controllers
@@ -125,11 +126,9 @@ namespace TeamCloud.API.Controllers
             if (projectDefinition is null)
                 throw new ArgumentNullException(nameof(projectDefinition));
 
-            var validation = new ProjectDefinitionValidator().Validate(projectDefinition);
-
-            if (!validation.IsValid)
+            if (!projectDefinition.TryValidate(ValidatorProvider, out var validationResult))
                 return ErrorResult
-                    .BadRequest(validation)
+                    .BadRequest(validationResult)
                     .ToActionResult();
 
             var nameExists = await projectRepository
