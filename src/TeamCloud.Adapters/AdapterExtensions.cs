@@ -49,8 +49,15 @@ namespace TeamCloud.Adapters
             services
                 .TryAddSingleton<IAdapterInitializationLoggerFactory, AdapterInitializationLoggerFactory>();
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
+            // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+            // however; it is used to managed singleton function execution within the functions fx !!!
+
             services
                 .TryAddSingleton<IDistributedLockManager, BlobStorageDistributedLockManager>();
+
+#pragma warning restore CS0618 // Type or member is obsolete
 
             services
                 .TryAddSingleton<IAuthorizationEndpointsResolver, AuthorizationEndpointsResolver>();

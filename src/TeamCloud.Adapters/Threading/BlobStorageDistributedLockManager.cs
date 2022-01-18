@@ -15,8 +15,16 @@ using Nito.AsyncEx;
 namespace TeamCloud.Adapters.Threading
 {
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
+    // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+    // however; it is used to managed singleton function execution within the functions fx !!!
+
     public sealed class BlobStorageDistributedLockManager : IDistributedLockManager
     {
+
+#pragma warning restore CS0608
+
         private const string OWNERID_METADATA = "OwnerId";
         private const string CONTAINER_NAME = "distributed-locks";
 

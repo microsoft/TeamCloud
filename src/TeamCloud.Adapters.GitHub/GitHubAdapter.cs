@@ -59,6 +59,11 @@ namespace TeamCloud.Adapters.GitHub
         private readonly IAzureDirectoryService azureDirectoryService;
         private readonly IFunctionsHost functionsHost;
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
+        // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+        // however; it is used to managed singleton function execution within the functions fx !!!
+
         public GitHubAdapter(
             IAuthorizationSessionClient sessionClient,
             IAuthorizationTokenClient tokenClient,
@@ -89,6 +94,8 @@ namespace TeamCloud.Adapters.GitHub
             this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
             this.functionsHost = functionsHost ?? FunctionsHost.Default;
         }
+
+#pragma warning restore CS0618 // Type or member is obsolete
 
         public override DeploymentScopeType Type
             => DeploymentScopeType.GitHub;
@@ -142,7 +149,7 @@ namespace TeamCloud.Adapters.GitHub
                         .Substring(signatureValue.ToString().IndexOf('=') + 1);
 
                     // CAUTION - we need to read the body but leave
-                    // the request's body stream open so it stays 
+                    // the request's body stream open so it stays
                     // available for subsequent requests
 
                     var body = await request
@@ -700,7 +707,7 @@ namespace TeamCloud.Adapters.GitHub
                 // return user ids based on the given user that represents a group
                 UserType.Group => azureDirectoryService.GetGroupMembersAsync(user.Id, true),
 
-                // not supported user type 
+                // not supported user type
                 _ => AsyncEnumerable.Empty<Guid>()
             };
         }

@@ -72,6 +72,11 @@ namespace TeamCloud.Adapters.AzureDevOps
         private readonly IAzureResourceService azureResourceService;
         private readonly IFunctionsHost functionsHost;
 
+#pragma warning disable CS0618 // Type or member is obsolete
+
+        // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+        // however; it is used to managed singleton function execution within the functions fx !!!
+
         public AzureDevOpsAdapter(
             IAuthorizationSessionClient sessionClient,
             IAuthorizationTokenClient tokenClient,
@@ -101,6 +106,8 @@ namespace TeamCloud.Adapters.AzureDevOps
 
             log = loggerFactory.CreateLogger(this.GetType());
         }
+
+#pragma warning restore CS0618 // Type or member is obsolete
 
         public override DeploymentScopeType Type
             => DeploymentScopeType.AzureDevOps;
@@ -493,7 +500,7 @@ namespace TeamCloud.Adapters.AzureDevOps
                 throw new ArgumentNullException(nameof(componentDeploymentScope));
 
             if (componentProject is null)
-                throw new ArgumentNullException(nameof(componentProject));            
+                throw new ArgumentNullException(nameof(componentProject));
 
             if (contextUser is null)
                 throw new ArgumentNullException(nameof(contextUser));
@@ -628,7 +635,7 @@ namespace TeamCloud.Adapters.AzureDevOps
             }
         }
 
-        protected override Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue) 
+        protected override Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
             => ExecuteAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue, true, async (teamProject) =>
         {
             await using (var teamProjectLock = await AcquireLockAsync(nameof(AzureDevOpsAdapter), teamProject.Id.ToString()).ConfigureAwait(false))

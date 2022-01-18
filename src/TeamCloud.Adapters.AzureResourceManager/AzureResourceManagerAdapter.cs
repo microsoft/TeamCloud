@@ -35,6 +35,11 @@ namespace TeamCloud.Adapters.AzureResourceManager
         private readonly IComponentRepository componentRepository;
         private readonly IComponentTemplateRepository componentTemplateRepository;
 
+        #pragma warning disable CS0618 // Type or member is obsolete
+
+        // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+        // however; it is used to managed singleton function execution within the functions fx !!!
+
         public AzureResourceManagerAdapter(IAuthorizationSessionClient sessionClient,
             IAuthorizationTokenClient tokenClient,
             IDistributedLockManager distributedLockManager,
@@ -59,6 +64,8 @@ namespace TeamCloud.Adapters.AzureResourceManager
             this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
             this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         }
+
+        #pragma warning restore CS0618 // Type or member is obsolete
 
         public override DeploymentScopeType Type
             => DeploymentScopeType.AzureResourceManager;

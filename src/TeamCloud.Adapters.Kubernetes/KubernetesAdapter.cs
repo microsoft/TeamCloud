@@ -17,13 +17,9 @@ using TeamCloud.Serialization.Forms;
 using User = TeamCloud.Model.Data.User;
 using KubernetesClient = k8s.Kubernetes;
 using k8s.Models;
-using Prometheus;
 using Microsoft.Rest;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
-using Microsoft.OData.Edm;
-using TeamCloud.Http;
-using Flurl.Http;
 using System.Net;
 using YamlDotNet.Serialization;
 
@@ -32,6 +28,11 @@ namespace TeamCloud.Adapters.Kubernetes
     public sealed class KubernetesAdapter : Adapter
     {
         private readonly IAzureResourceService azureResourceService;
+
+#pragma warning disable CS0618 // Type or member is obsolete
+
+        // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+        // however; it is used to managed singleton function execution within the functions fx !!!
 
         public KubernetesAdapter(IAuthorizationSessionClient sessionClient,
                                  IAuthorizationTokenClient tokenClient,
@@ -43,16 +44,18 @@ namespace TeamCloud.Adapters.Kubernetes
                                  IOrganizationRepository organizationRepository,
                                  IDeploymentScopeRepository deploymentScopeRepository,
                                  IProjectRepository projectRepository,
-                                 IUserRepository userRepository) 
+                                 IUserRepository userRepository)
             : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
         {
             this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         }
 
-        public override DeploymentScopeType Type 
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        public override DeploymentScopeType Type
             => DeploymentScopeType.Kubernetes;
 
-        public override IEnumerable<ComponentType> ComponentTypes 
+        public override IEnumerable<ComponentType> ComponentTypes
             => new ComponentType[] { ComponentType.Namespace };
 
         public override Task<string> GetInputDataSchemaAsync()
