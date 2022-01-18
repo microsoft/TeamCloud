@@ -151,7 +151,7 @@ namespace TeamCloud.API
                 .AddTeamCloudSecrets();
 
             if (Configuration.TryBind<AzureCosmosDbOptions>("Azure:CosmosDb", out var azureCosmosDbOptions))
-            { 
+            {
                 services
                     .AddCosmosCache(options =>
                     {

@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ namespace TeamCloud.API.Controllers
     [Route("orgs/{organizationId:organizationId}/projects/{projectId:projectId}/negotiate")]
     public class NegotiateController : TeamCloudController
     {
-        private readonly IServiceManager _serviceManager;
+        private readonly ServiceManager _serviceManager;
 
         public NegotiateController(IAzureSignalROptions azureSignalROptions)
         {
@@ -31,23 +32,32 @@ namespace TeamCloud.API.Controllers
 
             _serviceManager = new ServiceManagerBuilder()
                 .WithOptions(o => o.ConnectionString = azureSignalROptions.ConnectionString)
-                .Build();
+                .BuildServiceManager();
         }
 
         [HttpPost]
         [Authorize(Policy = AuthPolicies.ProjectMember)]
         [SwaggerOperation(OperationId = "NegotiateSignalR", Summary = "Negotiates the SignalR connection.")]
-        public Task<IActionResult> Index() => WithContextAsync<Project>((contextUser, project) =>
+        public Task<IActionResult> Index() => WithContextAsync<Project>(async (contextUser, project) =>
         {
             var hub = project.GetHubName();
-            var url = _serviceManager.GetClientEndpoint(hub);
-            var token = _serviceManager.GenerateClientAccessToken(hub, contextUser.Id);
 
-            return Task.FromResult<IActionResult>(new JsonResult(new Dictionary<string, string>()
+            var serviceHubContext = await _serviceManager
+                .CreateHubContextAsync(hub, CancellationToken.None)
+                .ConfigureAwait(false);
+
+            var negotiationResponse = await serviceHubContext
+                .NegotiateAsync(new NegotiationOptions { UserId = contextUser.Id })
+                .ConfigureAwait(false);
+
+            var url = negotiationResponse.Url;
+            var token = negotiationResponse.AccessToken;
+
+            return new JsonResult(new Dictionary<string, string>()
             {
                 { "url", url },
                 { "accessToken", token }
-            }));
+            });
         });
 
     }

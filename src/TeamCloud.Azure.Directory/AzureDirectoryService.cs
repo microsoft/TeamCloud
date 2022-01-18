@@ -389,12 +389,9 @@ namespace TeamCloud.Azure.Directory
 
         private static string CreateServicePrincipalPassword()
         {
-            using var cryptRNG = new RNGCryptoServiceProvider();
+            var bytes = RandomNumberGenerator.GetBytes(20);
 
-            byte[] tokenBuffer = new byte[20];
-            cryptRNG.GetBytes(tokenBuffer);
-
-            return Convert.ToBase64String(tokenBuffer);
+            return Convert.ToBase64String(bytes);
         }
 
         private static string SanitizeServicePrincipalName(string name)

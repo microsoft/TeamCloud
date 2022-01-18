@@ -17,17 +17,13 @@ namespace TeamCloud.API.Services
 
         public static string CreateToken()
         {
-            using var rng = new RNGCryptoServiceProvider();
+            var bytes = RandomNumberGenerator.GetBytes(60);
 
-            var buffer = new byte[60];
-
-            rng.GetNonZeroBytes(buffer);
-
-            return DisallowedCharsInRowKeyExpression.Replace(Convert.ToBase64String(buffer), string.Empty);
+            return DisallowedCharsInRowKeyExpression.Replace(Convert.ToBase64String(bytes), string.Empty);
         }
 
         public OneTimeTokenServiceEntity()
-        {}
+        { }
 
         public OneTimeTokenServiceEntity(Guid organizationId, Guid userId, TimeSpan? ttl = null)
         {
@@ -41,7 +37,7 @@ namespace TeamCloud.API.Services
         }
 
         public string Token => TableEntity.RowKey;
-        
+
         public Guid OrganizationId { get; set; }
 
         public Guid UserId { get; set; }
@@ -51,11 +47,11 @@ namespace TeamCloud.API.Services
         public ITableEntity TableEntity => this;
 
         string ITableEntity.PartitionKey { get; set; } = DefaultPartitionKeyValue;
-        
+
         string ITableEntity.RowKey { get; set; } = CreateToken();
 
         DateTimeOffset ITableEntity.Timestamp { get; set; }
-        
+
         string ITableEntity.ETag { get; set; }
 
         void ITableEntity.ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)

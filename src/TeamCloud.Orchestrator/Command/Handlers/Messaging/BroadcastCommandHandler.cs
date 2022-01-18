@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Azure.SignalR.Management;
@@ -84,7 +85,11 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
                     await foreach (var hubName in ResolveHubNamesAsync(containerDocument))
                     {
                         var hubContext = await serviceManager
-                            .CreateHubContextAsync(hubName)
+                            .CreateHubContextAsync(hubName, CancellationToken.None)
+                            .ConfigureAwait(false);
+
+                        var negotiation = await hubContext
+                            .NegotiateAsync()
                             .ConfigureAwait(false);
 
                         await hubContext.Clients.All
@@ -145,12 +150,12 @@ namespace TeamCloud.Orchestrator.Command.Handlers.Messaging
             }
         }
 
-        private IServiceManager CreateServiceManager() => new ServiceManagerBuilder().WithOptions(option =>
+        private ServiceManager CreateServiceManager() => new ServiceManagerBuilder().WithOptions(option =>
         {
             option.ConnectionString = azureSignalROptions.ConnectionString;
             option.ServiceTransportType = ServiceTransportType.Transient;
 
-        }).Build();
+        }).BuildServiceManager();
 
         private sealed class PassthroughLoggerFactory : ILoggerFactory
         {

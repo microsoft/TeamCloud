@@ -94,7 +94,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
             else
             {
                 var pairedRegionFallback = false;
-                pairedRegionFallback:
+            pairedRegionFallback:
 
                 try
                 {
@@ -298,7 +298,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                     {
                         if (pairedRegionFallback)
                         {
-                            // give azure time to do its work 
+                            // give azure time to do its work
 
                             await Task
                                 .Delay(TimeSpan.FromMinutes(1))
@@ -330,7 +330,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                     }
                     catch (FlurlHttpException apiExc) when (apiExc.Call.HttpStatus == HttpStatusCode.GatewayTimeout && !pairedRegionFallback)
                     {
-                        // enable paired region fallback - this will affect error handling 
+                        // enable paired region fallback - this will affect error handling
                         pairedRegionFallback = true;
 
                         // goto paired region fallback label and restart processing
@@ -442,7 +442,7 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
                         if (string.IsNullOrEmpty(sourceContainerDigest))
                         {
                             // the container image is part of a private registry
-                            // on docker hub or just doesn't exist. return the 
+                            // on docker hub or just doesn't exist. return the
                             // fully qualified container image name of the source
                             // and let the caller handle a potential error
 
@@ -712,11 +712,9 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
 
         private static string GetComponentRunnerLabel(ComponentTask componentTask, int length)
         {
-            using var algorithm = new System.Security.Cryptography.SHA512Managed();
+            var hash = System.Security.Cryptography.SHA512.HashData(Encoding.UTF8.GetBytes(componentTask.Id));
 
-            var buffer = algorithm.ComputeHash(Encoding.UTF8.GetBytes(componentTask.Id));
-
-            return string.Concat(buffer.Skip(1).Take(length).Select(b => Convert.ToChar((b % 26) + (byte)'a')));
+            return string.Concat(hash.Skip(1).Take(length).Select(b => Convert.ToChar((b % 26) + (byte)'a')));
         }
 
         internal struct Input
