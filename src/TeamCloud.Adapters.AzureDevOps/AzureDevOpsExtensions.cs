@@ -49,7 +49,7 @@ namespace TeamCloud.Adapters.AzureDevOps
         internal static bool TryMatch(this Regex expression, string input, string groupName, out Group group)
         {
             group = TryMatch(expression, input, out var match)
-                ? match.Groups.FirstOrDefault(g => g.Name == groupName)
+                ? match.Groups.Cast<Group>().FirstOrDefault(g => g.Name == groupName)
                 : null;
 
             return (group is not null);

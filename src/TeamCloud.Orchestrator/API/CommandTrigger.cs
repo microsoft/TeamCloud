@@ -12,14 +12,12 @@ using Flurl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Storage.Queue;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using TeamCloud.Adapters;
 using TeamCloud.Audit;
 using TeamCloud.Data;
 using TeamCloud.Http;
@@ -29,6 +27,8 @@ using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Serialization;
+using Azure.Storage.Queues.Models;
+using Azure.Storage.Queues;
 
 namespace TeamCloud.Orchestrator.API
 {
@@ -102,7 +102,7 @@ namespace TeamCloud.Orchestrator.API
 
         [FunctionName(nameof(CommandTrigger) + nameof(Dequeue))]
         public async Task Dequeue(
-            [QueueTrigger(CommandHandler.ProcessorQueue)] CloudQueueMessage commandMessage,
+            [QueueTrigger(CommandHandler.ProcessorQueue)] QueueMessage commandMessage,
             [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
             [Queue(CommandHandler.MonitorQueue)] IAsyncCollector<string> commandMonitor,
             [DurableClient] IDurableClient durableClient,
@@ -125,7 +125,7 @@ namespace TeamCloud.Orchestrator.API
 
             try
             {
-                var command = TeamCloudSerialize.DeserializeObject<ICommand>(commandMessage.AsString);
+                var command = TeamCloudSerialize.DeserializeObject<ICommand>(commandMessage.Body.ToString());
 
                 command.Validate(validatorProvider, throwOnValidationError: true);
 
@@ -142,9 +142,9 @@ namespace TeamCloud.Orchestrator.API
 
         [FunctionName(nameof(CommandTrigger) + nameof(Monitor))]
         public async Task Monitor(
-            [QueueTrigger(CommandHandler.MonitorQueue)] CloudQueueMessage commandMessage,
+            [QueueTrigger(CommandHandler.MonitorQueue)] QueueMessage commandMessage,
             [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
-            [Queue(CommandHandler.MonitorQueue)] CloudQueue commandMonitor,
+            [Queue(CommandHandler.MonitorQueue)] QueueClient commandMonitor,
             [DurableClient] IDurableClient durableClient,
             ILogger log)
         {
@@ -160,7 +160,7 @@ namespace TeamCloud.Orchestrator.API
             if (durableClient is null)
                 throw new ArgumentNullException(nameof(durableClient));
 
-            if (Guid.TryParse(commandMessage.AsString, out var commandId))
+            if (Guid.TryParse(commandMessage.Body.ToString(), out var commandId))
             {
                 try
                 {
@@ -190,7 +190,7 @@ namespace TeamCloud.Orchestrator.API
                             // we are going to re-enqueue the command ID with a visibility offset to delay the next result lookup.
 
                             await commandMonitor
-                                .AddMessageAsync(new CloudQueueMessage(commandId.ToString()), null, TimeSpan.FromSeconds(3), null, null)
+                                .SendMessageAsync(commandId.ToString(), TimeSpan.FromSeconds(3))
                                 .ConfigureAwait(false);
                         }
                     }
@@ -206,7 +206,7 @@ namespace TeamCloud.Orchestrator.API
             {
                 // we expect that the queue message is a valid guid (command ID) - warn and forget
 
-                log.LogWarning($"Monitoring command failed: Invalid command ID ({commandMessage.AsString})");
+                log.LogWarning($"Monitoring command failed: Invalid command ID ({commandMessage.Body})");
             }
         }
 

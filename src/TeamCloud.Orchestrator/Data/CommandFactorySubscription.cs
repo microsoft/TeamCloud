@@ -6,8 +6,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Queue;
+using Azure.Storage.Queues;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestrator.Command;
@@ -18,18 +17,17 @@ namespace TeamCloud.Orchestrator.Data
 {
     public abstract class CommandFactorySubscription : DocumentSubscription
     {
-        private static async Task<CloudQueue> GetCommandQueueAsync()
+        private static async Task<QueueClient> GetCommandQueueAsync()
         {
-            if (CloudStorageAccount.TryParse(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), out var storageAccount))
+            var connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+
+            if (connectionString is not null)
             {
                 try
                 {
-                    var queue = storageAccount
-                        .CreateCloudQueueClient()
-                        .GetQueueReference(CommandHandler.ProcessorQueue);
+                    var queue = new QueueClient(connectionString, CommandHandler.ProcessorQueue);
 
-                    _ = await queue
-                        .CreateIfNotExistsAsync()
+                    await queue.CreateIfNotExistsAsync()
                         .ConfigureAwait(false);
 
                     return queue;
@@ -43,11 +41,11 @@ namespace TeamCloud.Orchestrator.Data
             return null;
         }
 
-        private readonly AsyncLazy<CloudQueue> commandQueueInstance;
+        private readonly AsyncLazy<QueueClient> commandQueueInstance;
 
         protected CommandFactorySubscription()
         {
-            commandQueueInstance = new AsyncLazy<CloudQueue>(() => GetCommandQueueAsync(), LazyThreadSafetyMode.PublicationOnly);
+            commandQueueInstance = new AsyncLazy<QueueClient>(() => GetCommandQueueAsync(), LazyThreadSafetyMode.PublicationOnly);
         }
 
         protected async Task EnqueueCommandAsync(ICommand command)
@@ -61,10 +59,10 @@ namespace TeamCloud.Orchestrator.Data
                     .Value
                     .ConfigureAwait(false);
 
-                var commandMessage = new CloudQueueMessage(TeamCloudSerialize.SerializeObject(command));
+                var commandMessage = TeamCloudSerialize.SerializeObject(command);
 
                 await commandQueue
-                    .AddMessageAsync(commandMessage)
+                    .SendMessageAsync(commandMessage)
                     .ConfigureAwait(false);
             }
             catch

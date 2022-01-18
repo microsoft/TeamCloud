@@ -21,13 +21,14 @@ namespace TeamCloud.Adapters.Kubernetes
                 if (match.Success)
                 {
                     var base64 = match.Groups
+                        .Cast<Group>()
                         .Where(g => g.Success)
                         .FirstOrDefault(g => g.Name.Equals("data"))?.Value;
 
                     if (!string.IsNullOrEmpty(base64))
                     {
                         var buffer = Convert.FromBase64String(base64);
-                        
+
                         yaml = Encoding.UTF8.GetString(buffer);
                     }
                 }
@@ -42,18 +43,18 @@ namespace TeamCloud.Adapters.Kubernetes
 
         private string file;
 
-        public string File 
-        { 
-            get => Source == KubernetesConfigurationSource.File ? file : default; 
-            set => file = value; 
+        public string File
+        {
+            get => Source == KubernetesConfigurationSource.File ? file : default;
+            set => file = value;
         }
 
         private string yaml;
 
-        public string Yaml 
-        { 
-            get => Source == KubernetesConfigurationSource.Yaml ? yaml : ParseYamlFromDataUrl(File); 
-            set => yaml = value; 
+        public string Yaml
+        {
+            get => Source == KubernetesConfigurationSource.Yaml ? yaml : ParseYamlFromDataUrl(File);
+            set => yaml = value;
         }
     }
 
