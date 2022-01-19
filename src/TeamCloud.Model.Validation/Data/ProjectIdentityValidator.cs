@@ -7,12 +7,11 @@ using TeamCloud.Model.Data;
 using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.Model.Validation.Data
+namespace TeamCloud.Model.Validation.Data;
+
+public sealed class ProjectIdentityValidator : Validator<ProjectIdentity>
 {
-    public sealed class ProjectIdentityValidator : Validator<ProjectIdentity>
+    public ProjectIdentityValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public ProjectIdentityValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
-        {
-        }
     }
 }

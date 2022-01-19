@@ -7,16 +7,15 @@ using FluentValidation;
 using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.API.Data.Validators
+namespace TeamCloud.API.Data.Validators;
+
+public sealed class ProjectTemplateDefinitionValidator : Validator<ProjectTemplateDefinition>
 {
-    public sealed class ProjectTemplateDefinitionValidator : Validator<ProjectTemplateDefinition>
+    public ProjectTemplateDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public ProjectTemplateDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
-        {
-            RuleFor(obj => obj.Repository)
-                .Cascade(CascadeMode.Stop)
-                .NotNull()
-                .SetValidator(ValidatorProvider);
-        }
+        RuleFor(obj => obj.Repository)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .SetValidator(ValidatorProvider);
     }
 }

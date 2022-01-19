@@ -3,11 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Adapters
+namespace TeamCloud.Adapters;
+
+public interface IAdapterProviderConfig
 {
-    public interface IAdapterProviderConfig
-    {
-        IAdapterProviderConfig Register<TAdapter>()
-            where TAdapter: class, IAdapter;
-    }
+    IAdapterProviderConfig Register<TAdapter>()
+        where TAdapter : class, IAdapter;
 }

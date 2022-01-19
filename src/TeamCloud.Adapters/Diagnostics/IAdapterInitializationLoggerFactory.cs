@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Adapters.Diagnostics
+namespace TeamCloud.Adapters.Diagnostics;
+
+public interface IAdapterInitializationLoggerFactory
 {
-    public interface IAdapterInitializationLoggerFactory
-    {
-        public Task<ILogger> CreateLoggerAsync(ComponentTask componentTask, ILogger logger);
-    }
+    public Task<ILogger> CreateLoggerAsync(ComponentTask componentTask, ILogger logger);
 }

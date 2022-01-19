@@ -5,10 +5,9 @@
 
 using System.Threading.Tasks;
 
-namespace TeamCloud.API.Initialization
+namespace TeamCloud.API.Initialization;
+
+public interface IHostInitializer
 {
-    public interface IHostInitializer
-    {
-        Task InitializeAsync();
-    }
+    Task InitializeAsync();
 }

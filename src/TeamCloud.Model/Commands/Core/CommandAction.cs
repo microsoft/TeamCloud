@@ -6,14 +6,13 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Commands.Core
+namespace TeamCloud.Model.Commands.Core;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum CommandAction
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum CommandAction
-    {
-        Custom,
-        Create,
-        Update,
-        Delete
-    }
+    Custom,
+    Create,
+    Update,
+    Delete
 }

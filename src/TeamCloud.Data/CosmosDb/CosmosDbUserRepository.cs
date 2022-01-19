@@ -19,419 +19,418 @@ using TeamCloud.Validation.Providers;
 
 using User = TeamCloud.Model.Data.User;
 
-namespace TeamCloud.Data.CosmosDb
+namespace TeamCloud.Data.CosmosDb;
+
+public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
 {
-    public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
+    public CosmosDbUserRepository(ICosmosDbOptions options,
+                                  IMemoryCache cache,
+                                  IValidatorProvider validatorProvider,
+                                  IDocumentExpanderProvider expanderProvider = null,
+                                  IDocumentSubscriptionProvider subscriptionProvider = null,
+                                  IDataProtectionProvider dataProtectionProvider = null)
+        : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+    { }
+
+    public override async Task<User> AddAsync(User user)
     {
-        public CosmosDbUserRepository(ICosmosDbOptions options,
-                                      IMemoryCache cache,
-                                      IValidatorProvider validatorProvider,
-                                      IDocumentExpanderProvider expanderProvider = null,
-                                      IDocumentSubscriptionProvider subscriptionProvider = null,
-                                      IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
-        { }
+        if (user is null)
+            throw new ArgumentNullException(nameof(user));
 
-        public override async Task<User> AddAsync(User user)
+        await user
+            .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
+            .ConfigureAwait(false);
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var response = await container
+            .CreateItemAsync(user, GetPartitionKey(user))
+            .ConfigureAwait(false);
+
+        user = await ExpandAsync(response.Resource)
+            .ConfigureAwait(false);
+
+        return await NotifySubscribersAsync(user, DocumentSubscriptionEvent.Create)
+            .ConfigureAwait(false);
+    }
+
+    public override Task<User> GetAsync(string organization, string id, bool expand = false) => GetCachedAsync(organization, id, async cached =>
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        User user = null;
+
+        try
         {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
-
-            await user
-                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
-                .ConfigureAwait(false);
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
             var response = await container
-                .CreateItemAsync(user, GetPartitionKey(user))
+                .ReadItemAsync<User>(id, GetPartitionKey(organization))
                 .ConfigureAwait(false);
 
-            user = await ExpandAsync(response.Resource)
-                .ConfigureAwait(false);
-
-            return await NotifySubscribersAsync(user, DocumentSubscriptionEvent.Create)
-                .ConfigureAwait(false);
+            user = SetCached(organization, id, response.Resource);
+        }
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+        {
+            user = cached;
+        }
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
         }
 
-        public override Task<User> GetAsync(string organization, string id, bool expand = false) => GetCachedAsync(organization, id, async cached =>
+        return await ExpandAsync(user, expand)
+            .ConfigureAwait(false);
+    });
+
+    private async Task<User> GetAsync(User user, bool expand = false)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        try
         {
-            var container = await GetContainerAsync()
+            var response = await container
+                .ReadItemAsync<User>(user.Id, GetPartitionKey(user))
                 .ConfigureAwait(false);
 
-            User user = null;
-
-            try
-            {
-                var response = await container
-                    .ReadItemAsync<User>(id, GetPartitionKey(organization))
-                    .ConfigureAwait(false);
-
-                user = SetCached(organization, id, response.Resource);
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-            {
-                user = cached;
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-
-            return await ExpandAsync(user, expand)
+            return await ExpandAsync(response.Resource, expand)
                 .ConfigureAwait(false);
-        });
-
-        private async Task<User> GetAsync(User user, bool expand = false)
-        {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            try
-            {
-                var response = await container
-                    .ReadItemAsync<User>(user.Id, GetPartitionKey(user))
-                    .ConfigureAwait(false);
-
-                return await ExpandAsync(response.Resource, expand)
-                    .ConfigureAwait(false);
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
         }
-
-        public IAsyncEnumerable<string> ListOrgsAsync(User user)
-            => ListOrgsAsync(user?.Id ?? throw new ArgumentNullException(nameof(user)));
-
-        public async IAsyncEnumerable<string> ListOrgsAsync(string userId)
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            var query = new QueryDefinition($"SELECT * FROM u WHERE u.id = @identifier")
-                .WithParameter("@identifier", userId);
-
-            var organizations = container
-                .GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { MaxBufferedItemCount = -1, MaxConcurrency = -1 })
-                .ReadAllAsync()
-                .Select(item => item.Organization)
-                .ConfigureAwait(false);
-
-            await foreach (var organization in organizations)
-                yield return organization;
+            return null;
         }
+    }
 
-        public override async IAsyncEnumerable<User> ListAsync(string organization)
-        {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
+    public IAsyncEnumerable<string> ListOrgsAsync(User user)
+        => ListOrgsAsync(user?.Id ?? throw new ArgumentNullException(nameof(user)));
 
-            var query = new QueryDefinition($"SELECT * FROM u");
+    public async IAsyncEnumerable<string> ListOrgsAsync(string userId)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
 
-            var users = container
-                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
-                .ReadAllAsync(item => ExpandAsync(item))
-                .ConfigureAwait(false);
+        var query = new QueryDefinition($"SELECT * FROM u WHERE u.id = @identifier")
+            .WithParameter("@identifier", userId);
 
-            await foreach (var user in users)
-                yield return user;
-        }
+        var organizations = container
+            .GetItemQueryIterator<User>(query, requestOptions: new QueryRequestOptions { MaxBufferedItemCount = -1, MaxConcurrency = -1 })
+            .ReadAllAsync()
+            .Select(item => item.Organization)
+            .ConfigureAwait(false);
 
-        public async IAsyncEnumerable<User> ListAsync(string organization, string projectId)
-        {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
+        await foreach (var organization in organizations)
+            yield return organization;
+    }
 
-            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId)")
+    public override async IAsyncEnumerable<User> ListAsync(string organization)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var query = new QueryDefinition($"SELECT * FROM u");
+
+        var users = container
+            .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+            .ReadAllAsync(item => ExpandAsync(item))
+            .ConfigureAwait(false);
+
+        await foreach (var user in users)
+            yield return user;
+    }
+
+    public async IAsyncEnumerable<User> ListAsync(string organization, string projectId)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId)")
+            .WithParameter("@projectId", projectId);
+
+        var users = container
+            .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+            .ReadAllAsync(item => ExpandAsync(item))
+            .ConfigureAwait(false);
+
+        await foreach (var user in users)
+            yield return user;
+    }
+
+    public async IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId = null)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var query = string.IsNullOrWhiteSpace(projectId)
+            ? new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
+                .WithParameter("@role", OrganizationUserRole.Owner.ToString())
+            : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @role)")
+                .WithParameter("@role", ProjectUserRole.Owner.ToString())
                 .WithParameter("@projectId", projectId);
 
-            var users = container
-                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
-                .ReadAllAsync(item => ExpandAsync(item))
-                .ConfigureAwait(false);
+        var users = container
+            .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+            .ReadAllAsync(item => ExpandAsync(item))
+            .ConfigureAwait(false);
 
-            await foreach (var user in users)
-                yield return user;
-        }
+        await foreach (var user in users)
+            yield return user;
+    }
 
-        public async IAsyncEnumerable<User> ListOwnersAsync(string organization, string projectId = null)
+    public async IAsyncEnumerable<User> ListAdminsAsync(string organization, string projectId = null)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var query = string.IsNullOrWhiteSpace(projectId)
+            ? new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
+                .WithParameter("@role", OrganizationUserRole.Admin.ToString())
+            : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @role)")
+                .WithParameter("@role", ProjectUserRole.Admin.ToString())
+                .WithParameter("@projectId", projectId);
+
+        var users = container
+            .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
+            .ReadAllAsync(item => ExpandAsync(item))
+            .ConfigureAwait(false);
+
+        await foreach (var user in users)
+            yield return user;
+    }
+
+    public override async Task<User> SetAsync(User user)
+    {
+        if (user is null)
+            throw new ArgumentNullException(nameof(user));
+
+        await user
+            .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
+            .ConfigureAwait(false);
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var response = await container
+            .UpsertItemAsync(user, GetPartitionKey(user))
+            .ConfigureAwait(false);
+
+        return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+            .ConfigureAwait(false);
+    }
+
+    public override async Task<User> RemoveAsync(User user)
+    {
+        if (user is null)
+            throw new ArgumentNullException(nameof(user));
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        try
         {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            var query = string.IsNullOrWhiteSpace(projectId)
-                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
-                    .WithParameter("@role", OrganizationUserRole.Owner.ToString())
-                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @role)")
-                    .WithParameter("@role", ProjectUserRole.Owner.ToString())
-                    .WithParameter("@projectId", projectId);
-
-            var users = container
-                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
-                .ReadAllAsync(item => ExpandAsync(item))
-                .ConfigureAwait(false);
-
-            await foreach (var user in users)
-                yield return user;
-        }
-
-        public async IAsyncEnumerable<User> ListAdminsAsync(string organization, string projectId = null)
-        {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            var query = string.IsNullOrWhiteSpace(projectId)
-                ? new QueryDefinition($"SELECT * FROM u WHERE u.role = @role")
-                    .WithParameter("@role", OrganizationUserRole.Admin.ToString())
-                : new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = @projectId AND m.role = @role)")
-                    .WithParameter("@role", ProjectUserRole.Admin.ToString())
-                    .WithParameter("@projectId", projectId);
-
-            var users = container
-                .GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization))
-                .ReadAllAsync(item => ExpandAsync(item))
-                .ConfigureAwait(false);
-
-            await foreach (var user in users)
-                yield return user;
-        }
-
-        public override async Task<User> SetAsync(User user)
-        {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
-
-            await user
-                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
-                .ConfigureAwait(false);
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
             var response = await container
-                .UpsertItemAsync(user, GetPartitionKey(user))
+                .DeleteItemAsync<User>(user.Id, GetPartitionKey(user))
                 .ConfigureAwait(false);
 
-            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
                 .ConfigureAwait(false);
         }
-
-        public override async Task<User> RemoveAsync(User user)
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
+            return null; // already deleted
+        }
+    }
 
-            var container = await GetContainerAsync()
+    public async Task RemoveProjectMembershipsAsync(string organization, string projectId)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
+        var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
+
+        var tasks = new List<Task>();
+
+        while (queryIterator.HasMoreResults)
+        {
+            var queryResponse = await queryIterator
+                .ReadNextAsync()
                 .ConfigureAwait(false);
 
-            try
-            {
-                var response = await container
-                    .DeleteItemAsync<User>(user.Id, GetPartitionKey(user))
-                    .ConfigureAwait(false);
-
-                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
-                    .ConfigureAwait(false);
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null; // already deleted
-            }
+            tasks.AddRange(queryResponse.Select(user => RemoveProjectMembershipAsync(user, projectId)));
         }
 
-        public async Task RemoveProjectMembershipsAsync(string organization, string projectId)
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
+    public async Task<User> RemoveProjectMembershipAsync(User user, string projectId)
+    {
+        if (user is null) throw new ArgumentNullException(nameof(user));
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
         {
-            var container = await GetContainerAsync()
+            var existingUser = await GetAsync(user)
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT VALUE u FROM u WHERE EXISTS(SELECT VALUE m FROM m IN u.projectMemberships WHERE m.projectId = '{projectId}')");
-            var queryIterator = container.GetItemQueryIterator<User>(query, requestOptions: GetQueryRequestOptions(organization));
+            // user no longer exists
+            if (existingUser is null)
+                return null;
 
-            var tasks = new List<Task>();
-
-            while (queryIterator.HasMoreResults)
-            {
-                var queryResponse = await queryIterator
-                    .ReadNextAsync()
-                    .ConfigureAwait(false);
-
-                tasks.AddRange(queryResponse.Select(user => RemoveProjectMembershipAsync(user, projectId)));
-            }
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            user = existingUser;
         }
 
-        public async Task<User> RemoveProjectMembershipAsync(User user, string projectId)
+        return await RemoveProjectMembershipSafeAsync(container, user, projectId)
+            .ConfigureAwait(false);
+
+        async Task<User> RemoveProjectMembershipSafeAsync(Container container, User user, string projectId)
         {
-            if (user is null) throw new ArgumentNullException(nameof(user));
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
-            {
-                var existingUser = await GetAsync(user)
-                    .ConfigureAwait(false);
-
-                // user no longer exists
-                if (existingUser is null)
-                    return null;
-
-                user = existingUser;
-            }
-
-            return await RemoveProjectMembershipSafeAsync(container, user, projectId)
-                .ConfigureAwait(false);
-
-            async Task<User> RemoveProjectMembershipSafeAsync(Container container, User user, string projectId)
-            {
-                var membership = user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
-
-                if (membership is null)
-                    return user;
-
-                while (true)
-                {
-                    try
-                    {
-                        user.ProjectMemberships.Remove(membership);
-
-                        var response = await container
-                            .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
-                            .ConfigureAwait(false);
-
-                        return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
-                            .ConfigureAwait(false);
-                    }
-                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        // the requested user does not exist anymore - continue
-                        return null;
-                    }
-                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
-                    {
-                        // the requested user has changed, get it again before proceeding
-                        user = await GetAsync(user)
-                            .ConfigureAwait(false);
-                    }
-                }
-            }
-        }
-
-        public Task<User> AddProjectMembershipAsync(User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties)
-        {
-            return AddProjectMembershipAsync(user, new ProjectMembership
-            {
-                ProjectId = projectId,
-                Role = role,
-                Properties = properties ?? new Dictionary<string, string>()
-            });
-        }
-
-        // this method can only change project memberships
-        // other changes to the user object will be overwitten
-        public async Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership)
-        {
-            if (user is null)
-                throw new ArgumentNullException(nameof(user));
+            var membership = user.ProjectMemberships.FirstOrDefault(m => m.ProjectId == projectId);
 
             if (membership is null)
-                throw new ArgumentNullException(nameof(membership));
+                return user;
 
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
+            while (true)
             {
-                var existingUser = await GetAsync(user)
-                    .ConfigureAwait(false)
-                ?? await AddAsync(user)
-                    .ConfigureAwait(false);
-
-                user = existingUser;
-            }
-
-            return await AddProjectMembershipSafeAsync(container, user, membership)
-                .ConfigureAwait(false);
-
-            async Task<User> AddProjectMembershipSafeAsync(Container container, User user, ProjectMembership membership)
-            {
-                while (true)
+                try
                 {
-                    try
-                    {
-                        user.EnsureProjectMembership(membership);
+                    user.ProjectMemberships.Remove(membership);
 
-                        var response = await container
-                            .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
-                            .ConfigureAwait(false);
+                    var response = await container
+                        .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
+                        .ConfigureAwait(false);
 
-                        return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
-                            .ConfigureAwait(false);
-                    }
-                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        // the requested user does not exist anymore - continue
-                        return null;
-                    }
-                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
-                    {
-                        // the requested user has changed, get it again before proceeding
-                        user = await GetAsync(user)
-                            .ConfigureAwait(false);
-                    }
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                        .ConfigureAwait(false);
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // the requested user does not exist anymore - continue
+                    return null;
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    // the requested user has changed, get it again before proceeding
+                    user = await GetAsync(user)
+                        .ConfigureAwait(false);
                 }
             }
         }
+    }
 
-        public async Task<User> SetOrganizationInfoAsync(User user)
+    public Task<User> AddProjectMembershipAsync(User user, string projectId, ProjectUserRole role, IDictionary<string, string> properties)
+    {
+        return AddProjectMembershipAsync(user, new ProjectMembership
         {
-            if (user is null) throw new ArgumentNullException(nameof(user));
+            ProjectId = projectId,
+            Role = role,
+            Properties = properties ?? new Dictionary<string, string>()
+        });
+    }
 
-            var container = await GetContainerAsync()
+    // this method can only change project memberships
+    // other changes to the user object will be overwitten
+    public async Task<User> AddProjectMembershipAsync(User user, ProjectMembership membership)
+    {
+        if (user is null)
+            throw new ArgumentNullException(nameof(user));
+
+        if (membership is null)
+            throw new ArgumentNullException(nameof(membership));
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
+        {
+            var existingUser = await GetAsync(user)
+                .ConfigureAwait(false)
+            ?? await AddAsync(user)
                 .ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
+            user = existingUser;
+        }
+
+        return await AddProjectMembershipSafeAsync(container, user, membership)
+            .ConfigureAwait(false);
+
+        async Task<User> AddProjectMembershipSafeAsync(Container container, User user, ProjectMembership membership)
+        {
+            while (true)
             {
-                var existingUser = await GetAsync(user)
-                    .ConfigureAwait(false)
-                ?? await AddAsync(user)
-                    .ConfigureAwait(false);
-
-                user = existingUser;
-            }
-
-            return await SetOrganizationInfoAsync(container, user)
-                .ConfigureAwait(false);
-
-
-            async Task<User> SetOrganizationInfoAsync(Container container, User user)
-            {
-                while (true)
+                try
                 {
-                    try
-                    {
-                        var response = await container
-                            .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
-                            .ConfigureAwait(false);
+                    user.EnsureProjectMembership(membership);
 
-                        return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
-                            .ConfigureAwait(false);
-                    }
-                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        // the requested user does not exist anymore - continue
-                        return null;
-                    }
-                    catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
-                    {
-                        // the requested user has changed, get it again before proceeding
-                        user = await GetAsync(user)
-                            .ConfigureAwait(false);
-                    }
+                    var response = await container
+                        .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
+                        .ConfigureAwait(false);
+
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                        .ConfigureAwait(false);
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // the requested user does not exist anymore - continue
+                    return null;
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    // the requested user has changed, get it again before proceeding
+                    user = await GetAsync(user)
+                        .ConfigureAwait(false);
+                }
+            }
+        }
+    }
+
+    public async Task<User> SetOrganizationInfoAsync(User user)
+    {
+        if (user is null) throw new ArgumentNullException(nameof(user));
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        if (string.IsNullOrEmpty(((IContainerDocument)user).ETag))
+        {
+            var existingUser = await GetAsync(user)
+                .ConfigureAwait(false)
+            ?? await AddAsync(user)
+                .ConfigureAwait(false);
+
+            user = existingUser;
+        }
+
+        return await SetOrganizationInfoAsync(container, user)
+            .ConfigureAwait(false);
+
+
+        async Task<User> SetOrganizationInfoAsync(Container container, User user)
+        {
+            while (true)
+            {
+                try
+                {
+                    var response = await container
+                        .ReplaceItemAsync(user, user.Id, GetPartitionKey(user), new ItemRequestOptions { IfMatchEtag = ((IContainerDocument)user).ETag })
+                        .ConfigureAwait(false);
+
+                    return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                        .ConfigureAwait(false);
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // the requested user does not exist anymore - continue
+                    return null;
+                }
+                catch (CosmosException exc) when (exc.StatusCode == HttpStatusCode.PreconditionFailed)
+                {
+                    // the requested user has changed, get it again before proceeding
+                    user = await GetAsync(user)
+                        .ConfigureAwait(false);
                 }
             }
         }

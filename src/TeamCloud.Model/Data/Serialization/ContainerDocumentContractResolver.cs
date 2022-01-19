@@ -12,26 +12,25 @@ using TeamCloud.Model.Data.Core;
 using TeamCloud.Serialization.Comparer;
 using TeamCloud.Serialization.Resolver;
 
-namespace TeamCloud.Model.Data.Serialization
+namespace TeamCloud.Model.Data.Serialization;
+
+internal class ContainerDocumentContractResolver : SuppressConverterContractResolver<ContainerDocumentConverter>
 {
-    internal class ContainerDocumentContractResolver : SuppressConverterContractResolver<ContainerDocumentConverter>
+    protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
     {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        var properties = base.CreateProperties(type, memberSerialization);
+
+        if (typeof(IContainerDocument).IsAssignableFrom(type))
         {
-            var properties = base.CreateProperties(type, memberSerialization);
+            var metaProperties = base
+                .CreateProperties(typeof(IContainerDocument), memberSerialization)
+                .Except(properties, JsonPropertyEqualityComparer.ByPropertyName);
 
-            if (typeof(IContainerDocument).IsAssignableFrom(type))
-            {
-                var metaProperties = base
-                    .CreateProperties(typeof(IContainerDocument), memberSerialization)
-                    .Except(properties, JsonPropertyEqualityComparer.ByPropertyName);
-
-                properties = properties
-                    .Union(metaProperties)
-                    .ToList();
-            }
-
-            return properties;
+            properties = properties
+                .Union(metaProperties)
+                .ToList();
         }
+
+        return properties;
     }
 }

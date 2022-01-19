@@ -6,11 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class ComponentCreateCommand : CreateCommand<Component, ComponentCreateCommandResult>
 {
-    public sealed class ComponentCreateCommand : CreateCommand<Component, ComponentCreateCommandResult>
-    {
-        public ComponentCreateCommand(User user, Component payload) : base(user, payload)
-        { }
-    }
+    public ComponentCreateCommand(User user, Component payload)
+        : base(user, payload)
+    { }
 }

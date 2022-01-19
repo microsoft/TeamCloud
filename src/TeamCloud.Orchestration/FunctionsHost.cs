@@ -5,22 +5,21 @@
 
 using System;
 
-namespace TeamCloud.Orchestration
+namespace TeamCloud.Orchestration;
+
+public interface IFunctionsHost
 {
-    public interface IFunctionsHost
-    {
-        string HostUrl { get; }
-    }
+    string HostUrl { get; }
+}
 
-    public sealed class FunctionsHost : IFunctionsHost
-    {
-        public static IFunctionsHost Default { get; } = new FunctionsHost();
+public sealed class FunctionsHost : IFunctionsHost
+{
+    public static IFunctionsHost Default { get; } = new FunctionsHost();
 
-        private readonly string hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
+    private readonly string hostName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
 
-        private FunctionsHost()
-        { }
+    private FunctionsHost()
+    { }
 
-        public string HostUrl => $"http{(hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase) ? "" : "s")}://{hostName}";
-    }
+    public string HostUrl => $"http{(hostName.StartsWith("localhost", StringComparison.OrdinalIgnoreCase) ? "" : "s")}://{hostName}";
 }

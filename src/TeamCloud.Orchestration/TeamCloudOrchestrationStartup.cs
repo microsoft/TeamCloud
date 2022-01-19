@@ -12,17 +12,16 @@ using TeamCloud.Orchestration.Serialization;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestrationStartup))]
 
-namespace TeamCloud.Orchestration
-{
-    public class TeamCloudOrchestrationStartup : FunctionsStartup
-    {
-        public override void Configure(IFunctionsHostBuilder builder)
-        {
-            if (builder is null)
-                throw new ArgumentNullException(nameof(builder));
+namespace TeamCloud.Orchestration;
 
-            builder.Services
-                .AddSingleton<IMessageSerializerSettingsFactory, MessageSerializerSettingsFactory>();
-        }
+public class TeamCloudOrchestrationStartup : FunctionsStartup
+{
+    public override void Configure(IFunctionsHostBuilder builder)
+    {
+        if (builder is null)
+            throw new ArgumentNullException(nameof(builder));
+
+        builder.Services
+            .AddSingleton<IMessageSerializerSettingsFactory, MessageSerializerSettingsFactory>();
     }
 }

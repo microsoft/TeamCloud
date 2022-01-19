@@ -7,14 +7,13 @@ using System;
 using System.Collections.Generic;
 using FluentValidation;
 
-namespace TeamCloud.Validation.Providers
+namespace TeamCloud.Validation.Providers;
+
+public interface IValidatorProvider
 {
-    public interface IValidatorProvider
-    {
-        IEnumerable<IValidator> GetValidators<T>();
+    IEnumerable<IValidator> GetValidators<T>();
 
-        IEnumerable<IValidator> GetValidators(Type typeToValidate);
+    IEnumerable<IValidator> GetValidators(Type typeToValidate);
 
-        IValidator<T> ToValidator<T>() => new CompositeValidator<T>(this);
-    }
+    IValidator<T> ToValidator<T>() => new CompositeValidator<T>(this);
 }

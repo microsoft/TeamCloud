@@ -7,20 +7,19 @@ using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 using TeamCloud.Data.CosmosDb.Core;
 
-namespace TeamCloud.API.Options
+namespace TeamCloud.API.Options;
+
+[Options]
+public sealed class TeamCloudDatabaseOptions : ICosmosDbOptions
 {
-    [Options]
-    public sealed class TeamCloudDatabaseOptions : ICosmosDbOptions
+    private readonly AzureCosmosDbOptions cosmosDbOptions;
+
+    public TeamCloudDatabaseOptions(AzureCosmosDbOptions cosmosDbOptions)
     {
-        private readonly AzureCosmosDbOptions cosmosDbOptions;
-
-        public TeamCloudDatabaseOptions(AzureCosmosDbOptions cosmosDbOptions)
-        {
-            this.cosmosDbOptions = cosmosDbOptions ?? throw new System.ArgumentNullException(nameof(cosmosDbOptions));
-        }
-
-        public string DatabaseName => cosmosDbOptions.DatabaseName;
-
-        public string ConnectionString => cosmosDbOptions.ConnectionString;
+        this.cosmosDbOptions = cosmosDbOptions ?? throw new System.ArgumentNullException(nameof(cosmosDbOptions));
     }
+
+    public string DatabaseName => cosmosDbOptions.DatabaseName;
+
+    public string ConnectionString => cosmosDbOptions.ConnectionString;
 }

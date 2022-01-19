@@ -1,4 +1,9 @@
-﻿using FluentValidation;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using FluentValidation;
 using System.Text.RegularExpressions;
 using System.Linq;
 using k8s.KubeConfigModels;
@@ -8,55 +13,55 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 
-namespace TeamCloud.Adapters.Kubernetes
+namespace TeamCloud.Adapters.Kubernetes;
+
+public static class KubernetesExtensions
 {
-    public static class KubernetesExtensions
+    private static readonly Regex KubernetesNamespaceExpression = new Regex("[a-z0-9][-a-z0-9]*[a-z0-9]");
+
+    public static IRuleBuilderOptions<T, string> MustBeKubernetesNamespace<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
+        => ruleBuilder
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .Must(BeKubernetesNamespace)
+                .WithMessage("'{PropertyName}' must be a valid Kubernetes namespace.");
+
+    private static bool BeKubernetesNamespace(string kubernetesNamespace)
     {
-        private static readonly Regex KubernetesNamespaceExpression = new Regex("[a-z0-9][-a-z0-9]*[a-z0-9]");
-
-        public static IRuleBuilderOptions<T, string> MustBeKubernetesNamespace<T>(this IRuleBuilderInitial<T, string> ruleBuilder)
-            => ruleBuilder
-                .Cascade(CascadeMode.Stop)
-                .NotEmpty()
-                .Must(BeKubernetesNamespace)
-                    .WithMessage("'{PropertyName}' must be a valid Kubernetes namespace.");
-
-        private static bool BeKubernetesNamespace(string kubernetesNamespace)
+        if (!string.IsNullOrEmpty(kubernetesNamespace))
         {
-            if (!string.IsNullOrEmpty(kubernetesNamespace))
-            {
-                var matches = KubernetesNamespaceExpression.Matches(kubernetesNamespace);
+            var matches = KubernetesNamespaceExpression.Matches(kubernetesNamespace);
 
-                return kubernetesNamespace.Equals(string.Join('.', matches.Select(m => m.Value)));
-            }
-
-            return false;
+            return kubernetesNamespace.Equals(string.Join('.', matches.Select(m => m.Value)));
         }
 
-        public static async Task<K8SConfiguration> CreateClusterConfigAsync(this IKubernetes kubernetes, V1ServiceAccount serviceAccount)
+        return false;
+    }
+
+    public static async Task<K8SConfiguration> CreateClusterConfigAsync(this IKubernetes kubernetes, V1ServiceAccount serviceAccount)
+    {
+        if (kubernetes is null)
+            throw new ArgumentNullException(nameof(kubernetes));
+
+        if (serviceAccount is null)
+            throw new ArgumentNullException(nameof(serviceAccount));
+
+        var serviceAccountSecret = await serviceAccount.Secrets
+            .ToAsyncEnumerable()
+            .SelectAwait(s => new ValueTask<V1Secret>(kubernetes.ReadNamespacedSecretAsync(s.Name, serviceAccount.Namespace())))
+            .FirstAsync(s => s.Type.Equals("kubernetes.io/service-account-token"))
+            .ConfigureAwait(false);
+
+        var clusterName = kubernetes.BaseUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
+        var clusterUser = serviceAccount.Name();
+        var clusterContext = Guid.NewGuid().ToString();
+
+        return new K8SConfiguration()
         {
-            if (kubernetes is null)
-                throw new ArgumentNullException(nameof(kubernetes));
-
-            if (serviceAccount is null)
-                throw new ArgumentNullException(nameof(serviceAccount));
-
-            var serviceAccountSecret = await serviceAccount.Secrets
-                .ToAsyncEnumerable()
-                .SelectAwait(s => new ValueTask<V1Secret>(kubernetes.ReadNamespacedSecretAsync(s.Name, serviceAccount.Namespace())))
-                .FirstAsync(s => s.Type.Equals("kubernetes.io/service-account-token"))
-                .ConfigureAwait(false);
-
-            var clusterName = kubernetes.BaseUri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-            var clusterUser = serviceAccount.Name();
-            var clusterContext = Guid.NewGuid().ToString();
-
-            return new K8SConfiguration()
+            ApiVersion = "v1",
+            Kind = "Config",
+            Clusters = new Cluster[]
             {
-                ApiVersion = "v1",
-                Kind = "Config",
-                Clusters = new Cluster[]
-                {
                     new Cluster()
                     {
                         Name = clusterName,
@@ -66,9 +71,9 @@ namespace TeamCloud.Adapters.Kubernetes
                             Server = kubernetes.BaseUri.ToString().TrimEnd('/')
                         }
                     }
-                },
-                Users = new User[]
-                {
+            },
+            Users = new User[]
+            {
                     new User()
                     {
                         Name = clusterUser,
@@ -78,9 +83,9 @@ namespace TeamCloud.Adapters.Kubernetes
                             Token = Encoding.UTF8.GetString(serviceAccountSecret.Data["token"])
                         }
                     }
-                },
-                Contexts = new Context[]
-                {
+            },
+            Contexts = new Context[]
+            {
                     new Context()
                     {
                         Name = clusterContext,
@@ -91,25 +96,24 @@ namespace TeamCloud.Adapters.Kubernetes
                             User = clusterUser
                         }
                     }
-                },
-                CurrentContext = clusterContext
-            };
+            },
+            CurrentContext = clusterContext
+        };
 
-        }
+    }
 
-        public static async Task<KubernetesClientConfiguration> CreateClientConfigAsync(this IKubernetes kubernetes, V1ServiceAccount serviceAccount)
-        {
-            if (kubernetes is null)
-                throw new ArgumentNullException(nameof(kubernetes));
+    public static async Task<KubernetesClientConfiguration> CreateClientConfigAsync(this IKubernetes kubernetes, V1ServiceAccount serviceAccount)
+    {
+        if (kubernetes is null)
+            throw new ArgumentNullException(nameof(kubernetes));
 
-            if (serviceAccount is null)
-                throw new ArgumentNullException(nameof(serviceAccount));
+        if (serviceAccount is null)
+            throw new ArgumentNullException(nameof(serviceAccount));
 
-            var clusterConfig = await kubernetes
-                .CreateClusterConfigAsync(serviceAccount)
-                .ConfigureAwait(false);
+        var clusterConfig = await kubernetes
+            .CreateClusterConfigAsync(serviceAccount)
+            .ConfigureAwait(false);
 
-            return KubernetesClientConfiguration.BuildConfigFromConfigObject(clusterConfig);
-        }
+        return KubernetesClientConfiguration.BuildConfigFromConfigObject(clusterConfig);
     }
 }

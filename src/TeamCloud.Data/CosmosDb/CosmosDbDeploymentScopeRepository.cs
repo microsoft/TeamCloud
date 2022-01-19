@@ -16,272 +16,79 @@ using TeamCloud.Model.Data;
 using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.Data.CosmosDb
+namespace TeamCloud.Data.CosmosDb;
+
+public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentScope>, IDeploymentScopeRepository
 {
-    public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentScope>, IDeploymentScopeRepository
+    private readonly IMemoryCache cache;
+
+    public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IMemoryCache cache, IValidatorProvider validatorProvider = null, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
+        : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
     {
-        private readonly IMemoryCache cache;
+        this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+    }
 
-        public CosmosDbDeploymentScopeRepository(ICosmosDbOptions options, IMemoryCache cache, IValidatorProvider validatorProvider = null, IDocumentExpanderProvider expanderProvider = null, IDocumentSubscriptionProvider subscriptionProvider = null, IDataProtectionProvider dataProtectionProvider = null)
-            : base(options, validatorProvider, expanderProvider, subscriptionProvider, dataProtectionProvider, cache)
+    public async Task<string> ResolveIdAsync(string organization, string identifier)
+    {
+        if (identifier is null)
+            throw new ArgumentNullException(nameof(identifier));
+
+        var key = $"{organization}_{identifier}";
+
+        if (!cache.TryGetValue(key, out string id))
         {
-            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            var deploymentScope = await GetAsync(organization, identifier)
+                .ConfigureAwait(false);
+
+            id = deploymentScope?.Id;
+
+            if (!string.IsNullOrEmpty(id))
+                cache.Set(key, cache, TimeSpan.FromMinutes(10));
         }
 
-        public async Task<string> ResolveIdAsync(string organization, string identifier)
+        return id;
+    }
+
+    private void RemoveCachedIds(DeploymentScope deploymentScope)
+    {
+        cache.Remove($"{deploymentScope.Organization}_{deploymentScope.DisplayName}");
+        cache.Remove($"{deploymentScope.Organization}_{deploymentScope.Slug}");
+        cache.Remove($"{deploymentScope.Organization}_{deploymentScope.Id}");
+    }
+
+    public override async Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope)
+    {
+        if (deploymentScope is null)
+            throw new ArgumentNullException(nameof(deploymentScope));
+
+        await deploymentScope
+            .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
+            .ConfigureAwait(false);
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var defaultdeploymentScope = await GetDefaultAsync(deploymentScope.Organization)
+            .ConfigureAwait(false);
+
+        if (defaultdeploymentScope is null)
         {
-            if (identifier is null)
-                throw new ArgumentNullException(nameof(identifier));
+            // ensure we have a default
+            // deployment scope if none is defined
 
-            var key = $"{organization}_{identifier}";
-
-            if (!cache.TryGetValue(key, out string id))
-            {
-                var deploymentScope = await GetAsync(organization, identifier)
-                    .ConfigureAwait(false);
-
-                id = deploymentScope?.Id;
-
-                if (!string.IsNullOrEmpty(id))
-                    cache.Set(key, cache, TimeSpan.FromMinutes(10));
-            }
-
-            return id;
+            deploymentScope.IsDefault = true;
         }
 
-        private void RemoveCachedIds(DeploymentScope deploymentScope)
+        try
         {
-            cache.Remove($"{deploymentScope.Organization}_{deploymentScope.DisplayName}");
-            cache.Remove($"{deploymentScope.Organization}_{deploymentScope.Slug}");
-            cache.Remove($"{deploymentScope.Organization}_{deploymentScope.Id}");
-        }
-
-        public override async Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope)
-        {
-            if (deploymentScope is null)
-                throw new ArgumentNullException(nameof(deploymentScope));
-
-            await deploymentScope
-                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
-                .ConfigureAwait(false);
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            var defaultdeploymentScope = await GetDefaultAsync(deploymentScope.Organization)
-                .ConfigureAwait(false);
-
-            if (defaultdeploymentScope is null)
-            {
-                // ensure we have a default
-                // deployment scope if none is defined
-
-                deploymentScope.IsDefault = true;
-            }
-
-            try
-            {
-                if (deploymentScope.IsDefault)
-                {
-                    var batch = container
-                        .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
-                        .CreateItem(deploymentScope);
-
-                    var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @identifier")
-                        .WithParameter("@identifier", deploymentScope.Id);
-
-                    var queryIterator = container
-                        .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
-
-                    while (queryIterator.HasMoreResults)
-                    {
-                        var queryResults = await queryIterator
-                            .ReadNextAsync()
-                            .ConfigureAwait(false);
-
-                        queryResults
-                            .Select(qr => { qr.IsDefault = false; return qr; })
-                            .ToList()
-                            .ForEach(qr => batch.UpsertItem(qr));
-                    }
-
-                    var batchResponse = await batch
-                        .ExecuteAsync()
-                        .ConfigureAwait(false);
-
-                    if (batchResponse.IsSuccessStatusCode)
-                    {
-                        var batchResources = batchResponse.GetOperationResultResources<DeploymentScope>().ToArray();
-
-                        _ = await NotifySubscribersAsync(batchResources.Skip(1), DocumentSubscriptionEvent.Update)
-                            .ConfigureAwait(false);
-
-                        deploymentScope = await ExpandAsync(batchResources.First())
-                            .ConfigureAwait(false);
-
-                        return await NotifySubscribersAsync(deploymentScope, DocumentSubscriptionEvent.Create)
-                            .ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        throw new Exception(batchResponse.ErrorMessage);
-                    }
-                }
-                else
-                {
-                    var response = await container
-                        .CreateItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
-                        .ConfigureAwait(false);
-
-                    deploymentScope = await ExpandAsync(response.Resource)
-                        .ConfigureAwait(false);
-
-                    return await NotifySubscribersAsync(deploymentScope, DocumentSubscriptionEvent.Create)
-                        .ConfigureAwait(false);
-                }
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
-            {
-                throw; // Indicates a name conflict (already a deploymentScope with name)
-            }
-        }
-
-        public override Task<DeploymentScope> GetAsync(string organization, string identifier, bool expand = false) => GetCachedAsync(organization, identifier, async cached =>
-        {
-            if (identifier is null)
-                throw new ArgumentNullException(nameof(identifier));
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            DeploymentScope deploymentScope = null;
-
-            try
-            {
-                var response = await container
-                    .ReadItemAsync<DeploymentScope>(identifier, GetPartitionKey(organization))
-                    .ConfigureAwait(false);
-
-                deploymentScope = SetCached(organization, identifier, response.Resource);
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-            {
-                deploymentScope = cached;
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-            {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.slug = @identifier OFFSET 0 LIMIT 1")
-                    .WithParameter("@identifier", identifier.ToLowerInvariant());
-
-                var queryIterator = container
-                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
-
-                if (queryIterator.HasMoreResults)
-                {
-                    var queryResults = await queryIterator
-                        .ReadNextAsync()
-                        .ConfigureAwait(false);
-
-                    deploymentScope = queryResults.FirstOrDefault();
-                }
-            }
-
-            return await ExpandAsync(deploymentScope, expand)
-                .ConfigureAwait(false);
-        });
-
-        public async Task<DeploymentScope> GetDefaultAsync(string organization)
-        {
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
-            try
-            {
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
-
-                var queryIterator = container
-                    .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
-
-                var defaultdeploymentScope = default(DeploymentScope);
-                var nonDefaultBatch = default(TransactionalBatch);
-
-                while (queryIterator.HasMoreResults)
-                {
-                    var queryResults = await queryIterator
-                        .ReadNextAsync()
-                        .ConfigureAwait(false);
-
-                    defaultdeploymentScope ??= queryResults.Resource.FirstOrDefault();
-
-                    queryResults.Resource
-                        .Where(pt => pt.Id != defaultdeploymentScope?.Id)
-                        .Select(pt =>
-                        {
-                            pt.IsDefault = false;
-                            return pt;
-                        })
-                        .ToList()
-                        .ForEach(pt =>
-                        {
-                            nonDefaultBatch ??= container.CreateTransactionalBatch(GetPartitionKey(organization));
-                            nonDefaultBatch.UpsertItem(pt);
-                        });
-                }
-
-                if (nonDefaultBatch is not null)
-                {
-                    var nonDefaultBatchResponse = await nonDefaultBatch
-                        .ExecuteAsync()
-                        .ConfigureAwait(false);
-
-                    if (nonDefaultBatchResponse.IsSuccessStatusCode)
-                    {
-                        _ = await NotifySubscribersAsync(nonDefaultBatchResponse.GetOperationResultResources<DeploymentScope>(), DocumentSubscriptionEvent.Update)
-                            .ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        throw new Exception(nonDefaultBatchResponse.ErrorMessage);
-                    }
-                }
-
-                return defaultdeploymentScope;
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-        }
-
-        public override async Task<DeploymentScope> SetAsync(DeploymentScope deploymentScope)
-        {
-            if (deploymentScope is null)
-                throw new ArgumentNullException(nameof(deploymentScope));
-
-            await deploymentScope
-                .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
-                .ConfigureAwait(false);
-
-            if (!deploymentScope.IsDefault)
-            {
-                var defaultdeploymentScope = await GetDefaultAsync(deploymentScope.Organization)
-                    .ConfigureAwait(false);
-
-                if (deploymentScope.Id == defaultdeploymentScope?.Id)
-                    throw new ArgumentException("One deployment scope must be marked as default");
-            }
-
-            var container = await GetContainerAsync()
-                .ConfigureAwait(false);
-
             if (deploymentScope.IsDefault)
             {
                 var batch = container
                     .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
-                    .UpsertItem(deploymentScope);
+                    .CreateItem(deploymentScope);
 
-                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @deploymentScopeId")
-                    .WithParameter("@deploymentScopeId", deploymentScope.Id);
+                var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @identifier")
+                    .WithParameter("@identifier", deploymentScope.Id);
 
                 var queryIterator = container
                     .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
@@ -304,10 +111,16 @@ namespace TeamCloud.Data.CosmosDb
 
                 if (batchResponse.IsSuccessStatusCode)
                 {
-                    var updatedDeploymentScopes = await NotifySubscribersAsync(batchResponse.GetOperationResultResources<DeploymentScope>(), DocumentSubscriptionEvent.Update)
+                    var batchResources = batchResponse.GetOperationResultResources<DeploymentScope>().ToArray();
+
+                    _ = await NotifySubscribersAsync(batchResources.Skip(1), DocumentSubscriptionEvent.Update)
                         .ConfigureAwait(false);
 
-                    return updatedDeploymentScopes.First();
+                    deploymentScope = await ExpandAsync(batchResources.First())
+                        .ConfigureAwait(false);
+
+                    return await NotifySubscribersAsync(deploymentScope, DocumentSubscriptionEvent.Create)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
@@ -317,53 +130,239 @@ namespace TeamCloud.Data.CosmosDb
             else
             {
                 var response = await container
-                    .UpsertItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
+                    .CreateItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
                     .ConfigureAwait(false);
 
-                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                deploymentScope = await ExpandAsync(response.Resource)
+                    .ConfigureAwait(false);
+
+                return await NotifySubscribersAsync(deploymentScope, DocumentSubscriptionEvent.Create)
                     .ConfigureAwait(false);
             }
         }
-
-        public override async IAsyncEnumerable<DeploymentScope> ListAsync(string organization)
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.Conflict)
         {
-            var container = await GetContainerAsync()
+            throw; // Indicates a name conflict (already a deploymentScope with name)
+        }
+    }
+
+    public override Task<DeploymentScope> GetAsync(string organization, string identifier, bool expand = false) => GetCachedAsync(organization, identifier, async cached =>
+    {
+        if (identifier is null)
+            throw new ArgumentNullException(nameof(identifier));
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        DeploymentScope deploymentScope = null;
+
+        try
+        {
+            var response = await container
+                .ReadItemAsync<DeploymentScope>(identifier, GetPartitionKey(organization))
                 .ConfigureAwait(false);
 
-            var query = new QueryDefinition($"SELECT * FROM c");
+            deploymentScope = SetCached(organization, identifier, response.Resource);
+        }
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
+        {
+            deploymentScope = cached;
+        }
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+        {
+            var query = new QueryDefinition($"SELECT * FROM c WHERE c.slug = @identifier OFFSET 0 LIMIT 1")
+                .WithParameter("@identifier", identifier.ToLowerInvariant());
 
-            var deploymentScopes = container
-                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization))
-                .ReadAllAsync(item => ExpandAsync(item))
-                .ConfigureAwait(false);
+            var queryIterator = container
+                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
 
-            await foreach (var deploymentScope in deploymentScopes)
-                yield return deploymentScope;
+            if (queryIterator.HasMoreResults)
+            {
+                var queryResults = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                deploymentScope = queryResults.FirstOrDefault();
+            }
         }
 
-        public override async Task<DeploymentScope> RemoveAsync(DeploymentScope deploymentScope)
-        {
-            if (deploymentScope is null)
-                throw new ArgumentNullException(nameof(deploymentScope));
+        return await ExpandAsync(deploymentScope, expand)
+            .ConfigureAwait(false);
+    });
 
-            var container = await GetContainerAsync()
+    public async Task<DeploymentScope> GetDefaultAsync(string organization)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true");
+
+            var queryIterator = container
+                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization));
+
+            var defaultdeploymentScope = default(DeploymentScope);
+            var nonDefaultBatch = default(TransactionalBatch);
+
+            while (queryIterator.HasMoreResults)
+            {
+                var queryResults = await queryIterator
+                    .ReadNextAsync()
+                    .ConfigureAwait(false);
+
+                defaultdeploymentScope ??= queryResults.Resource.FirstOrDefault();
+
+                queryResults.Resource
+                    .Where(pt => pt.Id != defaultdeploymentScope?.Id)
+                    .Select(pt =>
+                    {
+                        pt.IsDefault = false;
+                        return pt;
+                    })
+                    .ToList()
+                    .ForEach(pt =>
+                    {
+                        nonDefaultBatch ??= container.CreateTransactionalBatch(GetPartitionKey(organization));
+                        nonDefaultBatch.UpsertItem(pt);
+                    });
+            }
+
+            if (nonDefaultBatch is not null)
+            {
+                var nonDefaultBatchResponse = await nonDefaultBatch
+                    .ExecuteAsync()
+                    .ConfigureAwait(false);
+
+                if (nonDefaultBatchResponse.IsSuccessStatusCode)
+                {
+                    _ = await NotifySubscribersAsync(nonDefaultBatchResponse.GetOperationResultResources<DeploymentScope>(), DocumentSubscriptionEvent.Update)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception(nonDefaultBatchResponse.ErrorMessage);
+                }
+            }
+
+            return defaultdeploymentScope;
+        }
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+    }
+
+    public override async Task<DeploymentScope> SetAsync(DeploymentScope deploymentScope)
+    {
+        if (deploymentScope is null)
+            throw new ArgumentNullException(nameof(deploymentScope));
+
+        await deploymentScope
+            .ValidateAsync(ValidatorProvider, throwOnValidationError: true)
+            .ConfigureAwait(false);
+
+        if (!deploymentScope.IsDefault)
+        {
+            var defaultdeploymentScope = await GetDefaultAsync(deploymentScope.Organization)
                 .ConfigureAwait(false);
 
-            try
+            if (deploymentScope.Id == defaultdeploymentScope?.Id)
+                throw new ArgumentException("One deployment scope must be marked as default");
+        }
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        if (deploymentScope.IsDefault)
+        {
+            var batch = container
+                .CreateTransactionalBatch(GetPartitionKey(deploymentScope))
+                .UpsertItem(deploymentScope);
+
+            var query = new QueryDefinition($"SELECT * FROM c WHERE c.isDefault = true and c.id != @deploymentScopeId")
+                .WithParameter("@deploymentScopeId", deploymentScope.Id);
+
+            var queryIterator = container
+                .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(deploymentScope));
+
+            while (queryIterator.HasMoreResults)
             {
-                var response = await container
-                    .DeleteItemAsync<DeploymentScope>(deploymentScope.Id, GetPartitionKey(deploymentScope))
+                var queryResults = await queryIterator
+                    .ReadNextAsync()
                     .ConfigureAwait(false);
 
-                RemoveCachedIds(deploymentScope);
+                queryResults
+                    .Select(qr => { qr.IsDefault = false; return qr; })
+                    .ToList()
+                    .ForEach(qr => batch.UpsertItem(qr));
+            }
 
-                return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
-                    .ConfigureAwait(false);
-            }
-            catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+            var batchResponse = await batch
+                .ExecuteAsync()
+                .ConfigureAwait(false);
+
+            if (batchResponse.IsSuccessStatusCode)
             {
-                return null; // already deleted
+                var updatedDeploymentScopes = await NotifySubscribersAsync(batchResponse.GetOperationResultResources<DeploymentScope>(), DocumentSubscriptionEvent.Update)
+                    .ConfigureAwait(false);
+
+                return updatedDeploymentScopes.First();
             }
+            else
+            {
+                throw new Exception(batchResponse.ErrorMessage);
+            }
+        }
+        else
+        {
+            var response = await container
+                .UpsertItemAsync(deploymentScope, GetPartitionKey(deploymentScope))
+                .ConfigureAwait(false);
+
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Update)
+                .ConfigureAwait(false);
+        }
+    }
+
+    public override async IAsyncEnumerable<DeploymentScope> ListAsync(string organization)
+    {
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        var query = new QueryDefinition($"SELECT * FROM c");
+
+        var deploymentScopes = container
+            .GetItemQueryIterator<DeploymentScope>(query, requestOptions: GetQueryRequestOptions(organization))
+            .ReadAllAsync(item => ExpandAsync(item))
+            .ConfigureAwait(false);
+
+        await foreach (var deploymentScope in deploymentScopes)
+            yield return deploymentScope;
+    }
+
+    public override async Task<DeploymentScope> RemoveAsync(DeploymentScope deploymentScope)
+    {
+        if (deploymentScope is null)
+            throw new ArgumentNullException(nameof(deploymentScope));
+
+        var container = await GetContainerAsync()
+            .ConfigureAwait(false);
+
+        try
+        {
+            var response = await container
+                .DeleteItemAsync<DeploymentScope>(deploymentScope.Id, GetPartitionKey(deploymentScope))
+                .ConfigureAwait(false);
+
+            RemoveCachedIds(deploymentScope);
+
+            return await NotifySubscribersAsync(response.Resource, DocumentSubscriptionEvent.Delete)
+                .ConfigureAwait(false);
+        }
+        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null; // already deleted
         }
     }
 }

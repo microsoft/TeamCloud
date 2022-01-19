@@ -5,9 +5,6 @@
 
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Model.Commands
-{
-    public sealed class BroadcastDocumentCreateCommandResult : CommandResult
-    {
-    }
-}
+namespace TeamCloud.Model.Commands;
+
+public sealed class BroadcastDocumentCreateCommandResult : CommandResult { }

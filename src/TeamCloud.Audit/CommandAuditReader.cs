@@ -13,164 +13,163 @@ using TeamCloud.Audit.Model;
 using BlobCloudStorageAccount = Microsoft.Azure.Storage.CloudStorageAccount;
 using TableCloudStorageAccount = Microsoft.Azure.Cosmos.Table.CloudStorageAccount;
 
-namespace TeamCloud.Audit
+namespace TeamCloud.Audit;
+
+public class CommandAuditReader : ICommandAuditReader
 {
-    public class CommandAuditReader : ICommandAuditReader
+    private readonly ICommandAuditOptions options;
+    private readonly Lazy<CloudBlobContainer> auditContainerInstance;
+    private readonly Lazy<CloudTable> auditTableInstance;
+
+    public CommandAuditReader(ICommandAuditOptions options = null)
     {
-        private readonly ICommandAuditOptions options;
-        private readonly Lazy<CloudBlobContainer> auditContainerInstance;
-        private readonly Lazy<CloudTable> auditTableInstance;
+        this.options = options ?? CommandAuditOptions.Default;
 
-        public CommandAuditReader(ICommandAuditOptions options = null)
+        auditContainerInstance = new Lazy<CloudBlobContainer>(() => BlobCloudStorageAccount
+            .Parse(this.options.ConnectionString)
+            .CreateCloudBlobClient().GetContainerReference(CommandAuditEntity.AUDIT_CONTAINER_NAME));
+
+        auditTableInstance = new Lazy<CloudTable>(() => TableCloudStorageAccount
+            .Parse(this.options.ConnectionString)
+            .CreateCloudTableClient().GetTableReference(CommandAuditEntity.AUDIT_TABLE_NAME));
+    }
+
+    public async Task<CommandAuditEntity> GetAsync(Guid organizationId, Guid commandId, bool includeJsonDumps = false)
+    {
+        var auditTable = await auditTableInstance
+            .EnsureTableAsync()
+            .ConfigureAwait(false);
+
+        try
         {
-            this.options = options ?? CommandAuditOptions.Default;
+            var result = await auditTable
+                .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(organizationId.ToString(), commandId.ToString()))
+                .ConfigureAwait(false);
 
-            auditContainerInstance = new Lazy<CloudBlobContainer>(() => BlobCloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudBlobClient().GetContainerReference(CommandAuditEntity.AUDIT_CONTAINER_NAME));
+            var entity = result.Result as CommandAuditEntity;
 
-            auditTableInstance = new Lazy<CloudTable>(() => TableCloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudTableClient().GetTableReference(CommandAuditEntity.AUDIT_TABLE_NAME));
+            if (entity is not null && includeJsonDumps) await Task.WhenAll(
+
+                ReadBlobAsync(entity.GetCommandPath())
+                    .ContinueWith(t => entity.CommandJson = t.Result, TaskContinuationOptions.OnlyOnRanToCompletion),
+
+                ReadBlobAsync(entity.GetResultPath())
+                    .ContinueWith(t => entity.ResultJson = t.Result, TaskContinuationOptions.OnlyOnRanToCompletion)
+
+            ).ConfigureAwait(false);
+
+            return entity;
+        }
+        catch (StorageException exc) when (exc.RequestInformation?.HttpStatusCode == 404)
+        {
+            return null;
         }
 
-        public async Task<CommandAuditEntity> GetAsync(Guid organizationId, Guid commandId, bool includeJsonDumps = false)
+        async Task<string> ReadBlobAsync(string auditPath)
         {
-            var auditTable = await auditTableInstance
-                .EnsureTableAsync()
+            var auditContainer = await auditContainerInstance
+                .EnsureContainerAsync()
                 .ConfigureAwait(false);
+
+            var auditBlob = auditContainer.GetBlockBlobReference(auditPath.Replace("//", $"/{Guid.Empty}/", StringComparison.OrdinalIgnoreCase));
 
             try
             {
-                var result = await auditTable
-                    .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(organizationId.ToString(), commandId.ToString()))
+                return await auditBlob
+                    .DownloadTextAsync()
                     .ConfigureAwait(false);
-
-                var entity = result.Result as CommandAuditEntity;
-
-                if (entity is not null && includeJsonDumps) await Task.WhenAll(
-
-                    ReadBlobAsync(entity.GetCommandPath())
-                        .ContinueWith(t => entity.CommandJson = t.Result, TaskContinuationOptions.OnlyOnRanToCompletion),
-
-                    ReadBlobAsync(entity.GetResultPath())
-                        .ContinueWith(t => entity.ResultJson = t.Result, TaskContinuationOptions.OnlyOnRanToCompletion)
-
-                ).ConfigureAwait(false);
-
-                return entity;
             }
             catch (StorageException exc) when (exc.RequestInformation?.HttpStatusCode == 404)
             {
                 return null;
             }
+        }
+    }
 
-            async Task<string> ReadBlobAsync(string auditPath)
-            {
-                var auditContainer = await auditContainerInstance
-                    .EnsureContainerAsync()
-                    .ConfigureAwait(false);
+    public async IAsyncEnumerable<CommandAuditEntity> ListAsync(Guid organizationId, Guid? projectId = null, TimeSpan? timeRange = null, string[]? commands = null)
+    {
+        var auditTable = await auditTableInstance
+            .EnsureTableAsync()
+            .ConfigureAwait(false);
 
-                var auditBlob = auditContainer.GetBlockBlobReference(auditPath.Replace("//", $"/{Guid.Empty}/", StringComparison.OrdinalIgnoreCase));
+        string filter;
 
-                try
-                {
-                    return await auditBlob
-                        .DownloadTextAsync()
-                        .ConfigureAwait(false);
-                }
-                catch (StorageException exc) when (exc.RequestInformation?.HttpStatusCode == 404)
-                {
-                    return null;
-                }
-            }
+        filter = TableQuery.GenerateFilterCondition(
+                AuditEntity.PartitionKeyName,
+                QueryComparisons.Equal,
+                organizationId.ToString());
+
+        if (projectId.HasValue)
+        {
+            filter = TableQuery.CombineFilters(
+                filter,
+                TableOperators.And,
+                TableQuery.GenerateFilterCondition(
+                    nameof(CommandAuditEntity.ProjectId),
+                    QueryComparisons.Equal,
+                    projectId.ToString()));
         }
 
-        public async IAsyncEnumerable<CommandAuditEntity> ListAsync(Guid organizationId, Guid? projectId = null, TimeSpan? timeRange = null, string[]? commands = null)
+        if (timeRange.HasValue)
         {
-            var auditTable = await auditTableInstance
-                .EnsureTableAsync()
+            filter = TableQuery.CombineFilters(
+                filter,
+                TableOperators.And,
+                TableQuery.GenerateFilterConditionForDate(AuditEntity.TimestampName,
+                    QueryComparisons.GreaterThanOrEqual,
+                    DateTime.UtcNow.Subtract(timeRange.Value)));
+        }
+
+        if (commands?.Any() ?? false)
+        {
+            var commandConditions = commands
+                .Select(cmd => cmd.EndsWith("<>", StringComparison.OrdinalIgnoreCase)
+                ? GenerateFilterConditionStartsWith(nameof(CommandAuditEntity.Command), cmd.TrimEnd('>'))
+                : TableQuery.GenerateFilterCondition(nameof(CommandAuditEntity.Command), QueryComparisons.Equal, cmd.ToString()));
+
+            filter = TableQuery.CombineFilters(
+                filter,
+                TableOperators.And,
+                $"({string.Join(") or (", commandConditions)})");
+        }
+
+        var query = new TableQuery<CommandAuditEntity>()
+            .Where(filter)
+            .OrderByDesc(nameof(CommandAuditEntity.Created));
+
+        TableContinuationToken continuationToken = null;
+
+        while (true)
+        {
+            var result = await auditTable
+                .ExecuteQuerySegmentedAsync(query, continuationToken)
                 .ConfigureAwait(false);
 
-            string filter;
+            foreach (var entity in result.Results)
+                yield return entity;
 
-            filter = TableQuery.GenerateFilterCondition(
-                    AuditEntity.PartitionKeyName,
-                    QueryComparisons.Equal,
-                    organizationId.ToString());
+            continuationToken = result.ContinuationToken;
 
-            if (projectId.HasValue)
-            {
-                filter = TableQuery.CombineFilters(
-                    filter,
-                    TableOperators.And,
-                    TableQuery.GenerateFilterCondition(
-                        nameof(CommandAuditEntity.ProjectId),
-                        QueryComparisons.Equal,
-                        projectId.ToString()));
-            }
-
-            if (timeRange.HasValue)
-            {
-                filter = TableQuery.CombineFilters(
-                    filter,
-                    TableOperators.And,
-                    TableQuery.GenerateFilterConditionForDate(AuditEntity.TimestampName,
-                        QueryComparisons.GreaterThanOrEqual,
-                        DateTime.UtcNow.Subtract(timeRange.Value)));
-            }
-
-            if (commands?.Any() ?? false)
-            {
-                var commandConditions = commands
-                    .Select(cmd => cmd.EndsWith("<>", StringComparison.OrdinalIgnoreCase)
-                    ? GenerateFilterConditionStartsWith(nameof(CommandAuditEntity.Command), cmd.TrimEnd('>'))
-                    : TableQuery.GenerateFilterCondition(nameof(CommandAuditEntity.Command), QueryComparisons.Equal, cmd.ToString()));
-
-                filter = TableQuery.CombineFilters(
-                    filter,
-                    TableOperators.And,
-                    $"({string.Join(") or (", commandConditions)})");
-            }
-
-            var query = new TableQuery<CommandAuditEntity>()
-                .Where(filter)
-                .OrderByDesc(nameof(CommandAuditEntity.Created));
-
-            TableContinuationToken continuationToken = null;
-
-            while (true)
-            {
-                var result = await auditTable
-                    .ExecuteQuerySegmentedAsync(query, continuationToken)
-                    .ConfigureAwait(false);
-
-                foreach (var entity in result.Results)
-                    yield return entity;
-
-                continuationToken = result.ContinuationToken;
-
-                if (continuationToken is null)
-                    break;
-            }
+            if (continuationToken is null)
+                break;
         }
+    }
 
-        private static string GenerateFilterConditionStartsWith(string propertyName, string propertyValue)
-        {
-            var upperBound = new string(propertyValue.ToString()
-                .ToCharArray().Reverse()
-                .Select((c, i) => (char)(i == 0 ? c + 1 : c))
-                .Reverse().ToArray());
+    private static string GenerateFilterConditionStartsWith(string propertyName, string propertyValue)
+    {
+        var upperBound = new string(propertyValue.ToString()
+            .ToCharArray().Reverse()
+            .Select((c, i) => (char)(i == 0 ? c + 1 : c))
+            .Reverse().ToArray());
 
-            return TableQuery.CombineFilters(
-                TableQuery.GenerateFilterCondition(propertyName,
-                    QueryComparisons.GreaterThanOrEqual,
-                    propertyValue),
-                TableOperators.And,
-                TableQuery.GenerateFilterCondition(propertyName,
-                    QueryComparisons.LessThan,
-                    upperBound)
-                );
-        }
+        return TableQuery.CombineFilters(
+            TableQuery.GenerateFilterCondition(propertyName,
+                QueryComparisons.GreaterThanOrEqual,
+                propertyValue),
+            TableOperators.And,
+            TableQuery.GenerateFilterCondition(propertyName,
+                QueryComparisons.LessThan,
+                upperBound)
+            );
     }
 }

@@ -4,13 +4,10 @@
  */
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
-namespace TeamCloud.API.Data.Results
+namespace TeamCloud.API.Data.Results;
+
+public interface IFailureResult : IReturnResult
 {
-
-    public interface IFailureResult : IReturnResult
-    {
-        IList<ResultError> Errors { get; }
-    }
+    IList<ResultError> Errors { get; }
 }

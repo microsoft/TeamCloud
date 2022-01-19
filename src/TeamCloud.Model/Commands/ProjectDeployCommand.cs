@@ -6,11 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
-{
-    public class ProjectDeployCommand : CustomCommand<Project, ProjectDeployCommandResult>
-    {
-        public ProjectDeployCommand(User user, Project payload) : base(user, payload) { }
-    }
+namespace TeamCloud.Model.Commands;
 
+public class ProjectDeployCommand : CustomCommand<Project, ProjectDeployCommandResult>
+{
+    public ProjectDeployCommand(User user, Project payload)
+        : base(user, payload)
+    { }
 }

@@ -6,9 +6,6 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
-{
+namespace TeamCloud.Model.Commands;
 
-    public class OrganizationUserDeleteCommandResult : CommandResult<User>
-    { }
-}
+public class OrganizationUserDeleteCommandResult : CommandResult<User> { }

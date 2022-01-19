@@ -9,61 +9,59 @@ using Flurl.Util;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestration.Eventing
+namespace TeamCloud.Orchestration.Eventing;
+
+public static class RaiseEventActivity
 {
-    public static class RaiseEventActivity
+    [FunctionName(nameof(RaiseEventActivity))]
+    public static async Task RunActivity(
+        [ActivityTrigger] IDurableActivityContext activityContext,
+        [DurableClient] IDurableOrchestrationClient orchestrationClient,
+        ILogger log)
     {
-        [FunctionName(nameof(RaiseEventActivity))]
-        public static async Task RunActivity(
-            [ActivityTrigger] IDurableActivityContext activityContext,
-            [DurableClient] IDurableOrchestrationClient orchestrationClient,
-            ILogger log)
+        if (activityContext is null)
+            throw new ArgumentNullException(nameof(activityContext));
+
+        if (orchestrationClient is null)
+            throw new ArgumentNullException(nameof(orchestrationClient));
+
+        var functionInput = activityContext.GetInput<Input>();
+
+        try
         {
-            if (activityContext is null)
-                throw new ArgumentNullException(nameof(activityContext));
+            await orchestrationClient
+                .RaiseEventAsync(functionInput.InstanceId, functionInput.EventName, functionInput.EventData)
+                .ConfigureAwait(false);
 
-            if (orchestrationClient is null)
-                throw new ArgumentNullException(nameof(orchestrationClient));
-
-            var functionInput = activityContext.GetInput<Input>();
-
-            try
-            {
-                await orchestrationClient
-                    .RaiseEventAsync(functionInput.InstanceId, functionInput.EventName, functionInput.EventData)
-                    .ConfigureAwait(false);
-
-                log.LogInformation($"Raised event '{functionInput.EventName}' for instance {functionInput.InstanceId}: {SerializeEventData()}");
-            }
-            catch (Exception exc)
-            {
-                log.LogError(exc, $"Failed to raise event '{functionInput.EventName}' for instance {functionInput.InstanceId}: {exc.Message}");
-            }
-
-            string SerializeEventData()
-            {
-                if (functionInput.EventData is null)
-                    return null;
-
-                var eventDataType = functionInput.EventData.GetType();
-
-                return (eventDataType.IsValueType || eventDataType.Equals(typeof(string)))
-                    ? functionInput.EventData.ToInvariantString()
-                    : TeamCloudSerialize.SerializeObject(functionInput.EventData);
-            }
+            log.LogInformation($"Raised event '{functionInput.EventName}' for instance {functionInput.InstanceId}: {SerializeEventData()}");
+        }
+        catch (Exception exc)
+        {
+            log.LogError(exc, $"Failed to raise event '{functionInput.EventName}' for instance {functionInput.InstanceId}: {exc.Message}");
         }
 
-        internal struct Input
+        string SerializeEventData()
         {
-            public string InstanceId { get; set; }
+            if (functionInput.EventData is null)
+                return null;
 
-            public string EventName { get; set; }
+            var eventDataType = functionInput.EventData.GetType();
 
-            public object EventData { get; set; }
+            return (eventDataType.IsValueType || eventDataType.Equals(typeof(string)))
+                ? functionInput.EventData.ToInvariantString()
+                : TeamCloudSerialize.SerializeObject(functionInput.EventData);
         }
-
     }
+
+    internal struct Input
+    {
+        public string InstanceId { get; set; }
+
+        public string EventName { get; set; }
+
+        public object EventData { get; set; }
+    }
+
 }

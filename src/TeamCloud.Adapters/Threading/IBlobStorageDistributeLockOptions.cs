@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Adapters.Threading
+namespace TeamCloud.Adapters.Threading;
+
+public interface IBlobStorageDistributeLockOptions
 {
-    public interface IBlobStorageDistributeLockOptions
-    {
-        public string ConnectionString { get; }
-    }
+    public string ConnectionString { get; }
 }

@@ -7,26 +7,25 @@ using System.Threading.Tasks;
 using TeamCloud.Serialization.Forms;
 using Xunit;
 
-namespace TeamCloud.Serialization.Tests.Forms
+namespace TeamCloud.Serialization.Tests.Forms;
+
+public class TeamCloudFormTests
 {
-    public class TeamCloudFormTests
+    [Fact]
+    public async Task GetFormJsonAsync()
     {
-        [Fact]
-        public async Task GetFormJsonAsync()
-        {
-            var formJson = await TeamCloudForm
-                .GetFormSchemaAsync<SimpleFormData>()
-                .ConfigureAwait(false);
+        var formJson = await TeamCloudForm
+            .GetFormSchemaAsync<SimpleFormData>()
+            .ConfigureAwait(false);
 
-            Assert.NotNull(formJson);
-        }
+        Assert.NotNull(formJson);
+    }
 
-        [TeamCloudFormOrder(nameof(ValueTwo), nameof(ValueOne))]
-        public class SimpleFormData
-        {
-            public string ValueOne { get; set; }
+    [TeamCloudFormOrder(nameof(ValueTwo), nameof(ValueOne))]
+    public class SimpleFormData
+    {
+        public string ValueOne { get; set; }
 
-            public string ValueTwo { get; set; }
-        }
+        public string ValueTwo { get; set; }
     }
 }

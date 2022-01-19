@@ -5,52 +5,50 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestrator.Command.Activities.Components
+namespace TeamCloud.Orchestrator.Command.Activities.Components;
+
+public sealed class ComponentGetActivity
 {
-    public sealed class ComponentGetActivity
+    private readonly IComponentRepository componentRepository;
+
+    public ComponentGetActivity(IComponentRepository componentRepository)
     {
-        private readonly IComponentRepository componentRepository;
+        this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
+    }
 
-        public ComponentGetActivity(IComponentRepository componentRepository)
+    [FunctionName(nameof(ComponentGetActivity))]
+    public async Task<Component> Run(
+        [ActivityTrigger] IDurableActivityContext context)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+
+        var input = context.GetInput<Input>();
+
+        try
         {
-            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
-        }
+            var component = await componentRepository
+                .GetAsync(input.ProjectId, input.ComponentId)
+                .ConfigureAwait(false);
 
-        [FunctionName(nameof(ComponentGetActivity))]
-        public async Task<Component> Run(
-            [ActivityTrigger] IDurableActivityContext context)
+            return component;
+        }
+        catch (Exception exc)
         {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
-
-            var input = context.GetInput<Input>();
-
-            try
-            {
-                var component = await componentRepository
-                    .GetAsync(input.ProjectId, input.ComponentId)
-                    .ConfigureAwait(false);
-
-                return component;
-            }
-            catch(Exception exc)
-            {
-                throw exc.AsSerializable();
-            }
+            throw exc.AsSerializable();
         }
+    }
 
-        internal struct Input
-        {
-            public string ComponentId { get; set; }
+    internal struct Input
+    {
+        public string ComponentId { get; set; }
 
-            public string ProjectId { get; set; }
-        }
+        public string ProjectId { get; set; }
     }
 }

@@ -12,92 +12,91 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Secrets
+namespace TeamCloud.Secrets;
+
+public sealed class SecretsStoreProvider<TSecretsStore> : ISecretsStoreProvider
+    where TSecretsStore : ISecretsStore
 {
-    public sealed class SecretsStoreProvider<TSecretsStore> : ISecretsStoreProvider
-        where TSecretsStore : ISecretsStore
+    private static readonly ConcurrentDictionary<string, AsyncLazy<AzureKeyVaultResource>> keyVaultResourceCache = new ConcurrentDictionary<string, AsyncLazy<AzureKeyVaultResource>>();
+
+    private readonly IServiceProvider serviceProvider;
+    private readonly IAzureResourceService azureResourceService;
+
+    internal SecretsStoreProvider(IServiceProvider serviceProvider)
     {
-        private static readonly ConcurrentDictionary<string, AsyncLazy<AzureKeyVaultResource>> keyVaultResourceCache = new ConcurrentDictionary<string, AsyncLazy<AzureKeyVaultResource>>();
+        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        this.azureResourceService = serviceProvider.GetRequiredService<IAzureResourceService>();
+    }
 
-        private readonly IServiceProvider serviceProvider;
-        private readonly IAzureResourceService azureResourceService;
+    public async Task<ISecretsStore> GetSecretsStoreAsync(Organization organization)
+    {
+        if (organization is null)
+            throw new ArgumentNullException(nameof(organization));
 
-        internal SecretsStoreProvider(IServiceProvider serviceProvider)
+        if (string.IsNullOrEmpty(organization.SecretsVaultId))
+            throw new ArgumentException($"Secrets vault not available.", nameof(organization));
+
+        var keyVaultResource = await keyVaultResourceCache.GetOrAdd(organization.SecretsVaultId, (key) => new AsyncLazy<AzureKeyVaultResource>(async () =>
         {
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            this.azureResourceService = serviceProvider.GetRequiredService<IAzureResourceService>();
+            var secretsVault = await azureResourceService
+                .GetResourceAsync<AzureKeyVaultResource>(organization.SecretsVaultId, true)
+                .ConfigureAwait(false);
+
+            var identity = await azureResourceService.AzureSessionService
+                .GetIdentityAsync()
+                .ConfigureAwait(false);
+
+            await secretsVault
+                .SetAllSecretPermissionsAsync(identity.ObjectId)
+                .ConfigureAwait(false);
+
+            return secretsVault;
+
+        })).ConfigureAwait(false);
+
+        try
+        {
+            return ActivatorUtilities.CreateInstance<TSecretsStore>(serviceProvider, keyVaultResource);
         }
-
-        public async Task<ISecretsStore> GetSecretsStoreAsync(Organization organization)
+        catch
         {
-            if (organization is null)
-                throw new ArgumentNullException(nameof(organization));
-
-            if (string.IsNullOrEmpty(organization.SecretsVaultId))
-                throw new ArgumentException($"Secrets vault not available.", nameof(organization));
-
-            var keyVaultResource = await keyVaultResourceCache.GetOrAdd(organization.SecretsVaultId, (key) => new AsyncLazy<AzureKeyVaultResource>(async () =>
-            {
-                var secretsVault = await azureResourceService
-                    .GetResourceAsync<AzureKeyVaultResource>(organization.SecretsVaultId, true)
-                    .ConfigureAwait(false);
-
-                var identity = await azureResourceService.AzureSessionService
-                    .GetIdentityAsync()
-                    .ConfigureAwait(false);
-
-                await secretsVault
-                    .SetAllSecretPermissionsAsync(identity.ObjectId)
-                    .ConfigureAwait(false);
-
-                return secretsVault;
-
-            })).ConfigureAwait(false);
-
-            try
-            {
-                return ActivatorUtilities.CreateInstance<TSecretsStore>(serviceProvider, keyVaultResource);
-            }
-            catch
-            {
-                throw;
-            }
+            throw;
         }
-        
-        public async Task<ISecretsStore> GetSecretsStoreAsync(Project project)
+    }
+
+    public async Task<ISecretsStore> GetSecretsStoreAsync(Project project)
+    {
+        if (project is null)
+            throw new ArgumentNullException(nameof(project));
+
+        if (string.IsNullOrEmpty(project.SecretsVaultId))
+            throw new ArgumentException($"Secrets vault not available.", nameof(project));
+
+        var keyVaultResource = await keyVaultResourceCache.GetOrAdd(project.SecretsVaultId, (key) => new AsyncLazy<AzureKeyVaultResource>(async () =>
         {
-            if (project is null)
-                throw new ArgumentNullException(nameof(project));
+            var secretsVault = await azureResourceService
+                .GetResourceAsync<AzureKeyVaultResource>(project.SecretsVaultId, true)
+                .ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(project.SecretsVaultId))
-                throw new ArgumentException($"Secrets vault not available.", nameof(project));
+            var identity = await azureResourceService.AzureSessionService
+                .GetIdentityAsync()
+                .ConfigureAwait(false);
 
-            var keyVaultResource = await keyVaultResourceCache.GetOrAdd(project.SecretsVaultId, (key) => new AsyncLazy<AzureKeyVaultResource>(async () =>
-            {
-                var secretsVault = await azureResourceService
-                    .GetResourceAsync<AzureKeyVaultResource>(project.SecretsVaultId, true)
-                    .ConfigureAwait(false);
+            await secretsVault
+                .SetAllSecretPermissionsAsync(identity.ObjectId)
+                .ConfigureAwait(false);
 
-                var identity = await azureResourceService.AzureSessionService
-                    .GetIdentityAsync()
-                    .ConfigureAwait(false);
+            return secretsVault;
 
-                await secretsVault
-                    .SetAllSecretPermissionsAsync(identity.ObjectId)
-                    .ConfigureAwait(false);
+        })).ConfigureAwait(false);
 
-                return secretsVault;
-
-            })).ConfigureAwait(false);
-
-            try
-            {
-                return ActivatorUtilities.CreateInstance<TSecretsStore>(serviceProvider, keyVaultResource);
-            }
-            catch
-            {
-                throw;
-            }
+        try
+        {
+            return ActivatorUtilities.CreateInstance<TSecretsStore>(serviceProvider, keyVaultResource);
+        }
+        catch
+        {
+            throw;
         }
     }
 }

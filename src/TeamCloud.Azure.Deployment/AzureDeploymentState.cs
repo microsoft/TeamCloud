@@ -3,22 +3,21 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure.Deployment
+namespace TeamCloud.Azure.Deployment;
+
+public enum AzureDeploymentState
 {
-    public enum AzureDeploymentState
-    {
-        Accepted,
+    Accepted,
 
-        Cancelled,
+    Cancelled,
 
-        Failed,
+    Failed,
 
-        Succeeded,
+    Succeeded,
 
-        Running,
+    Running,
 
-        Deleting,
+    Deleting,
 
-        Unknown
-    }
+    Unknown
 }

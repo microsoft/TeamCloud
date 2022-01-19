@@ -1,67 +1,71 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using TeamCloud.Validation;
 
-namespace TeamCloud.Adapters.Kubernetes
+namespace TeamCloud.Adapters.Kubernetes;
+
+public sealed class KubernetesData : IValidatable
 {
-    public sealed class KubernetesData : IValidatable
+    private static readonly Regex DataUrlExpression = new Regex(@"^data:.*;base64,(?<data>.+)$");
+
+    public static string ParseYamlFromDataUrl(string url)
     {
-        private static readonly Regex DataUrlExpression = new Regex(@"^data:.*;base64,(?<data>.+)$");
+        var yaml = default(string);
 
-        public static string ParseYamlFromDataUrl(string url)
+        if (!string.IsNullOrWhiteSpace(url))
         {
-            var yaml = default(string);
+            var match = DataUrlExpression.Match(url);
 
-            if (!string.IsNullOrWhiteSpace(url))
+            if (match.Success)
             {
-                var match = DataUrlExpression.Match(url);
+                var base64 = match.Groups
+                    .Cast<Group>()
+                    .Where(g => g.Success)
+                    .FirstOrDefault(g => g.Name.Equals("data"))?.Value;
 
-                if (match.Success)
+                if (!string.IsNullOrEmpty(base64))
                 {
-                    var base64 = match.Groups
-                        .Cast<Group>()
-                        .Where(g => g.Success)
-                        .FirstOrDefault(g => g.Name.Equals("data"))?.Value;
+                    var buffer = Convert.FromBase64String(base64);
 
-                    if (!string.IsNullOrEmpty(base64))
-                    {
-                        var buffer = Convert.FromBase64String(base64);
-
-                        yaml = Encoding.UTF8.GetString(buffer);
-                    }
+                    yaml = Encoding.UTF8.GetString(buffer);
                 }
             }
-
-            return yaml;
         }
 
-        public string Namespace { get; set; }
-
-        public KubernetesConfigurationSource Source { get; set; }
-
-        private string file;
-
-        public string File
-        {
-            get => Source == KubernetesConfigurationSource.File ? file : default;
-            set => file = value;
-        }
-
-        private string yaml;
-
-        public string Yaml
-        {
-            get => Source == KubernetesConfigurationSource.Yaml ? yaml : ParseYamlFromDataUrl(File);
-            set => yaml = value;
-        }
+        return yaml;
     }
 
-    public enum KubernetesConfigurationSource
+    public string Namespace { get; set; }
+
+    public KubernetesConfigurationSource Source { get; set; }
+
+    private string file;
+
+    public string File
     {
-        File,
-
-        Yaml
+        get => Source == KubernetesConfigurationSource.File ? file : default;
+        set => file = value;
     }
+
+    private string yaml;
+
+    public string Yaml
+    {
+        get => Source == KubernetesConfigurationSource.Yaml ? yaml : ParseYamlFromDataUrl(File);
+        set => yaml = value;
+    }
+}
+
+public enum KubernetesConfigurationSource
+{
+    File,
+
+    Yaml
 }

@@ -13,105 +13,104 @@ using Flurl.Http;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Http
+namespace TeamCloud.Http;
+
+public class TeamCloudHttpMessageHandler : DelegatingHandler
 {
-    public class TeamCloudHttpMessageHandler : DelegatingHandler
+    private readonly bool passthrough;
+
+    public TeamCloudHttpMessageHandler(HttpMessageHandler innerHandler) : this(innerHandler, true)
+    { }
+
+    internal TeamCloudHttpMessageHandler(HttpMessageHandler innerHandler, bool passthrough) : base(innerHandler)
     {
-        private readonly bool passthrough;
+        this.passthrough = passthrough;
+    }
 
-        public TeamCloudHttpMessageHandler(HttpMessageHandler innerHandler) : this(innerHandler, true)
-        { }
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        if (request is null)
+            throw new ArgumentNullException(nameof(request));
 
-        internal TeamCloudHttpMessageHandler(HttpMessageHandler innerHandler, bool passthrough) : base(innerHandler)
+        HttpResponseMessage response;
+
+        if (passthrough)
         {
-            this.passthrough = passthrough;
-        }
+            Debug.WriteLine($">>> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri}");
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            if (request is null)
-                throw new ArgumentNullException(nameof(request));
+            var responseTime = Stopwatch.StartNew();
 
-            HttpResponseMessage response;
-
-            if (passthrough)
+            try
             {
-                Debug.WriteLine($">>> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri}");
+                response = await base
+                    .SendAsync(request, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                responseTime.Stop();
+            }
 
-                var responseTime = Stopwatch.StartNew();
-
-                try
-                {
-                    response = await base
-                        .SendAsync(request, cancellationToken)
-                        .ConfigureAwait(false);
-                }
-                finally
-                {
-                    responseTime.Stop();
-                }
-
-                Debug.WriteLine($"<<< {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode} ({responseTime.ElapsedMilliseconds} msec)");
+            Debug.WriteLine($"<<< {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode} ({responseTime.ElapsedMilliseconds} msec)");
 
 #if DEBUG
-                if (!response.IsSuccessStatusCode)
-                    await TraceErrorAsync(request, response).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+                await TraceErrorAsync(request, response).ConfigureAwait(false);
 #endif
-            }
-            else
-            {
-                Debug.WriteLine($"<=> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri}");
-
-                response = await request.RequestUri.ToString()
-                    .AllowAnyHttpStatus()
-                    .WithHeaders(request.Headers)
-                    .SendAsync(request.Method, request.Content, cancellationToken)
-                    .ConfigureAwait(false);
-            }
-
-            return response;
         }
-
-        private static async Task TraceErrorAsync(HttpRequestMessage request, HttpResponseMessage response)
+        else
         {
-            if (response is not null)
-            {
-                // load the response into buffer
-                // to make it available later on
+            Debug.WriteLine($"<=> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri}");
 
-                await response.Content
-                    .LoadIntoBufferAsync()
-                    .ConfigureAwait(false);
-            }
-
-            var trace = new StringBuilder($"!!! {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode}{Environment.NewLine}");
-
-            trace.AppendLine("AUTHORIZATION: " + request.Headers.Authorization);
-            trace.AppendLine("REQUEST: " + await ReadContentAsync(request?.Content).ConfigureAwait(false));
-            trace.AppendLine("RESPONSE: " + await ReadContentAsync(response?.Content).ConfigureAwait(false));
-
-            Debug.WriteLine(trace);
-
-            static async Task<string> ReadContentAsync(HttpContent httpContent)
-            {
-                if ((httpContent?.Headers.ContentLength.GetValueOrDefault(0) ?? 0) == 0)
-                    return string.Empty;
-
-                var content = await httpContent
-                    .ReadAsStringAsync()
-                    .ConfigureAwait(false);
-
-                //TODO: why ist this here needed
-                if (httpContent.Headers.ContentType.MediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
-                {
-                    var jsonContent = TeamCloudSerialize.DeserializeObject(content);
-
-                    return TeamCloudSerialize.SerializeObject(jsonContent, Formatting.Indented);
-                }
-
-                return content;
-            }
-
+            response = await request.RequestUri.ToString()
+                .AllowAnyHttpStatus()
+                .WithHeaders(request.Headers)
+                .SendAsync(request.Method, request.Content, cancellationToken)
+                .ConfigureAwait(false);
         }
+
+        return response;
+    }
+
+    private static async Task TraceErrorAsync(HttpRequestMessage request, HttpResponseMessage response)
+    {
+        if (response is not null)
+        {
+            // load the response into buffer
+            // to make it available later on
+
+            await response.Content
+                .LoadIntoBufferAsync()
+                .ConfigureAwait(false);
+        }
+
+        var trace = new StringBuilder($"!!! {request.Method.ToString().ToUpperInvariant()} {request.RequestUri} {response.StatusCode}{Environment.NewLine}");
+
+        trace.AppendLine("AUTHORIZATION: " + request.Headers.Authorization);
+        trace.AppendLine("REQUEST: " + await ReadContentAsync(request?.Content).ConfigureAwait(false));
+        trace.AppendLine("RESPONSE: " + await ReadContentAsync(response?.Content).ConfigureAwait(false));
+
+        Debug.WriteLine(trace);
+
+        static async Task<string> ReadContentAsync(HttpContent httpContent)
+        {
+            if ((httpContent?.Headers.ContentLength.GetValueOrDefault(0) ?? 0) == 0)
+                return string.Empty;
+
+            var content = await httpContent
+                .ReadAsStringAsync()
+                .ConfigureAwait(false);
+
+            //TODO: why ist this here needed
+            if (httpContent.Headers.ContentType.MediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
+            {
+                var jsonContent = TeamCloudSerialize.DeserializeObject(content);
+
+                return TeamCloudSerialize.SerializeObject(jsonContent, Formatting.Indented);
+            }
+
+            return content;
+        }
+
     }
 }

@@ -7,13 +7,12 @@ using FluentValidation;
 using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.API.Data.Validators
+namespace TeamCloud.API.Data.Validators;
+
+public sealed class OrganizationDefinitionValidator : Validator<OrganizationDefinition>
 {
-    public sealed class OrganizationDefinitionValidator : Validator<OrganizationDefinition>
+    public OrganizationDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public OrganizationDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
-        {
-            RuleFor(obj => obj.DisplayName).NotEmpty();
-        }
+        RuleFor(obj => obj.DisplayName).NotEmpty();
     }
 }

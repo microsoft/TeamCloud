@@ -5,10 +5,9 @@
 
 using System.Threading.Tasks;
 
-namespace TeamCloud.Notification
+namespace TeamCloud.Notification;
+
+public interface INotificationSender
 {
-    public interface INotificationSender
-    {
-        Task SendMessageAsync(INotificationMessage notificationMessage);
-    }
+    Task SendMessageAsync(INotificationMessage notificationMessage);
 }

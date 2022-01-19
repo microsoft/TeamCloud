@@ -6,10 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public class ProjectDeleteCommand : DeleteCommand<Project, ProjectDeleteCommandResult>
 {
-    public class ProjectDeleteCommand : DeleteCommand<Project, ProjectDeleteCommandResult>
-    {
-        public ProjectDeleteCommand(User user, Project payload) : base(user, payload) { }
-    }
+    public ProjectDeleteCommand(User user, Project payload)
+        : base(user, payload)
+    { }
 }

@@ -6,32 +6,31 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ResourceState
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ResourceState
-    {
-        Pending,
+    Pending,
 
-        Initializing,
+    Initializing,
 
-        Provisioning,
+    Provisioning,
 
-        Provisioned,
+    Provisioned,
 
-        Deprovisioning,
+    Deprovisioning,
 
-        Deprovisioned,
+    Deprovisioned,
 
-        Failed
-    }
+    Failed
+}
 
-    public static class ResourceStateExtensions
-    {
-        public static bool IsFinal(this ResourceState resourceState)
-            => resourceState == ResourceState.Provisioned || resourceState == ResourceState.Deprovisioned || resourceState == ResourceState.Failed;
+public static class ResourceStateExtensions
+{
+    public static bool IsFinal(this ResourceState resourceState)
+        => resourceState == ResourceState.Provisioned || resourceState == ResourceState.Deprovisioned || resourceState == ResourceState.Failed;
 
-        public static bool IsActive(this ResourceState resourceState)
-            => !resourceState.IsFinal();
-    }
+    public static bool IsActive(this ResourceState resourceState)
+        => !resourceState.IsFinal();
 }

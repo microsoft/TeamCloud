@@ -6,13 +6,12 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum RepositoryProvider
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum RepositoryProvider
-    {
-        Unknown,
-        GitHub,
-        DevOps
-    }
+    Unknown,
+    GitHub,
+    DevOps
 }

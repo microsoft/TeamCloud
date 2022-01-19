@@ -5,22 +5,21 @@
 
 using System;
 
-namespace TeamCloud.Model.Commands.Core
+namespace TeamCloud.Model.Commands.Core;
+
+public abstract class CommandMessage : ICommandMessage
 {
-    public abstract class CommandMessage : ICommandMessage
+    protected CommandMessage()
+    { }
+
+    protected CommandMessage(ICommand command)
     {
-        protected CommandMessage()
-        { }
-
-        protected CommandMessage(ICommand command)
-        {
-            Command = command ?? throw new ArgumentNullException(nameof(command));
-        }
-
-        public ICommand Command { get; set; }
-
-        public Guid? CommandId => Command?.CommandId;
-
-        public Type CommandType => Command?.GetType();
+        Command = command ?? throw new ArgumentNullException(nameof(command));
     }
+
+    public ICommand Command { get; set; }
+
+    public Guid? CommandId => Command?.CommandId;
+
+    public Type CommandType => Command?.GetType();
 }

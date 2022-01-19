@@ -5,13 +5,12 @@
 
 using System;
 
-namespace TeamCloud.Configuration.Options
-{
-    [Options("Azure:DeploymentStorage")]
-    public class AzureDeploymentStorageOptions
-    {
-        public string ConnectionString { get; set; } = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+namespace TeamCloud.Configuration.Options;
 
-        public string BaseUrlOverride { get; set; }
-    }
+[Options("Azure:DeploymentStorage")]
+public class AzureDeploymentStorageOptions
+{
+    public string ConnectionString { get; set; } = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+
+    public string BaseUrlOverride { get; set; }
 }

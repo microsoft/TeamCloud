@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Notification.Smtp
-{
-    public interface INotificationSmtpSender : INotificationSender
-    {
+namespace TeamCloud.Notification.Smtp;
 
-    }
+public interface INotificationSmtpSender : INotificationSender
+{
+
 }

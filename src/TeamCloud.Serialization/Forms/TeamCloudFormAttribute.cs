@@ -7,35 +7,33 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Serialization.Forms
+namespace TeamCloud.Serialization.Forms;
+
+public abstract class TeamCloudFormAttribute : Attribute
 {
-
-    public abstract class TeamCloudFormAttribute : Attribute
+    protected TeamCloudFormAttribute(string name)
     {
-        protected TeamCloudFormAttribute(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name));
 
-            // we remove any whitespaces - just to be on the safe side when rendering 
-            Name = $"ui:{name}".Replace(" ", "", StringComparison.OrdinalIgnoreCase);
-        }
-
-        public string Name { get; }
-
-        public virtual void WriteJson(JsonWriter writer, JsonContract contract, string property = null)
-        {
-            if (writer is null)
-                throw new ArgumentNullException(nameof(writer));
-
-            if (contract is null)
-                throw new ArgumentNullException(nameof(contract));
-
-            writer.WritePropertyName(this.Name);
-
-            this.WriteJsonValue(writer, contract, property);
-        }
-
-        protected abstract void WriteJsonValue(JsonWriter writer, JsonContract contract, string property = null);
+        // we remove any whitespaces - just to be on the safe side when rendering
+        Name = $"ui:{name}".Replace(" ", "", StringComparison.OrdinalIgnoreCase);
     }
+
+    public string Name { get; }
+
+    public virtual void WriteJson(JsonWriter writer, JsonContract contract, string property = null)
+    {
+        if (writer is null)
+            throw new ArgumentNullException(nameof(writer));
+
+        if (contract is null)
+            throw new ArgumentNullException(nameof(contract));
+
+        writer.WritePropertyName(this.Name);
+
+        this.WriteJsonValue(writer, contract, property);
+    }
+
+    protected abstract void WriteJsonValue(JsonWriter writer, JsonContract contract, string property = null);
 }

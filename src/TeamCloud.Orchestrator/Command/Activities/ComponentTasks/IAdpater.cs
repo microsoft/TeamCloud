@@ -3,9 +3,8 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
+namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks;
+
+internal interface IAdpater
 {
-    internal interface IAdpater
-    {
-    }
 }

@@ -5,20 +5,19 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TeamCloud.Azure
+namespace TeamCloud.Azure;
+
+public interface IAzureConfiguration
 {
-    public interface IAzureConfiguration
+    IServiceCollection Services { get; }
+}
+
+internal sealed class AzureConfiguration : IAzureConfiguration
+{
+    public AzureConfiguration(IServiceCollection services)
     {
-        IServiceCollection Services { get; }
+        Services = services ?? throw new System.ArgumentNullException(nameof(services));
     }
 
-    internal sealed class AzureConfiguration : IAzureConfiguration
-    {
-        public AzureConfiguration(IServiceCollection services)
-        {
-            Services = services ?? throw new System.ArgumentNullException(nameof(services));
-        }
-
-        public IServiceCollection Services { get; }
-    }
+    public IServiceCollection Services { get; }
 }

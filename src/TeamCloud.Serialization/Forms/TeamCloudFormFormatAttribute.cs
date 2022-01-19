@@ -1,25 +1,29 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Serialization.Forms
+namespace TeamCloud.Serialization.Forms;
+
+[AttributeUsage(AttributeTargets.Property)]
+public sealed class TeamCloudFormFormatAttribute : TeamCloudFormAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public sealed class TeamCloudFormFormatAttribute : TeamCloudFormAttribute
+    private readonly string format;
+
+    public TeamCloudFormFormatAttribute(string format) : base("format")
     {
-        private readonly string format;
+        if (string.IsNullOrWhiteSpace(format))
+            throw new ArgumentException($"'{nameof(format)}' cannot be null or whitespace.", nameof(format));
 
-        public TeamCloudFormFormatAttribute(string format) : base("format")
-        {
-            if (string.IsNullOrWhiteSpace(format))
-                throw new ArgumentException($"'{nameof(format)}' cannot be null or whitespace.", nameof(format));
+        this.format = format;
+    }
 
-            this.format = format;
-        }
-
-        protected override void WriteJsonValue(JsonWriter writer, JsonContract contract, string property = null)
-        {
-            writer.WriteValue(format);
-        }
+    protected override void WriteJsonValue(JsonWriter writer, JsonContract contract, string property = null)
+    {
+        writer.WriteValue(format);
     }
 }

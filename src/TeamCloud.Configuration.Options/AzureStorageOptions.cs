@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
-namespace TeamCloud.Configuration.Options
+using System;
+
+namespace TeamCloud.Configuration.Options;
+
+[Options("Azure:Storage")]
+public sealed class AzureStorageOptions
 {
-    [Options("Azure:Storage")]
-    public sealed class AzureStorageOptions
-    {
-        public string ConnectionString { get; set; } = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-    }
+    public string ConnectionString { get; set; } = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 }

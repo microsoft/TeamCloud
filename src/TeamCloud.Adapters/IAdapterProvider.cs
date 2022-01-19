@@ -6,12 +6,11 @@
 using System.Collections.Generic;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Adapters
-{
-    public interface IAdapterProvider
-    {
-        IEnumerable<IAdapter> GetAdapters();
+namespace TeamCloud.Adapters;
 
-        IAdapter GetAdapter(DeploymentScopeType deploymentScopeType);
-    }
+public interface IAdapterProvider
+{
+    IEnumerable<IAdapter> GetAdapters();
+
+    IAdapter GetAdapter(DeploymentScopeType deploymentScopeType);
 }

@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Orchestrator.Services
+namespace TeamCloud.Orchestrator.Services;
+
+public interface IApiOptions
 {
-    public interface IApiOptions
-    {
-        public string Url { get; }
-    }
+    public string Url { get; }
 }

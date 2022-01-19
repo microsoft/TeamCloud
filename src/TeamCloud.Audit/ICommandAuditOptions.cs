@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Audit
+namespace TeamCloud.Audit;
+
+public interface ICommandAuditOptions
 {
-    public interface ICommandAuditOptions
-    {
-        public string ConnectionString { get; }
-    }
+    public string ConnectionString { get; }
 }

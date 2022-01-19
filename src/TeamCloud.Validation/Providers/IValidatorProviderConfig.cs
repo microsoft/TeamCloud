@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
-namespace TeamCloud.Validation.Providers
+using System.Reflection;
+
+namespace TeamCloud.Validation.Providers;
+
+public interface IValidatorProviderConfig
 {
-    public interface IValidatorProviderConfig
-    {
-        public IValidatorProviderConfig Register(Assembly assembly);
-    }
+    public IValidatorProviderConfig Register(Assembly assembly);
 }

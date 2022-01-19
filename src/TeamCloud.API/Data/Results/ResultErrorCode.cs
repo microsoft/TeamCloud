@@ -6,18 +6,17 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.API.Data.Results
+namespace TeamCloud.API.Data.Results;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ResultErrorCode
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ResultErrorCode
-    {
-        Unknown,
-        Failed,
-        Conflict,
-        NotFound,
-        ServerError,
-        ValidationError,
-        Unauthorized,
-        Forbidden
-    }
+    Unknown,
+    Failed,
+    Conflict,
+    NotFound,
+    ServerError,
+    ValidationError,
+    Unauthorized,
+    Forbidden
 }

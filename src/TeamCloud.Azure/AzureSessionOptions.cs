@@ -3,29 +3,28 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure
+namespace TeamCloud.Azure;
+
+public interface IAzureSessionOptions
 {
-    public interface IAzureSessionOptions
-    {
-        string TenantId { get; }
+    string TenantId { get; }
 
-        string ClientId { get; }
+    string ClientId { get; }
 
-        string ClientSecret { get; }
-    }
+    string ClientSecret { get; }
+}
 
-    public sealed class AzureSessionOptions : IAzureSessionOptions
-    {
-        public static readonly IAzureSessionOptions Default
-            = new AzureSessionOptions();
+public sealed class AzureSessionOptions : IAzureSessionOptions
+{
+    public static readonly IAzureSessionOptions Default
+        = new AzureSessionOptions();
 
-        private AzureSessionOptions()
-        { }
+    private AzureSessionOptions()
+    { }
 
-        public string TenantId { get; internal set; }
+    public string TenantId { get; internal set; }
 
-        public string ClientId { get; internal set; }
+    public string ClientId { get; internal set; }
 
-        public string ClientSecret { get; internal set; }
-    }
+    public string ClientSecret { get; internal set; }
 }

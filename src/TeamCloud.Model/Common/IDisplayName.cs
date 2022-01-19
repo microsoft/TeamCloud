@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+public interface IDisplayName
 {
-    public interface IDisplayName
-    {
-        string DisplayName { get; set; }
-    }
+    string DisplayName { get; set; }
 }

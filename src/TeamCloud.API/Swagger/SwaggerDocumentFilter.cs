@@ -1,18 +1,22 @@
-﻿using Microsoft.OpenApi.Models;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace TeamCloud.API.Swagger
+namespace TeamCloud.API.Swagger;
+
+internal sealed class SwaggerDocumentFilter : IDocumentFilter
 {
-    internal sealed class SwaggerDocumentFilter : IDocumentFilter
+    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
-        public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+        foreach (var apiDescription in context.ApiDescriptions)
         {
-            foreach (var apiDescription in context.ApiDescriptions)
+            if (apiDescription.TryGetMethodInfo(out var methodInfo) && methodInfo.HasCustomAttribute<SwaggerIgnoreAttribute>(false))
             {
-                if (apiDescription.TryGetMethodInfo(out var methodInfo) && methodInfo.HasCustomAttribute<SwaggerIgnoreAttribute>(false))
-                {
-                    swaggerDoc.Paths.Remove($"/{apiDescription.RelativePath}");
-                }
+                swaggerDoc.Paths.Remove($"/{apiDescription.RelativePath}");
             }
         }
     }

@@ -6,14 +6,13 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum UserType
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum UserType
-    {
-        User,       // AAD User
-        Group,      // AAD Group
-        System,     // AAD SP used by TeamCloud
-        Service     // AAD ServicePrincipal
-    }
+    User,       // AAD User
+    Group,      // AAD Group
+    System,     // AAD SP used by TeamCloud
+    Service     // AAD ServicePrincipal
 }

@@ -15,78 +15,76 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Orchestrator.Command.Handlers
+namespace TeamCloud.Orchestrator.Command.Handlers;
+
+public sealed class ComponentDeleteCommandHandler : CommandHandler<ComponentDeleteCommand>
 {
+    private readonly IComponentRepository componentRepository;
+    private readonly IComponentTaskRepository componentTaskRepository;
 
-    public sealed class ComponentDeleteCommandHandler : CommandHandler<ComponentDeleteCommand>
+    public ComponentDeleteCommandHandler(IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository)
     {
-        private readonly IComponentRepository componentRepository;
-        private readonly IComponentTaskRepository componentTaskRepository;
+        this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
+        this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
+    }
 
-        public ComponentDeleteCommandHandler(IComponentRepository componentRepository, IComponentTaskRepository componentTaskRepository)
+    public override bool Orchestration => false;
+
+    public override async Task<ICommandResult> HandleAsync(ComponentDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
-            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
-        }
+            commandResult.Result = await componentRepository
+                .RemoveAsync(command.Payload, true)
+                .ConfigureAwait(false);
 
-        public override bool Orchestration => false;
+            var existingComponentTasks = componentTaskRepository
+                .ListAsync(commandResult.Result.Id)
+                .Where(ct => ct.Type == ComponentTaskType.Custom && ct.TaskState.IsActive());
 
-        public override async Task<ICommandResult> HandleAsync(ComponentDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
+            await foreach (var existingComponentTask in existingComponentTasks)
             {
-                commandResult.Result = await componentRepository
-                    .RemoveAsync(command.Payload, true)
-                    .ConfigureAwait(false);
-
-                var existingComponentTasks = componentTaskRepository
-                    .ListAsync(commandResult.Result.Id)
-                    .Where(ct => ct.Type == ComponentTaskType.Custom && ct.TaskState.IsActive());
-
-                await foreach (var existingComponentTask in existingComponentTasks)
-                {
-                    var cancelCommand = new ComponentTaskCancelCommand(command.User, existingComponentTask);
-
-                    await commandQueue
-                        .AddAsync(cancelCommand)
-                        .ConfigureAwait(false);
-                }
-
-                var componentTask = new ComponentTask
-                {
-                    Organization = commandResult.Result.Organization,
-                    ComponentId = commandResult.Result.Id,
-                    ProjectId = commandResult.Result.ProjectId,
-                    Type = ComponentTaskType.Delete,
-                    RequestedBy = command.User.Id,
-                    InputJson = commandResult.Result.InputJson
-                };
-
-                componentTask = await componentTaskRepository
-                    .AddAsync(componentTask)
-                    .ConfigureAwait(false);
+                var cancelCommand = new ComponentTaskCancelCommand(command.User, existingComponentTask);
 
                 await commandQueue
-                    .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
+                    .AddAsync(cancelCommand)
                     .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
             }
-            catch (Exception exc)
+
+            var componentTask = new ComponentTask
             {
-                commandResult.Errors.Add(exc);
-            }
+                Organization = commandResult.Result.Organization,
+                ComponentId = commandResult.Result.Id,
+                ProjectId = commandResult.Result.ProjectId,
+                Type = ComponentTaskType.Delete,
+                RequestedBy = command.User.Id,
+                InputJson = commandResult.Result.InputJson
+            };
 
-            return commandResult;
+            componentTask = await componentTaskRepository
+                .AddAsync(componentTask)
+                .ConfigureAwait(false);
+
+            await commandQueue
+                .AddAsync(new ComponentTaskRunCommand(command.User, componentTask))
+                .ConfigureAwait(false);
+
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
+        return commandResult;
     }
+
 }

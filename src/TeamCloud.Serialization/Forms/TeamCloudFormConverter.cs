@@ -9,58 +9,57 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Serialization.Forms
+namespace TeamCloud.Serialization.Forms;
+
+internal sealed class TeamCloudFormConverter<TData> : JsonConverter<TData>
+    where TData : class, new()
 {
-    internal sealed class TeamCloudFormConverter<TData> : JsonConverter<TData>
-        where TData : class, new()
+    public override bool CanRead => false;
+
+    public override TData ReadJson(JsonReader reader, Type objectType, [AllowNull] TData existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        public override bool CanRead => false;
+        throw new NotSupportedException();
+    }
 
-        public override TData ReadJson(JsonReader reader, Type objectType, [AllowNull] TData existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, [AllowNull] TData value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+
+        if (serializer.ContractResolver.ResolveContract(typeof(TData)) is JsonObjectContract objectContract)
         {
-            throw new NotSupportedException();
-        }
+            typeof(TData)
+                .GetCustomAttributes(false)
+                .OfType<TeamCloudFormAttribute>()
+                .ToList()
+                .ForEach(attribute => attribute.WriteJson(writer, objectContract));
 
-        public override void WriteJson(JsonWriter writer, [AllowNull] TData value, JsonSerializer serializer)
-        {
-            writer.WriteStartObject();
-
-            if (serializer.ContractResolver.ResolveContract(typeof(TData)) is JsonObjectContract objectContract)
+            foreach (var property in objectContract.Properties)
             {
-                typeof(TData)
-                    .GetCustomAttributes(false)
+                var attributes = property.AttributeProvider
+                    .GetAttributes(false)
                     .OfType<TeamCloudFormAttribute>()
-                    .ToList()
-                    .ForEach(attribute => attribute.WriteJson(writer, objectContract));
+                    .ToList();
 
-                foreach (var property in objectContract.Properties)
+                if (attributes.Any())
                 {
-                    var attributes = property.AttributeProvider
-                        .GetAttributes(false)
-                        .OfType<TeamCloudFormAttribute>()
+                    var optionAttributes = attributes
+                        .OfType<TeamCloudFormOptionAttribute>()
                         .ToList();
 
-                    if (attributes.Any())
-                    {
-                        var optionAttributes = attributes
-                            .OfType<TeamCloudFormOptionAttribute>()
-                            .ToList();
+                    writer.WritePropertyName(property.PropertyName);
+                    writer.WriteStartObject();
 
-                        writer.WritePropertyName(property.PropertyName);
-                        writer.WriteStartObject();
+                    foreach (var attribute in attributes.Except(optionAttributes))
+                        attribute.WriteJson(writer, objectContract, property.PropertyName);
 
-                        foreach (var attribute in attributes.Except(optionAttributes))
-                            attribute.WriteJson(writer, objectContract, property.PropertyName);
+                    if (optionAttributes.Any())
+                        TeamCloudFormOptionAttribute.WriteJson(optionAttributes, writer, objectContract, property.PropertyName);
 
-                        if (optionAttributes.Any())
-                            TeamCloudFormOptionAttribute.WriteJson(optionAttributes, writer, objectContract, property.PropertyName);
-
-                        writer.WriteEndObject();
-                    }
+                    writer.WriteEndObject();
                 }
             }
-
-            writer.WriteEndObject();
         }
+
+        writer.WriteEndObject();
     }
 }

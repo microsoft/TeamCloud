@@ -6,23 +6,22 @@
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
-namespace TeamCloud.Orchestrator.Options
+namespace TeamCloud.Orchestrator.Options;
+
+public interface ISignalROptions
 {
-    public interface ISignalROptions
+    string ConnectionString { get; }
+}
+
+[Options]
+public class TeamCloudSignalROptions : ISignalROptions
+{
+    private readonly AzureSignalROptions azureSignalROptions;
+
+    public TeamCloudSignalROptions(AzureSignalROptions azureSignalROptions)
     {
-        string ConnectionString { get; }
+        this.azureSignalROptions = azureSignalROptions ?? throw new System.ArgumentNullException(nameof(azureSignalROptions));
     }
 
-    [Options]
-    public class TeamCloudSignalROptions : ISignalROptions
-    {
-        private readonly AzureSignalROptions azureSignalROptions;
-
-        public TeamCloudSignalROptions(AzureSignalROptions azureSignalROptions)
-        {
-            this.azureSignalROptions = azureSignalROptions ?? throw new System.ArgumentNullException(nameof(azureSignalROptions));
-        }
-
-        string ISignalROptions.ConnectionString => azureSignalROptions.ConnectionString;
-    }
+    string ISignalROptions.ConnectionString => azureSignalROptions.ConnectionString;
 }

@@ -3,11 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Configuration.Options
+namespace TeamCloud.Configuration.Options;
+
+[Options("Azure:SignalR")]
+public class AzureSignalROptions
 {
-    [Options("Azure:SignalR")]
-    public class AzureSignalROptions
-    {
-        public string ConnectionString { get; set; }
-    }
+    public string ConnectionString { get; set; }
 }

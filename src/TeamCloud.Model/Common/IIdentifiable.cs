@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+public interface IIdentifiable
 {
-    public interface IIdentifiable
-    {
-        string Id { get; set; }
-    }
+    string Id { get; set; }
 }

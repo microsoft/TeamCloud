@@ -5,10 +5,9 @@
 
 using System.Collections.Generic;
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+public interface IProperties
 {
-    public interface IProperties
-    {
-        IDictionary<string, string> Properties { get; set; }
-    }
+    IDictionary<string, string> Properties { get; set; }
 }

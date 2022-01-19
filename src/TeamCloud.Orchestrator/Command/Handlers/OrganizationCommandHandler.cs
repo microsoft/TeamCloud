@@ -13,110 +13,109 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 
 
-namespace TeamCloud.Orchestrator.Command.Handlers
+namespace TeamCloud.Orchestrator.Command.Handlers;
+
+public sealed class OrganizationCommandHandler : CommandHandler,
+      ICommandHandler<OrganizationCreateCommand>,
+      ICommandHandler<OrganizationUpdateCommand>,
+      ICommandHandler<OrganizationDeleteCommand>
 {
-    public sealed class OrganizationCommandHandler : CommandHandler,
-          ICommandHandler<OrganizationCreateCommand>,
-          ICommandHandler<OrganizationUpdateCommand>,
-          ICommandHandler<OrganizationDeleteCommand>
+    private readonly IUserRepository userRepository;
+    private readonly IOrganizationRepository organizationRepository;
+
+    public OrganizationCommandHandler(IOrganizationRepository organizationRepository, IUserRepository userRepository)
     {
-        private readonly IUserRepository userRepository;
-        private readonly IOrganizationRepository organizationRepository;
+        this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+    }
 
-        public OrganizationCommandHandler(IOrganizationRepository organizationRepository, IUserRepository userRepository)
+    public override bool Orchestration => false;
+
+    public async Task<ICommandResult> HandleAsync(OrganizationCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+            commandResult.Result = await organizationRepository
+                .SetAsync(command.Payload)
+                .ConfigureAwait(false);
+
+            await userRepository
+                .AddAsync(command.User)
+                .ConfigureAwait(false);
+
+            await commandQueue
+                .AddAsync(new OrganizationDeployCommand(command.User, commandResult.Result))
+                .ConfigureAwait(false);
+
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
-        public override bool Orchestration => false;
+        return commandResult;
+    }
 
-        public async Task<ICommandResult> HandleAsync(OrganizationCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(OrganizationUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            commandResult.Result = await organizationRepository
+                .SetAsync(command.Payload)
+                .ConfigureAwait(false);
 
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                commandResult.Result = await organizationRepository
-                    .SetAsync(command.Payload)
-                    .ConfigureAwait(false);
-
-                await userRepository
-                    .AddAsync(command.User)
-                    .ConfigureAwait(false);
-
-                await commandQueue
-                    .AddAsync(new OrganizationDeployCommand(command.User, commandResult.Result))
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
-        public async Task<ICommandResult> HandleAsync(OrganizationUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+        return commandResult;
+    }
 
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
+    public Task<ICommandResult> HandleAsync(OrganizationDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
 
-            var commandResult = command.CreateResult();
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
 
-            try
-            {
-                commandResult.Result = await organizationRepository
-                    .SetAsync(command.Payload)
-                    .ConfigureAwait(false);
+        throw new NotSupportedException();
 
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
+        // var commandResult = orchestratorCommand.CreateResult();
 
-            return commandResult;
-        }
+        // try
+        // {
+        //     commandResult.Result = await organizationRepository
+        //         .RemoveAsync(orchestratorCommand.Payload)
+        //         .ConfigureAwait(false);
 
-        public Task<ICommandResult> HandleAsync(OrganizationDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+        //     commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        // }
+        // catch (Exception exc)
+        // {
+        //     commandResult.Errors.Add(exc);
+        // }
 
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            throw new NotSupportedException();
-
-            // var commandResult = orchestratorCommand.CreateResult();
-
-            // try
-            // {
-            //     commandResult.Result = await organizationRepository
-            //         .RemoveAsync(orchestratorCommand.Payload)
-            //         .ConfigureAwait(false);
-
-            //     commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            // }
-            // catch (Exception exc)
-            // {
-            //     commandResult.Errors.Add(exc);
-            // }
-
-            // return commandResult;
-        }
+        // return commandResult;
     }
 }

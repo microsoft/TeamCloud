@@ -6,10 +6,9 @@
 using System;
 using System.Threading.Tasks;
 
-namespace TeamCloud.Azure.Deployment
+namespace TeamCloud.Azure.Deployment;
+
+public interface IAzureDeploymentTokenProvider
 {
-    public interface IAzureDeploymentTokenProvider
-    {
-        Task<string> AcquireToken(Guid deploymentId, IAzureDeploymentArtifactsProvider azureDeploymentArtifactsProvider);
-    }
+    Task<string> AcquireToken(Guid deploymentId, IAzureDeploymentArtifactsProvider azureDeploymentArtifactsProvider);
 }

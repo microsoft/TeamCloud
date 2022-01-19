@@ -10,24 +10,24 @@ using Microsoft.ApplicationInsights;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Data.Expanders
+namespace TeamCloud.Data.Expanders;
+
+public sealed class UserExpander : DocumentExpander,
+    IDocumentExpander<User>
 {
-    public sealed class UserExpander : DocumentExpander,
-        IDocumentExpander<User>
+    private readonly IAzureDirectoryService azureDirectoryService;
+
+    public UserExpander(IAzureDirectoryService azureDirectoryService, TelemetryClient telemetryClient) : base(true, telemetryClient)
     {
-        private readonly IAzureDirectoryService azureDirectoryService;
+        this.azureDirectoryService = azureDirectoryService ?? throw new System.ArgumentNullException(nameof(azureDirectoryService));
+    }
 
-        public UserExpander(IAzureDirectoryService azureDirectoryService, TelemetryClient telemetryClient) : base(true, telemetryClient)
-        {
-            this.azureDirectoryService = azureDirectoryService ?? throw new System.ArgumentNullException(nameof(azureDirectoryService));
-        }
+    public Task ExpandAsync(User document)
+    {
+        if (document is null)
+            throw new System.ArgumentNullException(nameof(document));
 
-        public Task ExpandAsync(User document)
-        {
-            if (document is null)
-                throw new System.ArgumentNullException(nameof(document));
-
-            var tasks = new List<Task>()
+        var tasks = new List<Task>()
             {
                 FetchAsync(async () =>
                 {
@@ -49,9 +49,8 @@ namespace TeamCloud.Data.Expanders
                 }),
             };
 
-            return tasks.WhenAll();
+        return tasks.WhenAll();
 
-            Task FetchAsync(Func<Task> callback) => callback();
-        }
+        Task FetchAsync(Func<Task> callback) => callback();
     }
 }

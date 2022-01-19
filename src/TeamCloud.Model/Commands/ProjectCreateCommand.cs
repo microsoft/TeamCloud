@@ -6,10 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public class ProjectCreateCommand : CreateCommand<Project, ProjectCreateCommandResult>
 {
-    public class ProjectCreateCommand : CreateCommand<Project, ProjectCreateCommandResult>
-    {
-        public ProjectCreateCommand(User user, Project payload) : base(user, payload) { }
-    }
+    public ProjectCreateCommand(User user, Project payload)
+        : base(user, payload)
+    { }
 }

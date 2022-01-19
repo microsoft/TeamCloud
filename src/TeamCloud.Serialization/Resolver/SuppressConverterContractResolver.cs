@@ -7,23 +7,22 @@ using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 
-namespace TeamCloud.Serialization.Resolver
+namespace TeamCloud.Serialization.Resolver;
+
+public class SuppressConverterContractResolver<TConverter> : TeamCloudContractResolver
+    where TConverter : JsonConverter
 {
-    public class SuppressConverterContractResolver<TConverter> : TeamCloudContractResolver
-        where TConverter : JsonConverter
+    protected override JsonConverter ResolveContractConverter(Type objectType)
     {
-        protected override JsonConverter ResolveContractConverter(Type objectType)
+        var jsonConverter = base.ResolveContractConverter(objectType);
+
+        if (jsonConverter is TConverter)
         {
-            var jsonConverter = base.ResolveContractConverter(objectType);
+            Debug.WriteLine($"Suppressing JsonContractResolver of type {jsonConverter.GetType()} for object of type {objectType}");
 
-            if (jsonConverter is TConverter)
-            {
-                Debug.WriteLine($"Suppressing JsonContractResolver of type {jsonConverter.GetType()} for object of type {objectType}");
-
-                return null;
-            }
-
-            return jsonConverter;
+            return null;
         }
+
+        return jsonConverter;
     }
 }

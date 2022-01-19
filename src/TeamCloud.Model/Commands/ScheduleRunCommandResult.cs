@@ -6,9 +6,6 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
-{
-    public sealed class ScheduleRunCommandResult : CommandResult<Schedule>
-    {
-    }
-}
+namespace TeamCloud.Model.Commands;
+
+public sealed class ScheduleRunCommandResult : CommandResult<Schedule> { }

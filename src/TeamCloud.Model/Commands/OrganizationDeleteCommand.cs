@@ -6,10 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class OrganizationDeleteCommand : DeleteCommand<Organization, OrganizationDeleteCommandResult>
 {
-    public sealed class OrganizationDeleteCommand : DeleteCommand<Organization, OrganizationDeleteCommandResult>
-    {
-        public OrganizationDeleteCommand(User user, Organization payload) : base(user, payload) { }
-    }
+    public OrganizationDeleteCommand(User user, Organization payload)
+        : base(user, payload)
+    { }
 }

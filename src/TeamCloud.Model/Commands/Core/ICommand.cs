@@ -4,45 +4,42 @@
  */
 
 using System;
-using System.Linq;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands.Serialization;
-using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Validation;
 
-namespace TeamCloud.Model.Commands.Core
+namespace TeamCloud.Model.Commands.Core;
+
+[JsonConverter(typeof(CommandConverter))]
+public interface ICommand : IValidatable
 {
-    [JsonConverter(typeof(CommandConverter))]
-    public interface ICommand : IValidatable
-    {
-        Guid CommandId { get; }
+    Guid CommandId { get; }
 
-        Guid ParentId { get; set; }
+    Guid ParentId { get; set; }
 
-        string OrganizationId { get; }
+    string OrganizationId { get; }
 
-        CommandAction CommandAction { get; }
+    CommandAction CommandAction { get; }
 
-        string ProjectId { get; }
+    string ProjectId { get; }
 
-        User User { get; set; }
+    User User { get; set; }
 
-        ICommandResult CreateResult();
+    ICommandResult CreateResult();
 
-        object Payload { get; set; }
-    }
+    object Payload { get; set; }
+}
 
-    public interface ICommand<TPayload> : ICommand
-        where TPayload : new()
-    {
-        new TPayload Payload { get; set; }
-    }
+public interface ICommand<TPayload> : ICommand
+    where TPayload : new()
+{
+    new TPayload Payload { get; set; }
+}
 
-    public interface ICommand<TPayload, TCommandResult> : ICommand<TPayload>
-        where TPayload : class, new()
-        where TCommandResult : ICommandResult
-    {
-        new TCommandResult CreateResult();
-    }
+public interface ICommand<TPayload, TCommandResult> : ICommand<TPayload>
+    where TPayload : class, new()
+    where TCommandResult : ICommandResult
+{
+    new TCommandResult CreateResult();
 }

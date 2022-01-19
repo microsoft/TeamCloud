@@ -6,14 +6,13 @@
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Adapters.Authorization
-{
-    public interface IAuthorizationTokenClient
-    {
-        Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
-            where TAuthorizationToken : AuthorizationToken;
+namespace TeamCloud.Adapters.Authorization;
 
-        Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken, bool force = false)
-            where TAuthorizationToken : AuthorizationToken;
-    }
+public interface IAuthorizationTokenClient
+{
+    Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
+        where TAuthorizationToken : AuthorizationToken;
+
+    Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken, bool force = false)
+        where TAuthorizationToken : AuthorizationToken;
 }

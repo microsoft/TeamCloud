@@ -8,56 +8,55 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Serialization.Forms
+namespace TeamCloud.Serialization.Forms;
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class TeamCloudFormOrderAttribute : TeamCloudFormAttribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class TeamCloudFormOrderAttribute : TeamCloudFormAttribute
+    private const string Wildcard = "*";
+    private string[] names;
+
+    public TeamCloudFormOrderAttribute(string name, params string[] additionalNames) : base("order")
     {
-        private const string Wildcard = "*";
-        private string[] names;
+        names = additionalNames
+            .Prepend(name)
+            .Select(n => $"{n}".Trim())
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .ToArray();
+    }
 
-        public TeamCloudFormOrderAttribute(string name, params string[] additionalNames) : base("order")
+    protected override void WriteJsonValue(JsonWriter writer, JsonContract contract, string property = null)
+    {
+        writer.WriteStartArray();
+
+        var wildcardUsed = false;
+
+        foreach (var name in names)
         {
-            names = additionalNames
-                .Prepend(name)
-                .Select(n => $"{n}".Trim())
-                .Where(n => !string.IsNullOrWhiteSpace(n))
-                .ToArray();
-        }
-
-        protected override void WriteJsonValue(JsonWriter writer, JsonContract contract, string property = null)
-        {
-            writer.WriteStartArray();
-
-            var wildcardUsed = false;
-
-            foreach (var name in names)
+            if (name.Equals(Wildcard, StringComparison.OrdinalIgnoreCase))
             {
-                if (name.Equals(Wildcard, StringComparison.OrdinalIgnoreCase))
-                {
-                    wildcardUsed = true;
+                wildcardUsed = true;
 
-                    writer.WriteValue(name);
-                }
-                else if (contract is JsonObjectContract objectContract)
-                {
-                    var propertyName = objectContract.Properties
-                        .FirstOrDefault(p => p.PropertyName.Equals(name, StringComparison.OrdinalIgnoreCase))?
-                        .PropertyName;
+                writer.WriteValue(name);
+            }
+            else if (contract is JsonObjectContract objectContract)
+            {
+                var propertyName = objectContract.Properties
+                    .FirstOrDefault(p => p.PropertyName.Equals(name, StringComparison.OrdinalIgnoreCase))?
+                    .PropertyName;
 
-                    if (!string.IsNullOrEmpty(propertyName))
-                    {
-                        writer.WriteValue(propertyName);
-                    }
+                if (!string.IsNullOrEmpty(propertyName))
+                {
+                    writer.WriteValue(propertyName);
                 }
             }
-
-            if (!wildcardUsed)
-            {
-                writer.WriteValue(Wildcard);
-            }
-
-            writer.WriteEndArray();
         }
+
+        if (!wildcardUsed)
+        {
+            writer.WriteValue(Wildcard);
+        }
+
+        writer.WriteEndArray();
     }
 }

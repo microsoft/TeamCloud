@@ -11,40 +11,39 @@ using TeamCloud.Data;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Orchestrator.Command.Activities.Organizations
+namespace TeamCloud.Orchestrator.Command.Activities.Organizations;
+
+public sealed class OrganizationSetActivity
 {
-    public sealed class OrganizationSetActivity
+    private readonly IOrganizationRepository organizationRepository;
+
+    public OrganizationSetActivity(IOrganizationRepository organizationRepository)
     {
-        private readonly IOrganizationRepository organizationRepository;
+        this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+    }
 
-        public OrganizationSetActivity(IOrganizationRepository organizationRepository)
-        {
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-        }
+    [FunctionName(nameof(OrganizationSetActivity))]
+    public async Task<Organization> Run(
+        [ActivityTrigger] IDurableActivityContext context)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
 
-        [FunctionName(nameof(OrganizationSetActivity))]
-        public async Task<Organization> Run(
-            [ActivityTrigger] IDurableActivityContext context)
-        {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
+        var organization = context.GetInput<Input>().Organization;
 
-            var organization = context.GetInput<Input>().Organization;
+        organization.ResourceState = context.GetInput<Input>().ResourceState.GetValueOrDefault(organization.ResourceState);
 
-            organization.ResourceState = context.GetInput<Input>().ResourceState.GetValueOrDefault(organization.ResourceState);
+        organization = await organizationRepository
+            .SetAsync(organization)
+            .ConfigureAwait(false);
 
-            organization = await organizationRepository
-                .SetAsync(organization)
-                .ConfigureAwait(false);
+        return organization;
+    }
 
-            return organization;
-        }
+    internal struct Input
+    {
+        public Organization Organization { get; set; }
 
-        internal struct Input
-        {
-            public Organization Organization { get; set; }
-
-            public ResourceState? ResourceState { get; set; }
-        }
+        public ResourceState? ResourceState { get; set; }
     }
 }

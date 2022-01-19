@@ -9,14 +9,13 @@ using TeamCloud.Orchestration.Deployment;
 
 [assembly: FunctionsStartup(typeof(TeamCloudOrchestrationDeploymentStartup))]
 
-namespace TeamCloud.Orchestration.Deployment
+namespace TeamCloud.Orchestration.Deployment;
+
+public class TeamCloudOrchestrationDeploymentStartup : FunctionsStartup
 {
-    public class TeamCloudOrchestrationDeploymentStartup : FunctionsStartup
+    public override void Configure(IFunctionsHostBuilder builder)
     {
-        public override void Configure(IFunctionsHostBuilder builder)
-        {
-            if (builder is null)
-                throw new ArgumentNullException(nameof(builder));
-        }
+        if (builder is null)
+            throw new ArgumentNullException(nameof(builder));
     }
 }

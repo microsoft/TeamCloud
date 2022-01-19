@@ -16,69 +16,68 @@ using TeamCloud.Adapters.Diagnostics;
 using TeamCloud.Adapters.Threading;
 using TeamCloud.Configuration;
 
-namespace TeamCloud.Adapters
+namespace TeamCloud.Adapters;
+
+public static class AdapterExtensions
 {
-    public static class AdapterExtensions
+    public static string ToString(this JSchema schema, Formatting formatting)
     {
-        public static string ToString(this JSchema schema, Formatting formatting)
-        {
-            if (schema is null)
-                throw new ArgumentNullException(nameof(schema));
+        if (schema is null)
+            throw new ArgumentNullException(nameof(schema));
 
-            var sb = new StringBuilder();
+        var sb = new StringBuilder();
 
-            using var sw = new StringWriter(sb);
-            using var jw = new JsonTextWriter(sw) { Formatting = formatting };
+        using var sw = new StringWriter(sb);
+        using var jw = new JsonTextWriter(sw) { Formatting = formatting };
 
-            schema.WriteTo(jw);
+        schema.WriteTo(jw);
 
-            return sb.ToString();
-        }
+        return sb.ToString();
+    }
 
-        public static IServiceCollection AddTeamCloudAdapterProvider(this IServiceCollection services, Action<IAdapterProviderConfig> configuration)
-        {
-            if (services is null)
-                throw new ArgumentNullException(nameof(services));
+    public static IServiceCollection AddTeamCloudAdapterProvider(this IServiceCollection services, Action<IAdapterProviderConfig> configuration)
+    {
+        if (services is null)
+            throw new ArgumentNullException(nameof(services));
 
-            if (configuration is null)
-                throw new ArgumentNullException(nameof(configuration));
+        if (configuration is null)
+            throw new ArgumentNullException(nameof(configuration));
 
-            services
-                .AddTeamCloudOptions();
+        services
+            .AddTeamCloudOptions();
 
-            services
-                .TryAddSingleton<IAdapterInitializationLoggerFactory, AdapterInitializationLoggerFactory>();
+        services
+            .TryAddSingleton<IAdapterInitializationLoggerFactory, AdapterInitializationLoggerFactory>();
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
-            // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
-            // however; it is used to managed singleton function execution within the functions fx !!!
+        // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+        // however; it is used to managed singleton function execution within the functions fx !!!
 
-            services
-                .TryAddSingleton<IDistributedLockManager, BlobStorageDistributedLockManager>();
+        services
+            .TryAddSingleton<IDistributedLockManager, BlobStorageDistributedLockManager>();
 
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            services
-                .TryAddSingleton<IAuthorizationEndpointsResolver, AuthorizationEndpointsResolver>();
+        services
+            .TryAddSingleton<IAuthorizationEndpointsResolver, AuthorizationEndpointsResolver>();
 
-            services
-                .TryAddSingleton<IAuthorizationSessionClient, AuthorizationSessionClient>();
+        services
+            .TryAddSingleton<IAuthorizationSessionClient, AuthorizationSessionClient>();
 
-            services
-                .TryAddSingleton<IAuthorizationTokenClient, AuthorizationTokenClient>();
+        services
+            .TryAddSingleton<IAuthorizationTokenClient, AuthorizationTokenClient>();
 
-            services
-                .TryAddTransient<IAdapterProvider>(provider => new AdapterProvider(provider));
+        services
+            .TryAddTransient<IAdapterProvider>(provider => new AdapterProvider(provider));
 
-            var serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
-            var adapterConfiguration = serviceProvider.GetService<IAdapterProviderConfig>()
-                ?? serviceProvider.GetService<IAdapterProvider>() as IAdapterProviderConfig;
+        var adapterConfiguration = serviceProvider.GetService<IAdapterProviderConfig>()
+            ?? serviceProvider.GetService<IAdapterProvider>() as IAdapterProviderConfig;
 
-            configuration(adapterConfiguration);
+        configuration(adapterConfiguration);
 
-            return services;
-        }
+        return services;
     }
 }

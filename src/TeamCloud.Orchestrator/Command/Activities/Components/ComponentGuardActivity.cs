@@ -15,81 +15,80 @@ using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestrator.Command.Activities.Components
+namespace TeamCloud.Orchestrator.Command.Activities.Components;
+
+public sealed class ComponentGuardActivity
 {
-    public sealed class ComponentGuardActivity
+    private readonly IOrganizationRepository organizationRepository;
+    private readonly IProjectRepository projectRepository;
+    private readonly IAzureSessionService azureSessionService;
+
+    public ComponentGuardActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IAzureSessionService azureSessionService)
     {
-        private readonly IOrganizationRepository organizationRepository;
-        private readonly IProjectRepository projectRepository;
-        private readonly IAzureSessionService azureSessionService;
+        this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+        this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+        this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+    }
 
-        public ComponentGuardActivity(IOrganizationRepository organizationRepository, IProjectRepository projectRepository, IAzureSessionService azureSessionService)
+    [FunctionName(nameof(ComponentGuardActivity))]
+    public async Task<bool> Run(
+        [ActivityTrigger] IDurableActivityContext context,
+        ILogger log)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+
+        var component = context.GetInput<Input>().Component;
+
+        try
         {
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-        }
+            var results = await Task.WhenAll(
 
-        [FunctionName(nameof(ComponentGuardActivity))]
-        public async Task<bool> Run(
-            [ActivityTrigger] IDurableActivityContext context,
-            ILogger log)
+                GuardOrganizationAsync(component),
+                GuardProjectAsync(component)
+
+            ).ConfigureAwait(false);
+
+            return results.All(r => r);
+        }
+        catch (Exception exc)
         {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
+            log.LogError(exc, $"Guard evaluation for component {component.Id} ({component.Slug}) in project {component.ProjectId} failed: {exc.Message}");
 
-            var component = context.GetInput<Input>().Component;
-
-            try
-            {
-                var results = await Task.WhenAll(
-
-                    GuardOrganizationAsync(component),
-                    GuardProjectAsync(component)
-
-                ).ConfigureAwait(false);
-
-                return results.All(r => r);
-            }
-            catch (Exception exc)
-            {
-                log.LogError(exc, $"Guard evaluation for component {component.Id} ({component.Slug}) in project {component.ProjectId} failed: {exc.Message}");
-
-                throw exc.AsSerializable();
-            }
+            throw exc.AsSerializable();
         }
+    }
 
-        private async Task<bool> GuardOrganizationAsync(Component component)
-        {
-            var tenantId = await azureSessionService
-                .GetTenantIdAsync()
-                .ConfigureAwait(false);
+    private async Task<bool> GuardOrganizationAsync(Component component)
+    {
+        var tenantId = await azureSessionService
+            .GetTenantIdAsync()
+            .ConfigureAwait(false);
 
-            var organization = await organizationRepository
-                .GetAsync(tenantId.ToString(), component.Organization)
-                .ConfigureAwait(false);
+        var organization = await organizationRepository
+            .GetAsync(tenantId.ToString(), component.Organization)
+            .ConfigureAwait(false);
 
-            if (organization.ResourceState == ResourceState.Failed)
-                throw new NotSupportedException($"Organization '{organization.Slug}' ended up in a Failed resource state.");
+        if (organization.ResourceState == ResourceState.Failed)
+            throw new NotSupportedException($"Organization '{organization.Slug}' ended up in a Failed resource state.");
 
-            return organization.ResourceState == ResourceState.Provisioned;
-        }
+        return organization.ResourceState == ResourceState.Provisioned;
+    }
 
-        private async Task<bool> GuardProjectAsync(Component component)
-        {
-            var project = await projectRepository
-                .GetAsync(component.Organization, component.ProjectId)
-                .ConfigureAwait(false);
+    private async Task<bool> GuardProjectAsync(Component component)
+    {
+        var project = await projectRepository
+            .GetAsync(component.Organization, component.ProjectId)
+            .ConfigureAwait(false);
 
-            if (project.ResourceState == ResourceState.Failed)
-                throw new NotSupportedException($"Project '{project.Slug}' ended up in a Failed resource state.");
+        if (project.ResourceState == ResourceState.Failed)
+            throw new NotSupportedException($"Project '{project.Slug}' ended up in a Failed resource state.");
 
-            return project.ResourceState == ResourceState.Provisioned;
-        }
+        return project.ResourceState == ResourceState.Provisioned;
+    }
 
-        internal struct Input
-        {
-            public Component Component { get; set; }
-        }
+    internal struct Input
+    {
+        public Component Component { get; set; }
     }
 }

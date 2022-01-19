@@ -6,12 +6,11 @@
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Secrets
-{
-    public interface ISecretsStoreProvider
-    {
-        Task<ISecretsStore> GetSecretsStoreAsync(Organization organization);
+namespace TeamCloud.Secrets;
 
-        Task<ISecretsStore> GetSecretsStoreAsync(Project project);
-    }
+public interface ISecretsStoreProvider
+{
+    Task<ISecretsStore> GetSecretsStoreAsync(Organization organization);
+
+    Task<ISecretsStore> GetSecretsStoreAsync(Project project);
 }

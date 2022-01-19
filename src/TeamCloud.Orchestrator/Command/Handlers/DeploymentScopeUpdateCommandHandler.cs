@@ -12,44 +12,43 @@ using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Orchestrator.Command.Handlers
+namespace TeamCloud.Orchestrator.Command.Handlers;
+
+public sealed class DeploymentScopeUpdateCommandHandler : CommandHandler,
+    ICommandHandler<DeploymentScopeUpdateCommand>
 {
-    public sealed class DeploymentScopeUpdateCommandHandler : CommandHandler,
-        ICommandHandler<DeploymentScopeUpdateCommand>
+    private readonly IDeploymentScopeRepository deploymentScopeRepository;
+
+    public DeploymentScopeUpdateCommandHandler(IDeploymentScopeRepository deploymentScopeRepository)
     {
-        private readonly IDeploymentScopeRepository deploymentScopeRepository;
+        this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+    }
 
-        public DeploymentScopeUpdateCommandHandler(IDeploymentScopeRepository deploymentScopeRepository)
+    public override bool Orchestration => false;
+
+    public async Task<ICommandResult> HandleAsync(DeploymentScopeUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+            commandResult.Result = await deploymentScopeRepository
+                .SetAsync(command.Payload)
+                .ConfigureAwait(false);
+
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
-        public override bool Orchestration => false;
-
-        public async Task<ICommandResult> HandleAsync(DeploymentScopeUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                commandResult.Result = await deploymentScopeRepository
-                    .SetAsync(command.Payload)
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
-        }
+        return commandResult;
     }
 }

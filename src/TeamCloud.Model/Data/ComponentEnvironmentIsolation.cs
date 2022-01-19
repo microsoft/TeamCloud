@@ -6,13 +6,12 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Data
-{
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ComponentEnvironmentIsolation
-    {
-        ResourceGroup,
+namespace TeamCloud.Model.Data;
 
-        Subscription
-    }
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ComponentEnvironmentIsolation
+{
+    ResourceGroup,
+
+    Subscription
 }

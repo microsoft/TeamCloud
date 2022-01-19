@@ -8,30 +8,29 @@ using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Model.Data.Serialization
+namespace TeamCloud.Model.Data.Serialization;
+
+[SuppressMessage("Microsoft.Performance", "CA1812:Avoid Uninstantiated Internal Classes", Justification = "Dynamically instatiated")]
+internal class ReferenceLinkConverter : JsonConverter<ReferenceLink>
 {
-    [SuppressMessage("Microsoft.Performance", "CA1812:Avoid Uninstantiated Internal Classes", Justification = "Dynamically instatiated")]
-    internal class ReferenceLinkConverter : JsonConverter<ReferenceLink>
+    private static readonly JsonSerializer InnerSerializer = TeamCloudSerializerSettings
+        .Create<ReferenceLinkContractResolver>()
+        .CreateSerializer();
+
+    public override ReferenceLink ReadJson(JsonReader reader, Type objectType, [AllowNull] ReferenceLink existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        private static readonly JsonSerializer InnerSerializer = TeamCloudSerializerSettings
-            .Create<ReferenceLinkContractResolver>()
-            .CreateSerializer();
+        return InnerSerializer.Deserialize<ReferenceLink>(reader);
+    }
 
-        public override ReferenceLink ReadJson(JsonReader reader, Type objectType, [AllowNull] ReferenceLink existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, [AllowNull] ReferenceLink value, JsonSerializer serializer)
+    {
+        if (string.IsNullOrEmpty(value?.HRef))
         {
-            return InnerSerializer.Deserialize<ReferenceLink>(reader);
+            writer.WriteNull();
         }
-
-        public override void WriteJson(JsonWriter writer, [AllowNull] ReferenceLink value, JsonSerializer serializer)
+        else
         {
-            if (string.IsNullOrEmpty(value?.HRef))
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                InnerSerializer.Serialize(writer, value);
-            }
+            InnerSerializer.Serialize(writer, value);
         }
     }
 }

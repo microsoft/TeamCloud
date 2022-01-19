@@ -8,16 +8,15 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.Model.Validation.Commands
+namespace TeamCloud.Model.Validation.Commands;
+
+public class CommandMessageValidator : Validator<ICommandMessage>
 {
-    public class CommandMessageValidator : Validator<ICommandMessage>
+    public CommandMessageValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public CommandMessageValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
-        {
-            RuleFor(obj => obj.Command)
-                .Cascade(CascadeMode.Stop)
-                .NotNull()
-                .SetValidator(ValidatorProvider);
-        }
+        RuleFor(obj => obj.Command)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .SetValidator(ValidatorProvider);
     }
 }

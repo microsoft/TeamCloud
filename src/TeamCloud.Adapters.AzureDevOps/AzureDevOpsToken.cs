@@ -9,84 +9,83 @@ using Newtonsoft.Json;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Adapters.AzureDevOps
+namespace TeamCloud.Adapters.AzureDevOps;
+
+public sealed class AzureDevOpsToken : AuthorizationToken
 {
-    public sealed class AzureDevOpsToken : AuthorizationToken
+    internal static string FormatOrganizationUrl(string organization)
     {
-        internal static string FormatOrganizationUrl(string organization)
-        {
-            if (string.IsNullOrWhiteSpace(organization))
-                return null;
+        if (string.IsNullOrWhiteSpace(organization))
+            return null;
 
-            if (Uri.TryCreate(organization, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
-                return organization;
+        if (Uri.TryCreate(organization, UriKind.Absolute, out Uri uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps))
+            return organization;
 
-            return $"https://dev.azure.com/{organization}";
-        }
-
-        private static DateTime? GetTokenExpirationDate(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-                return null;
-
-            try
-            {
-                return new JwtSecurityTokenHandler()
-                    .ReadJwtToken(token)
-                    .ValidTo;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public AzureDevOpsToken() : this(null)
-        { }
-
-        public AzureDevOpsToken(DeploymentScope deployementScope) : base(GetEntityId(deployementScope))
-        { }
-
-        private string organization;
-
-        [JsonProperty("organization")]
-        public string Organization
-        {
-            get => FormatOrganizationUrl(organization);
-            set => organization = value;
-        }
-
-        public string PersonalAccessToken { get; set; }
-
-        [JsonProperty("client_id")]
-        public string ClientId { get; set; }
-
-        [JsonProperty("client_secret")]
-        public string ClientSecret { get; set; }
-
-        [JsonProperty("access_token")]
-        public string AccessToken { get; set; }
-
-        [JsonIgnore]
-        public DateTime? AccessTokenExpires
-            => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(AccessToken);
-
-        [JsonIgnore]
-        public bool AccessTokenExpired
-            => AccessTokenExpires.HasValue ? AccessTokenExpires < DateTime.UtcNow : true;
-
-        [JsonProperty("refresh_token")]
-        public string RefreshToken { get; set; }
-
-        [JsonIgnore]
-        public DateTime? RefreshTokenExpires
-            => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(RefreshToken);
-
-        [JsonIgnore]
-        public bool RefreshTokenExpired
-            => RefreshTokenExpires.HasValue ? RefreshTokenExpires < DateTime.UtcNow : true;
-
-        [JsonIgnore]
-        public string RefreshCallback { get; set; }
+        return $"https://dev.azure.com/{organization}";
     }
+
+    private static DateTime? GetTokenExpirationDate(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            return null;
+
+        try
+        {
+            return new JwtSecurityTokenHandler()
+                .ReadJwtToken(token)
+                .ValidTo;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public AzureDevOpsToken() : this(null)
+    { }
+
+    public AzureDevOpsToken(DeploymentScope deployementScope) : base(GetEntityId(deployementScope))
+    { }
+
+    private string organization;
+
+    [JsonProperty("organization")]
+    public string Organization
+    {
+        get => FormatOrganizationUrl(organization);
+        set => organization = value;
+    }
+
+    public string PersonalAccessToken { get; set; }
+
+    [JsonProperty("client_id")]
+    public string ClientId { get; set; }
+
+    [JsonProperty("client_secret")]
+    public string ClientSecret { get; set; }
+
+    [JsonProperty("access_token")]
+    public string AccessToken { get; set; }
+
+    [JsonIgnore]
+    public DateTime? AccessTokenExpires
+        => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(AccessToken);
+
+    [JsonIgnore]
+    public bool AccessTokenExpired
+        => AccessTokenExpires.HasValue ? AccessTokenExpires < DateTime.UtcNow : true;
+
+    [JsonProperty("refresh_token")]
+    public string RefreshToken { get; set; }
+
+    [JsonIgnore]
+    public DateTime? RefreshTokenExpires
+        => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(RefreshToken);
+
+    [JsonIgnore]
+    public bool RefreshTokenExpired
+        => RefreshTokenExpires.HasValue ? RefreshTokenExpires < DateTime.UtcNow : true;
+
+    [JsonIgnore]
+    public string RefreshCallback { get; set; }
 }

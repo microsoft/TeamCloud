@@ -11,85 +11,84 @@ using System.Threading.Tasks;
 using Octokit;
 using Octokit.Internal;
 
-namespace TeamCloud.Adapters.GitHub
+namespace TeamCloud.Adapters.GitHub;
+
+internal sealed class GitHubInterceptor : IHttpClient
 {
-    internal sealed class GitHubInterceptor : IHttpClient
+    private readonly IHttpClient client;
+    private readonly string acceptHeader;
+
+    public GitHubInterceptor(IHttpClient client, string acceptHeader = null)
     {
-        private readonly IHttpClient client;
-        private readonly string acceptHeader;
+        const string ACCEPT_HEADER_PREFIX = "application/vnd.github.";
 
-        public GitHubInterceptor(IHttpClient client, string acceptHeader = null)
+        this.client = client ?? throw new ArgumentNullException(nameof(client));
+
+        // do some accept header sanitization
+        acceptHeader = acceptHeader?.Trim().ToLowerInvariant();
+
+        if (!string.IsNullOrWhiteSpace(acceptHeader) && !acceptHeader.StartsWith(ACCEPT_HEADER_PREFIX, StringComparison.OrdinalIgnoreCase))
         {
-            const string ACCEPT_HEADER_PREFIX = "application/vnd.github.";
+            acceptHeader = ACCEPT_HEADER_PREFIX + acceptHeader;
 
-            this.client = client ?? throw new ArgumentNullException(nameof(client));
+            if (acceptHeader.EndsWith("-preview", StringComparison.OrdinalIgnoreCase))
+                acceptHeader += "+json";
+        }
 
-            // do some accept header sanitization
-            acceptHeader = acceptHeader?.Trim().ToLowerInvariant();
+        this.acceptHeader = acceptHeader;
+    }
 
-            if (!string.IsNullOrWhiteSpace(acceptHeader) && !acceptHeader.StartsWith(ACCEPT_HEADER_PREFIX, StringComparison.OrdinalIgnoreCase))
+    public void Dispose()
+    {
+        client.Dispose();
+    }
+
+    public async Task<IResponse> Send(IRequest request, CancellationToken cancellationToken)
+    {
+        var requestDuration = Stopwatch.StartNew();
+        var requestUrl = new Uri(request.BaseAddress, request.Endpoint).ToString();
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(acceptHeader))
             {
-                acceptHeader = ACCEPT_HEADER_PREFIX + acceptHeader;
+                // override the api version information in
+                // the existing accept header for this request
 
-                if (acceptHeader.EndsWith("-preview", StringComparison.OrdinalIgnoreCase))
-                    acceptHeader += "+json";
+                request.Headers["Accept"] = acceptHeader;
             }
 
-            this.acceptHeader = acceptHeader;
-        }
+            Debug.WriteLine($"==> {request.Method.Method} {requestUrl} ");
 
-        public void Dispose()
-        {
-            client.Dispose();
-        }
+            var response = await client
+                .Send(request, cancellationToken)
+                .ConfigureAwait(false);
 
-        public async Task<IResponse> Send(IRequest request, CancellationToken cancellationToken)
-        {
-            var requestDuration = Stopwatch.StartNew();
-            var requestUrl = new Uri(request.BaseAddress, request.Endpoint).ToString();
-
-            try
+            if (response.StatusCode != System.Net.HttpStatusCode.OK &&
+                response.StatusCode != System.Net.HttpStatusCode.Accepted &&
+                response.Body is string body)
             {
-                if (!string.IsNullOrWhiteSpace(acceptHeader))
-                {
-                    // override the api version information in
-                    // the existing accept header for this request
+                var trace = new StringBuilder($"!!! {request.Method.Method} {requestUrl} {response.StatusCode}{Environment.NewLine}");
 
-                    request.Headers["Accept"] = acceptHeader;
-                }
+                if (request.Headers.TryGetValue("Authorization", out var authorization))
+                    trace.AppendLine($"AUTHORIZATION: {authorization}");
 
-                Debug.WriteLine($"==> {request.Method.Method} {requestUrl} ");
+                trace.AppendLine($"REQUEST:  {request.Body as string}");
+                trace.AppendLine($"RESPONSE: {response.Body as string}");
 
-                var response = await client
-                    .Send(request, cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (response.StatusCode != System.Net.HttpStatusCode.OK &&
-                    response.StatusCode != System.Net.HttpStatusCode.Accepted &&
-                    response.Body is string body)
-                {
-                    var trace = new StringBuilder($"!!! {request.Method.Method} {requestUrl} {response.StatusCode}{Environment.NewLine}");
-
-                    if (request.Headers.TryGetValue("Authorization", out var authorization))
-                        trace.AppendLine($"AUTHORIZATION: {authorization}");
-
-                    trace.AppendLine($"REQUEST:  {request.Body as string}");
-                    trace.AppendLine($"RESPONSE: {response.Body as string}");
-
-                    Debug.WriteLine(trace.ToString());
-                }
-
-                return response;
+                Debug.WriteLine(trace.ToString());
             }
-            finally
-            {
-                Debug.WriteLine($"<== {request.Method.Method} {requestUrl} ({requestDuration.ElapsedMilliseconds} ms)");
-            }
+
+            return response;
         }
-
-        public void SetRequestTimeout(TimeSpan timeout)
+        finally
         {
-            client.SetRequestTimeout(timeout);
+            Debug.WriteLine($"<== {request.Method.Method} {requestUrl} ({requestDuration.ElapsedMilliseconds} ms)");
         }
+    }
+
+    public void SetRequestTimeout(TimeSpan timeout)
+    {
+        client.SetRequestTimeout(timeout);
     }
 }

@@ -6,10 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class ProjectTemplateDeleteCommand : DeleteCommand<ProjectTemplate, ProjectTemplateDeleteCommandResult>
 {
-    public sealed class ProjectTemplateDeleteCommand : DeleteCommand<ProjectTemplate, ProjectTemplateDeleteCommandResult>
-    {
-        public ProjectTemplateDeleteCommand(User user, ProjectTemplate payload) : base(user, payload) { }
-    }
+    public ProjectTemplateDeleteCommand(User user, ProjectTemplate payload)
+        : base(user, payload)
+    { }
 }

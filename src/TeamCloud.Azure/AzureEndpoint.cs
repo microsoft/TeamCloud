@@ -3,12 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure
-{
-    public enum AzureEndpoint
-    {
-        ResourceManagerEndpoint,
+namespace TeamCloud.Azure;
 
-        GraphEndpoint
-    }
+public enum AzureEndpoint
+{
+    ResourceManagerEndpoint,
+
+    GraphEndpoint
 }

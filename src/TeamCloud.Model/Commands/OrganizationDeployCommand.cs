@@ -6,11 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class OrganizationDeployCommand : CustomCommand<Organization, OrganizationDeployCommandResult>
 {
-    public sealed class OrganizationDeployCommand : CustomCommand<Organization, OrganizationDeployCommandResult>
-    {
-        public OrganizationDeployCommand(User user, Organization payload) : base(user, payload)
-        { }
-    }
+    public OrganizationDeployCommand(User user, Organization payload)
+        : base(user, payload)
+    { }
 }

@@ -6,10 +6,9 @@
 using System.Collections.Generic;
 using TeamCloud.Model.Data.Core;
 
-namespace TeamCloud.Data
+namespace TeamCloud.Data;
+
+public interface IDocumentExpanderProvider
 {
-    public interface IDocumentExpanderProvider
-    {
-        IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document, bool includeOptional);
-    }
+    IEnumerable<IDocumentExpander> GetExpanders(IContainerDocument document, bool includeOptional);
 }

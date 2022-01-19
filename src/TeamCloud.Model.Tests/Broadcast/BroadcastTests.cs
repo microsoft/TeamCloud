@@ -8,18 +8,18 @@ using System.Collections.Generic;
 using TeamCloud.Serialization;
 using Xunit;
 
-namespace TeamCloud.Model.Broadcast
+namespace TeamCloud.Model.Broadcast;
+
+public class BroadcastTests
 {
-    public class BroadcastTests
+    [Fact]
+    public void Serialize()
     {
-        [Fact]
-        public void Serialize()
+        var broadcastMessage = new BroadcastMessage()
         {
-            var broadcastMessage = new BroadcastMessage()
-            {
-                Action = "Custom",
-                Timestamp = DateTime.UtcNow,
-                Items = new List<BroadcastMessage.Item>()
+            Action = "Custom",
+            Timestamp = DateTime.UtcNow,
+            Items = new List<BroadcastMessage.Item>()
                 {
                     new BroadcastMessage.Item()
                     {
@@ -30,12 +30,11 @@ namespace TeamCloud.Model.Broadcast
                         Timestamp = DateTime.UtcNow
                     }
                 }
-            };
+        };
 
-            var broadcastJson = TeamCloudSerialize.SerializeObject(broadcastMessage);
+        var broadcastJson = TeamCloudSerialize.SerializeObject(broadcastMessage);
 
-            Assert.NotEmpty(broadcastJson);
-            Assert.DoesNotContain("$type", broadcastJson);
-        }
+        Assert.NotEmpty(broadcastJson);
+        Assert.DoesNotContain("$type", broadcastJson);
     }
 }

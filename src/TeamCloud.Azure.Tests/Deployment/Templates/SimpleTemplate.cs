@@ -5,8 +5,7 @@
 
 using TeamCloud.Azure.Deployment.Templates;
 
-namespace TeamCloud.Azure.Tests.Deployment.Templates
-{
-    public class SimpleTemplate : EmbeddedDeploymentTemplate
-    { }
-}
+namespace TeamCloud.Azure.Tests.Deployment.Templates;
+
+public class SimpleTemplate : EmbeddedDeploymentTemplate
+{ }

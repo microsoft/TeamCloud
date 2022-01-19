@@ -3,19 +3,17 @@
  *  Licensed under the MIT License.
  */
 
-using FluentValidation;
 using TeamCloud.Model.Validation;
 using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.API.Data.Validators
+namespace TeamCloud.API.Data.Validators;
+
+public sealed class ProjectUserDefinitionValidator : Validator<UserDefinition>
 {
-    public sealed class ProjectUserDefinitionValidator : Validator<UserDefinition>
+    public ProjectUserDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public ProjectUserDefinitionValidator(IValidatorProvider validatorProvider): base(validatorProvider)
-        {
-            RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
-            RuleFor(obj => obj.Role).MustBeProjectUserRole();
-        }
+        RuleFor(obj => obj.Identifier).MustBeUserIdentifier();
+        RuleFor(obj => obj.Role).MustBeProjectUserRole();
     }
 }

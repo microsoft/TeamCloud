@@ -12,96 +12,93 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Orchestrator
+namespace TeamCloud.Orchestrator;
+
+internal static class Extensions
 {
-    internal static class Extensions
+    internal static ICommandResult CreateResult(this ICommand command, DurableOrchestrationStatus orchestrationStatus)
     {
+        if (orchestrationStatus is null)
+            throw new ArgumentNullException(nameof(orchestrationStatus));
 
+        var result = (orchestrationStatus.Output?.HasValues ?? false) ? orchestrationStatus.Output.ToObject<ICommandResult>() : command.CreateResult();
 
-        internal static ICommandResult CreateResult(this ICommand command, DurableOrchestrationStatus orchestrationStatus)
+        return result.ApplyStatus(orchestrationStatus);
+    }
+
+    internal static ICommandResult ApplyStatus(this ICommandResult commandResult, DurableOrchestrationStatus orchestrationStatus)
+    {
+        if (commandResult is null)
+            throw new ArgumentNullException(nameof(commandResult));
+
+        if (orchestrationStatus is null)
+            throw new ArgumentNullException(nameof(orchestrationStatus));
+
+        commandResult.CreatedTime = GetNullWhenMinValue(orchestrationStatus.CreatedTime);
+        commandResult.LastUpdatedTime = GetNullWhenMinValue(orchestrationStatus.LastUpdatedTime);
+        commandResult.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
+        commandResult.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
+
+        return commandResult;
+
+        static DateTime? GetNullWhenMinValue(DateTime dateTime)
+            => (dateTime == DateTime.MinValue ? default(DateTime?) : dateTime);
+    }
+
+    internal static IDictionary<string, string> Override(this IDictionary<string, string> instance, IDictionary<string, string> mainOverride)
+    {
+        var keyValuePairs = instance
+            .Concat(mainOverride);
+
+        return keyValuePairs
+            .GroupBy(kvp => kvp.Key)
+            .Where(kvp => kvp.Last().Value is not null)
+            .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
+    }
+
+    private static readonly Regex DynamicPropertyExpression = new Regex(@"^\[(\$\..*)\]$", RegexOptions.Compiled);
+
+    internal static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, object context, bool removeNull = false)
+        => context is null ? instance.Resolve(removeNull) : instance.Resolve(() => JObject.FromObject(context), removeNull);
+
+    internal static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, bool removeNull = false)
+        => instance.Resolve(() => JObject.Parse("{}"), removeNull);
+
+    private static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, Func<JObject> jsonCallback, bool removeNull = false)
+    {
+        var contextJson = default(JObject);
+        var resolvedProperties = new Dictionary<string, string>();
+
+        foreach (var item in instance)
         {
-            if (orchestrationStatus is null)
-                throw new ArgumentNullException(nameof(orchestrationStatus));
+            var itemValue = item.Value;
 
-            var result = (orchestrationStatus.Output?.HasValues ?? false) ? orchestrationStatus.Output.ToObject<ICommandResult>() : command.CreateResult();
-
-            return result.ApplyStatus(orchestrationStatus);
-        }
-
-        internal static ICommandResult ApplyStatus(this ICommandResult commandResult, DurableOrchestrationStatus orchestrationStatus)
-        {
-            if (commandResult is null)
-                throw new ArgumentNullException(nameof(commandResult));
-
-            if (orchestrationStatus is null)
-                throw new ArgumentNullException(nameof(orchestrationStatus));
-
-            commandResult.CreatedTime = GetNullWhenMinValue(orchestrationStatus.CreatedTime);
-            commandResult.LastUpdatedTime = GetNullWhenMinValue(orchestrationStatus.LastUpdatedTime);
-            commandResult.RuntimeStatus = (CommandRuntimeStatus)orchestrationStatus.RuntimeStatus;
-            commandResult.CustomStatus = orchestrationStatus.CustomStatus?.ToString();
-
-            return commandResult;
-
-            static DateTime? GetNullWhenMinValue(DateTime dateTime)
-                => (dateTime == DateTime.MinValue ? default(DateTime?) : dateTime);
-        }
-
-        internal static IDictionary<string, string> Override(this IDictionary<string, string> instance, IDictionary<string, string> mainOverride)
-        {
-            var keyValuePairs = instance
-                .Concat(mainOverride);
-
-            return keyValuePairs
-                .GroupBy(kvp => kvp.Key)
-                .Where(kvp => kvp.Last().Value is not null)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Last().Value);
-        }
-
-        private static readonly Regex DynamicPropertyExpression = new Regex(@"^\[(\$\..*)\]$", RegexOptions.Compiled);
-
-        internal static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, object context, bool removeNull = false)
-            => context is null ? instance.Resolve(removeNull) : instance.Resolve(() => JObject.FromObject(context), removeNull);
-
-        internal static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, bool removeNull = false)
-            => instance.Resolve(() => JObject.Parse("{}"), removeNull);
-
-        private static IDictionary<string, string> Resolve(this IDictionary<string, string> instance, Func<JObject> jsonCallback, bool removeNull = false)
-        {
-            var contextJson = default(JObject);
-            var resolvedProperties = new Dictionary<string, string>();
-
-            foreach (var item in instance)
+            if (!string.IsNullOrWhiteSpace(itemValue))
             {
-                var itemValue = item.Value;
+                var match = DynamicPropertyExpression.Match(itemValue);
 
-                if (!string.IsNullOrWhiteSpace(itemValue))
+                if (match.Success)
                 {
-                    var match = DynamicPropertyExpression.Match(itemValue);
+                    contextJson ??= jsonCallback?.Invoke() ?? default;
 
-                    if (match.Success)
-                    {
-                        contextJson ??= jsonCallback?.Invoke() ?? default;
+                    itemValue = contextJson?.HasValues ?? false
+                        ? contextJson.SelectToken(match.Groups[1].Value)?.ToString()
+                        : default;
 
-                        itemValue = contextJson?.HasValues ?? false
-                            ? contextJson.SelectToken(match.Groups[1].Value)?.ToString()
-                            : default;
-
-                        Debug.WriteLine($"Resolved '{item.Key}': {item.Value} => {itemValue ?? "NULL"}");
-                    }
-                }
-
-                if (!(itemValue is not null) || !removeNull)
-                {
-                    resolvedProperties.Add(item.Key, itemValue);
-                }
-                else
-                {
-                    Debug.WriteLine($"Resolved '{item.Key}': removed as value was resolved as NULL");
+                    Debug.WriteLine($"Resolved '{item.Key}': {item.Value} => {itemValue ?? "NULL"}");
                 }
             }
 
-            return resolvedProperties;
+            if (!(itemValue is not null) || !removeNull)
+            {
+                resolvedProperties.Add(item.Key, itemValue);
+            }
+            else
+            {
+                Debug.WriteLine($"Resolved '{item.Key}': removed as value was resolved as NULL");
+            }
         }
+
+        return resolvedProperties;
     }
 }

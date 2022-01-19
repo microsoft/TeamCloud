@@ -6,10 +6,9 @@
 using System.Threading.Tasks;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Audit
+namespace TeamCloud.Audit;
+
+public interface ICommandAuditWriter
 {
-    public interface ICommandAuditWriter
-    {
-        Task WriteAsync(ICommand command, ICommandResult commandResult = default);
-    }
+    Task WriteAsync(ICommand command, ICommandResult commandResult = default);
 }

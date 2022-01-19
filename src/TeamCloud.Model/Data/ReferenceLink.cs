@@ -8,53 +8,52 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using TeamCloud.Model.Data.Serialization;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonConverter(typeof(ReferenceLinkConverter))]
+public sealed class ReferenceLink
 {
-    [JsonConverter(typeof(ReferenceLinkConverter))]
-    public sealed class ReferenceLink
+    private static readonly Regex TokenExpression
+        = new Regex(@"\{(.+?)\}", RegexOptions.Compiled);
+
+    private readonly Func<string> hrefFactory;
+
+    public static string BaseUrl { get; set; }
+
+    public ReferenceLink(Func<string> hrefFactory = null)
     {
-        private static readonly Regex TokenExpression
-            = new Regex(@"\{(.+?)\}", RegexOptions.Compiled);
+        this.hrefFactory = hrefFactory;
+    }
 
-        private readonly Func<string> hrefFactory;
+    private string href;
 
-        public static string BaseUrl { get; set; }
+    [JsonProperty("href")]
+    public string HRef
+    {
+        get => href ?? hrefFactory?.Invoke();
+        set => href = value;
+    }
 
-        public ReferenceLink(Func<string> hrefFactory = null)
-        {
-            this.hrefFactory = hrefFactory;
-        }
+    [JsonIgnore]
+    public bool Materialized
+        => !(href is null);
 
-        private string href;
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public bool Templated
+        => TokenExpression.IsMatch(HRef ?? string.Empty);
 
-        [JsonProperty("href")]
-        public string HRef
-        {
-            get => href ?? hrefFactory?.Invoke();
-            set => href = value;
-        }
+    public void Materialize()
+        => href ??= hrefFactory?.Invoke();
 
-        [JsonIgnore]
-        public bool Materialized
-            => !(href is null);
+    public override string ToString()
+        => this.HRef;
 
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public bool Templated
-            => TokenExpression.IsMatch(HRef ?? string.Empty);
+    public string ToString(Func<string, string> tokenCallback)
+    {
+        if (tokenCallback is null)
+            return ToString();
 
-        public void Materialize()
-            => href ??= hrefFactory?.Invoke();
-
-        public override string ToString()
-            => this.HRef;
-
-        public string ToString(Func<string, string> tokenCallback)
-        {
-            if (tokenCallback is null)
-                return ToString();
-
-            return TokenExpression
-                .Replace(HRef ?? string.Empty, new MatchEvaluator((Match match) => tokenCallback(match.Value.TrimStart('{').TrimEnd('}'))));
-        }
+        return TokenExpression
+            .Replace(HRef ?? string.Empty, new MatchEvaluator((Match match) => tokenCallback(match.Value.TrimStart('{').TrimEnd('}'))));
     }
 }

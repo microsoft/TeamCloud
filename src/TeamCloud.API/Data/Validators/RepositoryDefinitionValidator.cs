@@ -3,17 +3,15 @@
  *  Licensed under the MIT License.
  */
 
-using FluentValidation;
 using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.API.Data.Validators
+namespace TeamCloud.API.Data.Validators;
+
+public sealed class RepositoryDefinitionValidator : Validator<RepositoryDefinition>
 {
-    public sealed class RepositoryDefinitionValidator : Validator<RepositoryDefinition>
+    public RepositoryDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public RepositoryDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
-        {
-            RuleFor(obj => obj.Url).MustBeUrl();
-        }
+        RuleFor(obj => obj.Url).MustBeUrl();
     }
 }
