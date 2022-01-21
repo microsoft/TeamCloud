@@ -1,6 +1,6 @@
 param name string
 
-resource ai 'Microsoft.Insights/components@2020-02-02-preview' = {
+resource ai 'Microsoft.Insights/components@2020-02-02' = {
   name: name
   location: resourceGroup().location
   kind: 'web'
@@ -9,5 +9,4 @@ resource ai 'Microsoft.Insights/components@2020-02-02-preview' = {
   }
 }
 
-output id string = ai.id
-output instrumentationKey string = ai.properties.InstrumentationKey
+output name string = name

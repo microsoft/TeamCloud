@@ -33,9 +33,9 @@ def tc_deploy_validator(cmd, ns):
             raise CLIError(
                 'usage error: --principal-name must be have a value if --principal-password is specified')
 
-    if sum(1 for ct in [ns.version, ns.prerelease, ns.index_url] if ct) > 1:
+    if sum(1 for ct in [ns.version, ns.prerelease, ns.index_url, ns.index_file] if ct) > 1:
         raise CLIError(
-            'usage error: can only use one of --index-url | --version/-v | --pre')
+            'usage error: can only use one of --index-url | --index-file | --version/-v | --pre')
 
     if ns.version:
         ns.version = ns.version.lower()

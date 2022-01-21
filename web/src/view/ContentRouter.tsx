@@ -7,8 +7,8 @@ import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSet
 import { ErrorHandler } from './ErrorHandler';
 
 export const ContentRouter: React.FC = () => (
-    <div style={{ height:"100vh", overflow:"scroll", overflowX:"hidden", overflowY: "auto" }}>
-        <ErrorHandler>        
+    <div style={{ height: "100%", overflow: "scroll", overflowX: "hidden", overflowY: "auto" }}>
+        <ErrorHandler>
             <Switch>
                 <Route exact path='/'>
                     <></>

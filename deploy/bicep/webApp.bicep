@@ -1,40 +1,43 @@
 param name string
-@secure()
-param appInsightsInstrumentationKey string
-@secure()
-param appConfigurationConnectionString string
+param appConfigName string
+param appInsightsName string
 
-resource farm 'Microsoft.Web/serverfarms@2020-06-01' = {
-  kind: 'app'
+resource config 'Microsoft.AppConfiguration/configurationStores@2021-03-01-preview' existing = {
+  name: appConfigName
+}
+
+resource ai 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: appInsightsName
+}
+
+resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
+  kind: 'api,linux'
   name: name
   location: resourceGroup().location
+  properties: {
+    reserved: true
+  }
   sku: {
     name: 'S1'
     tier: 'Standard'
   }
-  properties: {
-    perSiteScaling: false
-    maximumElasticWorkerCount: 1
-    isSpot: false
-    reserved: false
-    isXenon: false
-    hyperV: false
-    targetWorkerCount: 0
-    targetWorkerSizeId: 0
-  }
 }
 
-resource web 'Microsoft.Web/sites@2020-06-01' = {
-  kind: 'app'
+resource web 'Microsoft.Web/sites@2021-02-01' = {
+  kind: 'api'
   name: name
   location: resourceGroup().location
   identity: {
     type: 'SystemAssigned'
   }
   properties: {
+    reserved: true
     serverFarmId: farm.id
     clientAffinityEnabled: false
     siteConfig: {
+      alwaysOn: true
+      phpVersion: 'off'
+      linuxFxVersion: 'DOTNETCORE|6.0'
       cors: {
         allowedOrigins: [
           'http://localhost:3000'
@@ -42,21 +45,14 @@ resource web 'Microsoft.Web/sites@2020-06-01' = {
         ]
         supportCredentials: true
       }
-      phpVersion: 'off'
-      metadata: [
-        {
-          name: 'CURRENT_STACK'
-          value: 'dotnetcore'
-        }
-      ]
       appSettings: [
         {
-          name: 'AppConfiguration:ConnectionString'
-          value: appConfigurationConnectionString
+          name: 'AppConfiguration__ConnectionString'
+          value: listKeys(config.id, '2019-10-01').value[0].connectionString
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: appInsightsInstrumentationKey
+          value: ai.properties.InstrumentationKey
         }
         {
           name: 'APPINSIGHTS_PROFILERFEATURE_VERSION'
@@ -98,14 +94,28 @@ resource web 'Microsoft.Web/sites@2020-06-01' = {
           name: 'ANCM_ADDITIONAL_ERROR_PAGE_LINK'
           value: 'https://${name}.scm.azurewebsites.net/detectors'
         }
+        {
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
+        }
       ]
       connectionStrings: [
         {
           name: 'ConfigurationService'
-          connectionString: appConfigurationConnectionString
+          connectionString: listKeys(config.id, '2019-10-01').value[0].connectionString
           type: 'Custom'
         }
       ]
+    }
+  }
+}
+
+module apiConfigs 'appConfigKeys.bicep' = {
+  name: 'apiConfigs'
+  params: {
+    configName: appConfigName
+    keyValues: {
+      'Endpoint:Api:Url': 'https://${name}.azurewebsites.net'
     }
   }
 }

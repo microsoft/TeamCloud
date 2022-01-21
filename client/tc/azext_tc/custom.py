@@ -5,6 +5,7 @@
 # pylint: disable=unused-argument, protected-access, too-many-lines
 # pylint: disable=too-many-locals, too-many-statements
 
+from tempfile import template
 from knack.util import CLIError
 from knack.log import get_logger
 
@@ -40,7 +41,7 @@ def teamcloud_update(cmd, version=None, prerelease=False):
 def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='TeamCloud',
                      principal_name=None, principal_password=None, tags=None, version=None,
                      skip_app_deployment=False, skip_name_validation=False, prerelease=False,
-                     index_url=None, scope=None):
+                     index_file=None, index_url=None, scope=None):
     from azure.cli.core._profile import Profile
     from ._deploy_utils import (
         deploy_arm_template_at_resource_group, get_resource_group_by_name,
@@ -54,7 +55,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
 
     hook.add(message='Fetching index.json from GitHub')
     version, deploy_url, api_zip_url, orchestrator_zip_url, web_zip_url = get_teamcloud_index(
-        cli_ctx, version, prerelease, index_url)
+        cli_ctx, version, prerelease, index_file, index_url)
 
     hook.add(message='Getting resource group {}'.format(resource_group_name))
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
@@ -86,14 +87,20 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
     parameters.append('resourceManagerIdentityClientSecret={}'.format(
         resource_manager_sp['password']))
     parameters.append('reactAppMsalClientId={}'.format(client_id))
-    parameters.append('reactAppVersion={}'.format(version))
+
+    if version:
+        parameters.append('reactAppVersion={}'.format(version))
 
     if scope:
         parameters.append('reactAppMsalScope={}'.format(scope))
 
+    remote_deploy = deploy_url.lower().startswith('https://') or deploy_url.lower().startswith('http://')
+    local_url = deploy_url if not remote_deploy else None
+    remote_url = deploy_url if remote_deploy else None
+
     hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
-        cmd, resource_group_name, template_uri=deploy_url, parameters=[parameters])
+        cmd, resource_group_name, template_file=local_url, template_uri=remote_url, parameters=[parameters])
 
     api_url = get_arm_output(outputs, 'apiUrl')
     orchestrator_url = get_arm_output(outputs, 'orchestratorUrl')
@@ -101,29 +108,28 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
     web_url = get_arm_output(outputs, 'webUrl')
     web_app_name = get_arm_output(outputs, 'webAppName')
     orchestrator_app_name = get_arm_output(outputs, 'orchestratorAppName')
-    config_service_conn_string = get_arm_output(outputs, 'configServiceConnectionString')
-    config_service_imports = get_arm_output(outputs, 'configServiceImport')
-
-    config_kvs = []
-    for k, v in config_service_imports.items():
-        config_kvs.append({'key': k, 'value': v})
-
-    hook.add(message='Adding ARM template outputs to App Configuration service')
-    set_appconfig_keys(cmd, config_service_conn_string, config_kvs)
 
     if skip_app_deployment:
         logger.warning(
             'IMPORTANT: --skip-app-deployment prevented source code for the TeamCloud instance deployment. '
             'To deploy the applications use `az tc upgrade`.')
     else:
+        from azure.cli.core.profiles import ResourceType
+        from azure.cli.command_modules.appservice.custom import (enable_zip_deploy_functionapp, enable_zip_deploy_webapp)
+
+        cmd.command_kwargs['resource_type'] = ResourceType.MGMT_APPSERVICE
+
         hook.add(message='Deploying Orchestrator source code')
-        zip_deploy_app(cli_ctx, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
+        logger.warning('Starting deployment of Orchestrator source code')
+        enable_zip_deploy_functionapp(cmd, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
 
         hook.add(message='Deploying API source code')
-        zip_deploy_app(cli_ctx, resource_group_name, api_app_name, api_zip_url)
+        logger.warning('Starting deployment of API source code')
+        enable_zip_deploy_webapp(cmd, resource_group_name, api_app_name, api_zip_url)
 
         hook.add(message='Deploying Web app source code')
-        zip_deploy_app(cli_ctx, resource_group_name, web_app_name, web_zip_url)
+        logger.warning('Starting deployment of Web source code')
+        enable_zip_deploy_webapp(cmd, resource_group_name, web_app_name, web_zip_url)
 
         version_string = version or 'the latest version'
         hook.add(message='Successfully created TeamCloud instance ({})'.format(version_string))

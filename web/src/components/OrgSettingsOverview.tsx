@@ -105,13 +105,13 @@ export const OrgSettingsOverview: React.FC = () => {
                             readOnly
                             label='Resource Group'
                             description='Organization resouce group ID'
-                            defaultValue={org.resourceId ?? undefined} />
+                            defaultValue={org.resourceId ?? '(creating)'} />
                     </Stack.Item>
                     {org.resourceId && (
                         <Stack.Item>
                             <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${org.resourceId}`}>
                                 View in Azure Portal
-                        </Link>
+                            </Link>
                         </Stack.Item>
                     )}
                 </Stack>
