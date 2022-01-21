@@ -14,99 +14,98 @@ using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 
-namespace TeamCloud.Orchestrator.Command.Activities.Components
+namespace TeamCloud.Orchestrator.Command.Activities.Components;
+
+public sealed class ComponentIdentityActivity
 {
-    public sealed class ComponentIdentityActivity
+    private readonly IOrganizationRepository organizationRepository;
+    private readonly IDeploymentScopeRepository deploymentScopeRepository;
+    private readonly IProjectRepository projectRepository;
+    private readonly IAzureResourceService azureResourceService;
+
+    public ComponentIdentityActivity(IOrganizationRepository organizationRepository,
+                                     IDeploymentScopeRepository deploymentScopeRepository,
+                                     IProjectRepository projectRepository,
+                                     IAzureResourceService azureResourceService)
     {
-        private readonly IOrganizationRepository organizationRepository;
-        private readonly IDeploymentScopeRepository deploymentScopeRepository;
-        private readonly IProjectRepository projectRepository;
-        private readonly IAzureResourceService azureResourceService;
+        this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+        this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+        this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+    }
 
-        public ComponentIdentityActivity(IOrganizationRepository organizationRepository,
-                                         IDeploymentScopeRepository deploymentScopeRepository,
-                                         IProjectRepository projectRepository,
-                                         IAzureResourceService azureResourceService)
+    [FunctionName(nameof(ComponentIdentityActivity))]
+    [RetryOptions(3)]
+    public async Task<Component> Run(
+        [ActivityTrigger] IDurableActivityContext context,
+        ILogger log)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+
+        if (log is null)
+            throw new ArgumentNullException(nameof(log));
+
+        var component = context.GetInput<Input>().Component;
+
+        if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var identityId))
         {
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-            this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-        }
+            var deploymentScope = await deploymentScopeRepository
+                .GetAsync(component.Organization, component.DeploymentScopeId)
+                .ConfigureAwait(false);
 
-        [FunctionName(nameof(ComponentIdentityActivity))]
-        [RetryOptions(3)]
-        public async Task<Component> Run(
-            [ActivityTrigger] IDurableActivityContext context,
-            ILogger log)
-        {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
+            var project = await projectRepository
+                .GetAsync(component.Organization, component.ProjectId)
+                .ConfigureAwait(false);
 
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
+            var projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
 
-            var component = context.GetInput<Input>().Component;
+            var session = await azureResourceService.AzureSessionService
+                .CreateSessionAsync(projectResourceId.SubscriptionId)
+                .ConfigureAwait(false);
 
-            if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var identityId))
+            var identities = await session.Identities
+                .ListByResourceGroupAsync(projectResourceId.ResourceGroup, loadAllPages: true)
+                .ConfigureAwait(false);
+
+            var identity = identities
+                .SingleOrDefault(i => i.Name.Equals(deploymentScope.Id, StringComparison.OrdinalIgnoreCase));
+
+            if (identity is null)
             {
-                var deploymentScope = await deploymentScopeRepository
-                    .GetAsync(component.Organization, component.DeploymentScopeId)
+                var location = await GetLocationAsync(component)
                     .ConfigureAwait(false);
 
-                var project = await projectRepository
-                    .GetAsync(component.Organization, component.ProjectId)
+                identity = await session.Identities
+                    .Define(deploymentScope.Id)
+                        .WithRegion(location)
+                        .WithExistingResourceGroup(projectResourceId.ResourceGroup)
+                    .CreateAsync()
                     .ConfigureAwait(false);
-
-                var projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
-
-                var session = await azureResourceService.AzureSessionService
-                    .CreateSessionAsync(projectResourceId.SubscriptionId)
-                    .ConfigureAwait(false);
-
-                var identities = await session.Identities
-                    .ListByResourceGroupAsync(projectResourceId.ResourceGroup, loadAllPages: true)
-                    .ConfigureAwait(false);
-
-                var identity = identities
-                    .SingleOrDefault(i => i.Name.Equals(deploymentScope.Id, StringComparison.OrdinalIgnoreCase));
-
-                if (identity is null)
-                {
-                    var location = await GetLocationAsync(component)
-                        .ConfigureAwait(false);
-
-                    identity = await session.Identities
-                        .Define(deploymentScope.Id)
-                            .WithRegion(location)
-                            .WithExistingResourceGroup(projectResourceId.ResourceGroup)
-                        .CreateAsync()
-                        .ConfigureAwait(false);
-                }
-
-                component.IdentityId = identity.Id;
             }
 
-
-            return component;
+            component.IdentityId = identity.Id;
         }
 
-        private async Task<string> GetLocationAsync(Component component)
-        {
-            var tenantId = await azureResourceService.AzureSessionService
-                .GetTenantIdAsync()
-                .ConfigureAwait(false);
 
-            var organization = await organizationRepository
-                .GetAsync(tenantId.ToString(), component.Organization)
-                .ConfigureAwait(false);
+        return component;
+    }
 
-            return organization.Location;
-        }
+    private async Task<string> GetLocationAsync(Component component)
+    {
+        var tenantId = await azureResourceService.AzureSessionService
+            .GetTenantIdAsync()
+            .ConfigureAwait(false);
 
-        internal struct Input
-        {
-            public Component Component { get; set; }
-        }
+        var organization = await organizationRepository
+            .GetAsync(tenantId.ToString(), component.Organization)
+            .ConfigureAwait(false);
+
+        return organization.Location;
+    }
+
+    internal struct Input
+    {
+        public Component Component { get; set; }
     }
 }

@@ -6,19 +6,18 @@
 using System;
 using System.Threading.Tasks;
 
-namespace TeamCloud.Azure.Deployment
+namespace TeamCloud.Azure.Deployment;
+
+public interface IAzureDeploymentArtifactsProvider
 {
-    public interface IAzureDeploymentArtifactsProvider
-    {
-        Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate);
+    Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate);
 
-        Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName);
-    }
+    Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName);
+}
 
-    public abstract class AzureDeploymentArtifactsProvider : IAzureDeploymentArtifactsProvider
-    {
-        public abstract Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName);
+public abstract class AzureDeploymentArtifactsProvider : IAzureDeploymentArtifactsProvider
+{
+    public abstract Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName);
 
-        public abstract Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate);
-    }
+    public abstract Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate);
 }

@@ -3,14 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Serialization.Forms
+namespace TeamCloud.Serialization.Forms;
+
+public enum TeamCloudFormTemplateType
 {
-    public enum TeamCloudFormTemplateType
-    {
-        FieldTemplate,
+    FieldTemplate,
 
-        ArrayFieldTemplate,
+    ArrayFieldTemplate,
 
-        ObjectFieldTemplate
-    }
+    ObjectFieldTemplate
 }

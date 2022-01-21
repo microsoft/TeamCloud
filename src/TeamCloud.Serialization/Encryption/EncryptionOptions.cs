@@ -3,12 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Serialization.Encryption
-{
-    public sealed class EncryptionOptions
-    {
-        public string KeyStorage { get; set; }
+namespace TeamCloud.Serialization.Encryption;
 
-        public string KeyVault { get; set; }
-    }
+public sealed class EncryptionOptions
+{
+    public string KeyStorage { get; set; }
+
+    public string KeyVault { get; set; }
 }

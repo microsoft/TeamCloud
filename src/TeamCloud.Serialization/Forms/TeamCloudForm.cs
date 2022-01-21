@@ -14,123 +14,130 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema.Generation;
 
-namespace TeamCloud.Serialization.Forms
+namespace TeamCloud.Serialization.Forms;
+
+public static class TeamCloudForm
 {
-    public static class TeamCloudForm
+    private static readonly ConcurrentDictionary<Type, Task<JToken>> dataSchemaCache = new ConcurrentDictionary<Type, Task<JToken>>();
+    private static readonly ConcurrentDictionary<Type, Task<JToken>> formSchemaCache = new ConcurrentDictionary<Type, Task<JToken>>();
+
+    private static Stream GetResourceStream<TData>(string extension)
+        where TData : class, new()
     {
-        private static readonly ConcurrentDictionary<Type, Task<JToken>> dataSchemaCache = new ConcurrentDictionary<Type, Task<JToken>>();
-        private static readonly ConcurrentDictionary<Type, Task<JToken>> formSchemaCache = new ConcurrentDictionary<Type, Task<JToken>>();
+        var resourceName = typeof(TData).Assembly
+            .GetManifestResourceNames()
+            .FirstOrDefault(n => n.Equals($"{typeof(TData).FullName}.{extension}", StringComparison.OrdinalIgnoreCase));
 
-        private static Stream GetResourceStream<TData>(string extension)
-            where TData : class, new()
+        return string.IsNullOrEmpty(resourceName)
+            ? null
+            : typeof(TData).Assembly.GetManifestResourceStream(resourceName);
+    }
+
+    public static async Task<JToken> GetDataSchemaAsync<TData>(bool clone = false)
+        where TData : class, new()
+    {
+        var schema = await dataSchemaCache.GetOrAdd(typeof(TData), type =>
         {
-            var resourceName = typeof(TData).Assembly
-                .GetManifestResourceNames()
-                .FirstOrDefault(n => n.Equals($"{typeof(TData).FullName}.{extension}", StringComparison.OrdinalIgnoreCase));
+            using var schemaStream = GetResourceStream<TData>("schema");
 
-            return string.IsNullOrEmpty(resourceName)
-                ? null
-                : typeof(TData).Assembly.GetManifestResourceStream(resourceName);
-        }
+            JToken token;
 
-        public static async Task<JToken> GetDataSchemaAsync<TData>(bool clone = false)
-            where TData : class, new()
-        {
-            var schema = await dataSchemaCache.GetOrAdd(typeof(TData), type =>
+            if (schemaStream is null)
             {
-                using var schemaStream = GetResourceStream<TData>("schema");
-
-                JToken token;
-
-                if (schemaStream is null)
+                var generator = new JSchemaGenerator()
                 {
-                    var generator = new JSchemaGenerator()
-                    {
-                        ContractResolver = new TeamCloudContractResolver()
-                    };
+                    ContractResolver = new TeamCloudContractResolver()
+                };
 
-                    token = JToken.Parse(generator.Generate(type).ToString());
-                }
-                else
-                {
-                    using var streamReader = new StreamReader(schemaStream);
-                    using var schemaReader = new JsonTextReader(streamReader);
-
-                    token = JToken.Load(schemaReader);
-                }
-
-                foreach (var propertyToken in token.SelectTokens("$..properties.*"))
-                {
-                    var titleToken = propertyToken.SelectToken("title");
-
-                    if (titleToken is null
-                        && propertyToken is JObject propertyObject
-                        && propertyToken.Parent is JProperty propertyParent)
-                    {
-                        var title = PrettyPrintCamelCase(propertyParent.Name);
-
-                        propertyObject.Add("title", new JValue(title));
-                    }
-                }
-
-                foreach (var additionalPropertiesToken in token.SelectTokens("$..additionalProperties").Reverse())
-                {
-                    // additionalProperties tokens will raise error on the json form side when
-                    // validating the form data. to avoid this we simply remove this information.
-
-                    additionalPropertiesToken.Parent.Remove();
-                }
-
-                return Task.FromResult(token);
-
-                string PrettyPrintCamelCase(string value)
-                {
-                    if (string.IsNullOrEmpty(value))
-                        return value;
-
-                    var buffer = value.Trim()
-                        .Select((c, i) => i == 0 ? char.ToUpper(c, CultureInfo.InvariantCulture) : c)
-                        .ToArray();
-
-                    return Regex.Replace(new string(buffer), @"(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", " $1");
-                }
-
-            }).ConfigureAwait(false);
-
-            if (clone)
-                schema = schema?.DeepClone();
-
-            return schema;
-        }
-
-        public static async Task<JToken> GetFormSchemaAsync<TData>(bool clone = false)
-            where TData : class, new()
-        {
-            var form = await formSchemaCache.GetOrAdd(typeof(TData), type =>
+                token = JToken.Parse(generator.Generate(type).ToString());
+            }
+            else
             {
-                using var formStream = GetResourceStream<TData>("form");
+                using var streamReader = new StreamReader(schemaStream);
+                using var schemaReader = new JsonTextReader(streamReader);
 
-                if (formStream is null)
+                token = JToken.Load(schemaReader);
+            }
+
+            foreach (var propertyToken in token.SelectTokens("$..properties.*"))
+            {
+                var titleToken = propertyToken.SelectToken("title");
+
+                if (titleToken is null
+                    && propertyToken is JObject propertyObject
+                    && propertyToken.Parent is JProperty propertyParent)
                 {
-                    var instance = Activator.CreateInstance<TData>();
-                    var instanceJson = TeamCloudSerialize.SerializeObject(instance, new TeamCloudFormConverter<TData>());
+                    var title = PrettyPrintCamelCase(propertyParent.Name);
 
-                    return Task.FromResult(JToken.Parse(instanceJson));
+                    propertyObject.Add("title", new JValue(title));
                 }
-                else
-                {
-                    using var streamReader = new StreamReader(formStream);
-                    using var formReader = new JsonTextReader(streamReader);
+            }
 
-                    return JToken.ReadFromAsync(formReader);
-                }
+            foreach (var additionalPropertiesToken in token.SelectTokens("$..additionalProperties").Reverse())
+            {
+                // additionalProperties tokens will raise errors on the json form side when
+                // validating the form data. to avoid this we simply remove this information.
 
-            }).ConfigureAwait(false);
+                additionalPropertiesToken.Parent.Remove();
+            }
 
-            if (clone)
-                form = form?.DeepClone();
+            foreach (var schemaToken in token.SelectTokens("$..$schema").Reverse())
+            {
+                // schema reference tokens will raise errors on the json form side when
+                // validating the form data. to avoid this we simply remove this information.
 
-            return form;
-        }
+                schemaToken.Parent.Remove();
+            }
+
+            return Task.FromResult(token);
+
+            string PrettyPrintCamelCase(string value)
+            {
+                if (string.IsNullOrEmpty(value))
+                    return value;
+
+                var buffer = value.Trim()
+                    .Select((c, i) => i == 0 ? char.ToUpper(c, CultureInfo.InvariantCulture) : c)
+                    .ToArray();
+
+                return Regex.Replace(new string(buffer), @"(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", " $1");
+            }
+
+        }).ConfigureAwait(false);
+
+        if (clone)
+            schema = schema?.DeepClone();
+
+        return schema;
+    }
+
+    public static async Task<JToken> GetFormSchemaAsync<TData>(bool clone = false)
+        where TData : class, new()
+    {
+        var form = await formSchemaCache.GetOrAdd(typeof(TData), type =>
+        {
+            using var formStream = GetResourceStream<TData>("form");
+
+            if (formStream is null)
+            {
+                var instance = Activator.CreateInstance<TData>();
+                var instanceJson = TeamCloudSerialize.SerializeObject(instance, new TeamCloudFormConverter<TData>());
+
+                return Task.FromResult(JToken.Parse(instanceJson));
+            }
+            else
+            {
+                using var streamReader = new StreamReader(formStream);
+                using var formReader = new JsonTextReader(streamReader);
+
+                return JToken.ReadFromAsync(formReader);
+            }
+
+        }).ConfigureAwait(false);
+
+        if (clone)
+            form = form?.DeepClone();
+
+        return form;
     }
 }

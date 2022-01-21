@@ -6,15 +6,14 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum OrganizationUserRole
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum OrganizationUserRole
-    {
-        None,
-        Member,
-        Admin,
-        Owner,
-        Adapter
-    }
+    None,
+    Member,
+    Admin,
+    Owner,
+    Adapter
 }

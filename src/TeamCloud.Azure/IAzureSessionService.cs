@@ -9,24 +9,23 @@ using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Rest;
 using AZFluent = Microsoft.Azure.Management.Fluent;
 
-namespace TeamCloud.Azure
+namespace TeamCloud.Azure;
+
+public interface IAzureSessionService
 {
-    public interface IAzureSessionService
-    {
-        AzureEnvironment Environment { get; }
+    AzureEnvironment Environment { get; }
 
-        IAzureSessionOptions Options { get; }
+    IAzureSessionOptions Options { get; }
 
-        Task<AZFluent.Azure.IAuthenticated> CreateSessionAsync();
+    Task<AZFluent.Azure.IAuthenticated> CreateSessionAsync();
 
-        Task<AZFluent.IAzure> CreateSessionAsync(Guid subscriptionId);
+    Task<AZFluent.IAzure> CreateSessionAsync(Guid subscriptionId);
 
-        Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
+    Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
 
-        Task<IAzureSessionIdentity> GetIdentityAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
+    Task<IAzureSessionIdentity> GetIdentityAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint);
 
-        Task<Guid> GetTenantIdAsync();
+    Task<Guid> GetTenantIdAsync();
 
-        Task<T> CreateClientAsync<T>(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, Guid? subscriptionId = null) where T : ServiceClient<T>;
-    }
+    Task<T> CreateClientAsync<T>(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, Guid? subscriptionId = null) where T : ServiceClient<T>;
 }

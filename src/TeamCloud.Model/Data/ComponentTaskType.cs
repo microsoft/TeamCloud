@@ -6,15 +6,14 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ComponentTaskType
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ComponentTaskType
-    {
-        Custom, // this will be the default value
+    Custom, // this will be the default value
 
-        Create,
+    Create,
 
-        Delete
-    }
+    Delete
 }

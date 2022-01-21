@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\TeamCloud.sln.targets" />
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="KubernetesAdapter.html" />
+    <None Remove="KubernetesData.form" />
+    <None Remove="KubernetesData.schema" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="KubernetesAdapter.html" />
+    <EmbeddedResource Include="KubernetesData.form" />
+    <EmbeddedResource Include="KubernetesData.schema" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KubernetesClient" Version="7.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Adapters\TeamCloud.Adapters.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -9,20 +9,19 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.Orchestrator.Command
+namespace TeamCloud.Orchestrator.Command;
+
+public interface ICommandHandler
 {
-    public interface ICommandHandler
-    {
-        bool Orchestration { get; }
+    bool Orchestration { get; }
 
-        bool CanHandle(ICommand command);
+    bool CanHandle(ICommand command);
 
-        Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
-    }
+    Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
+}
 
-    public interface ICommandHandler<T> : ICommandHandler
-        where T : class, ICommand
-    {
-        Task<ICommandResult> HandleAsync(T command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
-    }
+public interface ICommandHandler<T> : ICommandHandler
+    where T : class, ICommand
+{
+    Task<ICommandResult> HandleAsync(T command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
 }

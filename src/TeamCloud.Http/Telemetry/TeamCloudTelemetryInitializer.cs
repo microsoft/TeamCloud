@@ -8,24 +8,23 @@ using System.Reflection;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 
-namespace TeamCloud.Http.Telemetry
+namespace TeamCloud.Http.Telemetry;
+
+public sealed class TeamCloudTelemetryInitializer : ITelemetryInitializer
 {
-    public sealed class TeamCloudTelemetryInitializer : ITelemetryInitializer
+    private readonly Assembly assembly;
+
+    internal TeamCloudTelemetryInitializer(Assembly assembly)
     {
-        private readonly Assembly assembly;
+        this.assembly = assembly ?? throw new System.ArgumentNullException(nameof(assembly));
+    }
 
-        internal TeamCloudTelemetryInitializer(Assembly assembly)
-        {
-            this.assembly = assembly ?? throw new System.ArgumentNullException(nameof(assembly));
-        }
+    [DebuggerStepThrough]
+    public void Initialize(ITelemetry telemetry)
+    {
+        if (telemetry is null)
+            throw new System.ArgumentNullException(nameof(telemetry));
 
-        [DebuggerStepThrough]
-        public void Initialize(ITelemetry telemetry)
-        {
-            if (telemetry is null)
-                throw new System.ArgumentNullException(nameof(telemetry));
-
-            telemetry.Context.Cloud.RoleName = assembly.GetName().Name;
-        }
+        telemetry.Context.Cloud.RoleName = assembly.GetName().Name;
     }
 }

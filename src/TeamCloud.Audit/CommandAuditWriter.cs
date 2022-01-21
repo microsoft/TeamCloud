@@ -15,124 +15,122 @@ using TeamCloud.Serialization;
 using BlobCloudStorageAccount = Microsoft.Azure.Storage.CloudStorageAccount;
 using TableCloudStorageAccount = Microsoft.Azure.Cosmos.Table.CloudStorageAccount;
 
-namespace TeamCloud.Audit
+namespace TeamCloud.Audit;
+
+public sealed class CommandAuditWriter : ICommandAuditWriter
 {
+    private static readonly DateTime MinDateTime = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
-    public sealed class CommandAuditWriter : ICommandAuditWriter
+    private readonly ICommandAuditOptions options;
+    private readonly Lazy<CloudBlobContainer> auditContainerInstance;
+    private readonly Lazy<CloudTable> auditTableInstance;
+
+    public CommandAuditWriter(ICommandAuditOptions options = null)
     {
-        private static readonly DateTime MinDateTime = new DateTime(1601, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
+        this.options = options ?? CommandAuditOptions.Default;
 
-        private readonly ICommandAuditOptions options;
-        private readonly Lazy<CloudBlobContainer> auditContainerInstance;
-        private readonly Lazy<CloudTable> auditTableInstance;
+        auditContainerInstance = new Lazy<CloudBlobContainer>(() => BlobCloudStorageAccount
+            .Parse(this.options.ConnectionString)
+            .CreateCloudBlobClient().GetContainerReference(CommandAuditEntity.AUDIT_CONTAINER_NAME));
 
-        public CommandAuditWriter(ICommandAuditOptions options = null)
+        auditTableInstance = new Lazy<CloudTable>(() => TableCloudStorageAccount
+            .Parse(this.options.ConnectionString)
+            .CreateCloudTableClient().GetTableReference(CommandAuditEntity.AUDIT_TABLE_NAME));
+    }
+
+    public Task WriteAsync(ICommand command, ICommandResult commandResult = default) => Task.WhenAll
+    (
+        WriteContainerAsync(command, commandResult),
+        WriteTableAsync(command, commandResult)
+    );
+
+    private async Task WriteContainerAsync(ICommand command, ICommandResult commandResult)
+    {
+        var auditContainer = await auditContainerInstance
+            .EnsureContainerAsync()
+            .ConfigureAwait(false);
+
+        if (command.CommandId.Equals(commandResult?.CommandId))
         {
-            this.options = options ?? CommandAuditOptions.Default;
-
-            auditContainerInstance = new Lazy<CloudBlobContainer>(() => BlobCloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudBlobClient().GetContainerReference(CommandAuditEntity.AUDIT_CONTAINER_NAME));
-
-            auditTableInstance = new Lazy<CloudTable>(() => TableCloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudTableClient().GetTableReference(CommandAuditEntity.AUDIT_TABLE_NAME));
+            commandResult.OrganizationId = command.OrganizationId;
         }
 
-        public Task WriteAsync(ICommand command, ICommandResult commandResult = default) => Task.WhenAll
-        (
-            WriteContainerAsync(command, commandResult),
-            WriteTableAsync(command, commandResult)
-        );
+        await Task.WhenAll(
 
-        private async Task WriteContainerAsync(ICommand command, ICommandResult commandResult)
+            WriteBlobAsync(command, command?.GetPath()),
+            WriteBlobAsync(commandResult, commandResult?.GetPath())
+
+            ).ConfigureAwait(false);
+
+        Task WriteBlobAsync(object auditData, string auditPath)
         {
-            var auditContainer = await auditContainerInstance
-                .EnsureContainerAsync()
-                .ConfigureAwait(false);
+            if (auditData is null || string.IsNullOrEmpty(auditPath))
+                return Task.CompletedTask; // no data object or path was given
 
-            if (command.CommandId.Equals(commandResult?.CommandId))
-            {
-                commandResult.OrganizationId = command.OrganizationId;
-            }
+            var auditBlob = auditContainer.GetBlockBlobReference(auditPath);
 
-            await Task.WhenAll(
+            return auditBlob
+                .UploadTextAsync(TeamCloudSerialize.SerializeObject(auditData));
+        }
+    }
 
-                WriteBlobAsync(command, command?.GetPath()),
-                WriteBlobAsync(commandResult, commandResult?.GetPath())
+    private async Task WriteTableAsync(ICommand command, ICommandResult commandResult)
+    {
+        var auditEntity = new CommandAuditEntity(command);
 
-                ).ConfigureAwait(false);
+        var auditTable = await auditTableInstance
+            .EnsureTableAsync()
+            .ConfigureAwait(false);
 
-            Task WriteBlobAsync(object auditData, string auditPath)
-            {
-                if (auditData is null || string.IsNullOrEmpty(auditPath))
-                    return Task.CompletedTask; // no data object or path was given
+        var entityResult = await auditTable
+            .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(auditEntity.Entity.PartitionKey, auditEntity.Entity.RowKey))
+            .ConfigureAwait(false);
 
-                var auditBlob = auditContainer.GetBlockBlobReference(auditPath);
+        if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
+            auditEntity = entityResult.Result as CommandAuditEntity ?? auditEntity;
 
-                return auditBlob
-                    .UploadTextAsync(TeamCloudSerialize.SerializeObject(auditData));
-            }
+        var timestamp = DateTime.UtcNow;
+
+        auditEntity.Created = GetTableStorageMinDate(auditEntity.Created, commandResult?.CreatedTime, timestamp);
+        auditEntity.Updated = GetTableStorageMaxDate(auditEntity.Updated, commandResult?.LastUpdatedTime, timestamp);
+
+        if (commandResult is not null)
+        {
+            auditEntity.RuntimeStatus = commandResult.RuntimeStatus;
+            auditEntity.CustomStatus = commandResult.CustomStatus ?? string.Empty;
+            auditEntity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
         }
 
-        private async Task WriteTableAsync(ICommand command, ICommandResult commandResult)
+        await auditTable
+            .ExecuteAsync(TableOperation.InsertOrReplace(auditEntity))
+            .ConfigureAwait(false);
+
+        static DateTime? GetTableStorageMaxDate(params DateTime?[] dateTimes)
         {
-            var auditEntity = new CommandAuditEntity(command);
+            DateTime? timestamp = null;
 
-            var auditTable = await auditTableInstance
-                .EnsureTableAsync()
-                .ConfigureAwait(false);
-
-            var entityResult = await auditTable
-                .ExecuteAsync(TableOperation.Retrieve<CommandAuditEntity>(auditEntity.Entity.PartitionKey, auditEntity.Entity.RowKey))
-                .ConfigureAwait(false);
-
-            if (entityResult.HttpStatusCode == (int)HttpStatusCode.OK)
-                auditEntity = entityResult.Result as CommandAuditEntity ?? auditEntity;
-
-            var timestamp = DateTime.UtcNow;
-
-            auditEntity.Created = GetTableStorageMinDate(auditEntity.Created, commandResult?.CreatedTime, timestamp);
-            auditEntity.Updated = GetTableStorageMaxDate(auditEntity.Updated, commandResult?.LastUpdatedTime, timestamp);
-
-            if (commandResult != null)
+            foreach (var dateTime in dateTimes.Where(dt => dt.HasValue && dt > MinDateTime))
             {
-                auditEntity.RuntimeStatus = commandResult.RuntimeStatus;
-                auditEntity.CustomStatus = commandResult.CustomStatus ?? string.Empty;
-                auditEntity.Errors = string.Join(Environment.NewLine, commandResult.Errors.Select(error => $"[{error.Severity}] {error.Message}"));
+                timestamp = timestamp.HasValue
+                    ? timestamp > dateTime ? timestamp : dateTime
+                    : dateTime;
             }
 
-            await auditTable
-                .ExecuteAsync(TableOperation.InsertOrReplace(auditEntity))
-                .ConfigureAwait(false);
+            return timestamp;
+        }
 
-            static DateTime? GetTableStorageMaxDate(params DateTime?[] dateTimes)
+        static DateTime? GetTableStorageMinDate(params DateTime?[] dateTimes)
+        {
+            DateTime? timestamp = null;
+
+            foreach (var dateTime in dateTimes.Where(dt => dt.HasValue && dt > MinDateTime))
             {
-                DateTime? timestamp = null;
-
-                foreach (var dateTime in dateTimes.Where(dt => dt.HasValue && dt > MinDateTime))
-                {
-                    timestamp = timestamp.HasValue
-                        ? timestamp > dateTime ? timestamp : dateTime
-                        : dateTime;
-                }
-
-                return timestamp;
+                timestamp = timestamp.HasValue
+                    ? timestamp < dateTime ? timestamp : dateTime
+                    : dateTime;
             }
 
-            static DateTime? GetTableStorageMinDate(params DateTime?[] dateTimes)
-            {
-                DateTime? timestamp = null;
-
-                foreach (var dateTime in dateTimes.Where(dt => dt.HasValue && dt > MinDateTime))
-                {
-                    timestamp = timestamp.HasValue
-                        ? timestamp < dateTime ? timestamp : dateTime
-                        : dateTime;
-                }
-
-                return timestamp;
-            }
+            return timestamp;
         }
     }
 }

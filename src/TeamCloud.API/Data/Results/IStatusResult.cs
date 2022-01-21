@@ -3,13 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.API.Data.Results
-{
-    public interface IStatusResult : ISuccessResult, IErrorResult
-    {
-        string State { get; }
+namespace TeamCloud.API.Data.Results;
 
-        // user-facing
-        string StateMessage { get; }
-    }
+public interface IStatusResult : ISuccessResult, IErrorResult
+{
+    string State { get; }
+
+    // user-facing
+    string StateMessage { get; }
 }

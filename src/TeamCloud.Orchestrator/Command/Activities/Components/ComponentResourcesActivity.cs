@@ -14,71 +14,70 @@ using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 
-namespace TeamCloud.Orchestrator.Command.Activities.Components
+namespace TeamCloud.Orchestrator.Command.Activities.Components;
+
+public sealed class ComponentResourcesActivity
 {
-    public sealed class ComponentResourcesActivity
+    private readonly IAzureResourceService azureResourceService;
+
+    public ComponentResourcesActivity(IAzureResourceService azureResourceService)
     {
-        private readonly IAzureResourceService azureResourceService;
+        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+    }
 
-        public ComponentResourcesActivity(IAzureResourceService azureResourceService)
+    [FunctionName(nameof(ComponentResourcesActivity))]
+    [RetryOptions(3)]
+    public async Task<string[]> Run(
+        [ActivityTrigger] IDurableActivityContext context,
+        ILogger log)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+
+        if (log is null)
+            throw new ArgumentNullException(nameof(log));
+
+        var component = context.GetInput<Input>().Component;
+        IAsyncEnumerable<AzureResource> resources = null;
+
+        if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
         {
-            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-        }
-
-        [FunctionName(nameof(ComponentResourcesActivity))]
-        [RetryOptions(3)]
-        public async Task<string[]> Run(
-            [ActivityTrigger] IDurableActivityContext context,
-            ILogger log)
-        {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
-
-            var component = context.GetInput<Input>().Component;
-            IAsyncEnumerable<AzureResource> resources = null;
-
-            if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+            if (string.IsNullOrEmpty(componentResourceId.ResourceGroup))
             {
-                if (string.IsNullOrEmpty(componentResourceId.ResourceGroup))
-                {
-                    var subscription = await azureResourceService
-                        .GetSubscriptionAsync(componentResourceId.SubscriptionId)
-                        .ConfigureAwait(false);
+                var subscription = await azureResourceService
+                    .GetSubscriptionAsync(componentResourceId.SubscriptionId)
+                    .ConfigureAwait(false);
 
-                    if (subscription != null)
-                    {
-                        resources = subscription.GetResourceGroupsAsync()
-                            .SelectMany(rg => rg.GetResourcesAsync());
-                    }
-                }
-                else
+                if (subscription is not null)
                 {
-                    var resourceGroup = await azureResourceService
-                        .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
-                        .ConfigureAwait(false);
-
-                    if (resourceGroup != null)
-                    {
-                        resources = resourceGroup.GetResourcesAsync();
-                    }
+                    resources = subscription.GetResourceGroupsAsync()
+                        .SelectMany(rg => rg.GetResourcesAsync());
                 }
             }
+            else
+            {
+                var resourceGroup = await azureResourceService
+                    .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
+                    .ConfigureAwait(false);
 
-            if (resources is null)
-                return Array.Empty<string>();
-
-            return await resources
-                .Select(r => r.ResourceId.ToString())
-                .ToArrayAsync()
-                .ConfigureAwait(false);
+                if (resourceGroup is not null)
+                {
+                    resources = resourceGroup.GetResourcesAsync();
+                }
+            }
         }
 
-        internal struct Input
-        {
-            public Component Component { get; set; }
-        }
+        if (resources is null)
+            return Array.Empty<string>();
+
+        return await resources
+            .Select(r => r.ResourceId.ToString())
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+    }
+
+    internal struct Input
+    {
+        public Component Component { get; set; }
     }
 }

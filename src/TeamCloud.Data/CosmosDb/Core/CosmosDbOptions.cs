@@ -3,12 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Data.CosmosDb.Core
-{
-    public interface ICosmosDbOptions
-    {
-        string DatabaseName { get; }
+namespace TeamCloud.Data.CosmosDb.Core;
 
-        string ConnectionString { get; }
-    }
+public interface ICosmosDbOptions
+{
+    string DatabaseName { get; }
+
+    string ConnectionString { get; }
 }

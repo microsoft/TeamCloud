@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
-namespace TeamCloud.Adapters.Authorization
+namespace TeamCloud.Adapters.Authorization;
+
+public interface IAuthorizationEndpointsResolverOptions
 {
-    public interface IAuthorizationEndpointsResolverOptions
-    {
-        public string BaseUrl { get; }
-    }
+    public string BaseUrl { get; }
 }

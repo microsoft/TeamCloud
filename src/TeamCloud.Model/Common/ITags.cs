@@ -5,10 +5,9 @@
 
 using System.Collections.Generic;
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+public interface ITags
 {
-    public interface ITags
-    {
-        IDictionary<string, string> Tags { get; set; }
-    }
+    IDictionary<string, string> Tags { get; set; }
 }

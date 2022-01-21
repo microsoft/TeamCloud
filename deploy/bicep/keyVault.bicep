@@ -16,23 +16,4 @@ resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   }
 }
 
-// resource diagnostics 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (!empty(logAnalyticsWrokspaceId)) {
-//   name: 'diagnostics'
-//   scope: vault
-//   properties: {
-//     workspaceId: logAnalyticsWrokspaceId
-//     logs: [
-//       {
-//         category: 'AuditEvent'
-//         enabled: true
-//       }
-//       // {
-//       //   category: 'AllMetrics'
-//       //   enabled: true
-//       // }
-//     ]
-//   }
-// }
-
-output id string = vault.id
 output name string = vault.name

@@ -15,19 +15,14 @@ from azure.cli.core.profiles import ResourceType, get_sdk
 from azure.cli.core.util import (can_launch_browser, open_page_in_browser, in_cloud_console,
                                  random_string, sdk_no_wait, should_disable_connection_verify)
 
-from ._client_factory import (resource_client_factory, web_client_factory)
+from ._client_factory import (deployment_client_factory, resource_client_factory)
 
 
-ERR_TMPL_PRDR_INDEX = 'Unable to get provider index.\n'
-ERR_TMPL_NON_200 = '{}Server returned status code {{}} for {{}}'.format(ERR_TMPL_PRDR_INDEX)
-ERR_TMPL_NO_NETWORK = '{}Please ensure you have network connection. Error detail: {{}}'.format(
-    ERR_TMPL_PRDR_INDEX)
-ERR_TMPL_BAD_JSON = '{}Response body does not contain valid json. Error detail: {{}}'.format(
-    ERR_TMPL_PRDR_INDEX)
-
-ERR_UNABLE_TO_GET_PROVIDERS = 'Unable to get providers from index. Improper index format.'
+ERR_TMPL_INDEX = 'Unable to get provider index.\n'
+ERR_TMPL_NON_200 = f'{ERR_TMPL_INDEX}Server returned status code {{}} for {{}}'
+ERR_TMPL_NO_NETWORK = f'{ERR_TMPL_INDEX}Please ensure you have network connection. Error detail: {{}}'
+ERR_TMPL_BAD_JSON = f'{ERR_TMPL_INDEX}Response body does not contain valid json. Error detail: {{}}'
 ERR_UNABLE_TO_GET_TEAMCLOUD = 'Unable to get teamcloud from index. Improper index format.'
-ERR_UNABLE_TO_GET_WEBAPP = 'Unable to get web app from index. Improper index format.'
 
 TRIES = 3
 
@@ -39,7 +34,7 @@ def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=
         raise CLIError(
             'usage error: can only use one of --version/-v | --pre')
 
-    url = 'https://api.github.com/repos/{}/{}/releases'.format(org, repo)
+    url = f'https://api.github.com/repos/{org}/{repo}/releases'
 
     if prerelease:
         version_res = requests.get(url, verify=not should_disable_connection_verify())
@@ -47,19 +42,19 @@ def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=
 
         version_prerelease = next((v for v in version_json if v['prerelease']), None)
         if not version_prerelease:
-            raise CLIError('--pre no prerelease versions found for {}/{}'.format(org, repo))
+            raise CLIError(f'--pre no prerelease versions found for {org}/{repo}')
 
         return version_prerelease
 
-    url += ('/tags/{}'.format(version) if version else '/latest')
+    url += (f'/tags/{version}' if version else '/latest')
 
     version_res = requests.get(url, verify=not should_disable_connection_verify())
 
     if version_res.status_code == 404:
         raise CLIError(
-            'No release version exists for {}/{}. '
+            f'No release version exists for {org}/{repo}. '
             'Specify a specific prerelease version with --version '
-            'or use latest prerelease with --pre'.format(org, repo))
+            'or use latest prerelease with --pre')
 
     return version_res.json()
 
@@ -70,7 +65,7 @@ def get_github_latest_release_version(cli_ctx, repo, org='microsoft', prerelease
 
 
 def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
-    version_url = 'https://api.github.com/repos/{}/{}/releases/tags/{}'.format(org, repo, version)
+    version_url = f'https://api.github.com/repos/{org}/{repo}/releases/tags/{version}'
     version_res = requests.get(version_url, verify=not should_disable_connection_verify())
     return version_res.status_code < 400
 
@@ -131,20 +126,20 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
 
     from azure.cli.command_modules.resource.custom import _prepare_deployment_properties_unmodified
 
-    properties = _prepare_deployment_properties_unmodified(cmd, 'resourceGroup', template_file=template_file,
-                                                           template_uri=template_uri, parameters=parameters,
-                                                           mode='Incremental')
+    deployment_properties = _prepare_deployment_properties_unmodified(cmd, 'resourceGroup', template_file=template_file,
+                                                                      template_uri=template_uri, parameters=parameters,
+                                                                      mode='Incremental')
 
-    client = resource_client_factory(cmd.cli_ctx).deployments
+    deployment_client = deployment_client_factory(cmd.cli_ctx)
 
     for try_number in range(TRIES):
         try:
             deployment_name = random_string(length=14, force_lower=True) + str(try_number)
 
             Deployment = cmd.get_models('Deployment', resource_type=ResourceType.MGMT_RESOURCE_RESOURCES)
-            deployment = Deployment(properties=properties)
+            deployment = Deployment(properties=deployment_properties)
 
-            deploy_poll = sdk_no_wait(no_wait, client.begin_create_or_update, resource_group_name,
+            deploy_poll = sdk_no_wait(no_wait, deployment_client.begin_create_or_update, resource_group_name,
                                       deployment_name, deployment)
 
             result = LongRunningOperation(cmd.cli_ctx, start_msg='Deploying ARM template',
@@ -173,7 +168,7 @@ def open_url_in_browser(url):
         open_page_in_browser(url)
     else:
         print("There isn't an available browser finish the setup. Please copy and paste the url"
-              " below in a browser to complete the configuration.\n\n{}\n\n".format(url))
+              f" below in a browser to complete the configuration.\n\n{url}\n\n")
 
 
 def get_index(index_url):
@@ -197,13 +192,21 @@ def get_index(index_url):
             continue
 
 
-def get_teamcloud_index(cli_ctx, version=None, prerelease=False, index_url=None):
-    if index_url is None:
-        version = version or get_github_latest_release_version(
-            cli_ctx, 'TeamCloud', prerelease=prerelease)
-        index_url = 'https://github.com/microsoft/TeamCloud/releases/download/{}/index.json'.format(
-            version)
-    index = get_index(index_url=index_url)
+def get_local_index(index_file):
+    from azure.cli.core.util import get_file_json
+    return get_file_json(index_file, preserve_order=True)
+
+
+def get_teamcloud_index(cli_ctx, version=None, prerelease=False, index_file=None, index_url=None):
+    if index_file is not None:
+        index = get_local_index(index_file=index_file)
+    else:
+        if index_url is None:
+            version = version or get_github_latest_release_version(
+                cli_ctx, 'TeamCloud', prerelease=prerelease)
+            index_url = f'https://github.com/microsoft/TeamCloud/releases/download/{version}/index.json'
+        index = get_index(index_url=index_url)
+
     teamcloud = index.get('teamcloud')
 
     if teamcloud is None:
@@ -223,234 +226,13 @@ def get_teamcloud_index(cli_ctx, version=None, prerelease=False, index_url=None)
     return version, deploy_url, api_zip_url, orchestrator_zip_url, web_zip_url
 
 
-def get_app_name(url):
-    from re import match
-    name = ''
-    m = match(r'^https?://(?P<name>[a-zA-Z0-9-]+)\.azurewebsites\.net[/a-zA-Z0-9.\:]*$', url)
-    try:
-        name = m.group('name') if m is not None else None
-    except IndexError:
-        pass
-
-    if name is None:
-        raise CLIError('Unable to get app name from url.')
-
-    return name
-
-
-def get_app_info(cmd, url):
-    name = get_app_name(url)
-
-    from azure.cli.command_modules.resource.custom import list_resources
-
-    resources = list_resources(cmd, name=name, resource_type='microsoft.web/sites')
-
-    if not resources:
-        raise CLIError('Unable to find site from url.')
-    if len(resources) > 1:
-        raise CLIError('Found multiple sites from url.')
-
-    return resources[0]
-
-
 def get_arm_output(outputs, key, raise_on_error=True):
     try:
         value = outputs[key]['value']
     except KeyError as e:
         if raise_on_error:
             raise CLIError(
-                "A value for '{}' was not provided in the ARM template outputs".format(key)) from e
+                f"A value for '{key}' was not provided in the ARM template outputs") from e
         value = None
 
     return value
-
-
-def zip_deploy_app(cli_ctx, resource_group_name, name, zip_url, slot=None, app_instance=None, timeout=None):
-    import urllib3
-
-    web_client = web_client_factory(cli_ctx).web_apps
-
-    creds_poller = web_client.begin_list_publishing_credentials(resource_group_name, name)
-    creds = LongRunningOperation(cli_ctx, start_msg='Getting publishing credentials',
-                                 finish_msg='Finished getting publishing credentials')(creds_poller)
-
-    try:
-        scm_url = _get_scm_url(cli_ctx, resource_group_name, name,
-                               slot=slot, app_instance=app_instance)
-    except ValueError:
-        raise CLIError('Failed to fetch scm url for azure app service app')  # pylint: disable=raise-missing-from
-
-    zipdeploy_url = scm_url + '/api/zipdeploy?isAsync=true'
-    deployment_status_url = scm_url + '/api/deployments/latest'
-
-    authorization = urllib3.util.make_headers(basic_auth='{}:{}'.format(
-        creds.publishing_user_name, creds.publishing_password))
-
-    res = requests.put(zipdeploy_url, headers=authorization,
-                       json={'packageUri': zip_url}, verify=not should_disable_connection_verify())
-
-    # check if there's an ongoing process
-    if res.status_code == 409:
-        logger.warning(res.json())
-        raise CLIError('There may be an ongoing deployment or your app setting has WEBSITE_RUN_FROM_PACKAGE. '
-                       'Please track your deployment in {} and ensure the WEBSITE_RUN_FROM_PACKAGE app setting '
-                       'is removed.'.format(deployment_status_url))
-
-    # check the status of async deployment
-    response = _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
-                                            authorization, slot=slot, app_instance=app_instance, timeout=timeout)
-
-    return response
-
-
-def _check_zip_deployment_status(cli_ctx, resource_group_name, name, deployment_status_url,
-                                 authorization, slot=None, app_instance=None, timeout=None):
-    from time import sleep
-
-    total_trials = (int(timeout) // 2) if timeout else 450
-    num_trials = 0
-
-    while num_trials < total_trials:
-        sleep(2)
-        response = requests.get(deployment_status_url, headers=authorization,
-                                verify=not should_disable_connection_verify())
-        sleep(2)
-        try:
-            res_dict = response.json()
-        except json.decoder.JSONDecodeError:
-            logger.warning("Deployment status endpoint %s returned malformed data. Retrying...",
-                           deployment_status_url)
-            res_dict = {}
-        finally:
-            num_trials = num_trials + 1
-
-        if res_dict.get('status', 0) == 3:
-            _configure_default_logging(cli_ctx, resource_group_name, name,
-                                       slot=slot, app_instance=app_instance)
-
-            deploment_detail_messages = _get_deployment_details(res_dict, deployment_status_url, authorization)
-
-            raise CLIError('Zip deployment failed.\n\n{}.\n\n===================\n| Deployment Logs '
-                           '|\n===================\n\n{}'.format(
-                               res_dict, '\n'.join(deploment_detail_messages)))
-
-        if res_dict.get('status', 0) == 4:
-            break
-        if 'progress' in res_dict:
-            # show only in debug mode, customers seem to find this confusing
-            logger.info(res_dict['progress'])
-
-    # if the deployment is taking longer than expected
-    if res_dict.get('status', 0) != 4:
-        _configure_default_logging(cli_ctx, resource_group_name, name,
-                                   slot=slot, app_instance=app_instance)
-        raise CLIError(
-            'Timeout reached by the command, however, the deployment operation is still on-going. '
-            'Navigate to your scm site to check the deployment status')
-    return res_dict
-
-
-def _get_deployment_details(res_dict, deployment_status_url, authorization):
-
-    deploment_detail_messages = []
-
-    deploment_id = res_dict.get('id', None)
-
-    if deploment_id is not None:
-        deploment_log_url = deployment_status_url.replace('latest', '{}/log'.format(deploment_id))
-        deploment_log_response = requests.get(deploment_log_url, headers=authorization,
-                                              verify=not should_disable_connection_verify())
-        try:
-            deploment_log_dict = deploment_log_response.json()
-
-            deploment_details = next((log for log in deploment_log_dict if log['details_url'] is not None and
-                                      log['details_url'].startswith('https')), None)
-
-            if deploment_details is not None:
-
-                deploment_details_url = deploment_details['details_url']
-                deploment_details_response = requests.get(deploment_details_url, headers=authorization,
-                                                          verify=not should_disable_connection_verify())
-                try:
-                    deploment_details_dict = deploment_details_response.json()
-
-                    for deploment_detail in deploment_details_dict:
-                        deploment_detail_message = deploment_detail.get('message', '')
-                        # logger.warning(deploment_detail_message)
-                        deploment_detail_messages.append(deploment_detail_message)
-
-                except json.decoder.JSONDecodeError:
-                    logger.warning("Deployment status endpoint %s returned malformed data. Retrying...",
-                                   deploment_details_url)
-
-        except json.decoder.JSONDecodeError:
-            logger.warning("Deployment status endpoint %s returned malformed data. Retrying...",
-                           deploment_log_url)
-
-    return deploment_detail_messages
-
-# TODO: expose new blob suport
-
-
-def _configure_default_logging(cli_ctx, resource_group_name, name, slot=None, app_instance=None, level=None,
-                               web_server_logging='filesystem', docker_container_logging='true'):
-    from azure.mgmt.web.models import (FileSystemApplicationLogsConfig, ApplicationLogsConfig,
-                                       SiteLogsConfig, HttpLogsConfig, FileSystemHttpLogsConfig)
-
-    # logger.warning('Configuring default logging for the app, if not already enabled...')
-
-    site = _get_webapp(cli_ctx, resource_group_name, name, slot=slot, app_instance=app_instance)
-
-    location = site.location
-
-    fs_log = FileSystemApplicationLogsConfig(level='Error')
-    application_logs = ApplicationLogsConfig(file_system=fs_log)
-
-    http_logs = None
-    server_logging_option = web_server_logging or docker_container_logging
-    if server_logging_option:
-        # TODO: az blob storage log config currently not in use, will be impelemented later.
-        # Tracked as Issue: #4764 on Github
-        filesystem_log_config = None
-        turned_on = server_logging_option != 'off'
-        if server_logging_option in ['filesystem', 'off']:
-            # 100 mb max log size, retention lasts 3 days. Yes we hard code it, portal does too
-            filesystem_log_config = FileSystemHttpLogsConfig(
-                retention_in_mb=100, retention_in_days=3, enabled=turned_on)
-
-        http_logs = HttpLogsConfig(file_system=filesystem_log_config, azure_blob_storage=None)
-
-    site_log_config = SiteLogsConfig(location=location, application_logs=application_logs,
-                                     http_logs=http_logs, failed_requests_tracing=None,
-                                     detailed_error_messages=None)
-
-    web_client = web_client_factory(cli_ctx).web_apps
-
-    return web_client.update_diagnostic_logs_config(resource_group_name, name, site_log_config)
-
-
-def _get_scm_url(cli_ctx, resource_group_name, name, slot=None, app_instance=None):  # pylint: disable=inconsistent-return-statements
-    from azure.mgmt.web.models import HostType
-
-    webapp = _get_webapp(cli_ctx, resource_group_name, name, slot=slot, app_instance=app_instance)
-    for host in webapp.host_name_ssl_states or []:
-        if host.host_type == HostType.repository:
-            return 'https://{}'.format(host.name)
-
-
-def _get_webapp(cli_ctx, resource_group_name, name, slot=None, app_instance=None):
-    webapp = app_instance
-    if not app_instance:
-        web_client = web_client_factory(cli_ctx).web_apps
-        webapp = web_client.get(resource_group_name, name)
-    if not webapp:
-        raise CLIError("'{}' app doesn't exist".format(name))
-
-    # Should be renamed in SDK in a future release
-    try:
-        setattr(webapp, 'app_service_plan_id', webapp.server_farm_id)
-        del webapp.server_farm_id
-    except AttributeError:
-        pass
-
-    return webapp

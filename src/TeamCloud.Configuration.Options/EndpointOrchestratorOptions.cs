@@ -3,13 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Configuration.Options
-{
-    [Options("Endpoint:Orchestrator")]
-    public sealed class EndpointOrchestratorOptions
-    {
-        public string Url { get; set; }
+namespace TeamCloud.Configuration.Options;
 
-        public string AuthCode { get; set; }
-    }
+[Options("Endpoint:Orchestrator")]
+public sealed class EndpointOrchestratorOptions
+{
+    public string Url { get; set; }
+
+    public string AuthCode { get; set; }
 }

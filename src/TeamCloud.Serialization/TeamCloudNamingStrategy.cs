@@ -5,14 +5,13 @@
 
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Serialization
-{
-    public sealed class TeamCloudNamingStrategy : CamelCaseNamingStrategy
-    {
-        public static TeamCloudNamingStrategy Default = new TeamCloudNamingStrategy();
+namespace TeamCloud.Serialization;
 
-        public TeamCloudNamingStrategy()
-            : base(processDictionaryKeys: false, overrideSpecifiedNames: true)
-        { }
-    }
+public sealed class TeamCloudNamingStrategy : CamelCaseNamingStrategy
+{
+    public static TeamCloudNamingStrategy Default = new TeamCloudNamingStrategy();
+
+    public TeamCloudNamingStrategy()
+        : base(processDictionaryKeys: false, overrideSpecifiedNames: true)
+    { }
 }

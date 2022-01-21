@@ -10,40 +10,39 @@ using System.Threading.Tasks;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
+namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks;
+
+public sealed class ComponentTaskGetActivity
 {
-    public sealed class ComponentTaskGetActivity
+    private readonly IComponentTaskRepository componentTaskRepository;
+    private readonly IComponentRepository componentRepository;
+
+    public ComponentTaskGetActivity(IComponentTaskRepository componentTaskRepository, IComponentRepository componentRepository)
     {
-        private readonly IComponentTaskRepository componentTaskRepository;
-        private readonly IComponentRepository componentRepository;
+        this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
+        this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
+    }
 
-        public ComponentTaskGetActivity(IComponentTaskRepository componentTaskRepository, IComponentRepository componentRepository)
-        {
-            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
-            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
-        }
+    [FunctionName(nameof(ComponentTaskGetActivity))]
+    public async Task<ComponentTask> Run(
+        [ActivityTrigger] IDurableActivityContext context)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
 
-        [FunctionName(nameof(ComponentTaskGetActivity))]
-        public async Task<ComponentTask> Run(
-            [ActivityTrigger] IDurableActivityContext context)
-        {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
+        var input = context.GetInput<Input>();
 
-            var input = context.GetInput<Input>();
+        var componentTask = await componentTaskRepository
+            .GetAsync(input.ComponentId, input.ComponentTaskId)
+            .ConfigureAwait(false);
 
-            var componentTask = await componentTaskRepository
-                .GetAsync(input.ComponentId, input.ComponentTaskId)
-                .ConfigureAwait(false);
+        return componentTask;
+    }
 
-            return componentTask;
-        }
+    internal struct Input
+    {
+        public string ComponentTaskId { get; set; }
 
-        internal struct Input
-        {
-            public string ComponentTaskId { get; set; }
-
-            public string ComponentId { get; set; }
-        }
+        public string ComponentId { get; set; }
     }
 }

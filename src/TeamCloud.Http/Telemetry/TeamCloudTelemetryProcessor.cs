@@ -11,69 +11,68 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 
-namespace TeamCloud.Http.Telemetry
+namespace TeamCloud.Http.Telemetry;
+
+public sealed class TeamCloudTelemetryProcessor : ITelemetryProcessor
 {
-    public sealed class TeamCloudTelemetryProcessor : ITelemetryProcessor
+    private readonly ITelemetryProcessor next;
+
+    internal static void Register(TelemetryConfiguration telemetryConfiguration, IEnumerable<ITelemetryModule> telemetryModules)
     {
-        private readonly ITelemetryProcessor next;
+        telemetryConfiguration
+            .TelemetryProcessorChainBuilder
+            .Use(next => new TeamCloudTelemetryProcessor(next))
+            .Use(next => new QuickPulseTelemetryProcessor(next))
+            .Build();
 
-        internal static void Register(TelemetryConfiguration telemetryConfiguration, IEnumerable<ITelemetryModule> telemetryModules)
+        var quickPulseProcessor = telemetryConfiguration
+            .TelemetryProcessors
+            .OfType<QuickPulseTelemetryProcessor>()
+            .LastOrDefault();
+
+        if (quickPulseProcessor is not null)
         {
-            telemetryConfiguration
-                .TelemetryProcessorChainBuilder
-                .Use(next => new TeamCloudTelemetryProcessor(next))
-                .Use(next => new QuickPulseTelemetryProcessor(next))
-                .Build();
+            var quickPulseModule = telemetryModules
+                .OfType<QuickPulseTelemetryModule>()
+                .FirstOrDefault();
 
-            var quickPulseProcessor = telemetryConfiguration
-                .TelemetryProcessors
-                .OfType<QuickPulseTelemetryProcessor>()
-                .LastOrDefault();
+            quickPulseModule?.RegisterTelemetryProcessor(quickPulseProcessor);
+        }
 
-            if (quickPulseProcessor != null)
+        telemetryConfiguration
+            .TelemetryProcessors
+            .OfType<ITelemetryModule>()
+            .ToList()
+            .ForEach(module => module.Initialize(telemetryConfiguration));
+    }
+
+    internal TeamCloudTelemetryProcessor(ITelemetryProcessor next)
+    {
+        this.next = next ?? throw new ArgumentNullException(nameof(next));
+    }
+
+    public void Process(ITelemetry item)
+    {
+        if (item is DependencyTelemetry dependencyTelemetry && !ShouldForward(dependencyTelemetry))
+            return;
+
+        this.next.Process(item);
+    }
+
+    private static bool ShouldForward(DependencyTelemetry dependencyTelemetry)
+    {
+        var forward = true;
+
+        if (dependencyTelemetry.Type?.Equals("azure table", StringComparison.OrdinalIgnoreCase) ?? false)
+        {
+            forward = dependencyTelemetry.ResultCode switch
             {
-                var quickPulseModule = telemetryModules
-                    .OfType<QuickPulseTelemetryModule>()
-                    .FirstOrDefault();
-
-                quickPulseModule?.RegisterTelemetryProcessor(quickPulseProcessor);
-            }
-
-            telemetryConfiguration
-                .TelemetryProcessors
-                .OfType<ITelemetryModule>()
-                .ToList()
-                .ForEach(module => module.Initialize(telemetryConfiguration));
+                "404" => false, // not found - false positive
+                "409" => false, // conflict - usually caused by "create if not exist" operations
+                _ => forward
+            };
         }
 
-        internal TeamCloudTelemetryProcessor(ITelemetryProcessor next)
-        {
-            this.next = next ?? throw new ArgumentNullException(nameof(next));
-        }
-
-        public void Process(ITelemetry item)
-        {
-            if (item is DependencyTelemetry dependencyTelemetry && !ShouldForward(dependencyTelemetry))
-                return;
-
-            this.next.Process(item);
-        }
-
-        private static bool ShouldForward(DependencyTelemetry dependencyTelemetry)
-        {
-            var forward = true;
-
-            if (dependencyTelemetry.Type?.Equals("azure table", StringComparison.OrdinalIgnoreCase) ?? false)
-            {
-                forward = dependencyTelemetry.ResultCode switch
-                {
-                    "404" => false, // not found - false positive
-                    "409" => false, // conflict - usually caused by "create if not exist" operations
-                    _ => forward
-                };
-            }
-
-            return forward;
-        }
+        return forward;
     }
 }

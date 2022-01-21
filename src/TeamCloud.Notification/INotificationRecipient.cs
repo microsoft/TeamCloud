@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Notification
+namespace TeamCloud.Notification;
+
+public interface INotificationRecipient
 {
-    public interface INotificationRecipient
-    {
-        string Address { get; }
-    }
+    string Address { get; }
 }

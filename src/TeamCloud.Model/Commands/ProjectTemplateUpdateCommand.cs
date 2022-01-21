@@ -6,10 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class ProjectTemplateUpdateCommand : UpdateCommand<ProjectTemplate, ProjectTemplateUpdateCommandResult>
 {
-    public sealed class ProjectTemplateUpdateCommand : UpdateCommand<ProjectTemplate, ProjectTemplateUpdateCommandResult>
-    {
-        public ProjectTemplateUpdateCommand(User user, ProjectTemplate payload) : base(user, payload) { }
-    }
+    public ProjectTemplateUpdateCommand(User user, ProjectTemplate payload)
+        : base(user, payload)
+    { }
 }

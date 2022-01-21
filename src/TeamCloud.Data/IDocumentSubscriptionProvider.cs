@@ -6,10 +6,9 @@
 using System.Collections.Generic;
 using TeamCloud.Model.Data.Core;
 
-namespace TeamCloud.Data
+namespace TeamCloud.Data;
+
+public interface IDocumentSubscriptionProvider
 {
-    public interface IDocumentSubscriptionProvider
-    {
-        IEnumerable<IDocumentSubscription> GetSubscriptions(IContainerDocument document);
-    }
+    IEnumerable<IDocumentSubscription> GetSubscriptions(IContainerDocument document);
 }

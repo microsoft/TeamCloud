@@ -3,13 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Configuration.Options
-{
-    [Options("Azure:CosmosDb")]
-    public class AzureCosmosDbOptions
-    {
-        public string DatabaseName { get; set; } = "TeamCloud";
+namespace TeamCloud.Configuration.Options;
 
-        public string ConnectionString { get; set; }
-    }
+[Options("Azure:CosmosDb")]
+public class AzureCosmosDbOptions
+{
+    public string DatabaseName { get; set; } = "TeamCloud";
+
+    public string ConnectionString { get; set; }
 }

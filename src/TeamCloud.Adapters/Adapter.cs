@@ -18,370 +18,195 @@ using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Directory;
 using TeamCloud.Data;
-using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Secrets;
 
-namespace TeamCloud.Adapters
+namespace TeamCloud.Adapters;
+
+public abstract class Adapter : IAdapter
 {
-    public abstract class Adapter : IAdapter
-    {
-        private static readonly JSchema dataSchemaEmpty = new JSchema() { Type = JSchemaType.Object };
-        private static readonly JObject formSchemaEmpty = new JObject();
+    private static readonly JSchema dataSchemaEmpty = new JSchema() { Type = JSchemaType.Object };
+    private static readonly JObject formSchemaEmpty = new JObject();
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
-        // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
-        // however; it is used to managed singleton function execution within the functions fx !!!
+    // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
+    // however; it is used to managed singleton function execution within the functions fx !!!
 
-        private readonly IAuthorizationSessionClient sessionClient;
-        private readonly IAuthorizationTokenClient tokenClient;
-        private readonly IDistributedLockManager distributedLockManager;
-        private readonly ISecretsStoreProvider secretsStoreProvider;
-        private readonly IAzureSessionService azureSessionService;
-        private readonly IAzureDirectoryService azureDirectoryService;
-        private readonly IOrganizationRepository organizationRepository;
-        private readonly IDeploymentScopeRepository deploymentScopeRepository;
-        private readonly IProjectRepository projectRepository;
-        private readonly IUserRepository userRepository;
+    private readonly IAuthorizationSessionClient sessionClient;
+    private readonly IAuthorizationTokenClient tokenClient;
+    private readonly IDistributedLockManager distributedLockManager;
+    private readonly ISecretsStoreProvider secretsStoreProvider;
+    private readonly IAzureSessionService azureSessionService;
+    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IOrganizationRepository organizationRepository;
+    private readonly IDeploymentScopeRepository deploymentScopeRepository;
+    private readonly IProjectRepository projectRepository;
+    private readonly IUserRepository userRepository;
 
-        protected Adapter(IAuthorizationSessionClient sessionClient,
-                          IAuthorizationTokenClient tokenClient,
-                          IDistributedLockManager distributedLockManager,
-                          ISecretsStoreProvider secretsStoreProvider,
-                          IAzureSessionService azureSessionService,
-                          IAzureDirectoryService azureDirectoryService,
-                          IOrganizationRepository organizationRepository,
-                          IDeploymentScopeRepository deploymentScopeRepository,
-                          IProjectRepository projectRepository,
-                          IUserRepository userRepository)
-        {
-            this.sessionClient = sessionClient ?? throw new ArgumentNullException(nameof(sessionClient));
-            this.tokenClient = tokenClient ?? throw new ArgumentNullException(nameof(tokenClient));
-            this.distributedLockManager = distributedLockManager ?? throw new ArgumentNullException(nameof(distributedLockManager));
-            this.secretsStoreProvider = secretsStoreProvider ?? throw new ArgumentNullException(nameof(secretsStoreProvider));
-            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-            this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-            this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-            this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
-        }
-
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        public abstract DeploymentScopeType Type { get; }
-
-        public abstract IEnumerable<ComponentType> ComponentTypes { get; }
-
-        public virtual string DisplayName
-            => Type.ToString(prettyPrint: true);
-
-        protected IAuthorizationSessionClient SessionClient
-            => sessionClient;
-
-        protected IAuthorizationTokenClient TokenClient
-            => tokenClient;
-
-        protected Task<AdapterLock> AcquireLockAsync(string lockId, params string[] lockIdQualifiers)
-        {
-            if (string.IsNullOrWhiteSpace(lockId))
-                throw new ArgumentException($"'{nameof(lockId)}' cannot be null or whitespace.", nameof(lockId));
-
-            return AcquireLockAsync(string.Join('/', lockIdQualifiers.Prepend(lockId).Where(item => !string.IsNullOrWhiteSpace(item))));
-        }
-
-        protected async Task<AdapterLock> AcquireLockAsync(string lockId, int leaseTimeoutInSeconds = 60, int acquisitionTimeoutInSeconds = 60)
-        {
-            if (string.IsNullOrWhiteSpace(lockId))
-                throw new ArgumentException($"'{nameof(lockId)}' cannot be null or whitespace.", nameof(lockId));
-
-            leaseTimeoutInSeconds = Math.Max(leaseTimeoutInSeconds, 0);
-            acquisitionTimeoutInSeconds = Math.Max(acquisitionTimeoutInSeconds, 0);
-
-            var distributedLock = await distributedLockManager
-                .TryLockAsync(null, lockId, null, null, TimeSpan.FromSeconds(leaseTimeoutInSeconds), CancellationToken.None)
-                .ConfigureAwait(false);
-
-            var acquisitionTimeoutElapsed = 0;
-
-            while (distributedLock is null && acquisitionTimeoutElapsed++ < acquisitionTimeoutInSeconds)
-            {
-                await Task
-                    .Delay(1000)
-                    .ConfigureAwait(false);
-
-                distributedLock = await distributedLockManager
-                    .TryLockAsync(null, lockId, null, null, TimeSpan.FromSeconds(leaseTimeoutInSeconds), CancellationToken.None)
-                    .ConfigureAwait(false);
-            }
-
-            if (distributedLock is null)
-                throw new TimeoutException($"Failed to acquire lock for id '{lockId}' within {acquisitionTimeoutInSeconds} sec.");
-
-            return new AdapterLock(distributedLockManager, distributedLock);
-        }
-
-        public virtual Task<string> GetInputDataSchemaAsync()
-            => Task.FromResult(dataSchemaEmpty.ToString(Formatting.None));
-
-        public virtual Task<string> GetInputFormSchemaAsync()
-            => Task.FromResult(formSchemaEmpty.ToString(Formatting.None));
-
-        public virtual Task<NetworkCredential> GetServiceCredentialAsync(Component component)
-            => Task.FromResult(default(NetworkCredential));
-
-        public abstract Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
-
-        public Task<Component> CreateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
-            => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject)
-                => CreateComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue));
-
-        protected abstract Task<Component> CreateComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
-
-        public Task<Component> UpdateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
-            => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject) 
-                => UpdateComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue));
-
-        protected abstract Task<Component> UpdateComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
-
-        public Task<Component> DeleteComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
-            => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject)
-                => DeleteComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue));
-
-        protected abstract Task<Component> DeleteComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
-
-        protected async Task WithContextAsync(Component component, Func<Organization, DeploymentScope, Project, Task> callback)
-        {
-            if (component is null)
-                throw new ArgumentNullException(nameof(component));
-
-            if (callback is null)
-                throw new ArgumentNullException(nameof(callback));
-
-            var tenantId = await azureSessionService
-                .GetTenantIdAsync()
-                .ConfigureAwait(false);
-
-            var organization = await organizationRepository
-                .GetAsync(tenantId.ToString(), component.Organization, true)
-                .ConfigureAwait(false);
-
-            var deploymentScope = await deploymentScopeRepository
-                .GetAsync(component.Organization, component.DeploymentScopeId)
-                .ConfigureAwait(false);
-
-            var project = await projectRepository
-                .GetAsync(component.Organization, component.ProjectId)
-                .ConfigureAwait(false);
-
-            await callback(organization, deploymentScope, project).ConfigureAwait(false);
-        }
-
-        protected async Task<T> WithContextAsync<T>(Component component, Func<Organization, DeploymentScope, Project, Task<T>> callback)
-        {
-            if (component is null)
-                throw new ArgumentNullException(nameof(component));
-
-            if (callback is null)
-                throw new ArgumentNullException(nameof(callback));
-
-            var tenantId = await azureSessionService
-                .GetTenantIdAsync()
-                .ConfigureAwait(false);
-
-            var organization = await organizationRepository
-                .GetAsync(tenantId.ToString(), component.Organization, true)
-                .ConfigureAwait(false);
-
-            var deploymentScope = await deploymentScopeRepository
-                .GetAsync(component.Organization, component.DeploymentScopeId)
-                .ConfigureAwait(false);
-
-            var project = await projectRepository
-                .GetAsync(component.Organization, component.ProjectId)
-                .ConfigureAwait(false);
-
-            return await callback(organization, deploymentScope, project).ConfigureAwait(false);
-        }
+    protected Adapter(IAuthorizationSessionClient sessionClient,
+                      IAuthorizationTokenClient tokenClient,
+                      IDistributedLockManager distributedLockManager,
+                      ISecretsStoreProvider secretsStoreProvider,
+                      IAzureSessionService azureSessionService,
+                      IAzureDirectoryService azureDirectoryService,
+                      IOrganizationRepository organizationRepository,
+                      IDeploymentScopeRepository deploymentScopeRepository,
+                      IProjectRepository projectRepository,
+                      IUserRepository userRepository)
+    {
+        this.sessionClient = sessionClient ?? throw new ArgumentNullException(nameof(sessionClient));
+        this.tokenClient = tokenClient ?? throw new ArgumentNullException(nameof(tokenClient));
+        this.distributedLockManager = distributedLockManager ?? throw new ArgumentNullException(nameof(distributedLockManager));
+        this.secretsStoreProvider = secretsStoreProvider ?? throw new ArgumentNullException(nameof(secretsStoreProvider));
+        this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
+        this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
+        this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
+        this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
     }
 
-    public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
-    {
-        private readonly ISecretsStoreProvider secretsStoreProvider;
-        private readonly IAzureSessionService azureSessionService;
-        private readonly IAzureDirectoryService azureDirectoryService;
-        private readonly IOrganizationRepository organizationRepository;
-        private readonly IProjectRepository projectRepository;
-
-#pragma warning disable CS0618 // Type or member is obsolete
-
-        protected AdapterWithIdentity(IAuthorizationSessionClient sessionClient,
-                                      IAuthorizationTokenClient tokenClient,
-                                      IDistributedLockManager distributedLockManager,
-                                      ISecretsStoreProvider secretsStoreProvider,
-                                      IAzureSessionService azureSessionService,
-                                      IAzureDirectoryService azureDirectoryService,
-                                      IOrganizationRepository organizationRepository,
-                                      IDeploymentScopeRepository deploymentScopeRepository,
-                                      IProjectRepository projectRepository,
-                                      IUserRepository userRepository) : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
-        {
-            this.secretsStoreProvider = secretsStoreProvider ?? throw new ArgumentNullException(nameof(secretsStoreProvider));
-            this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-            this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
-            this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
-            this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        }
-
 #pragma warning restore CS0618 // Type or member is obsolete
 
-        public virtual async Task<AzureServicePrincipal> GetServiceIdentityAsync(Component component, bool withPassword = false)
+    public abstract DeploymentScopeType Type { get; }
+
+    public abstract IEnumerable<ComponentType> ComponentTypes { get; }
+
+    public virtual string DisplayName
+        => Type.ToString(prettyPrint: true);
+
+    protected IAuthorizationSessionClient SessionClient
+        => sessionClient;
+
+    protected IAuthorizationTokenClient TokenClient
+        => tokenClient;
+
+    protected Task<AdapterLock> AcquireLockAsync(string lockId, params string[] lockIdQualifiers)
+    {
+        if (string.IsNullOrWhiteSpace(lockId))
+            throw new ArgumentException($"'{nameof(lockId)}' cannot be null or whitespace.", nameof(lockId));
+
+        return AcquireLockAsync(string.Join('/', lockIdQualifiers.Prepend(lockId).Where(item => !string.IsNullOrWhiteSpace(item))));
+    }
+
+    protected async Task<AdapterLock> AcquireLockAsync(string lockId, int leaseTimeoutInSeconds = 60, int acquisitionTimeoutInSeconds = 60)
+    {
+        if (string.IsNullOrWhiteSpace(lockId))
+            throw new ArgumentException($"'{nameof(lockId)}' cannot be null or whitespace.", nameof(lockId));
+
+        leaseTimeoutInSeconds = Math.Max(leaseTimeoutInSeconds, 0);
+        acquisitionTimeoutInSeconds = Math.Max(acquisitionTimeoutInSeconds, 0);
+
+        var distributedLock = await distributedLockManager
+            .TryLockAsync(null, lockId, null, null, TimeSpan.FromSeconds(leaseTimeoutInSeconds), CancellationToken.None)
+            .ConfigureAwait(false);
+
+        var acquisitionTimeoutElapsed = 0;
+
+        while (distributedLock is null && acquisitionTimeoutElapsed++ < acquisitionTimeoutInSeconds)
         {
-            if (this is IAdapterIdentity)
-            {
-                var servicePrincipalKey = Guid.Parse(component.Organization)
-                    .Combine(Guid.Parse(component.DeploymentScopeId), Guid.Parse(component.ProjectId));
+            await Task
+                .Delay(1000)
+                .ConfigureAwait(false);
 
-                var servicePrincipalName = $"{this.GetType().Name}/{servicePrincipalKey}";
-
-                var servicePrincipal = await azureDirectoryService
-                    .GetServicePrincipalAsync(servicePrincipalName)
-                    .ConfigureAwait(false);
-
-                if (servicePrincipal is null)
-                {
-                    // there is no service principal for the current deployment scope
-                    // create a new one that we can use to create/update the corresponding
-                    // service endpoint in the current team project
-
-                    servicePrincipal = await azureDirectoryService
-                        .CreateServicePrincipalAsync(servicePrincipalName)
-                        .ConfigureAwait(false);
-                }
-                else if (servicePrincipal.ExpiresOn.GetValueOrDefault(DateTime.MinValue) < DateTime.UtcNow)
-                {
-                    // a service principal exists, but its secret is expired. lets refresh
-                    // the service principal (create a new secret) so we can move on
-                    // creating/updating the corresponding service endpoint.
-
-                    servicePrincipal = await azureDirectoryService
-                        .RefreshServicePrincipalAsync(servicePrincipalName)
-                        .ConfigureAwait(false);
-                }
-
-                if (!string.IsNullOrEmpty(servicePrincipal.Password))
-                {
-                    var project = await projectRepository
-                        .GetAsync(component.Organization, component.ProjectId)
-                        .ConfigureAwait(false);
-
-                    var secretsStore = await secretsStoreProvider
-                        .GetSecretsStoreAsync(project)
-                        .ConfigureAwait(false);
-
-                    servicePrincipal = await secretsStore
-                        .SetSecretAsync(servicePrincipal.ObjectId.ToString(), servicePrincipal)
-                        .ConfigureAwait(false);
-                }
-                else if (withPassword)
-                {
-                    var project = await projectRepository
-                        .GetAsync(component.Organization, component.ProjectId)
-                        .ConfigureAwait(false);
-
-                    var secretsStore = await secretsStoreProvider
-                        .GetSecretsStoreAsync(project)
-                        .ConfigureAwait(false);
-
-                    servicePrincipal = (await secretsStore
-                        .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.ObjectId.ToString())
-                        .ConfigureAwait(false)) ?? servicePrincipal;
-                }
-
-                return servicePrincipal;
-            }
-
-            return null;
+            distributedLock = await distributedLockManager
+                .TryLockAsync(null, lockId, null, null, TimeSpan.FromSeconds(leaseTimeoutInSeconds), CancellationToken.None)
+                .ConfigureAwait(false);
         }
 
-        public virtual async Task<AzureServicePrincipal> GetServiceIdentityAsync(DeploymentScope deploymentScope, bool withPassword = false)
-        {
-            if (this is IAdapterIdentity)
-            {
-                var servicePrincipalKey = Guid.Parse(deploymentScope.Organization)
-                    .Combine(Guid.Parse(deploymentScope.Id));
+        if (distributedLock is null)
+            throw new TimeoutException($"Failed to acquire lock for id '{lockId}' within {acquisitionTimeoutInSeconds} sec.");
 
-                var servicePrincipalName = $"{this.GetType().Name}/{servicePrincipalKey}";
+        return new AdapterLock(distributedLockManager, distributedLock);
+    }
 
-                var servicePrincipal = await azureDirectoryService
-                    .GetServicePrincipalAsync(servicePrincipalName)
-                    .ConfigureAwait(false);
+    public virtual Task<string> GetInputDataSchemaAsync()
+        => Task.FromResult(dataSchemaEmpty.ToString(Formatting.None));
 
-                if (servicePrincipal is null)
-                {
-                    // there is no service principal for the current deployment scope
-                    // create a new one that we can use to create/update the corresponding
-                    // service endpoint in the current team project
+    public virtual Task<string> GetInputFormSchemaAsync()
+        => Task.FromResult(formSchemaEmpty.ToString(Formatting.None));
 
-                    servicePrincipal = await azureDirectoryService
-                        .CreateServicePrincipalAsync(servicePrincipalName)
-                        .ConfigureAwait(false);
-                }
-                else if (servicePrincipal.ExpiresOn.GetValueOrDefault(DateTime.MinValue) < DateTime.UtcNow)
-                {
-                    // a service principal exists, but its secret is expired. lets refresh
-                    // the service principal (create a new secret) so we can move on
-                    // creating/updating the corresponding service endpoint.
+    public virtual Task<NetworkCredential> GetServiceCredentialAsync(Component component)
+        => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject)
+            => GetServiceCredentialAsync(component, componentOrganization, componentDeploymentScope, componentProject));
 
-                    servicePrincipal = await azureDirectoryService
-                        .RefreshServicePrincipalAsync(servicePrincipalName)
-                        .ConfigureAwait(false);
-                }
+    protected virtual Task<NetworkCredential> GetServiceCredentialAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project)
+        => Task.FromResult(default(NetworkCredential));
 
-                if (!string.IsNullOrEmpty(servicePrincipal.Password))
-                {
-                    var tenantId = await azureSessionService
-                        .GetTenantIdAsync()
-                        .ConfigureAwait(false);
+    public virtual Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
+        => this is IAdapterAuthorize ? throw new NotImplementedException() : Task.FromResult(true);
 
-                    var organization = await organizationRepository
-                        .GetAsync(tenantId.ToString(), deploymentScope.Organization)
-                        .ConfigureAwait(false);
+    public Task<Component> CreateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
+        => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject)
+            => CreateComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue));
 
-                    var secretsStore = await secretsStoreProvider
-                        .GetSecretsStoreAsync(organization)
-                        .ConfigureAwait(false);
+    protected abstract Task<Component> CreateComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-                    servicePrincipal = await secretsStore
-                        .SetSecretAsync(servicePrincipal.ObjectId.ToString(), servicePrincipal)
-                        .ConfigureAwait(false);
-                }
-                else if (withPassword)
-                {
-                    var tenantId = await azureSessionService
-                        .GetTenantIdAsync()
-                        .ConfigureAwait(false);
+    public Task<Component> UpdateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
+        => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject)
+            => UpdateComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue));
 
-                    var organization = await organizationRepository
-                        .GetAsync(tenantId.ToString(), deploymentScope.Organization)
-                        .ConfigureAwait(false);
+    protected abstract Task<Component> UpdateComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-                    var secretsStore = await secretsStoreProvider
-                        .GetSecretsStoreAsync(organization)
-                        .ConfigureAwait(false);
+    public Task<Component> DeleteComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
+        => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject)
+            => DeleteComponentAsync(component, componentOrganization, componentDeploymentScope, componentProject, contextUser, commandQueue));
 
-                    servicePrincipal = (await secretsStore
-                        .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.ObjectId.ToString())
-                        .ConfigureAwait(false)) ?? servicePrincipal;
-                }
+    protected abstract Task<Component> DeleteComponentAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-                return servicePrincipal;
-            }
+    protected async Task WithContextAsync(Component component, Func<Organization, DeploymentScope, Project, Task> callback)
+    {
+        if (component is null)
+            throw new ArgumentNullException(nameof(component));
 
-            return null;
-        }
+        if (callback is null)
+            throw new ArgumentNullException(nameof(callback));
 
+        var tenantId = await azureSessionService
+            .GetTenantIdAsync()
+            .ConfigureAwait(false);
+
+        var organization = await organizationRepository
+            .GetAsync(tenantId.ToString(), component.Organization, true)
+            .ConfigureAwait(false);
+
+        var deploymentScope = await deploymentScopeRepository
+            .GetAsync(component.Organization, component.DeploymentScopeId)
+            .ConfigureAwait(false);
+
+        var project = await projectRepository
+            .GetAsync(component.Organization, component.ProjectId)
+            .ConfigureAwait(false);
+
+        await callback(organization, deploymentScope, project).ConfigureAwait(false);
+    }
+
+    protected async Task<T> WithContextAsync<T>(Component component, Func<Organization, DeploymentScope, Project, Task<T>> callback)
+    {
+        if (component is null)
+            throw new ArgumentNullException(nameof(component));
+
+        if (callback is null)
+            throw new ArgumentNullException(nameof(callback));
+
+        var tenantId = await azureSessionService
+            .GetTenantIdAsync()
+            .ConfigureAwait(false);
+
+        var organization = await organizationRepository
+            .GetAsync(tenantId.ToString(), component.Organization, true)
+            .ConfigureAwait(false);
+
+        var deploymentScope = await deploymentScopeRepository
+            .GetAsync(component.Organization, component.DeploymentScopeId)
+            .ConfigureAwait(false);
+
+        var project = await projectRepository
+            .GetAsync(component.Organization, component.ProjectId)
+            .ConfigureAwait(false);
+
+        return await callback(organization, deploymentScope, project).ConfigureAwait(false);
     }
 }

@@ -18,79 +18,78 @@ using TeamCloud.Audit;
 using TeamCloud.Audit.Model;
 using TeamCloud.Model.Commands.Core;
 
-namespace TeamCloud.API.Controllers
+namespace TeamCloud.API.Controllers;
+
+[ApiController]
+[Produces("application/json")]
+public class OrganizationAuditController : TeamCloudController
 {
-    [ApiController]
-    [Produces("application/json")]
-    public class OrganizationAuditController : TeamCloudController
+    private readonly ICommandAuditReader commandAuditReader;
+
+    public OrganizationAuditController(ICommandAuditReader commandAuditReader)
     {
-        private readonly ICommandAuditReader commandAuditReader;
+        this.commandAuditReader = commandAuditReader ?? throw new ArgumentNullException(nameof(commandAuditReader));
+    }
 
-        public OrganizationAuditController(ICommandAuditReader commandAuditReader)
-        {
-            this.commandAuditReader = commandAuditReader ?? throw new ArgumentNullException(nameof(commandAuditReader));
-        }
+    [HttpGet("orgs/{organizationId:organizationId}/audit")]
+    [Authorize(Policy = AuthPolicies.OrganizationRead)]
+    [SwaggerOperation(OperationId = "GetAuditEntries", Summary = "Gets all audit entries.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns audit entries.", typeof(DataResult<List<CommandAuditEntity>>))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
+    public async Task<IActionResult> Get([FromQuery] string timeRange = null, [FromQuery] string[]? commands = null)
+    {
+        var organizationId = Guid.Parse(OrganizationId);
 
-        [HttpGet("orgs/{organizationId:organizationId}/audit")]
-        [Authorize(Policy = AuthPolicies.OrganizationRead)]
-        [SwaggerOperation(OperationId = "GetAuditEntries", Summary = "Gets all audit entries.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns audit entries.", typeof(DataResult<List<CommandAuditEntity>>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get([FromQuery] string timeRange = null, [FromQuery] string[]? commands = null) 
-        {
-            var organizationId = Guid.Parse(OrganizationId);
+        var timeRangeParsed = TimeSpan.TryParse(timeRange, out var timeRangeTemp) && timeRangeTemp.TotalMinutes >= 1
+            ? (TimeSpan?)timeRangeTemp : null; // time range must be at least a second; otherwise, don't use this information
 
-            var timeRangeParsed = TimeSpan.TryParse(timeRange, out var timeRangeTemp) && timeRangeTemp.TotalMinutes >= 1
-                ? (TimeSpan?)timeRangeTemp : null; // time range must be at least a second; otherwise, don't use this information
+        var entities = await commandAuditReader
+            .ListAsync(organizationId, timeRange: timeRangeParsed, commands: commands)
+            .ToListAsync()
+            .ConfigureAwait(false);
 
-            var entities = await commandAuditReader
-                .ListAsync(organizationId, timeRange: timeRangeParsed, commands: commands)
-                .ToListAsync()
-                .ConfigureAwait(false);
+        return DataResult<List<CommandAuditEntity>>
+            .Ok(entities)
+            .ToActionResult();
+    }
 
-            return DataResult<List<CommandAuditEntity>>
-                .Ok(entities)
-                .ToActionResult();
-        }
+    [HttpGet("orgs/{organizationId:organizationId}/audit/{commandId:commandId}")]
+    [Authorize(Policy = AuthPolicies.OrganizationRead)]
+    [SwaggerOperation(OperationId = "GetAuditEntry", Summary = "Gets an audit entry.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns an audit entry.", typeof(DataResult<CommandAuditEntity>))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
+    public async Task<IActionResult> Get(Guid commandId, [FromQuery] bool expand = false)
+    {
+        var organizationId = Guid.Parse(OrganizationId);
 
-        [HttpGet("orgs/{organizationId:organizationId}/audit/{commandId:commandId}")]
-        [Authorize(Policy = AuthPolicies.OrganizationRead)]
-        [SwaggerOperation(OperationId = "GetAuditEntry", Summary = "Gets an audit entry.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns an audit entry.", typeof(DataResult<CommandAuditEntity>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
-        public async Task<IActionResult> Get(Guid commandId, [FromQuery] bool expand = false)
-        {
-            var organizationId = Guid.Parse(OrganizationId);
+        var entity = await commandAuditReader
+            .GetAsync(organizationId, commandId, expand)
+            .ConfigureAwait(false);
 
-            var entity = await commandAuditReader
-                .GetAsync(organizationId, commandId, expand)
-                .ConfigureAwait(false);
+        return DataResult<CommandAuditEntity>
+            .Ok(entity)
+            .ToActionResult();
+    }
 
-            return DataResult<CommandAuditEntity>
-                .Ok(entity)
-                .ToActionResult();
-        }
+    [HttpGet("orgs/{organizationId:organizationId}/audit/commands")]
+    [Authorize(Policy = AuthPolicies.OrganizationRead)]
+    [SwaggerOperation(OperationId = "GetAuditCommands", Summary = "Gets all auditable commands.")]
+    [SwaggerResponse(StatusCodes.Status200OK, "Returns all auditable commands.", typeof(DataResult<List<string>>))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
+    public Task<IActionResult> GetAuditCommandTypes()
+    {
+        var commands = AppDomain.CurrentDomain.GetAssemblies()
+            .Where(asm => !asm.IsDynamic)
+            .SelectMany(asm => asm.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(ICommand).IsAssignableFrom(t)))
+            .Select(t => t.IsGenericType ? $"{t.Name.Substring(0, t.Name.IndexOf("`", StringComparison.OrdinalIgnoreCase))}<>" : t.Name)
+            .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
-        [HttpGet("orgs/{organizationId:organizationId}/audit/commands")]
-        [Authorize(Policy = AuthPolicies.OrganizationRead)]
-        [SwaggerOperation(OperationId = "GetAuditCommands", Summary = "Gets all auditable commands.")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Returns all auditable commands.", typeof(DataResult<List<string>>))]
-        [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-        [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
-        public Task<IActionResult> GetAuditCommandTypes() 
-        {
-            var commands = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(asm => !asm.IsDynamic)
-                .SelectMany(asm => asm.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(ICommand).IsAssignableFrom(t)))
-                .Select(t => t.IsGenericType ? $"{t.Name.Substring(0, t.Name.IndexOf("`", StringComparison.OrdinalIgnoreCase))}<>" : t.Name)
-                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            return DataResult<List<string>>
-                .Ok(commands)
-                .ToActionResultAsync();
-        }
+        return DataResult<List<string>>
+            .Ok(commands)
+            .ToActionResultAsync();
     }
 }

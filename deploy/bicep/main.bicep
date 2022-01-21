@@ -15,6 +15,8 @@ param reactAppMsalScope string = 'http://TeamCloud.Web/user_impersonation'
 
 param reactAppVersion string = ''
 
+param doSleepHack bool = false
+
 var name = toLower(webAppName)
 var webName = '${name}-web'
 var suffix = uniqueString(resourceGroup().id)
@@ -26,6 +28,7 @@ module cosmos 'cosmosDb.bicep' = {
   name: 'cosmosDb'
   params: {
     name: 'database${suffix}'
+    appConfigName: config.outputs.name
   }
 }
 
@@ -43,10 +46,14 @@ module config 'appConfig.bicep' = {
   }
 }
 
-module storage_wj 'storage.bicep' = {
-  name: 'webjobsStorage'
+module storage_dep 'storage.bicep' = {
+  name: 'deploymentStorage'
   params: {
-    name: 'wjstorage${suffix}'
+    name: 'depstorage${suffix}'
+    appConfigName: config.outputs.name
+    appConfigConnectionStringKeys: [
+      'Azure:DeploymentStorage:ConnectionString'
+    ]
   }
 }
 
@@ -57,10 +64,15 @@ module storage_th 'storage.bicep' = {
   }
 }
 
-module storage_dep 'storage.bicep' = {
-  name: 'deploymentStorage'
+module storage_wj 'storage.bicep' = {
+  name: 'webjobsStorage'
   params: {
-    name: 'depstorage${suffix}'
+    name: 'wjstorage${suffix}'
+    appConfigName: config.outputs.name
+    appConfigConnectionStringKeys: [
+      'Encryption:KeyStorage'
+      'Audit:ConnectionString'
+    ]
   }
 }
 
@@ -75,8 +87,8 @@ module api 'webApp.bicep' = {
   name: 'api'
   params: {
     name: name
-    appInsightsInstrumentationKey: ai.outputs.instrumentationKey
-    appConfigurationConnectionString: config.outputs.connectionString
+    appConfigName: config.outputs.name
+    appInsightsName: ai.outputs.name
   }
 }
 
@@ -93,14 +105,14 @@ module orchestrator 'functionApp.bicep' = {
   name: 'orchestrator'
   params: {
     name: functionAppName
-    appInsightsInstrumentationKey: ai.outputs.instrumentationKey
-    webjobsStorageConnectionString: storage_wj.outputs.connectionString
-    taskhubStorageConnectionString: storage_th.outputs.connectionString
-    appConfigurationConnectionString: config.outputs.connectionString
+    appConfigName: config.outputs.name
+    appInsightsName: ai.outputs.name
+    taskhubStorageName: storage_th.outputs.name
+    webjobStorageName: storage_wj.outputs.name
   }
 }
 
-module funcRole 'roleAssignment.bicep' = {
+module orchestratorRole 'roleAssignment.bicep' = {
   name: 'orchestratorRole'
   params: {
     name: functionAppRoleAssignmentId
@@ -109,7 +121,7 @@ module funcRole 'roleAssignment.bicep' = {
   }
 }
 
-module funcPolicy 'keyVaultPolicy.bicep' = {
+module orchestratorPolicy 'keyVaultPolicy.bicep' = {
   name: 'orchestratorPolicy'
   params: {
     keyVaultName: kv.outputs.name
@@ -122,6 +134,7 @@ module signalr 'signalR.bicep' = {
   name: 'signalR'
   params: {
     name: name
+    appConfigName: config.outputs.name
   }
 }
 
@@ -136,27 +149,53 @@ module web 'webUI.bicep' = {
   }
 }
 
+module orchestratorKey 'functionKey.bicep' = {
+  name: 'orchestratorKey'
+  params: {
+    functionAppName: orchestrator.outputs.name
+    appConfigName: config.outputs.name
+  }
+  dependsOn: [
+    sleepHack
+    orchestrator
+    orchestratorPolicy
+    orchestratorRole
+    signalr
+  ]
+}
+
+// this is a hack to sleep for a couple of minutes, otherwise
+// the function host runtime isn't ready to create a new host key
+// and fails with InternalServerError
+module sleepHack 'sleepHack.bicep' = if (doSleepHack) {
+  name: 'sleepHack'
+  params: {
+    time: '5m'
+  }
+  dependsOn: [
+    orchestrator
+    orchestratorPolicy
+    orchestratorRole
+  ]
+}
+
+module commonConfigs 'appConfigKeys.bicep' = {
+  name: 'commonConfigs'
+  params: {
+    configName: config.outputs.name
+    keyValues: {
+      'Azure:TenantId': subscription().tenantId
+      'Azure:SubscriptionId': subscription().subscriptionId
+      'Azure:ResourceManager:ClientId': resourceManagerIdentityClientId
+      'Azure:ResourceManager:ClientSecret': resourceManagerIdentityClientSecret
+      'Azure:ResourceManager:TenantId': subscription().tenantId
+    }
+  }
+}
+
 output apiUrl string = api.outputs.url
 output apiAppName string = api.outputs.name
 output webUrl string = web.outputs.url
 output webAppName string = web.outputs.name
 output orchestratorUrl string = orchestrator.outputs.url
 output orchestratorAppName string = orchestrator.outputs.name
-output configServiceConnectionString string = config.outputs.connectionString
-output configServiceImport object = {
-  'Azure:TenantId': subscription().tenantId
-  'Azure:SubscriptionId': subscription().subscriptionId
-  'Azure:ResourceManager:ClientId': resourceManagerIdentityClientId
-  'Azure:ResourceManager:ClientSecret': resourceManagerIdentityClientSecret
-  'Azure:ResourceManager:TenantId': subscription().tenantId
-  'Azure:CosmosDb:TenantName': 'TeamCloud'
-  'Azure:CosmosDb:DatabaseName': 'TeamCloud'
-  'Azure:CosmosDb:ConnectionString': cosmos.outputs.connectionString
-  'Azure:DeploymentStorage:ConnectionString': storage_dep.outputs.connectionString
-  'Azure:SignalR:ConnectionString': signalr.outputs.connectionString
-  'Endpoint:Api:Url': api.outputs.url
-  'Endpoint:Orchestrator:Url': orchestrator.outputs.url
-  'Endpoint:Orchestrator:AuthCode': orchestrator.outputs.key
-  'Encryption:KeyStorage': storage_wj.outputs.connectionString
-  'Audit:ConnectionString': storage_wj.outputs.connectionString
-}

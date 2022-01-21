@@ -7,11 +7,11 @@ using System;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class ComponentDeleteCommand : DeleteCommand<Component, ComponentDeleteCommandResult>
 {
-    public sealed class ComponentDeleteCommand : DeleteCommand<Component, ComponentDeleteCommandResult>
-    {
-        public ComponentDeleteCommand(User user, Component payload) : base(user, payload)
-        { }
-    }
+    public ComponentDeleteCommand(User user, Component payload)
+        : base(user, payload)
+    { }
 }

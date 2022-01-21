@@ -19,80 +19,79 @@ using TeamCloud.Orchestrator.Command.Activities.Projects;
 using TeamCloud.Orchestrator.Command.Entities;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestrator.Command.Handlers
+namespace TeamCloud.Orchestrator.Command.Handlers;
+
+public sealed class ProjectDeployCommandHandler : CommandHandler<ProjectDeployCommand>
 {
-    public sealed class ProjectDeployCommandHandler : CommandHandler<ProjectDeployCommand>
+    public override bool Orchestration => true;
+
+    public override async Task<ICommandResult> HandleAsync(ProjectDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
-        public override bool Orchestration => true;
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
 
-        public override async Task<ICommandResult> HandleAsync(ProjectDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        if (orchestrationContext is null)
+            throw new ArgumentNullException(nameof(orchestrationContext));
+
+        if (log is null)
+            throw new ArgumentNullException(nameof(log));
+
+        var commandResult = command.CreateResult();
+
+        using (await orchestrationContext.LockContainerDocumentAsync(command.Payload).ConfigureAwait(true))
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            // just to make sure we are dealing with the latest version
+            // of the Project entity, we re-fetch the entity and
+            // use the passed in one as a potential fallback.
 
-            if (orchestrationContext is null)
-                throw new ArgumentNullException(nameof(orchestrationContext));
+            commandResult.Result = (await orchestrationContext
+                .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input() { Id = command.Payload.Id, Organization = command.Payload.Organization })
+                .ConfigureAwait(true)) ?? command.Payload;
 
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
+            commandResult.Result = await orchestrationContext
+                .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Initializing })
+                .ConfigureAwait(true);
 
-            var commandResult = command.CreateResult();
-
-            using (await orchestrationContext.LockContainerDocumentAsync(command.Payload).ConfigureAwait(true))
+            try
             {
-                // just to make sure we are dealing with the latest version
-                // of the Project entity, we re-fetch the entity and
-                // use the passed in one as a potential fallback.
+                var deploymentOutputEventName = orchestrationContext.NewGuid().ToString();
 
-                commandResult.Result = (await orchestrationContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectGetActivity), new ProjectGetActivity.Input() { Id = command.Payload.Id, Organization = command.Payload.Organization })
-                    .ConfigureAwait(true)) ?? command.Payload;
-
-                commandResult.Result = await orchestrationContext
-                    .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Initializing })
+                _ = await orchestrationContext
+                    .StartDeploymentAsync(nameof(ProjectDeployActivity), new ProjectDeployActivity.Input() { Project = commandResult.Result }, deploymentOutputEventName)
                     .ConfigureAwait(true);
 
-                try
-                {
-                    var deploymentOutputEventName = orchestrationContext.NewGuid().ToString();
+                commandResult.Result = await orchestrationContext
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Provisioning })
+                    .ConfigureAwait(true);
 
-                    _ = await orchestrationContext
-                        .StartDeploymentAsync(nameof(ProjectDeployActivity), new ProjectDeployActivity.Input() { Project = commandResult.Result }, deploymentOutputEventName)
-                        .ConfigureAwait(true);
+                var deploymentOutput = await orchestrationContext
+                    .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
+                    .ConfigureAwait(true);
+
+                if (deploymentOutput.TryGetValue("projectData", out var projectData) && projectData is JObject projectDataJson)
+                {
+                    commandResult.Result = TeamCloudSerialize.MergeObject(projectDataJson.ToString(), commandResult.Result);
 
                     commandResult.Result = await orchestrationContext
-                        .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Provisioning })
+                        .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Provisioned })
                         .ConfigureAwait(true);
-
-                    var deploymentOutput = await orchestrationContext
-                        .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
-                        .ConfigureAwait(true);
-
-                    if (deploymentOutput.TryGetValue("projectData", out var projectData) && projectData is JObject projectDataJson)
-                    {
-                        commandResult.Result = TeamCloudSerialize.MergeObject(projectDataJson.ToString(), commandResult.Result);
-
-                        commandResult.Result = await orchestrationContext
-                            .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Provisioned })
-                            .ConfigureAwait(true);
-                    }
-                    else
-                    {
-                        throw new NullReferenceException($"Deployment output doesn't contain 'projectData' output.");
-                    }
-
                 }
-                catch
+                else
                 {
-                    commandResult.Result = await orchestrationContext
-                        .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Failed })
-                        .ConfigureAwait(true);
-
-                    throw;
+                    throw new NullReferenceException($"Deployment output doesn't contain 'projectData' output.");
                 }
+
             }
+            catch
+            {
+                commandResult.Result = await orchestrationContext
+                    .CallActivityWithRetryAsync<Project>(nameof(ProjectSetActivity), new ProjectSetActivity.Input() { Project = commandResult.Result, ResourceState = ResourceState.Failed })
+                    .ConfigureAwait(true);
 
-            return commandResult;
+                throw;
+            }
         }
+
+        return commandResult;
     }
 }

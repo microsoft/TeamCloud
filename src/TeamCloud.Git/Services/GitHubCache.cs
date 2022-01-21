@@ -16,170 +16,169 @@ using System.Threading;
 using System.Threading.Tasks;
 using TeamCloud.Git.Caching;
 
-namespace TeamCloud.Git.Services
+namespace TeamCloud.Git.Services;
+
+internal sealed class GitHubCache : IHttpClient
 {
-    internal sealed class GitHubCache : IHttpClient
+    private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings();
+
+    private readonly IHttpClient client;
+    private readonly IRepositoryCache cache;
+
+    public GitHubCache(IHttpClient client, IRepositoryCache cache)
     {
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings();
+        this.client = client ?? throw new ArgumentNullException(nameof(client));
+        this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+    }
 
-        private readonly IHttpClient client;
-        private readonly IRepositoryCache cache;
+    public void Dispose()
+    {
+        // nothing to dispose
+    }
 
-        public GitHubCache(IHttpClient client, IRepositoryCache cache)
+    public async Task<IResponse> Send(IRequest request, CancellationToken cancellationToken)
+    {
+        var requestDuration = Stopwatch.StartNew();
+        var requestUrl = new Uri(request.BaseAddress, request.Endpoint).ToString();
+        var cacheHit = false;
+
+        try
         {
-            this.client = client ?? throw new ArgumentNullException(nameof(client));
-            this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        }
+            Debug.WriteLine($"==> {request.Method.Method} {requestUrl}");
 
-        public void Dispose()
-        {
-            // nothing to dispose
-        }
-
-        public async Task<IResponse> Send(IRequest request, CancellationToken cancellationToken)
-        {
-            var requestDuration = Stopwatch.StartNew();
-            var requestUrl = new Uri(request.BaseAddress, request.Endpoint).ToString();
-            var cacheHit = false;
-
-            try
+            if (request.Method != HttpMethod.Get)
             {
-                Debug.WriteLine($"==> {request.Method.Method} {requestUrl}");
-
-                if (request.Method != HttpMethod.Get)
-                {
-                    var passthroughResponse = await client
-                        .Send(request, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    return TraceRateLimits(passthroughResponse);
-                    // return await TraceRateLimitsAsync(passthroughResponse)
-                    //     .ConfigureAwait(false);
-                }
-
-                var response = await ReadCacheAsync(requestUrl, cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (response is null)
-                {
-                    response = await client
-                        .Send(request, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    return await WriteCacheAsync(requestUrl, response, cancellationToken)
-                        .ConfigureAwait(false);
-                }
-
-                // add a conditional request header so our
-                // request won't affect the GitHub rate limit.
-
-                request.Headers["If-None-Match"] = response.ApiInfo.Etag;
-
-                var conditionalResponse = await client
+                var passthroughResponse = await client
                     .Send(request, cancellationToken)
                     .ConfigureAwait(false);
 
-                cacheHit = conditionalResponse.StatusCode == HttpStatusCode.NotModified;
-
-                if (cacheHit)
-                {
-                    // the conditional response indicates that our cached response
-                    // is still up-to-date - we are done and return the cached response
-
-                    return response; // no need to trace ratelimits
-                }
-                else
-                {
-                    // the conditional response indicates that our cached response is out of date.
-                    // update the cache using the conditional response and return the response.
-
-                    return await WriteCacheAsync(requestUrl, conditionalResponse, cancellationToken)
-                        .ConfigureAwait(false);
-                }
+                return TraceRateLimits(passthroughResponse);
+                // return await TraceRateLimitsAsync(passthroughResponse)
+                //     .ConfigureAwait(false);
             }
-            finally
+
+            var response = await ReadCacheAsync(requestUrl, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (response is null)
             {
-                Debug.WriteLine($"<== {request.Method.Method} {requestUrl} ({requestDuration.ElapsedMilliseconds} ms{(cacheHit ? " CACHED" : "")})");
-            }
-        }
+                response = await client
+                    .Send(request, cancellationToken)
+                    .ConfigureAwait(false);
 
-        private static IResponse TraceRateLimits(IResponse response)
-        {
-            const string RateLimitHeader = "x-ratelimit-";
-
-            var rateLimitData = response.Headers
-                .Where(kvp => kvp.Key.StartsWith(RateLimitHeader, StringComparison.OrdinalIgnoreCase))
-                .Select(kvp => new KeyValuePair<string, string>(kvp.Key[RateLimitHeader.Length..], kvp.Value));
-
-            // TODO: write some telemetry data to AppInsight instead of using debug output as telemetry sink
-            Debug.WriteLine($"{nameof(GitHubCache)} - { string.Join(" / ", rateLimitData.Select(kvp => $"{kvp.Key}={kvp.Value}")) }");
-
-            return response;
-        }
-
-        // private async Task<IResponse> TraceRateLimitsAsync(IResponse response)
-        // {
-        //     const string RateLimitHeader = "x-ratelimit-";
-
-        //     var rateLimitData = response.Headers
-        //         .Where(kvp => kvp.Key.StartsWith(RateLimitHeader, StringComparison.OrdinalIgnoreCase))
-        //         .Select(kvp => new KeyValuePair<string, string>(kvp.Key[RateLimitHeader.Length..], kvp.Value));
-
-        //     // TODO: write some telemetry data to AppInsight instead of using debug output as telemetry sink
-        //     Debug.WriteLine($"{nameof(GitHubCache)} - { string.Join(" / ", rateLimitData.Select(kvp => $"{kvp.Key}={kvp.Value}")) }");
-
-        //     return response;
-        // }
-
-        private async Task<IResponse> WriteCacheAsync(string endpoint, IResponse response, CancellationToken cancellationToken)
-        {
-            if (!string.IsNullOrEmpty(response?.ApiInfo?.Etag))
-            {
-                var data = JsonConvert.SerializeObject(response, SerializerSettings);
-
-                await cache
-                    .SetAsync(endpoint, data, cancellationToken)
+                return await WriteCacheAsync(requestUrl, response, cancellationToken)
                     .ConfigureAwait(false);
             }
 
-            return TraceRateLimits(response);
-            // return await TraceRateLimitsAsync(response)
-            //     .ConfigureAwait(false);
-        }
+            // add a conditional request header so our
+            // request won't affect the GitHub rate limit.
 
-        private async Task<IResponse> ReadCacheAsync(string endpoint, CancellationToken cancellationToken)
-        {
-            var data = await cache
-                .GetAsync(endpoint, cancellationToken)
+            request.Headers["If-None-Match"] = response.ApiInfo.Etag;
+
+            var conditionalResponse = await client
+                .Send(request, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (string.IsNullOrEmpty(data))
-                return null;
+            cacheHit = conditionalResponse.StatusCode == HttpStatusCode.NotModified;
 
-            try
+            if (cacheHit)
             {
-                return JsonConvert.DeserializeObject<CachedResponse>(data, SerializerSettings);
+                // the conditional response indicates that our cached response
+                // is still up-to-date - we are done and return the cached response
+
+                return response; // no need to trace ratelimits
             }
-            catch
+            else
             {
-                return null; // deserialization failed - cache response is invalid
+                // the conditional response indicates that our cached response is out of date.
+                // update the cache using the conditional response and return the response.
+
+                return await WriteCacheAsync(requestUrl, conditionalResponse, cancellationToken)
+                    .ConfigureAwait(false);
             }
         }
-
-        public void SetRequestTimeout(TimeSpan timeout)
-            => client.SetRequestTimeout(timeout);
-
-        internal sealed class CachedResponse : IResponse
+        finally
         {
-            public object Body { get; set; }
-
-            public IReadOnlyDictionary<string, string> Headers { get; set; }
-
-            public ApiInfo ApiInfo { get; set; }
-
-            public HttpStatusCode StatusCode { get; set; }
-
-            public string ContentType { get; set; }
+            Debug.WriteLine($"<== {request.Method.Method} {requestUrl} ({requestDuration.ElapsedMilliseconds} ms{(cacheHit ? " CACHED" : "")})");
         }
+    }
+
+    private static IResponse TraceRateLimits(IResponse response)
+    {
+        const string RateLimitHeader = "x-ratelimit-";
+
+        var rateLimitData = response.Headers
+            .Where(kvp => kvp.Key.StartsWith(RateLimitHeader, StringComparison.OrdinalIgnoreCase))
+            .Select(kvp => new KeyValuePair<string, string>(kvp.Key[RateLimitHeader.Length..], kvp.Value));
+
+        // TODO: write some telemetry data to AppInsight instead of using debug output as telemetry sink
+        Debug.WriteLine($"{nameof(GitHubCache)} - { string.Join(" / ", rateLimitData.Select(kvp => $"{kvp.Key}={kvp.Value}")) }");
+
+        return response;
+    }
+
+    // private async Task<IResponse> TraceRateLimitsAsync(IResponse response)
+    // {
+    //     const string RateLimitHeader = "x-ratelimit-";
+
+    //     var rateLimitData = response.Headers
+    //         .Where(kvp => kvp.Key.StartsWith(RateLimitHeader, StringComparison.OrdinalIgnoreCase))
+    //         .Select(kvp => new KeyValuePair<string, string>(kvp.Key[RateLimitHeader.Length..], kvp.Value));
+
+    //     // TODO: write some telemetry data to AppInsight instead of using debug output as telemetry sink
+    //     Debug.WriteLine($"{nameof(GitHubCache)} - { string.Join(" / ", rateLimitData.Select(kvp => $"{kvp.Key}={kvp.Value}")) }");
+
+    //     return response;
+    // }
+
+    private async Task<IResponse> WriteCacheAsync(string endpoint, IResponse response, CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrEmpty(response?.ApiInfo?.Etag))
+        {
+            var data = JsonConvert.SerializeObject(response, SerializerSettings);
+
+            await cache
+                .SetAsync(endpoint, data, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return TraceRateLimits(response);
+        // return await TraceRateLimitsAsync(response)
+        //     .ConfigureAwait(false);
+    }
+
+    private async Task<IResponse> ReadCacheAsync(string endpoint, CancellationToken cancellationToken)
+    {
+        var data = await cache
+            .GetAsync(endpoint, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (string.IsNullOrEmpty(data))
+            return null;
+
+        try
+        {
+            return JsonConvert.DeserializeObject<CachedResponse>(data, SerializerSettings);
+        }
+        catch
+        {
+            return null; // deserialization failed - cache response is invalid
+        }
+    }
+
+    public void SetRequestTimeout(TimeSpan timeout)
+        => client.SetRequestTimeout(timeout);
+
+    internal sealed class CachedResponse : IResponse
+    {
+        public object Body { get; set; }
+
+        public IReadOnlyDictionary<string, string> Headers { get; set; }
+
+        public ApiInfo ApiInfo { get; set; }
+
+        public HttpStatusCode StatusCode { get; set; }
+
+        public string ContentType { get; set; }
     }
 }

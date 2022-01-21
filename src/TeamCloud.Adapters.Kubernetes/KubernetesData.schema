@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", 
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "namespace": {
+      "title": "Namespace",
+      "type": "string",
+      "default": "teamcloud"
+    },
+    "source": {
+      "title": "Configuration source",
+      "type": "string",
+      "enum": [
+        "File",
+        "Yaml"
+      ],
+      "default": "File"
+    }
+  },
+  "required": [
+    "namespace",
+    "source"
+  ],
+  "dependencies": {
+    "source": {
+      "oneOf": [
+        {
+          "properties": {
+            "source": {
+              "enum": [
+                "File"
+              ]
+            },
+            "file": {
+              "type": [
+                "string"
+              ],
+              "format": "data-url",
+              "title": "Configuration File"
+            }
+          },
+          "required": [
+            "file"
+          ]
+        },
+        {
+          "properties": {
+            "source": {
+              "enum": [
+                "Yaml"
+              ]
+            },
+            "yaml": {
+              "type": [
+                "string"
+              ],
+              "items": {
+                "type": [
+                  "string"
+                ]
+              },
+              "title": "Configuration YAML"
+            }
+          },
+          "required": [
+            "yaml"
+          ]
+        }
+      ]
+    }
+  }
+}

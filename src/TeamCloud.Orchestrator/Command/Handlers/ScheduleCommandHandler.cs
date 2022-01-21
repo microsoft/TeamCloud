@@ -14,147 +14,146 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Orchestrator.Command.Handlers
+namespace TeamCloud.Orchestrator.Command.Handlers;
+
+public sealed class ScheduleCommandHandler : CommandHandler,
+      ICommandHandler<ScheduleCreateCommand>,
+      ICommandHandler<ScheduleUpdateCommand>,
+      ICommandHandler<ScheduleDeleteCommand>,
+      ICommandHandler<ScheduleRunCommand>
 {
-    public sealed class ScheduleCommandHandler : CommandHandler,
-          ICommandHandler<ScheduleCreateCommand>,
-          ICommandHandler<ScheduleUpdateCommand>,
-          ICommandHandler<ScheduleDeleteCommand>,
-          ICommandHandler<ScheduleRunCommand>
+
+    private readonly IScheduleRepository scheduleRepository;
+
+    public ScheduleCommandHandler(IScheduleRepository scheduleRepository)
     {
+        this.scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
+    }
 
-        private readonly IScheduleRepository scheduleRepository;
+    public override bool Orchestration => false;
 
-        public ScheduleCommandHandler(IScheduleRepository scheduleRepository)
+    public async Task<ICommandResult> HandleAsync(ScheduleCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            this.scheduleRepository = scheduleRepository ?? throw new ArgumentNullException(nameof(scheduleRepository));
+            commandResult.Result = await scheduleRepository
+                .AddAsync(command.Payload)
+                .ConfigureAwait(false);
+
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
-        public override bool Orchestration => false;
+        return commandResult;
+    }
 
-        public async Task<ICommandResult> HandleAsync(ScheduleCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(ScheduleUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            commandResult.Result = await scheduleRepository
+                .SetAsync(command.Payload)
+                .ConfigureAwait(false);
 
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                commandResult.Result = await scheduleRepository
-                    .AddAsync(command.Payload)
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
-        public async Task<ICommandResult> HandleAsync(ScheduleUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        return commandResult;
+    }
+
+    public async Task<ICommandResult> HandleAsync(ScheduleDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            commandResult.Result = await scheduleRepository
+                .RemoveAsync(command.Payload)
+                .ConfigureAwait(false);
 
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                commandResult.Result = await scheduleRepository
-                    .SetAsync(command.Payload)
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
-        public async Task<ICommandResult> HandleAsync(ScheduleDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+        return commandResult;
+    }
+
+    public async Task<ICommandResult> HandleAsync(ScheduleRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        if (commandQueue is null)
+            throw new ArgumentNullException(nameof(commandQueue));
+
+        var commandResult = command.CreateResult();
+
+        try
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
+            var commands = command.Payload.ComponentTasks.Select(t => new ComponentTaskCreateCommand(command.User, new ComponentTask
             {
-                commandResult.Result = await scheduleRepository
-                    .RemoveAsync(command.Payload)
-                    .ConfigureAwait(false);
+                Organization = command.Payload.Organization,
+                ProjectId = command.Payload.ProjectId,
+                ComponentId = t.ComponentId,
+                RequestedBy = command.User.Id,
+                ScheduleId = command.Payload.Id,
+                Type = ComponentTaskType.Custom,
+                TypeName = t.ComponentTaskTemplateId,
 
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
+                // component input json is used as a fallback !!!
+                InputJson = t.InputJson ?? ""
+            }));
 
-            return commandResult;
+            await commands
+                .Select(c => commandQueue.AddAsync(c))
+                .WhenAll()
+                .ConfigureAwait(false);
+
+            command.Payload.LastRun = DateTime.UtcNow;
+
+            commandResult.Result = await scheduleRepository
+                .SetAsync(command.Payload)
+                .ConfigureAwait(false);
+
+            commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
+        }
+        catch (Exception exc)
+        {
+            commandResult.Errors.Add(exc);
         }
 
-        public async Task<ICommandResult> HandleAsync(ScheduleRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
-            if (commandQueue is null)
-                throw new ArgumentNullException(nameof(commandQueue));
-
-            var commandResult = command.CreateResult();
-
-            try
-            {
-                var commands = command.Payload.ComponentTasks.Select(t => new ComponentTaskCreateCommand(command.User, new ComponentTask
-                {
-                    Organization = command.Payload.Organization,
-                    ProjectId = command.Payload.ProjectId,
-                    ComponentId = t.ComponentId,
-                    RequestedBy = command.User.Id,
-                    ScheduleId = command.Payload.Id,
-                    Type = ComponentTaskType.Custom,
-                    TypeName = t.ComponentTaskTemplateId,
-
-                    // component input json is used as a fallback !!!
-                    InputJson = t.InputJson ?? ""
-                }));
-
-                await commands
-                    .Select(c => commandQueue.AddAsync(c))
-                    .WhenAll()
-                    .ConfigureAwait(false);
-
-                command.Payload.LastRun = DateTime.UtcNow;
-
-                commandResult.Result = await scheduleRepository
-                    .SetAsync(command.Payload)
-                    .ConfigureAwait(false);
-
-                commandResult.RuntimeStatus = CommandRuntimeStatus.Completed;
-            }
-            catch (Exception exc)
-            {
-                commandResult.Errors.Add(exc);
-            }
-
-            return commandResult;
-        }
+        return commandResult;
     }
 }

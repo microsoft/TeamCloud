@@ -6,14 +6,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -23,7 +20,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
-using Microsoft.Azure.Management.Storage.Fluent.Models;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
@@ -36,10 +32,10 @@ using TeamCloud.Adapters;
 using TeamCloud.Adapters.AzureDevOps;
 using TeamCloud.Adapters.AzureResourceManager;
 using TeamCloud.Adapters.GitHub;
+using TeamCloud.Adapters.Kubernetes;
 using TeamCloud.API.Auth;
 using TeamCloud.API.Auth.Schemes;
 using TeamCloud.API.Middleware;
-using TeamCloud.API.Options;
 using TeamCloud.API.Routing;
 using TeamCloud.API.Services;
 using TeamCloud.API.Swagger;
@@ -58,248 +54,254 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Model.Validation;
 using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
+using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.API
+namespace TeamCloud.API;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration, IWebHostEnvironment environment)
     {
-        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
-        {
-            Configuration = configuration;
-            Environment = environment;
-        }
+        Configuration = configuration;
+        Environment = environment;
+    }
 
-        public IConfiguration Configuration { get; }
-        public IWebHostEnvironment Environment { get; }
+    public IConfiguration Configuration { get; }
+    public IWebHostEnvironment Environment { get; }
 
 #pragma warning disable CA1822 // Mark members as static
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AzureResourceManagerOptions resourceManagerOptions)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AzureResourceManagerOptions resourceManagerOptions)
+    {
+        if (env.IsDevelopment())
         {
-            if (env.IsDevelopment())
-            {
-                app
-                    .UseDeveloperExceptionPage()
-                    .UseCors(builder => builder
-                        .SetIsOriginAllowed(origin => true)
-                        .SetPreflightMaxAge(TimeSpan.FromDays(1))
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials());
-            }
-            else
-            {
-                app
-                    .UseHsts()
-                    .UseHttpsRedirection();
-            }
-
             app
-                .UseSwagger()
-                .UseSwaggerUI(setup =>
-                {
-                    setup.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
-                    setup.OAuthClientId(resourceManagerOptions.ClientId);
-                    setup.OAuthClientSecret("");
-                    setup.OAuthUsePkce();
-                });
-
+                .UseDeveloperExceptionPage()
+                .UseCors(builder => builder
+                    .SetIsOriginAllowed(origin => true)
+                    .SetPreflightMaxAge(TimeSpan.FromDays(1))
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials());
+        }
+        else
+        {
             app
-                .UseRouting()
-                .UseAuthentication()
-                .UseMiddleware<EnsureTeamCloudModelMiddleware>()
-                .UseAuthorization()
-                .UseEndpoints(endpoints => endpoints.MapControllers());
-
-            EncryptedValueProvider.DefaultDataProtectionProvider = app.ApplicationServices.GetDataProtectionProvider();
+                .UseHsts()
+                .UseHttpsRedirection();
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        app
+            .UseSwagger()
+            .UseSwaggerUI(setup =>
+            {
+                setup.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                setup.OAuthClientId(resourceManagerOptions.ClientId);
+                setup.OAuthClientSecret("");
+                setup.OAuthUsePkce();
+            });
+
+        app
+            .UseRouting()
+            .UseAuthentication()
+            .UseMiddleware<EnsureTeamCloudModelMiddleware>()
+            .UseAuthorization()
+            .UseEndpoints(endpoints => endpoints.MapControllers());
+
+        EncryptedValueProvider.DefaultDataProtectionProvider = app.ApplicationServices.GetDataProtectionProvider();
+    }
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services
+            .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
+            .AddTeamCloudOptionsShared()
+            .AddTeamCloudAzure(configuration =>
+            {
+                configuration
+                    .AddDirectory()
+                    .AddResources()
+                    .AddDeployment()
+                    .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
+            })
+            .AddTeamCloudValidationProvider(configuration =>
+            {
+                configuration
+                    .Register(Assembly.GetExecutingAssembly())
+                    .RegisterModelValidators();
+            })
+            .AddTeamCloudAdapterProvider(configuration =>
+            {
+                configuration
+                    .Register<AzureResourceManagerAdapter>()
+                    .Register<AzureDevOpsAdapter>()
+                    .Register<GitHubAdapter>()
+                    .Register<KubernetesAdapter>();
+            })
+            .AddTeamCloudAudit()
+            .AddTeamCloudHttp()
+            .AddTeamCloudSecrets();
+
+        if (Configuration.TryBind<AzureCosmosDbOptions>("Azure:CosmosDb", out var azureCosmosDbOptions))
         {
             services
-                .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
-                .AddTeamCloudOptionsShared()
-                .AddTeamCloudAzure(configuration =>
+                .AddCosmosCache(options =>
                 {
-                    configuration
-                        .AddDirectory()
-                        .AddResources()
-                        .AddDeployment()
-                        .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
+                    options.ClientBuilder = new CosmosClientBuilder(azureCosmosDbOptions.ConnectionString);
+                    options.DatabaseName = $"{azureCosmosDbOptions.DatabaseName}Cache";
+                    options.ContainerName = "DistributedCache";
+                    options.CreateIfNotExists = true;
                 })
-                .AddTeamCloudAudit()
-                .AddTeamCloudHttp()
-                .AddTeamCloudSecrets();
+                .AddSingleton<IRepositoryCache, RepositoryCache>();
+        }
 
-            if (Configuration.TryBind<AzureCosmosDbOptions>("Azure:CosmosDb", out var azureCosmosDbOptions))
-            { 
-                services
-                    .AddCosmosCache(options =>
-                    {
-                        options.ClientBuilder = new CosmosClientBuilder(azureCosmosDbOptions.ConnectionString);
-                        options.DatabaseName = $"{azureCosmosDbOptions.DatabaseName}Cache";
-                        options.ContainerName = "DistributedCache";
-                        options.CreateIfNotExists = true;
-                    })
-                    .AddSingleton<IRepositoryCache, RepositoryCache>();
-            }
+        if (Configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
+        {
+            const string EncryptionContainerName = "encryption";
 
-            if (Configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
+            keyStorageAccount
+                .CreateCloudBlobClient()
+                .GetContainerReference(EncryptionContainerName)
+                .CreateIfNotExistsAsync().Wait();
+
+            var dataProtectionBuilder = services
+                .AddDataProtection()
+                .SetApplicationName("TeamCloud")
+                .PersistKeysToAzureBlobStorage(encryptionOptions.KeyStorage, EncryptionContainerName, "keys.xml");
+
+            if (!string.IsNullOrEmpty(encryptionOptions.KeyVault))
             {
-                const string EncryptionContainerName = "encryption";
-
-                keyStorageAccount
-                    .CreateCloudBlobClient()
-                    .GetContainerReference(EncryptionContainerName)
-                    .CreateIfNotExistsAsync().Wait();
-
-                var dataProtectionBuilder = services
-                    .AddDataProtection()
-                    .SetApplicationName("TeamCloud")
-                    .PersistKeysToAzureBlobStorage(encryptionOptions.KeyStorage, EncryptionContainerName, "keys.xml");
-
-                if (!string.IsNullOrEmpty(encryptionOptions.KeyVault))
-                {
-                    //dataProtectionBuilder.ProtectKeysWithAzureKeyVault()
-                    throw new NotImplementedException();
-                }
+                //dataProtectionBuilder.ProtectKeysWithAzureKeyVault()
+                throw new NotImplementedException();
             }
+        }
 
-            services
-                .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
-                .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
-                .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
-                .AddSingleton<IUserRepository, CosmosDbUserRepository>()
-                .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
-                .AddSingleton<IProjectIdentityRepository, CosmosDbProjectIdentityRepository>()
-                .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
-                .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
-                .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
-                .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
-                .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
-                .AddSingleton<IScheduleRepository, CosmosDbScheduleRepository>()
-                .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
-                .AddSingleton<OrchestratorService>()
-                .AddSingleton<UserService>()
-                .AddSingleton<OneTimeTokenService>()
-                .AddSingleton<IRepositoryService, RepositoryService>()
-                .AddSingleton<EnsureTeamCloudModelMiddleware>();
-
-
-            services
-                .AddSingleton<RecyclableMemoryStreamManager>()
-                .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
-                .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
-
-            services
-                .AddTeamCloudAdapters(configuration =>
-                {
-                    configuration
-                        .Register<AzureResourceManagerAdapter>()
-                        .Register<AzureDevOpsAdapter>()
-                        .Register<GitHubAdapter>();
-                });
-
-            services
-                .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
-                .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
-                .AddSingleton<IDocumentExpander, DeploymentScopeExpander>()
-                .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
-                .AddSingleton<IDocumentExpander, ComponentExpander>()
-                .AddSingleton<IDocumentExpander, UserExpander>();
+        services
+            .AddSingleton<IHttpContextAccessor, HttpContextAccessor>()
+            .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
+            .AddSingleton<IOrganizationRepository, CosmosDbOrganizationRepository>()
+            .AddSingleton<IUserRepository, CosmosDbUserRepository>()
+            .AddSingleton<IDeploymentScopeRepository, CosmosDbDeploymentScopeRepository>()
+            .AddSingleton<IProjectIdentityRepository, CosmosDbProjectIdentityRepository>()
+            .AddSingleton<IProjectTemplateRepository, CosmosDbProjectTemplateRepository>()
+            .AddSingleton<IComponentTemplateRepository, CosmosDbComponentTemplateRepository>()
+            .AddSingleton<IProjectRepository, CosmosDbProjectRepository>()
+            .AddSingleton<IComponentRepository, CosmosDbComponentRepository>()
+            .AddSingleton<IComponentTaskRepository, CosmosDbComponentTaskRepository>()
+            .AddSingleton<IScheduleRepository, CosmosDbScheduleRepository>()
+            .AddSingleton<IClientErrorFactory, ClientErrorFactory>()
+            .AddSingleton<OrchestratorService>()
+            .AddSingleton<UserService>()
+            .AddSingleton<OneTimeTokenService>()
+            .AddSingleton<IRepositoryService, RepositoryService>()
+            .AddSingleton<EnsureTeamCloudModelMiddleware>();
 
 
-            services
-                .AddApplicationInsightsTelemetry()
-                .AddMvc();
+        services
+            .AddSingleton<RecyclableMemoryStreamManager>()
+            .AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>()
+            .AddSingleton(provider => provider.GetRequiredService<ObjectPoolProvider>().Create(new StringBuilderPooledObjectPolicy()));
+
+        services
+            .AddSingleton<IDocumentExpanderProvider>(serviceProvider => new DocumentExpanderProvider(serviceProvider))
+            .AddSingleton<IDocumentExpander, ProjectIdentityExpander>()
+            .AddSingleton<IDocumentExpander, DeploymentScopeExpander>()
+            .AddSingleton<IDocumentExpander, ComponentTaskExpander>()
+            .AddSingleton<IDocumentExpander, ComponentExpander>()
+            .AddSingleton<IDocumentExpander, UserExpander>();
 
 
-            services
-                .AddRouting(options =>
-                {
-                    options.ConstraintMap.Add("userId", typeof(UserIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("organizationId", typeof(OrganizationIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("deploymentScopeId", typeof(DeploymentScopeIdentifierConstraint));
-                    options.ConstraintMap.Add("commandId", typeof(CommandIdentifierRouteConstraint));
-                    options.ConstraintMap.Add("taskId", typeof(TaskIdentifierRouteConstraint));
-                })
-                .AddControllers()
-                .AddNewtonsoftJson()
-                .ConfigureApiBehaviorOptions(options => options.SuppressMapClientErrors = true);
+        services
+            .AddApplicationInsightsTelemetry()
+            .AddMvc();
+
+
+        services
+            .AddRouting(options =>
+            {
+                options.ConstraintMap.Add("userId", typeof(UserIdentifierRouteConstraint));
+                options.ConstraintMap.Add("organizationId", typeof(OrganizationIdentifierRouteConstraint));
+                options.ConstraintMap.Add("projectId", typeof(ProjectIdentifierRouteConstraint));
+                options.ConstraintMap.Add("componentId", typeof(ComponentIdentifierRouteConstraint));
+                options.ConstraintMap.Add("deploymentScopeId", typeof(DeploymentScopeIdentifierConstraint));
+                options.ConstraintMap.Add("commandId", typeof(CommandIdentifierRouteConstraint));
+                options.ConstraintMap.Add("taskId", typeof(TaskIdentifierRouteConstraint));
+            })
+            .AddControllers()
+            .AddNewtonsoftJson()
+            .ConfigureApiBehaviorOptions(options => options.SuppressMapClientErrors = true);
 
 #pragma warning disable CA1308 // Normalize strings to uppercase
 
-            ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
-            ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
+        ValidatorOptions.Global.DisplayNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
+        ValidatorOptions.Global.PropertyNameResolver = (type, memberInfo, lambda) => memberInfo?.Name?.ToLowerInvariant();
 
 #pragma warning restore CA1308 // Normalize strings to uppercase
 
-            if (Configuration.TryBind<AzureResourceManagerOptions>("Azure:ResourceManager", out var azureResourceManagerOptions))
-            {
-                ConfigureAuthentication(services, azureResourceManagerOptions);
-                ConfigureAuthorization(services);
-                ConfigureSwagger(services, azureResourceManagerOptions);
-            }
-            else
-            {
-                throw new ApplicationException("Failed to bind configuration section 'Azure:ResourceManager'");
-            }
+        if (Configuration.TryBind<AzureResourceManagerOptions>("Azure:ResourceManager", out var azureResourceManagerOptions))
+        {
+            ConfigureAuthentication(services, azureResourceManagerOptions);
+            ConfigureAuthorization(services);
+            ConfigureSwagger(services, azureResourceManagerOptions);
         }
+        else
+        {
+            throw new ApplicationException("Failed to bind configuration section 'Azure:ResourceManager'");
+        }
+    }
 
 #pragma warning restore CA1822 // Mark members as static
 
-        private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
-        {
-            services
-                .AddSwaggerGen(options =>
+    private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
+    {
+        services
+            .AddSwaggerGen(options =>
+            {
+                options.DocumentFilter<SwaggerDocumentFilter>();
+
+                options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    options.DocumentFilter<SwaggerDocumentFilter>();
-
-                    options.SwaggerDoc("v1", new OpenApiInfo
+                    Version = "v1",
+                    Title = "TeamCloud",
+                    Description = "API for working with a TeamCloud instance.",
+                    Contact = new OpenApiContact
                     {
-                        Version = "v1",
-                        Title = "TeamCloud",
-                        Description = "API for working with a TeamCloud instance.",
-                        Contact = new OpenApiContact
-                        {
-                            Url = new Uri("https://github.com/microsoft/TeamCloud/issues/new"),
-                            Email = @"Markus.Heiliger@microsoft.com",
-                            Name = "TeamCloud Dev Team"
-                        },
-                        License = new OpenApiLicense
-                        {
-                            Name = "TeamCloud is licensed under the MIT License",
-                            Url = new Uri("https://github.com/microsoft/TeamCloud/blob/main/LICENSE")
-                        }
-                    });
-
-                    // options.AddFluentValidationRules();
-                    options.EnableAnnotations();
-                    options.UseInlineDefinitionsForEnums();
-
-                    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                        Url = new Uri("https://github.com/microsoft/TeamCloud/issues/new"),
+                        Email = @"Markus.Heiliger@microsoft.com",
+                        Name = "TeamCloud Dev Team"
+                    },
+                    License = new OpenApiLicense
                     {
-                        Type = SecuritySchemeType.OAuth2,
-                        Flows = new OpenApiOAuthFlows
+                        Name = "TeamCloud is licensed under the MIT License",
+                        Url = new Uri("https://github.com/microsoft/TeamCloud/blob/main/LICENSE")
+                    }
+                });
+
+                options.EnableAnnotations();
+                options.UseInlineDefinitionsForEnums();
+
+                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        AuthorizationCode = new OpenApiOAuthFlow
                         {
-                            AuthorizationCode = new OpenApiOAuthFlow
-                            {
-                                TokenUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/token"),
-                                AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
-                                Scopes = new Dictionary<string, string> {
+                            TokenUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/token"),
+                            AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
+                            Scopes = new Dictionary<string, string> {
                                     { "openid", "Sign you in" },
                                     { "http://TeamCloud.aztcclitestsix/user_impersonation", "Access the TeamCloud API" }
-                                }
                             }
                         }
-                    });
+                    }
+                });
 
-                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                    {
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
                         {
                             new OpenApiSecurityScheme
                             {
@@ -307,62 +309,61 @@ namespace TeamCloud.API
                             },
                             new [] { "openid", "http://TeamCloud.aztcclitestsix/user_impersonation" }
                         }
-                    });
+                });
 
-                    options.OperationFilter<SecurityRequirementsOperationFilter>();
-                })
-                .AddSwaggerGenNewtonsoftSupport();
-        }
+                options.OperationFilter<SecurityRequirementsOperationFilter>();
+            })
+            .AddSwaggerGenNewtonsoftSupport();
+    }
 
-        private static void ConfigureAuthentication(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
-        {
-            services
-                .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
-                .AddAzureADBearer(options =>
-                {
-                    options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
-                    options.TenantId = azureResourceManagerOptions.TenantId;
-                })
-                .AddAdapterAuthentication();
+    private static void ConfigureAuthentication(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
+    {
+        services
+            .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
+            .AddAzureADBearer(options =>
+            {
+                options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
+                options.TenantId = azureResourceManagerOptions.TenantId;
+            })
+            .AddAdapterAuthentication();
 
-            services
-                .AddHttpContextAccessor()
-                .Configure<JwtBearerOptions>(AzureADDefaults.JwtBearerAuthenticationScheme, options =>
-                {
-                    // This is an Microsoft identity platform Web API
-                    options.Authority += "/v2.0";
+        services
+            .AddHttpContextAccessor()
+            .Configure<JwtBearerOptions>(AzureADDefaults.JwtBearerAuthenticationScheme, options =>
+            {
+                // This is an Microsoft identity platform Web API
+                options.Authority += "/v2.0";
 
-                    // Disable audience validation
-                    options.TokenValidationParameters.ValidateAudience = false;
+                // Disable audience validation
+                options.TokenValidationParameters.ValidateAudience = false;
 
-                    // The valid issuers can be based on Azure identity V1 or V2
-                    options.TokenValidationParameters.ValidIssuers = new string[]
-                    {
+                // The valid issuers can be based on Azure identity V1 or V2
+                options.TokenValidationParameters.ValidIssuers = new string[]
+            {
                         $"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/v2.0",
                         $"https://sts.windows.net/{azureResourceManagerOptions.TenantId}/"
-                    };
+            };
 
-                    options.Events = new JwtBearerEvents()
+                options.Events = new JwtBearerEvents()
+                {
+                    OnTokenValidated = async (TokenValidatedContext context) =>
                     {
-                        OnTokenValidated = async (TokenValidatedContext context) =>
-                        {
-                            var userId = context.Principal.GetObjectId();
-                            var tenantId = context.Principal.GetTenantId();
+                        var userId = context.Principal.GetObjectId();
+                        var tenantId = context.Principal.GetTenantId();
 
-                            var userClaims = await context.HttpContext.ResolveClaimsAsync(tenantId, userId).ConfigureAwait(false);
-                            if (userClaims.Any()) context.Principal.AddIdentity(new ClaimsIdentity(userClaims));
-                        }
-                    };
-                });
-        }
+                        var userClaims = await context.HttpContext.ResolveClaimsAsync(tenantId, userId).ConfigureAwait(false);
+                        if (userClaims.Any()) context.Principal.AddIdentity(new ClaimsIdentity(userClaims));
+                    }
+                };
+            });
+    }
 
-        private static void ConfigureAuthorization(IServiceCollection services)
-        {
-            services // Requires authentication across the API
-                .AddMvc(options => options.Filters.Add(new AuthorizeFilter(AuthPolicies.Default)));
+    private static void ConfigureAuthorization(IServiceCollection services)
+    {
+        services // Requires authentication across the API
+            .AddMvc(options => options.Filters.Add(new AuthorizeFilter(AuthPolicies.Default)));
 
-            services
-                .AddTeamCloudAuthorization();
-        }
+        services
+            .AddTeamCloudAuthorization();
     }
 }

@@ -6,8 +6,6 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
-{
-    public sealed class ProjectTemplateUpdateCommandResult : CommandResult<ProjectTemplate>
-    { }
-}
+namespace TeamCloud.Model.Commands;
+
+public sealed class ProjectTemplateUpdateCommandResult : CommandResult<ProjectTemplate> { }

@@ -7,19 +7,18 @@ using System;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
-namespace TeamCloud.Adapters.Authorization
+namespace TeamCloud.Adapters.Authorization;
+
+[Options]
+public sealed class AuthorizationSessionOptions : IAuthorizationSessionOptions
 {
-    [Options]
-    public sealed class AuthorizationSessionOptions : IAuthorizationSessionOptions
+    private readonly AzureStorageOptions azureStorageOptions;
+
+    public AuthorizationSessionOptions(AzureStorageOptions azureStorageOptions)
     {
-        private readonly AzureStorageOptions azureStorageOptions;
-
-        public AuthorizationSessionOptions(AzureStorageOptions azureStorageOptions)
-        {
-            this.azureStorageOptions = azureStorageOptions ?? throw new ArgumentNullException(nameof(azureStorageOptions));
-        }
-
-        public string ConnectionString
-            => azureStorageOptions.ConnectionString ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+        this.azureStorageOptions = azureStorageOptions ?? throw new ArgumentNullException(nameof(azureStorageOptions));
     }
+
+    public string ConnectionString
+        => azureStorageOptions.ConnectionString ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 }

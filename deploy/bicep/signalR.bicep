@@ -1,4 +1,5 @@
 param name string
+param appConfigName string
 
 resource signalr 'Microsoft.SignalRService/signalR@2020-07-01-preview' = {
   name: name
@@ -50,4 +51,12 @@ resource signalr 'Microsoft.SignalRService/signalR@2020-07-01-preview' = {
   }
 }
 
-output connectionString string = listKeys(signalr.id, '2020-05-01').primaryConnectionString
+module signalRConfigs 'appConfigKeys.bicep' = {
+  name: 'signalRConfigs'
+  params: {
+    configName: appConfigName
+    keyValues: {
+      'Azure:SignalR:ConnectionString': signalr.listKeys().primaryConnectionString
+    }
+  }
+}

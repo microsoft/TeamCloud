@@ -5,21 +5,22 @@
 
 using FluentValidation;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.Model.Validation.Data
+namespace TeamCloud.Model.Validation.Data;
+
+public sealed class OrganizationValidator : Validator<Organization>
 {
-    public sealed class OrganizationValidator : AbstractValidator<Organization>
+    public OrganizationValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public OrganizationValidator()
-        {
-            RuleFor(obj => obj.DisplayName)
-                .NotEmpty();
+        RuleFor(obj => obj.DisplayName)
+            .NotEmpty();
 
-            RuleFor(obj => obj.SubscriptionId)
-                .MustBeGuid();
+        RuleFor(obj => obj.SubscriptionId)
+            .MustBeGuid();
 
-            RuleFor(obj => obj.Location)
-                .NotEmpty();
-        }
+        RuleFor(obj => obj.Location)
+            .NotEmpty();
     }
 }

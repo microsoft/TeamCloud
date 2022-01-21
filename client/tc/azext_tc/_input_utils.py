@@ -72,12 +72,12 @@ def _get_best_match_one_of(input_schema, parameter_lists):
                     ix = prompt_choice_list(prompt_str, one_of_titles)
                     best_match = one_of_schemas[ix]
                 except NoTTYException as e:
-                    raise CLIError('--parameters missing required values: {}'
-                                   .format(' | '.join([', '.join(nms) for nms in property_names_list if nms]))) from e
+                    raise CLIError("--parameters missing required values: "
+                                   f"{' | '.join([', '.join(nms) for nms in property_names_list if nms])}") from e
                 break
         else:
-            raise CLIError('--parameters missing required values: {}'
-                           .format(' | '.join([', '.join(nms) for nms in property_names_list if nms])))
+            raise CLIError("--parameters missing required values: "
+                           f"{' | '.join([', '.join(nms) for nms in property_names_list if nms])}")
 
     return best_match
 
@@ -108,7 +108,7 @@ def _get_property_type(property_schema, property_name=None):
     property_types = property_schema.get('type', None)
 
     if property_types is None:
-        raise CLIError("unable to resolve the type for input paramater '{}'".format(property_name))
+        raise CLIError(f"unable to resolve the type for input paramater '{property_name}'")
 
     # The type keyword may either be a string or an array
     # https://json-schema.org/understanding-json-schema/reference/type.html#type-specific-keywords
@@ -116,7 +116,7 @@ def _get_property_type(property_schema, property_name=None):
         else next((t for t in property_types if t.lower() != 'null'), None)
 
     if property_type is None:
-        raise CLIError("unable to resolve the type for input paramater '{}'".format(property_name))
+        raise CLIError(f"unable to resolve the type for input paramater '{property_name}'")
 
     property_type = property_type.lower()
 
@@ -163,8 +163,8 @@ def _process_parameters(input_schema, parameter_lists):  # pylint: disable=too-m
             if addtl_properties:
                 property_type = 'string'
             else:
-                raise CLIError("unrecognized parameter '{}'. Allowed parameters: {}"
-                               .format(key, ', '.join(sorted(properties_schema.keys()))))
+                raise CLIError(f"unrecognized parameter '{key}'. "
+                               f"Allowed parameters: {', '.join(sorted(properties_schema.keys()))}")
 
         if property_type in ['object', 'array']:
             parameters[key] = shell_safe_json_parse(value)
@@ -188,7 +188,7 @@ def _process_parameters(input_schema, parameter_lists):  # pylint: disable=too-m
             if property_name not in parameters and 'default' in input_property:
                 param_default = input_property.get('default', None)
                 if param_default is None:
-                    raise CLIError("unable to get default value for paramater '{}'".format(property_name))
+                    raise CLIError(f"unable to get default value for paramater '{property_name}'")
                 parameters[property_name] = param_default
 
     properties_schema = _get_properties_schema(input_schema)
@@ -201,7 +201,7 @@ def _process_parameters(input_schema, parameter_lists):  # pylint: disable=too-m
     for params in parameter_lists or []:
         for item in params:
             if not _try_parse_key_value_object(properties_schema, parameters, item, additional_properties):
-                raise CLIError('Unable to parse parameter: {}'.format(item))
+                raise CLIError(f'Unable to parse parameter: {item}')
 
     _try_set_defaults(properties_schema, parameters)
 
@@ -253,7 +253,7 @@ def _prompt_for_parameters(missing_parameters, ui_schema=None, fail_on_no_tty=Tr
 
         property_enums, allowed_values = _get_property_enums(property_schema)
 
-        prompt_str = "Please provide {} value for '{}' (? for help): ".format(property_type, title)
+        prompt_str = "Please provide {property_type} value for '{title}' (? for help): "
         while True:
             if allowed_values is not None:
                 try:
@@ -349,8 +349,7 @@ def _get_missing_parameters(parameters, input_schema, prompt_fn, ui_schema=None,
                 for param_name in prompt_parameters:
                     parameters[param_name] = prompt_parameters[param_name]
             except NoTTYException as e:
-                raise CLIError('Missing input parameters: {}'
-                               .format(', '.join(sorted(missing.keys())))) from e
+                raise CLIError(f"Missing input parameters: {', '.join(sorted(missing.keys()))}") from e
     return parameters
 
     # pylint: disable=redefined-outer-name

@@ -1,7 +1,6 @@
 import os
 import json
 import argparse
-import subprocess
 from pathlib import Path
 from re import search
 
@@ -23,6 +22,7 @@ assets = []
 bicep_dir = '{}/deploy/bicep'.format(Path.cwd())
 assets_dir = '{}/{}'.format(Path.cwd(), 'release_assets' if ci else 'local/release_assets')
 
+download_url = f'https://github.com/microsoft/TeamCloud/releases/download/{version}' if ci else assets_dir
 
 # Get CLI version
 with open(Path(Path.cwd() / 'client/tc') / 'setup.py', 'r') as f:
@@ -38,10 +38,10 @@ index = {}
 
 index['teamcloud'] = {
     'version': '{}'.format(version),
-    'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/azuredeploy.json'.format(version),
-    'webZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Web.zip'.format(version),
-    'apiZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.API.zip'.format(version),
-    'orchestratorZipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Orchestrator.zip'.format(version),
+    'deployUrl': f'{download_url}/azuredeploy.json',
+    'webZipUrl': f'{download_url}/TeamCloud.Web.zip',
+    'apiZipUrl': f'{download_url}/TeamCloud.API.zip',
+    'orchestratorZipUrl': f'{download_url}/TeamCloud.Orchestrator.zip',
 }
 
 # index['webapp'] = {
@@ -53,8 +53,8 @@ index['teamcloud'] = {
 index['extensions'] = {
     'tc': [
         {
-            'downloadUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/{}'.format(version, cli_name),
-            'filename': '{}'.format(cli_name),
+            'downloadUrl': f'{download_url}/{cli_name}',
+            'filename': f'{cli_name}',
             'metadata': {
                 'azext.isPreview': True,
                 'azext.isExperimental': True,
@@ -94,13 +94,13 @@ index['extensions'] = {
                 'metadata_version': '2.0',
                 'name': 'tc',
                 'summary': 'Microsoft Azure Command-Line Tools TeamCloud Extension',
-                'version': '{}'.format(cli_version)
+                'version': f'{cli_version}'
             }
         }
     ]
 }
 
-with open('{}/{}'.format(assets_dir, 'index.json'), 'w') as f:
+with open(f'{assets_dir}/index.json', 'w') as f:
     json.dump(index, f, ensure_ascii=False, indent=4, sort_keys=True)
 
 with os.scandir(assets_dir) as s:
@@ -111,7 +111,7 @@ with os.scandir(assets_dir) as s:
             assets.append({'name': f.name, 'path': f.path})
 
 if not ci:
-    with open('{}/{}'.format(assets_dir, 'assets.json'), 'w') as f:
+    with open(f'{assets_dir}/assets.json', 'w') as f:
         json.dump(assets, f, ensure_ascii=False, indent=4, sort_keys=True)
 
 print("::set-output name=assets::{}".format(json.dumps(assets)))

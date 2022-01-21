@@ -3,12 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Adapters.Authorization
-{
-    public interface IAuthorizationEndpoints
-    {
-        string AuthorizationUrl { get; }
+namespace TeamCloud.Adapters.Authorization;
 
-        string CallbackUrl { get; }
-    }
+public interface IAuthorizationEndpoints
+{
+    string AuthorizationUrl { get; }
+
+    string CallbackUrl { get; }
 }

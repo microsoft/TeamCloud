@@ -5,17 +5,16 @@
 
 using System;
 
-namespace TeamCloud.Audit
+namespace TeamCloud.Audit;
+
+public sealed class CommandAuditOptions : ICommandAuditOptions
 {
-    public sealed class CommandAuditOptions : ICommandAuditOptions
-    {
-        public static ICommandAuditOptions Default => new CommandAuditOptions();
+    public static ICommandAuditOptions Default => new CommandAuditOptions();
 
-        private CommandAuditOptions()
-        { }
+    private CommandAuditOptions()
+    { }
 
-        public string ConnectionString => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+    public string ConnectionString => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
-        public string StoragePrefix => default;
-    }
+    public string StoragePrefix => default;
 }

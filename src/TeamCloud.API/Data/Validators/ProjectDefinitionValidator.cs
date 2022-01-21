@@ -4,19 +4,19 @@
  */
 
 using FluentValidation;
-using TeamCloud.Model.Validation;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.API.Data.Validators
+namespace TeamCloud.API.Data.Validators;
+
+public sealed class ProjectDefinitionValidator : Validator<ProjectDefinition>
 {
-    public sealed class ProjectDefinitionValidator : AbstractValidator<ProjectDefinition>
+    public ProjectDefinitionValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
     {
-        public ProjectDefinitionValidator()
-        {
-            RuleFor(obj => obj.DisplayName).NotEmpty();
-            RuleFor(obj => obj.Template).MustBeGuid(); //TODO: May not need to require this if there is a default template
-            RuleFor(obj => obj.TemplateInput).NotEmpty();
-            RuleFor(obj => obj.Users)
-                .ForEach(user => user.SetValidator(new ProjectUserDefinitionValidator()));
-        }
+        RuleFor(obj => obj.DisplayName).NotEmpty();
+        RuleFor(obj => obj.Template).MustBeGuid(); //TODO: May not need to require this if there is a default template
+        RuleFor(obj => obj.TemplateInput).NotEmpty();
+        RuleFor(obj => obj.Users)
+            .ForEach(user => user.SetValidator(ValidatorProvider));
     }
 }

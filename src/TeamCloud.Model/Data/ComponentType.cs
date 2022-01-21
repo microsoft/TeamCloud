@@ -6,12 +6,12 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum ComponentType
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ComponentType
-    {
-        Environment,
-        Repository
-    }
+    Environment,
+    Repository,
+    Namespace
 }

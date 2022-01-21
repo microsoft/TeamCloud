@@ -33,9 +33,9 @@ def tc_deploy_validator(cmd, ns):
             raise CLIError(
                 'usage error: --principal-name must be have a value if --principal-password is specified')
 
-    if sum(1 for ct in [ns.version, ns.prerelease, ns.index_url] if ct) > 1:
+    if sum(1 for ct in [ns.version, ns.prerelease, ns.index_url, ns.index_file] if ct) > 1:
         raise CLIError(
-            'usage error: can only use one of --index-url | --version/-v | --pre')
+            'usage error: can only use one of --index-url | --index-file | --version/-v | --pre')
 
     if ns.version:
         ns.version = ns.version.lower()
@@ -46,7 +46,7 @@ def tc_deploy_validator(cmd, ns):
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
         if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
-            raise CLIError('--version/-v {} does not exist'.format(ns.version))
+            raise CLIError(f'--version/-v {ns.version} does not exist')
 
     if ns.tags:
         validate_tags(ns)
@@ -70,8 +70,7 @@ def tc_deploy_validator(cmd, ns):
             web_client = web_client_factory(cmd.cli_ctx)
             availability = web_client.check_name_availability(ns.name, 'Site')
             if not availability.name_available:
-                raise CLIError(
-                    '--name/-n {}'.format(availability.message))
+                raise CLIError(f'--name/-n {availability.message}')
     if ns.client_id:
         if not _is_valid_uuid(ns.client_id):
             raise CLIError('--client-id/-c should be a valid uuid')
@@ -196,7 +195,7 @@ def teamcloud_source_version_validator(cmd, ns):
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
         if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
-            raise CLIError('--version/-v {} does not exist'.format(ns.version))
+            raise CLIError(f'--version/-v {ns.version} does not exist')
 
 
 def teamcloud_cli_source_version_validator(cmd, ns):
@@ -212,7 +211,7 @@ def teamcloud_cli_source_version_validator(cmd, ns):
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
         if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
-            raise CLIError('--version/-v {} does not exist'.format(ns.version))
+            raise CLIError(f'--version/-v {ns.version} does not exist')
 
 
 def properties_validator(cmd, ns):

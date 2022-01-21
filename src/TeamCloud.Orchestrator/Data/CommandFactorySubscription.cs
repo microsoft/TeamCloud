@@ -6,73 +6,70 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Queue;
+using Azure.Storage.Queues;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Utilities;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestrator.Data
+namespace TeamCloud.Orchestrator.Data;
+
+public abstract class CommandFactorySubscription : DocumentSubscription
 {
-    public abstract class CommandFactorySubscription : DocumentSubscription
+    private static async Task<QueueClient> GetCommandQueueAsync()
     {
-        private static async Task<CloudQueue> GetCommandQueueAsync()
+        var connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+
+        if (connectionString is not null)
         {
-            if (CloudStorageAccount.TryParse(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), out var storageAccount))
-            {
-                try
-                {
-                    var queue = storageAccount
-                        .CreateCloudQueueClient()
-                        .GetQueueReference(CommandHandler.ProcessorQueue);
-
-                    _ = await queue
-                        .CreateIfNotExistsAsync()
-                        .ConfigureAwait(false);
-
-                    return queue;
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-
-            return null;
-        }
-
-        private readonly AsyncLazy<CloudQueue> commandQueueInstance;
-
-        protected CommandFactorySubscription()
-        {
-            commandQueueInstance = new AsyncLazy<CloudQueue>(() => GetCommandQueueAsync(), LazyThreadSafetyMode.PublicationOnly);
-        }
-
-        protected async Task EnqueueCommandAsync(ICommand command)
-        {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-
             try
             {
-                var commandQueue = await commandQueueInstance
-                    .Value
+                var queue = new QueueClient(connectionString, CommandHandler.ProcessorQueue);
+
+                await queue.CreateIfNotExistsAsync()
                     .ConfigureAwait(false);
 
-                var commandMessage = new CloudQueueMessage(TeamCloudSerialize.SerializeObject(command));
-
-                await commandQueue
-                    .AddMessageAsync(commandMessage)
-                    .ConfigureAwait(false);
+                return queue;
             }
             catch
             {
-                commandQueueInstance.Reset();
-
                 throw;
             }
+        }
+
+        return null;
+    }
+
+    private readonly AsyncLazy<QueueClient> commandQueueInstance;
+
+    protected CommandFactorySubscription()
+    {
+        commandQueueInstance = new AsyncLazy<QueueClient>(() => GetCommandQueueAsync(), LazyThreadSafetyMode.PublicationOnly);
+    }
+
+    protected async Task EnqueueCommandAsync(ICommand command)
+    {
+        if (command is null)
+            throw new ArgumentNullException(nameof(command));
+
+        try
+        {
+            var commandQueue = await commandQueueInstance
+                .Value
+                .ConfigureAwait(false);
+
+            var commandMessage = TeamCloudSerialize.SerializeObject(command);
+
+            await commandQueue
+                .SendMessageAsync(commandMessage)
+                .ConfigureAwait(false);
+        }
+        catch
+        {
+            commandQueueInstance.Reset();
+
+            throw;
         }
     }
 }

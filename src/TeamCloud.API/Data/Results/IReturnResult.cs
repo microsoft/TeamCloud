@@ -6,13 +6,12 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.API.Data.Results
-{
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
-    public interface IReturnResult
-    {
-        int Code { get; }
+namespace TeamCloud.API.Data.Results;
 
-        string Status { get; }
-    }
+[JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
+public interface IReturnResult
+{
+    int Code { get; }
+
+    string Status { get; }
 }

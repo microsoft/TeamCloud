@@ -1,4 +1,5 @@
 param name string
+param appConfigName string
 
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2021-01-15' = {
   name: name
@@ -18,6 +19,14 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2021-01-15' = {
   }
 }
 
-output connectionString string = listConnectionStrings(cosmos.id, cosmos.apiVersion).connectionStrings[0].connectionString
-
-// output connectionString string = 'AccountEndpoint=${reference('Microsoft.DocumentDb/databaseAccounts/${name}').documentEndpoint};AccountKey=${listKeys(cosmos.id, '2015-04-08').primaryMasterKey}'
+module cosmosConfigs 'appConfigKeys.bicep' = {
+  name: 'cosmosConfigs'
+  params: {
+    configName: appConfigName
+    keyValues: {
+      'Azure:CosmosDb:TenantName': 'TeamCloud'
+      'Azure:CosmosDb:DatabaseName': 'TeamCloud'
+      'Azure:CosmosDb:ConnectionString': cosmos.listConnectionStrings().connectionStrings[0].connectionString
+    }
+  }
+}

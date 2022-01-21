@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
 
-namespace TeamCloud.Azure.Resources
+namespace TeamCloud.Azure.Resources;
+
+public enum AzureResourceProvisioningState
 {
-    public enum AzureResourceProvisioningState
-    {
-        Canceled,
-        Deleting,
-        Failed,
-        InProgress,
-        Succeeded,
-        Unknown
-    }
+    Canceled,
+    Deleting,
+    Failed,
+    InProgress,
+    Succeeded,
+    Unknown
 }

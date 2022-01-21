@@ -3,14 +3,13 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure.Resources
+namespace TeamCloud.Azure.Resources;
+
+public enum AzureResourceSegment
 {
-    public enum AzureResourceSegment
-    {
-        Subscription,
+    Subscription,
 
-        ResourceGroup,
+    ResourceGroup,
 
-        Resource
-    }
+    Resource
 }

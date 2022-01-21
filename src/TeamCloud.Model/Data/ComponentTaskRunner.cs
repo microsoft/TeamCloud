@@ -7,13 +7,12 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Model.Data
-{
-    [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public class ComponentTaskRunner
-    {
-        public string Id { get; set; }
+namespace TeamCloud.Model.Data;
 
-        public Dictionary<string, string> With { get; set; } = new Dictionary<string, string>();
-    }
+[JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+public class ComponentTaskRunner
+{
+    public string Id { get; set; }
+
+    public Dictionary<string, string> With { get; set; } = new Dictionary<string, string>();
 }

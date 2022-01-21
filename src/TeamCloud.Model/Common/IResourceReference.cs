@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+public interface IResourceReference
 {
-    public interface IResourceReference
-    {
-        public string ResourceId { get; set; }
-    }
+    public string ResourceId { get; set; }
 }

@@ -3,10 +3,9 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Adapters.Authorization
+namespace TeamCloud.Adapters.Authorization;
+
+public interface IAuthorizationSessionOptions
 {
-    public interface IAuthorizationSessionOptions
-    {
-        string ConnectionString { get; }
-    }
+    string ConnectionString { get; }
 }

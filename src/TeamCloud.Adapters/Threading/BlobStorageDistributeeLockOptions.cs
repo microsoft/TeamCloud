@@ -5,17 +5,16 @@
 
 using System;
 
-namespace TeamCloud.Adapters.Threading
+namespace TeamCloud.Adapters.Threading;
+
+public sealed class BlobStorageDistributeeLockOptions : IBlobStorageDistributeLockOptions
 {
-    public sealed class BlobStorageDistributeeLockOptions : IBlobStorageDistributeLockOptions
-    {
-        public static IBlobStorageDistributeLockOptions Default
-            => new BlobStorageDistributeeLockOptions();
+    public static IBlobStorageDistributeLockOptions Default
+        => new BlobStorageDistributeeLockOptions();
 
-        private BlobStorageDistributeeLockOptions()
-        { }
+    private BlobStorageDistributeeLockOptions()
+    { }
 
-        public string ConnectionString
-            => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-    }
+    public string ConnectionString
+        => Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 }

@@ -14,31 +14,22 @@ param reactAppVersion string = ''
 
 var name = toLower(webAppName)
 
-resource farm 'Microsoft.Web/serverfarms@2020-06-01' = {
+resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: name
-  kind: 'linux'
+  kind: 'app,linux'
   location: resourceGroup().location
   properties: {
-    perSiteScaling: false
-    maximumElasticWorkerCount: 1
-    isSpot: false
     reserved: true
-    hyperV: false
-    targetWorkerCount: 0
-    targetWorkerSizeId: 0
   }
   sku: {
-    name: 'P1v2'
-    tier: 'PremiumV2'
-    size: 'P1v2'
-    family: 'Pv2'
-    capacity: 1
+    name: 'S1'
+    tier: 'Standard'
   }
 }
 
-resource app 'Microsoft.Web/sites@2020-06-01' = {
+resource app 'Microsoft.Web/sites@2021-02-01' = {
   name: name
-  kind: 'app,linux'
+  kind: 'app'
   location: resourceGroup().location
   properties: {
     reserved: true
@@ -46,9 +37,9 @@ resource app 'Microsoft.Web/sites@2020-06-01' = {
     clientAffinityEnabled: false
     siteConfig: {
       alwaysOn: true
+      phpVersion: 'off'
       linuxFxVersion: 'NODE|12-lts'
       appCommandLine: 'pm2 serve /home/site/wwwroot --no-daemon --spa'
-      phpVersion: 'off'
       appSettings: [
         {
           name: 'REACT_APP_MSAL_CLIENT_ID'

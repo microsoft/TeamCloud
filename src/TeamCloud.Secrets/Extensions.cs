@@ -6,16 +6,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace TeamCloud.Secrets
-{
-    public static class Extensions
-    {
-        public static IServiceCollection AddTeamCloudSecrets(this IServiceCollection services)
-        {
-            services
-                .TryAddSingleton<ISecretsStoreProvider>(provider => new SecretsStoreProvider<KeyVaultSecretsStore>(provider));
+namespace TeamCloud.Secrets;
 
-            return services;
-        }
+public static class Extensions
+{
+    public static IServiceCollection AddTeamCloudSecrets(this IServiceCollection services)
+    {
+        services
+            .TryAddSingleton<ISecretsStoreProvider>(provider => new SecretsStoreProvider<KeyVaultSecretsStore>(provider));
+
+        return services;
     }
 }

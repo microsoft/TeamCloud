@@ -5,7 +5,9 @@
 # pylint: disable=too-many-statements
 
 from knack.arguments import CLIArgumentType
-from azure.cli.core.commands.parameters import (tags_type, get_enum_type)
+from argcomplete.completers import FilesCompleter
+
+from azure.cli.core.commands.parameters import (tags_type, get_enum_type, file_type)
 
 from ._validators import (
     org_name_or_id_validator, org_name_validator, base_url_validator,
@@ -71,6 +73,7 @@ def load_arguments(self, _):
                    help='TeamCloud version. Default: latest stable.')
         c.argument('prerelease', options_list=['--pre'], action='store_true',
                    help='Deploy latest prerelease version.')
+        c.argument('index_file', help='Path to custom index.json file.', completer=FilesCompleter(), type=file_type)
         c.argument('index_url', help='URL to custom index.json file.')
         c.argument('skip_app_deployment', action='store_true',
                    help="Only create Azure resources, skip deploying the TeamCloud API and Orchestrator apps.")

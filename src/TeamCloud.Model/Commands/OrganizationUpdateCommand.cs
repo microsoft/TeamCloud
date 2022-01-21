@@ -6,10 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class OrganizationUpdateCommand : UpdateCommand<Organization, OrganizationUpdateCommandResult>
 {
-    public sealed class OrganizationUpdateCommand : UpdateCommand<Organization, OrganizationUpdateCommandResult>
-    {
-        public OrganizationUpdateCommand(User user, Organization payload) : base(user, payload) { }
-    }
+    public OrganizationUpdateCommand(User user, Organization payload)
+        : base(user, payload)
+    { }
 }

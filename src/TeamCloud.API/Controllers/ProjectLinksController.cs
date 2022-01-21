@@ -18,7 +18,7 @@
 // using TeamCloud.Data;
 // using TeamCloud.Model.Commands;
 // using TeamCloud.Model.Data;
-// using TeamCloud.Model.Validation;
+// using TeamCloud.Validation;
 
 // namespace TeamCloud.API.Controllers
 // {
@@ -115,7 +115,7 @@
 //                 .GetAsync(project.Id, link.Id)
 //                 .ConfigureAwait(false);
 
-//             if (linkDocument != null)
+//             if (linkDocument is not null)
 //                 return ErrorResult
 //                     .Conflict($"A Link with the ID '{linkDocument.Id}' already exists for Project {project.Id}.")
 //                     .ToActionResult();

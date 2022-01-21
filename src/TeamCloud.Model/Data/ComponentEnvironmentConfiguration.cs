@@ -6,11 +6,10 @@
 using Newtonsoft.Json;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
+public sealed class ComponentEnvironmentConfiguration
 {
-    [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-    public sealed class ComponentEnvironmentConfiguration
-    {
-        public ComponentEnvironmentIsolation Isolation { get; set; }
-    }
+    public ComponentEnvironmentIsolation Isolation { get; set; }
 }

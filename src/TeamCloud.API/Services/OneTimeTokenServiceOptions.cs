@@ -1,25 +1,28 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
-namespace TeamCloud.API.Services
+namespace TeamCloud.API.Services;
+
+public interface IOneTimeTokenServiceOptions
 {
+    public string ConnectionString { get; }
+}
 
-    public interface IOneTimeTokenServiceOptions
+[Options]
+public sealed class OneTimeTokenServiceOptions : IOneTimeTokenServiceOptions
+{
+    private readonly AzureStorageOptions azureStorageOptions;
+
+    public OneTimeTokenServiceOptions(AzureStorageOptions azureStorageOptions)
     {
-        public string ConnectionString { get; }
+        this.azureStorageOptions = azureStorageOptions ?? throw new ArgumentNullException(nameof(azureStorageOptions));
     }
 
-    [Options]
-    public sealed class OneTimeTokenServiceOptions : IOneTimeTokenServiceOptions
-    {
-        private readonly AzureStorageOptions azureStorageOptions;
-
-        public OneTimeTokenServiceOptions(AzureStorageOptions azureStorageOptions)
-        {
-            this.azureStorageOptions = azureStorageOptions ?? throw new ArgumentNullException(nameof(azureStorageOptions));
-        }
-
-        public string ConnectionString => azureStorageOptions.ConnectionString;
-    }
+    public string ConnectionString => azureStorageOptions.ConnectionString;
 }

@@ -6,11 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class ScheduleDeleteCommand : DeleteCommand<Schedule, ScheduleDeleteCommandResult>
 {
-    public sealed class ScheduleDeleteCommand : DeleteCommand<Schedule, ScheduleDeleteCommandResult>
-    {
-        public ScheduleDeleteCommand(User user, Schedule payload) : base(user, payload)
-        { }
-    }
+    public ScheduleDeleteCommand(User user, Schedule payload)
+        : base(user, payload)
+    { }
 }

@@ -2,8 +2,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
-# pylint: disable=too-many-lines
-# pylint: disable=line-too-long
+# pylint: disable=too-many-lines, line-too-long
 
 from knack.log import get_logger
 from knack.prompting import verify_is_a_tty
@@ -35,7 +34,7 @@ def prompt_array(msg, item_type, help_string=None):
     verify_is_a_tty()
 
     while True:
-        value = _input('{}\nPlease enter one or more space-seperated {}s: '.format(msg, item_type))
+        value = _input(f'{msg}\nPlease enter one or more space-seperated {item_type}s: ')
         if value == '?' and help_string is not None:
             print(help_string)
             continue
@@ -73,20 +72,18 @@ def prompt_multi_choice_list(msg, a_list, default=1, help_string=None):
     :returns: A list of indexs of the items chosen.
     """
     verify_is_a_tty()
-    options = '\n'.join([' [{}] {}{}'
-                         .format(i + 1,
-                                 x['name'] if isinstance(x, dict) and 'name' in x else x,
-                                 ' - ' + x['desc'] if isinstance(x, dict) and 'desc' in x else '')
+    options = '\n'.join([f" [{i + 1}] "
+                         f"{x['name'] if isinstance(x, dict) and 'name' in x else x}"
+                         f"{' - ' + x['desc'] if isinstance(x, dict) and 'desc' in x else ''}"
                          for i, x in enumerate(a_list)])
     allowed_vals = list(range(1, len(a_list) + 1))
     while True:
-        val = _input('{}\n{}\nPlease enter one or more space-seperated choices [Default choice({})]: '.format(
-            msg, options, default))
+        val = _input(f'{msg}\n{options}\nPlease enter one or more space-seperated choices [Default choice({default})]: ')
         if val == '?' and help_string is not None:
             print(help_string)
             continue
         if not val:
-            val = '{}'.format(default)
+            val = f'{default}'
         try:
             anss = []
             vals = val.split()

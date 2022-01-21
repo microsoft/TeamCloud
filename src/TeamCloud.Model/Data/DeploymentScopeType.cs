@@ -6,15 +6,16 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Data
+namespace TeamCloud.Model.Data;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum DeploymentScopeType
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum DeploymentScopeType
-    {
-        AzureResourceManager,
+    AzureResourceManager,
 
-        AzureDevOps,
+    AzureDevOps,
 
-        GitHub
-    }
+    GitHub,
+
+    Kubernetes
 }

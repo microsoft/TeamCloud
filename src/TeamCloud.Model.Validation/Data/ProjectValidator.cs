@@ -5,12 +5,14 @@
 
 using FluentValidation;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation;
+using TeamCloud.Validation.Providers;
 
 namespace TeamCloud.Model.Validation.Data
 {
-    public sealed class ProjectValidator : AbstractValidator<Project>
+    public sealed class ProjectValidator : Validator<Project>
     {
-        public ProjectValidator()
+        public ProjectValidator(IValidatorProvider validatorProvider) : base(validatorProvider)
         {
             RuleFor(obj => obj.DisplayName)
                 .NotEmpty();

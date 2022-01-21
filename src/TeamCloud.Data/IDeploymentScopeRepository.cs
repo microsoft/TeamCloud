@@ -6,11 +6,10 @@
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Data
+namespace TeamCloud.Data;
+
+public interface IDeploymentScopeRepository : IDocumentRepository<DeploymentScope>
 {
-    public interface IDeploymentScopeRepository : IDocumentRepository<DeploymentScope>
-    {
-        Task<string> ResolveIdAsync(string tenant, string identifier);
-        Task<DeploymentScope> GetDefaultAsync(string organization);
-    }
+    Task<string> ResolveIdAsync(string tenant, string identifier);
+    Task<DeploymentScope> GetDefaultAsync(string organization);
 }

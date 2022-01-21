@@ -6,10 +6,11 @@
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Commands
+namespace TeamCloud.Model.Commands;
+
+public sealed class DeploymentScopeUpdateCommand : UpdateCommand<DeploymentScope, DeploymentScopeUpdateCommandResult>
 {
-    public sealed class DeploymentScopeUpdateCommand : UpdateCommand<DeploymentScope, DeploymentScopeUpdateCommandResult>
-    {
-        public DeploymentScopeUpdateCommand(User user, DeploymentScope payload) : base(user, payload) { }
-    }
+    public DeploymentScopeUpdateCommand(User user, DeploymentScope payload)
+        : base(user, payload)
+    { }
 }

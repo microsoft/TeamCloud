@@ -1,79 +1,81 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace TeamCloud.Model.Data.Core
+namespace TeamCloud.Model.Data.Core;
+
+[AttributeUsage(AttributeTargets.Class)]
+internal class ContainerPathAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    internal class ContainerPathAttribute : Attribute
+    private static readonly ConcurrentDictionary<string, PropertyInfo> PropertyCache = new ConcurrentDictionary<string, PropertyInfo>();
+    private static readonly ConcurrentDictionary<string, FieldInfo> FieldCache = new ConcurrentDictionary<string, FieldInfo>();
+
+    private static readonly Regex TokenExpression = new Regex("[^{}]+(?=})");
+    private static readonly Regex SanitizeGuidExpression = new Regex(@"\{[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}\}");
+
+    public ContainerPathAttribute(string pathTemplate)
     {
-        private static readonly ConcurrentDictionary<string, PropertyInfo> PropertyCache = new ConcurrentDictionary<string, PropertyInfo>();
-        private static readonly ConcurrentDictionary<string, FieldInfo> FieldCache = new ConcurrentDictionary<string, FieldInfo>();
+        if (string.IsNullOrWhiteSpace(pathTemplate))
+            throw new ArgumentException($"'{nameof(pathTemplate)}' cannot be null or whitespace.", nameof(pathTemplate));
 
-        private static readonly Regex TokenExpression = new Regex("[^{}]+(?=})");
-        private static readonly Regex SanitizeGuidExpression = new Regex(@"\{[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}\}");
+        PathTemplate = pathTemplate;
+    }
 
-        public ContainerPathAttribute(string pathTemplate)
+    public string PathTemplate { get; }
+
+    public string ResolvePath(IContainerDocument containerDocument)
+    {
+        if (containerDocument is null)
+            throw new ArgumentNullException(nameof(containerDocument));
+
+        var path = TokenExpression.Replace(PathTemplate, match =>
         {
-            if (string.IsNullOrWhiteSpace(pathTemplate))
-                throw new ArgumentException($"'{nameof(pathTemplate)}' cannot be null or whitespace.", nameof(pathTemplate));
+            var key = $"{match.Value}@{containerDocument.GetType()}";
 
-            PathTemplate = pathTemplate;
-        }
-
-        public string PathTemplate { get; }
-
-        public string ResolvePath(IContainerDocument containerDocument)
-        {
-            if (containerDocument is null)
-                throw new ArgumentNullException(nameof(containerDocument));
-
-            var path = TokenExpression.Replace(PathTemplate, match =>
+            var property = PropertyCache.GetOrAdd(key, _ =>
             {
-                var key = $"{match.Value}@{containerDocument.GetType()}";
+                var propertyFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty;
 
-                var property = PropertyCache.GetOrAdd(key, _ =>
-                {
-                    var propertyFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty;
+                var property = containerDocument.GetType()
+                    .GetProperty(match.Value, propertyFlags);
 
-                    var property = containerDocument.GetType()
-                        .GetProperty(match.Value, propertyFlags);
-
-                    return property ?? containerDocument.GetType()
-                        .GetProperties(propertyFlags)
-                        .FirstOrDefault(p => p.Name.Equals(match.Value, StringComparison.OrdinalIgnoreCase));
-                });
-
-                if (property != null)
-                {
-                    return $"{property.GetValue(containerDocument)}";
-                }
-
-                var field = FieldCache.GetOrAdd(key, _ =>
-                {
-                    var fieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField;
-
-                    var field = containerDocument.GetType()
-                        .GetField(match.Value, fieldFlags);
-
-                    return field ?? containerDocument.GetType()
-                        .GetFields(fieldFlags)
-                        .FirstOrDefault(f => f.Name.Equals(match.Value, StringComparison.OrdinalIgnoreCase));
-                });
-
-                if (field != null)
-                {
-                    return $"{field.GetValue(containerDocument)}";
-                }
-
-                return default;
+                return property ?? containerDocument.GetType()
+                    .GetProperties(propertyFlags)
+                    .FirstOrDefault(p => p.Name.Equals(match.Value, StringComparison.OrdinalIgnoreCase));
             });
 
-            return SanitizeGuidExpression.Replace(path, match => Guid.Parse(match.Value).ToString());
-        }
+            if (property is not null)
+            {
+                return $"{property.GetValue(containerDocument)}";
+            }
+
+            var field = FieldCache.GetOrAdd(key, _ =>
+            {
+                var fieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetField;
+
+                var field = containerDocument.GetType()
+                    .GetField(match.Value, fieldFlags);
+
+                return field ?? containerDocument.GetType()
+                    .GetFields(fieldFlags)
+                    .FirstOrDefault(f => f.Name.Equals(match.Value, StringComparison.OrdinalIgnoreCase));
+            });
+
+            if (field is not null)
+            {
+                return $"{field.GetValue(containerDocument)}";
+            }
+
+            return default;
+        });
+
+        return SanitizeGuidExpression.Replace(path, match => Guid.Parse(match.Value).ToString());
     }
 }

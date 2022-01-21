@@ -6,30 +6,29 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum TaskState
 {
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum TaskState
-    {
-        Pending,
+    Pending,
 
-        Initializing,
+    Initializing,
 
-        Processing,
+    Processing,
 
-        Succeeded,
+    Succeeded,
 
-        Canceled,
+    Canceled,
 
-        Failed
-    }
+    Failed
+}
 
-    public static class TaskStateExtensions
-    {
-        public static bool IsFinal(this TaskState taskState)
-            => taskState == TaskState.Succeeded || taskState == TaskState.Canceled || taskState == TaskState.Failed;
+public static class TaskStateExtensions
+{
+    public static bool IsFinal(this TaskState taskState)
+        => taskState == TaskState.Succeeded || taskState == TaskState.Canceled || taskState == TaskState.Failed;
 
-        public static bool IsActive(this TaskState taskState)
-            => !taskState.IsFinal();
-    }
+    public static bool IsActive(this TaskState taskState)
+        => !taskState.IsFinal();
 }

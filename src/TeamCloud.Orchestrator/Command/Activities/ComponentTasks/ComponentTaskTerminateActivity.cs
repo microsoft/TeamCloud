@@ -15,69 +15,68 @@ using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks
+namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks;
+
+public sealed class ComponentTaskTerminateActivity
 {
-    public sealed class ComponentTaskTerminateActivity
+    private readonly IComponentTaskRepository componentTaskRepository;
+    private readonly IAzureResourceService azureResourceService;
+
+    public ComponentTaskTerminateActivity(IComponentTaskRepository componentTaskRepository, IAzureResourceService azureResourceService)
     {
-        private readonly IComponentTaskRepository componentTaskRepository;
-        private readonly IAzureResourceService azureResourceService;
+        this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
+        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+    }
 
-        public ComponentTaskTerminateActivity(IComponentTaskRepository componentTaskRepository, IAzureResourceService azureResourceService)
+    [FunctionName(nameof(ComponentTaskTerminateActivity))]
+    [RetryOptions(3)]
+    public async Task<ComponentTask> Run(
+        [ActivityTrigger] IDurableActivityContext context,
+        ILogger log)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+
+        if (log is null)
+            throw new ArgumentNullException(nameof(log));
+
+        var componentTask = context.GetInput<Input>().ComponentTask;
+
+        try
         {
-            this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
-            this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-        }
-
-        [FunctionName(nameof(ComponentTaskTerminateActivity))]
-        [RetryOptions(3)]
-        public async Task<ComponentTask> Run(
-            [ActivityTrigger] IDurableActivityContext context,
-            ILogger log)
-        {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
-
-            if (log is null)
-                throw new ArgumentNullException(nameof(log));
-
-            var componentTask = context.GetInput<Input>().ComponentTask;
-
-            try
+            if (AzureResourceIdentifier.TryParse(componentTask.ResourceId, out var resourceId))
             {
-                if (AzureResourceIdentifier.TryParse(componentTask.ResourceId, out var resourceId))
+                if (!componentTask.TaskState.IsFinal())
                 {
-                    if (!componentTask.TaskState.IsFinal())
-                    {
-                        componentTask.TaskState = TaskState.Failed;
+                    componentTask.TaskState = TaskState.Failed;
 
-                        componentTask = await componentTaskRepository
-                            .SetAsync(componentTask)
-                            .ConfigureAwait(false);
-                    }
+                    componentTask = await componentTaskRepository
+                        .SetAsync(componentTask)
+                        .ConfigureAwait(false);
+                }
 
-                    if (await azureResourceService.ExistsResourceAsync(resourceId.ToString()).ConfigureAwait(false))
-                    {
-                        var session = await azureResourceService.AzureSessionService
-                            .CreateSessionAsync(resourceId.SubscriptionId)
-                            .ConfigureAwait(false);
+                if (await azureResourceService.ExistsResourceAsync(resourceId.ToString()).ConfigureAwait(false))
+                {
+                    var session = await azureResourceService.AzureSessionService
+                        .CreateSessionAsync(resourceId.SubscriptionId)
+                        .ConfigureAwait(false);
 
-                        await session.ContainerGroups
-                            .DeleteByIdAsync(resourceId.ToString())
-                            .ConfigureAwait(false);
-                    }
+                    await session.ContainerGroups
+                        .DeleteByIdAsync(resourceId.ToString())
+                        .ConfigureAwait(false);
                 }
             }
-            catch (Exception exc)
-            {
-                throw exc.AsSerializable();
-            }
-
-            return componentTask;
         }
-
-        internal struct Input
+        catch (Exception exc)
         {
-            public ComponentTask ComponentTask { get; set; }
+            throw exc.AsSerializable();
         }
+
+        return componentTask;
+    }
+
+    internal struct Input
+    {
+        public ComponentTask ComponentTask { get; set; }
     }
 }

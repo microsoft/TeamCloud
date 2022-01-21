@@ -6,10 +6,9 @@
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Data
+namespace TeamCloud.Data;
+
+public interface IProjectTemplateRepository : IDocumentRepository<ProjectTemplate>
 {
-    public interface IProjectTemplateRepository : IDocumentRepository<ProjectTemplate>
-    {
-        Task<ProjectTemplate> GetDefaultAsync(string organization);
-    }
+    Task<ProjectTemplate> GetDefaultAsync(string organization);
 }

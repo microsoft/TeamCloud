@@ -10,48 +10,47 @@ using DurableTask.Core.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 
-namespace TeamCloud.Orchestration
+namespace TeamCloud.Orchestration;
+
+public interface IRetryOptionsFactory
 {
-    public interface IRetryOptionsFactory
+    RetryOptions GetRetryOptions(string functionName, Func<Exception, bool> handle = null);
+}
+
+public class RetryOptionsFactory : IRetryOptionsFactory
+{
+    internal static readonly IRetryOptionsFactory Default = new RetryOptionsFactory();
+
+    private readonly IConfiguration configuration;
+
+    public RetryOptionsFactory(IConfiguration configuration = null)
     {
-        RetryOptions GetRetryOptions(string functionName, Func<Exception, bool> handle = null);
+        this.configuration = configuration;
     }
 
-    public class RetryOptionsFactory : IRetryOptionsFactory
+    public virtual RetryOptions GetRetryOptions(string functionName, Func<Exception, bool> handle = null)
     {
-        internal static readonly IRetryOptionsFactory Default = new RetryOptionsFactory();
+        var retryAttribute = RetryOptionsAttribute.GetByFunctionName(functionName) ?? new RetryOptionsAttribute(1);
 
-        private readonly IConfiguration configuration;
-
-        public RetryOptionsFactory(IConfiguration configuration = null)
+        var retryOptions = new RetryOptions(TimeSpan.Parse(retryAttribute.FirstRetryInterval, CultureInfo.InvariantCulture.DateTimeFormat), retryAttribute.MaxNumberOfAttempts)
         {
-            this.configuration = configuration;
-        }
+            MaxRetryInterval = TimeSpan.Parse(retryAttribute.MaxRetryInterval, CultureInfo.InvariantCulture.DateTimeFormat),
+            RetryTimeout = TimeSpan.Parse(retryAttribute.RetryTimeout, CultureInfo.InvariantCulture.DateTimeFormat),
+            BackoffCoefficient = retryAttribute.BackoffCoefficient,
+            Handle = (exc) => HandleException(exc is TaskFailedException taskFailedExc ? taskFailedExc.InnerException : exc)
+        };
 
-        public virtual RetryOptions GetRetryOptions(string functionName, Func<Exception, bool> handle = null)
+        configuration?
+            .GetSection($"Orchestration:RetryOptions:{functionName}")
+            .Bind(retryOptions);
+
+        return retryOptions;
+
+        bool HandleException(Exception exc)
         {
-            var retryAttribute = RetryOptionsAttribute.GetByFunctionName(functionName) ?? new RetryOptionsAttribute(1);
+            Debug.WriteLine($"Function '{functionName}': Execution failed -> {exc}");
 
-            var retryOptions = new RetryOptions(TimeSpan.Parse(retryAttribute.FirstRetryInterval, CultureInfo.InvariantCulture.DateTimeFormat), retryAttribute.MaxNumberOfAttempts)
-            {
-                MaxRetryInterval = TimeSpan.Parse(retryAttribute.MaxRetryInterval, CultureInfo.InvariantCulture.DateTimeFormat),
-                RetryTimeout = TimeSpan.Parse(retryAttribute.RetryTimeout, CultureInfo.InvariantCulture.DateTimeFormat),
-                BackoffCoefficient = retryAttribute.BackoffCoefficient,
-                Handle = (exc) => HandleException(exc is TaskFailedException taskFailedExc ? taskFailedExc.InnerException : exc)
-            };
-
-            configuration?
-                .GetSection($"Orchestration:RetryOptions:{functionName}")
-                .Bind(retryOptions);
-
-            return retryOptions;
-
-            bool HandleException(Exception exc)
-            {
-                Debug.WriteLine($"Function '{functionName}': Execution failed -> {exc}");
-
-                return handle?.Invoke(exc) ?? retryAttribute.RetryHandler?.Handle(exc) ?? true;
-            }
+            return handle?.Invoke(exc) ?? retryAttribute.RetryHandler?.Handle(exc) ?? true;
         }
     }
 }

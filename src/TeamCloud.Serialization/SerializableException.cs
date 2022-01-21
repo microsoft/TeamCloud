@@ -8,69 +8,67 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
-namespace TeamCloud.Serialization
+namespace TeamCloud.Serialization;
+
+[Serializable]
+[SuppressMessage("Design", "CA1032:Implement standard exception constructors", Justification = "Explicit non-standard implementation.")]
+public class SerializableException : Exception
 {
+    private readonly string ClassNameOriginal;
 
-    [Serializable]
-    [SuppressMessage("Design", "CA1032:Implement standard exception constructors", Justification = "Explicit non-standard implementation.")]
-    public class SerializableException : Exception
+    internal SerializableException(Exception innerException) : base(innerException?.Message ?? string.Empty, innerException)
     {
-        private readonly string ClassNameOriginal;
+        if (InnerException is null)
+            throw new ArgumentNullException(nameof(innerException));
 
-        internal SerializableException(Exception innerException) : base(innerException?.Message ?? string.Empty, innerException)
+        ClassNameOriginal = innerException.GetType().FullName;
+    }
+
+    protected SerializableException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
+        ClassNameOriginal = info.GetString(nameof(ClassNameOriginal));
+    }
+
+    private string MessageSuffix => InnerException is null ? null : $" ({InnerException.GetType().FullName})";
+
+    public override IDictionary Data => InnerException?.Data ?? base.Data;
+
+    public override string HelpLink { get => InnerException?.HelpLink ?? base.HelpLink; }
+
+    public override string Message => $"{InnerException?.Message ?? base.Message}{MessageSuffix}";
+
+    public override string Source { get => InnerException?.Source ?? base.Source; }
+
+    public override string StackTrace => InnerException?.StackTrace ?? base.StackTrace;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+        if (info is null)
+            throw new ArgumentNullException(nameof(info));
+
+        if (InnerException is null)
         {
-            if (InnerException is null)
-                throw new ArgumentNullException(nameof(innerException));
-
-            ClassNameOriginal = innerException.GetType().FullName;
+            base.GetObjectData(info, context);
         }
-
-        protected SerializableException(SerializationInfo info, StreamingContext context) : base(info, context)
+        else
         {
-            ClassNameOriginal = info.GetString(nameof(ClassNameOriginal));
-        }
+            var innerExceptionInfo = new SerializationInfo(info.ObjectType, new FormatterConverter());
 
-        private string MessageSuffix => InnerException is null ? null : $" ({InnerException.GetType().FullName})";
+            InnerException.GetObjectData(innerExceptionInfo, context);
 
-        public override IDictionary Data => InnerException?.Data ?? base.Data;
-
-        public override string HelpLink { get => InnerException?.HelpLink ?? base.HelpLink; }
-
-        public override string Message => $"{InnerException?.Message ?? base.Message}{MessageSuffix}";
-
-        public override string Source { get => InnerException?.Source ?? base.Source; }
-
-        public override string StackTrace => InnerException?.StackTrace ?? base.StackTrace;
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            if (info is null)
-                throw new ArgumentNullException(nameof(info));
-
-            if (InnerException is null)
+            foreach (var innerExceptionInfoEntry in innerExceptionInfo)
             {
-                base.GetObjectData(info, context);
+                if (innerExceptionInfoEntry.Name.Equals("ClassName", StringComparison.Ordinal) && innerExceptionInfoEntry.ObjectType == typeof(string))
+                    info.AddValue(innerExceptionInfoEntry.Name, this.GetType().FullName, innerExceptionInfoEntry.ObjectType);
+                else if (innerExceptionInfoEntry.Name.Equals("Message", StringComparison.Ordinal) && innerExceptionInfoEntry.ObjectType == typeof(string))
+                    info.AddValue(innerExceptionInfoEntry.Name, Message, innerExceptionInfoEntry.ObjectType);
+                else if (innerExceptionInfoEntry.Value is Exception exception && !exception.IsSerializable())
+                    info.AddValue(innerExceptionInfoEntry.Name, null, innerExceptionInfoEntry.ObjectType);
+                else
+                    info.AddValue(innerExceptionInfoEntry.Name, innerExceptionInfoEntry.Value, innerExceptionInfoEntry.ObjectType);
             }
-            else
-            {
-                var innerExceptionInfo = new SerializationInfo(info.ObjectType, new FormatterConverter());
-
-                InnerException.GetObjectData(innerExceptionInfo, context);
-
-                foreach (var innerExceptionInfoEntry in innerExceptionInfo)
-                {
-                    if (innerExceptionInfoEntry.Name.Equals("ClassName", StringComparison.Ordinal) && innerExceptionInfoEntry.ObjectType == typeof(string))
-                        info.AddValue(innerExceptionInfoEntry.Name, this.GetType().FullName, innerExceptionInfoEntry.ObjectType);
-                    else if (innerExceptionInfoEntry.Name.Equals("Message", StringComparison.Ordinal) && innerExceptionInfoEntry.ObjectType == typeof(string))
-                        info.AddValue(innerExceptionInfoEntry.Name, Message, innerExceptionInfoEntry.ObjectType);
-                    else if (innerExceptionInfoEntry.Value is Exception exception && !exception.IsSerializable())
-                        info.AddValue(innerExceptionInfoEntry.Name, null, innerExceptionInfoEntry.ObjectType);
-                    else
-                        info.AddValue(innerExceptionInfoEntry.Name, innerExceptionInfoEntry.Value, innerExceptionInfoEntry.ObjectType);
-                }
-            }
-
-            info.AddValue(nameof(ClassNameOriginal), ClassNameOriginal);
         }
+
+        info.AddValue(nameof(ClassNameOriginal), ClassNameOriginal);
     }
 }

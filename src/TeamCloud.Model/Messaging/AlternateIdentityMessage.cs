@@ -6,13 +6,12 @@
 using TeamCloud.Notification;
 using TeamCloud.Templates;
 
-namespace TeamCloud.Model.Messaging
+namespace TeamCloud.Model.Messaging;
+
+public sealed class AlternateIdentityMessage : NotificationMessage, INotificationMessage<AlternateIdentityMessageData>
 {
-    public sealed class AlternateIdentityMessage : NotificationMessage, INotificationMessage<AlternateIdentityMessageData>
+    public void Merge(AlternateIdentityMessageData data)
     {
-        public void Merge(AlternateIdentityMessageData data)
-        {
-            Body = Body?.Merge(data);
-        }
+        Body = Body?.Merge(data);
     }
 }

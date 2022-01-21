@@ -1,0 +1,12 @@
+{
+  "ui:order": [
+    "*",
+    "rootNamespace"
+  ],
+  "yaml": {
+    "ui:widget": "textarea",
+    "ui:options": {
+      "rows": 5
+    }
+  }
+}

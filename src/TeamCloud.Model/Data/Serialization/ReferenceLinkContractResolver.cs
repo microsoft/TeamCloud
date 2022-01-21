@@ -5,8 +5,6 @@
 
 using TeamCloud.Serialization.Resolver;
 
-namespace TeamCloud.Model.Data.Serialization
-{
-    internal class ReferenceLinkContractResolver : SuppressConverterContractResolver<ReferenceLinkConverter>
-    { }
-}
+namespace TeamCloud.Model.Data.Serialization;
+
+internal class ReferenceLinkContractResolver : SuppressConverterContractResolver<ReferenceLinkConverter> { }

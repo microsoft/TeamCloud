@@ -10,77 +10,76 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json.Serialization;
 
-namespace TeamCloud.Serialization.Encryption
+namespace TeamCloud.Serialization.Encryption;
+
+public sealed class EncryptedValueProvider : IValueProvider
 {
-    public sealed class EncryptedValueProvider : IValueProvider
+    public static IDataProtectionProvider DefaultDataProtectionProvider { get; set; }
+
+    private static Type GetMemberType(MemberInfo member) => member switch
     {
-        public static IDataProtectionProvider DefaultDataProtectionProvider { get; set; }
+        // we support properties with string as value type
+        PropertyInfo propertyInfo => propertyInfo.PropertyType,
 
-        private static Type GetMemberType(MemberInfo member) => member switch
+        // we support fields with string as value type
+        FieldInfo fieldInfo => fieldInfo.FieldType,
+
+        // we don't support encryption by default
+        _ => null
+    };
+
+    private static bool IsSupported(MemberInfo member)
+        => GetMemberType(member) == typeof(string);
+
+    private readonly MemberInfo member;
+    private readonly IValueProvider innerValueProvider;
+    private readonly IDataProtectionProvider dataProtectionProvider;
+
+    public EncryptedValueProvider(MemberInfo member, IValueProvider innerValueProvider, IDataProtectionProvider dataProtectionProvider = null)
+    {
+        this.member = member ?? throw new ArgumentNullException(nameof(member));
+        this.innerValueProvider = innerValueProvider ?? throw new ArgumentNullException(nameof(innerValueProvider));
+        this.dataProtectionProvider = dataProtectionProvider ?? DefaultDataProtectionProvider;
+    }
+
+    public object GetValue(object target)
+    {
+        var value = innerValueProvider.GetValue(target);
+
+        if (IsSupported(member) && value is not null)
         {
-            // we support properties with string as value type
-            PropertyInfo propertyInfo => propertyInfo.PropertyType,
+            Debug.WriteLine($"Encrypt {member.Name} @ {target}");
 
-            // we support fields with string as value type
-            FieldInfo fieldInfo => fieldInfo.FieldType,
-
-            // we don't support encryption by default
-            _ => null
-        };
-
-        private static bool IsSupported(MemberInfo member)
-            => GetMemberType(member) == typeof(string);
-
-        private readonly MemberInfo member;
-        private readonly IValueProvider innerValueProvider;
-        private readonly IDataProtectionProvider dataProtectionProvider;
-
-        public EncryptedValueProvider(MemberInfo member, IValueProvider innerValueProvider, IDataProtectionProvider dataProtectionProvider = null)
-        {
-            this.member = member ?? throw new ArgumentNullException(nameof(member));
-            this.innerValueProvider = innerValueProvider ?? throw new ArgumentNullException(nameof(innerValueProvider));
-            this.dataProtectionProvider = dataProtectionProvider ?? DefaultDataProtectionProvider;
+            value = dataProtectionProvider?
+                .CreateProtector(this.GetType().FullName)?
+                .Protect(value as string) ?? value;
         }
 
-        public object GetValue(object target)
+        return value;
+    }
+
+    public void SetValue(object target, object value)
+    {
+        if (IsSupported(member) && value is not null)
         {
-            var value = innerValueProvider.GetValue(target);
+            Debug.WriteLine($"Decrypt {member.Name} @ {target}");
 
-            if (IsSupported(member) && value != null)
+            try
             {
-                Debug.WriteLine($"Encrypt {member.Name} @ {target}");
-
                 value = dataProtectionProvider?
                     .CreateProtector(this.GetType().FullName)?
-                    .Protect(value as string) ?? value;
+                    .Unprotect(value as string) ?? value;
             }
-
-            return value;
-        }
-
-        public void SetValue(object target, object value)
-        {
-            if (IsSupported(member) && value != null)
+            catch (CryptographicException)
             {
-                Debug.WriteLine($"Decrypt {member.Name} @ {target}");
+                var memberType = GetMemberType(member);
 
-                try
-                {
-                    value = dataProtectionProvider?
-                        .CreateProtector(this.GetType().FullName)?
-                        .Unprotect(value as string) ?? value;
-                }
-                catch (CryptographicException)
-                {
-                    var memberType = GetMemberType(member);
-
-                    value = memberType?.IsValueType ?? false
-                        ? Activator.CreateInstance(memberType)
-                        : null;
-                }
+                value = memberType?.IsValueType ?? false
+                    ? Activator.CreateInstance(memberType)
+                    : null;
             }
-
-            innerValueProvider.SetValue(target, value);
         }
+
+        innerValueProvider.SetValue(target, value);
     }
 }

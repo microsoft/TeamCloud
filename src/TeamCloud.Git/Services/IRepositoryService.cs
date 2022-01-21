@@ -7,14 +7,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Git.Services
+namespace TeamCloud.Git.Services;
+
+public interface IRepositoryService
 {
-    public interface IRepositoryService
-    {
-        Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate);
+    Task<ProjectTemplate> UpdateProjectTemplateAsync(ProjectTemplate projectTemplate);
 
-        Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId);
+    Task<ComponentTemplate> GetComponentTemplateAsync(ProjectTemplate projectTemplate, string templateId);
 
-        IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate);
-    }
+    IAsyncEnumerable<ComponentTemplate> GetComponentTemplatesAsync(ProjectTemplate projectTemplate);
 }

@@ -5,19 +5,18 @@
 
 using System;
 
-namespace TeamCloud.Azure.Deployment
+namespace TeamCloud.Azure.Deployment;
+
+public interface IAzureDeploymentOptions
 {
-    public interface IAzureDeploymentOptions
-    {
-        string DefaultLocation { get; }
-    }
+    string DefaultLocation { get; }
+}
 
-    internal sealed class AzureDeploymentOptions : IAzureDeploymentOptions
-    {
-        public static IAzureDeploymentOptions Default => new AzureDeploymentOptions();
+internal sealed class AzureDeploymentOptions : IAzureDeploymentOptions
+{
+    public static IAzureDeploymentOptions Default => new AzureDeploymentOptions();
 
-        private AzureDeploymentOptions() { }
+    private AzureDeploymentOptions() { }
 
-        public string DefaultLocation { get; } = Environment.GetEnvironmentVariable("REGION_NAME");
-    }
+    public string DefaultLocation { get; } = Environment.GetEnvironmentVariable("REGION_NAME");
 }

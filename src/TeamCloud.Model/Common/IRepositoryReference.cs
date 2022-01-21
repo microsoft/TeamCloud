@@ -5,10 +5,9 @@
 
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Model.Common
+namespace TeamCloud.Model.Common;
+
+public interface IRepositoryReference
 {
-    public interface IRepositoryReference
-    {
-        RepositoryReference Repository { get; set; }
-    }
+    RepositoryReference Repository { get; set; }
 }

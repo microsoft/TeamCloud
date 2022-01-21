@@ -3,6 +3,11 @@
 Release History
 ===============
 
+0.5.1
+++++++
++ Deploy all apps on linux app services
++ Support local index.json and resources
+
 0.5.0
 ++++++
 + Deploy web and api in same resource group

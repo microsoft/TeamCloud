@@ -8,31 +8,38 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using TeamCloud.Model.Data;
+using TeamCloud.Validation.Providers;
 
-namespace TeamCloud.Adapters
+namespace TeamCloud.Adapters;
+
+public sealed class AdapterProvider : IAdapterProvider, IAdapterProviderConfig
 {
-    public sealed class AdapterProvider : IAdapterProvider, IAdapterConfiguration
+    private static readonly HashSet<Type> adapterTypes = new();
+
+    private readonly IServiceProvider serviceProvider;
+
+    internal AdapterProvider(IServiceProvider serviceProvider)
     {
-        private static readonly HashSet<Type> adapterTypes = new HashSet<Type>();
+        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    }
 
-        private readonly IServiceProvider serviceProvider;
+    public IEnumerable<IAdapter> GetAdapters()
+        => adapterTypes.Select(adapterType => (IAdapter)ActivatorUtilities.CreateInstance(serviceProvider, adapterType));
 
-        internal AdapterProvider(IServiceProvider serviceProvider)
+    public IAdapter GetAdapter(DeploymentScopeType deploymentScopeType)
+        => GetAdapters().SingleOrDefault(adapter => adapter.Type == deploymentScopeType);
+
+    IAdapterProviderConfig IAdapterProviderConfig.Register<TAdapter>()
+    {
+        adapterTypes.Add(typeof(TAdapter));
+
+        var validatorProvider = serviceProvider.GetService<IValidatorProvider>();
+
+        if (validatorProvider is IValidatorProviderConfig config)
         {
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            config?.Register(typeof(TAdapter).Assembly);
         }
 
-        public IEnumerable<IAdapter> GetAdapters()
-            => adapterTypes.Select(adapterType => (IAdapter)ActivatorUtilities.CreateInstance(serviceProvider, adapterType));
-
-        public IAdapter GetAdapter(DeploymentScopeType deploymentScopeType)
-            => GetAdapters().SingleOrDefault(adapter => adapter.Type == deploymentScopeType);
-
-        IAdapterConfiguration IAdapterConfiguration.Register<TAdapter>()
-        {
-            adapterTypes.Add(typeof(TAdapter));
-
-            return this; // fluent style
-        }
+        return this; // fluent style
     }
 }

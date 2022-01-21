@@ -11,43 +11,42 @@ using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Serialization;
 
-namespace TeamCloud.Orchestrator.Command.Activities.Components
+namespace TeamCloud.Orchestrator.Command.Activities.Components;
+
+public sealed class ComponentSetActivity
 {
-    public sealed class ComponentSetActivity
+    private readonly IComponentRepository componentRepository;
+
+    public ComponentSetActivity(IComponentRepository componentRepository)
     {
-        private readonly IComponentRepository componentRepository;
+        this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
+    }
 
-        public ComponentSetActivity(IComponentRepository componentRepository)
+    [FunctionName(nameof(ComponentSetActivity))]
+    public async Task<Component> Run(
+        [ActivityTrigger] IDurableActivityContext context)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+
+        var input = context.GetInput<Input>();
+
+        try
         {
-            this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
-        }
+            var component = await componentRepository
+                .SetAsync(input.Component)
+                .ConfigureAwait(false);
 
-        [FunctionName(nameof(ComponentSetActivity))]
-        public async Task<Component> Run(
-            [ActivityTrigger] IDurableActivityContext context)
+            return component;
+        }
+        catch (Exception exc)
         {
-            if (context is null)
-                throw new ArgumentNullException(nameof(context));
-
-            var input = context.GetInput<Input>();
-
-            try
-            {
-                var component = await componentRepository
-                    .SetAsync(input.Component)
-                    .ConfigureAwait(false);
-
-                return component;
-            }
-            catch (Exception exc)
-            {
-                throw exc.AsSerializable();
-            }
+            throw exc.AsSerializable();
         }
+    }
 
-        internal struct Input
-        {
-            public Component Component { get; set; }
-        }
+    internal struct Input
+    {
+        public Component Component { get; set; }
     }
 }

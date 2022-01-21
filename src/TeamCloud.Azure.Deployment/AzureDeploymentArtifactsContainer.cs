@@ -3,12 +3,11 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Azure.Deployment
-{
-    public interface IAzureDeploymentArtifactsContainer
-    {
-        string Location { get; }
+namespace TeamCloud.Azure.Deployment;
 
-        string Token { get; }
-    }
+public interface IAzureDeploymentArtifactsContainer
+{
+    string Location { get; }
+
+    string Token { get; }
 }

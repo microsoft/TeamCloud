@@ -10,28 +10,27 @@ using Microsoft.Azure.WebJobs;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 
-namespace TeamCloud.Adapters
+namespace TeamCloud.Adapters;
+
+public interface IAdapter
 {
-    public interface IAdapter
-    {
-        DeploymentScopeType Type { get; }
+    DeploymentScopeType Type { get; }
 
-        string DisplayName { get; }
+    string DisplayName { get; }
 
-        IEnumerable<ComponentType> ComponentTypes { get; }
+    IEnumerable<ComponentType> ComponentTypes { get; }
 
-        Task<string> GetInputDataSchemaAsync();
+    Task<string> GetInputDataSchemaAsync();
 
-        Task<string> GetInputFormSchemaAsync();
+    Task<string> GetInputFormSchemaAsync();
 
-        Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
+    Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope);
 
-        Task<Component> CreateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
+    Task<Component> CreateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-        Task<Component> UpdateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
+    Task<Component> UpdateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-        Task<Component> DeleteComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
+    Task<Component> DeleteComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
-        Task<NetworkCredential> GetServiceCredentialAsync(Component component);
-    }
+    Task<NetworkCredential> GetServiceCredentialAsync(Component component);
 }

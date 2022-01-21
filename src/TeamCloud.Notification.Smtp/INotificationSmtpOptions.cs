@@ -3,22 +3,21 @@
  *  Licensed under the MIT License.
  */
 
-namespace TeamCloud.Notification.Smtp
+namespace TeamCloud.Notification.Smtp;
+
+public interface INotificationSmtpOptions
 {
-    public interface INotificationSmtpOptions
-    {
-        string Host { get; }
+    string Host { get; }
 
-        int Port { get; }
+    int Port { get; }
 
-        bool SSL { get; }
+    bool SSL { get; }
 
-        string Username { get; }
+    string Username { get; }
 
-        string Password { get; }
+    string Password { get; }
 
-        string SenderAddress { get; }
+    string SenderAddress { get; }
 
-        string SenderName { get; }
-    }
+    string SenderName { get; }
 }
