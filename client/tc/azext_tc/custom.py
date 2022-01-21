@@ -80,6 +80,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
         }
 
     parameters = []
+    parameters.append(f'doSleepHack={skip_name_validation is False}')
     parameters.append(f'webAppName={name}')
     parameters.append(f"resourceManagerIdentityClientId={resource_manager_sp['appId']}")
     parameters.append(f"resourceManagerIdentityClientSecret={resource_manager_sp['password']}")
@@ -115,19 +116,22 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
         from azure.cli.command_modules.appservice.custom import (enable_zip_deploy_functionapp,
                                                                  enable_zip_deploy_webapp)
 
+        timeout = 1800
+
         cmd.command_kwargs['resource_type'] = ResourceType.MGMT_APPSERVICE
 
         hook.add(message='Deploying Orchestrator source code')
         logger.warning('Starting deployment of Orchestrator source code')
-        enable_zip_deploy_functionapp(cmd, resource_group_name, orchestrator_app_name, orchestrator_zip_url)
+        enable_zip_deploy_functionapp(cmd, resource_group_name, orchestrator_app_name,
+                                      orchestrator_zip_url, timeout=timeout)
 
         hook.add(message='Deploying API source code')
         logger.warning('Starting deployment of API source code')
-        enable_zip_deploy_webapp(cmd, resource_group_name, api_app_name, api_zip_url)
+        enable_zip_deploy_webapp(cmd, resource_group_name, api_app_name, api_zip_url, timeout=timeout)
 
         hook.add(message='Deploying Web app source code')
         logger.warning('Starting deployment of Web source code')
-        enable_zip_deploy_webapp(cmd, resource_group_name, web_app_name, web_zip_url)
+        enable_zip_deploy_webapp(cmd, resource_group_name, web_app_name, web_zip_url, timeout=timeout)
 
         version_string = version or 'the latest version'
         hook.add(message=f'Successfully created TeamCloud instance ({version_string})')

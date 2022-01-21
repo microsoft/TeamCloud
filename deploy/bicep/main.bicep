@@ -157,6 +157,10 @@ module orchestratorKey 'functionKey.bicep' = {
   }
   dependsOn: [
     sleepHack
+    orchestrator
+    orchestratorPolicy
+    orchestratorRole
+    signalr
   ]
 }
 
