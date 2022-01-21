@@ -10,7 +10,7 @@ from azure.cli.core.profiles import ResourceType
 from azure.cli.core.commands.client_factory import get_mgmt_service_client
 
 
-class JsonCTemplate:
+class JsonCTemplate:  # pylint: disable=too-few-public-methods
     def __init__(self, template_as_bytes):
         self.template_as_bytes = template_as_bytes
 
@@ -25,7 +25,7 @@ class JSONSerializer(Serializer):
                 data_as_dict["properties"]["template"] = JsonCTemplate(template)
 
                 return data_as_dict
-        return super(JSONSerializer, self).body(data, data_type, **kwargs)
+        return super().body(data, data_type, **kwargs)
 
 
 class JsonCTemplatePolicy(SansIOHTTPPolicy):
@@ -64,6 +64,7 @@ def resource_client_factory(cli_ctx, **_):
     return get_mgmt_service_client(cli_ctx, ResourceType.MGMT_RESOURCE_RESOURCES)
 
 
+# pylint: disable=protected-access
 def deployment_client_factory(cli_ctx, **_):
 
     smc = resource_client_factory(cli_ctx)

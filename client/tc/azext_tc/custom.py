@@ -5,7 +5,6 @@
 # pylint: disable=unused-argument, protected-access, too-many-lines
 # pylint: disable=too-many-locals, too-many-statements
 
-from tempfile import template
 from knack.util import CLIError
 from knack.log import get_logger
 
@@ -31,9 +30,9 @@ def teamcloud_update(cmd, version=None, prerelease=False):
 
     if not index_url:
         raise CLIError(
-            'Could not find index.json asset on release {}. '
+            f"Could not find index.json asset on release {release['tag_name']}. "
             'Specify a specific prerelease version with --version '
-            'or use latest prerelease with --pre'.format(release['tag_name']))
+            'or use latest prerelease with --pre')
 
     update_extension(cmd, extension_name='tc', index_url=index_url)
 
@@ -44,9 +43,8 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
                      index_file=None, index_url=None, scope=None):
     from azure.cli.core._profile import Profile
     from ._deploy_utils import (
-        deploy_arm_template_at_resource_group, get_resource_group_by_name,
-        create_resource_group_name, create_resource_manager_sp, set_appconfig_keys, zip_deploy_app,
-        get_arm_output, get_teamcloud_index)
+        deploy_arm_template_at_resource_group, get_resource_group_by_name, get_arm_output,
+        create_resource_group_name, create_resource_manager_sp, get_teamcloud_index)
 
     cli_ctx = cmd.cli_ctx
 
@@ -57,14 +55,14 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
     version, deploy_url, api_zip_url, orchestrator_zip_url, web_zip_url = get_teamcloud_index(
         cli_ctx, version, prerelease, index_file, index_url)
 
-    hook.add(message='Getting resource group {}'.format(resource_group_name))
+    hook.add(message=f'Getting resource group {resource_group_name}')
     rg, _ = get_resource_group_by_name(cli_ctx, resource_group_name)
     if rg is None:
         if location is None:
             raise CLIError(
-                "--location/-l is required if resource group '{}' does not exist".format(resource_group_name))
-        hook.add(message="Resource group '{}' not found".format(resource_group_name))
-        hook.add(message="Creating resource group '{}'".format(resource_group_name))
+                f"--location/-l is required if resource group '{resource_group_name}' does not exist")
+        hook.add(message=f"Resource group '{resource_group_name}' not found")
+        hook.add(message=f"Creating resource group '{resource_group_name}'")
         rg, _ = create_resource_group_name(cli_ctx, resource_group_name, location)
 
     profile = Profile(cli_ctx=cli_ctx)
@@ -82,17 +80,16 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
         }
 
     parameters = []
-    parameters.append('webAppName={}'.format(name))
-    parameters.append('resourceManagerIdentityClientId={}'.format(resource_manager_sp['appId']))
-    parameters.append('resourceManagerIdentityClientSecret={}'.format(
-        resource_manager_sp['password']))
-    parameters.append('reactAppMsalClientId={}'.format(client_id))
+    parameters.append(f'webAppName={name}')
+    parameters.append(f"resourceManagerIdentityClientId={resource_manager_sp['appId']}")
+    parameters.append(f"resourceManagerIdentityClientSecret={resource_manager_sp['password']}")
+    parameters.append(f'reactAppMsalClientId={client_id}')
 
     if version:
-        parameters.append('reactAppVersion={}'.format(version))
+        parameters.append(f'reactAppVersion={version}')
 
     if scope:
-        parameters.append('reactAppMsalScope={}'.format(scope))
+        parameters.append(f'reactAppMsalScope={scope}')
 
     remote_deploy = deploy_url.lower().startswith('https://') or deploy_url.lower().startswith('http://')
     local_url = deploy_url if not remote_deploy else None
@@ -115,7 +112,8 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
             'To deploy the applications use `az tc upgrade`.')
     else:
         from azure.cli.core.profiles import ResourceType
-        from azure.cli.command_modules.appservice.custom import (enable_zip_deploy_functionapp, enable_zip_deploy_webapp)
+        from azure.cli.command_modules.appservice.custom import (enable_zip_deploy_functionapp,
+                                                                 enable_zip_deploy_webapp)
 
         cmd.command_kwargs['resource_type'] = ResourceType.MGMT_APPSERVICE
 
@@ -132,7 +130,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
         enable_zip_deploy_webapp(cmd, resource_group_name, web_app_name, web_zip_url)
 
         version_string = version or 'the latest version'
-        hook.add(message='Successfully created TeamCloud instance ({})'.format(version_string))
+        hook.add(message=f'Successfully created TeamCloud instance ({version_string})')
 
     hook.end(message=' ')
     logger.warning(' ')
@@ -210,7 +208,7 @@ def deployment_scope_create(cmd, client, base_url, org, scope, scope_type='Azure
 
     adapter = next((a for a in adapters.data if a.type == scope_type), None)
     if adapter is None:
-        raise CLIError("Adapter not found of type '{}'".format(scope_type))
+        raise CLIError(f"Adapter not found of type '{scope_type}'")
 
     input_data_schema = json.loads(adapter.input_data_schema)
     input_ui_schema = json.loads(adapter.input_data_form)

@@ -15,16 +15,13 @@ from azure.cli.core.profiles import ResourceType, get_sdk
 from azure.cli.core.util import (can_launch_browser, open_page_in_browser, in_cloud_console,
                                  random_string, sdk_no_wait, should_disable_connection_verify)
 
-from ._client_factory import (deployment_client_factory, resource_client_factory, web_client_factory)
+from ._client_factory import (deployment_client_factory, resource_client_factory)
 
 
-ERR_TMPL_PRDR_INDEX = 'Unable to get provider index.\n'
-ERR_TMPL_NON_200 = '{}Server returned status code {{}} for {{}}'.format(ERR_TMPL_PRDR_INDEX)
-ERR_TMPL_NO_NETWORK = '{}Please ensure you have network connection. Error detail: {{}}'.format(
-    ERR_TMPL_PRDR_INDEX)
-ERR_TMPL_BAD_JSON = '{}Response body does not contain valid json. Error detail: {{}}'.format(
-    ERR_TMPL_PRDR_INDEX)
-
+ERR_TMPL_INDEX = 'Unable to get provider index.\n'
+ERR_TMPL_NON_200 = f'{ERR_TMPL_INDEX}Server returned status code {{}} for {{}}'
+ERR_TMPL_NO_NETWORK = f'{ERR_TMPL_INDEX}Please ensure you have network connection. Error detail: {{}}'
+ERR_TMPL_BAD_JSON = f'{ERR_TMPL_INDEX}Response body does not contain valid json. Error detail: {{}}'
 ERR_UNABLE_TO_GET_TEAMCLOUD = 'Unable to get teamcloud from index. Improper index format.'
 
 TRIES = 3
@@ -37,7 +34,7 @@ def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=
         raise CLIError(
             'usage error: can only use one of --version/-v | --pre')
 
-    url = 'https://api.github.com/repos/{}/{}/releases'.format(org, repo)
+    url = f'https://api.github.com/repos/{org}/{repo}/releases'
 
     if prerelease:
         version_res = requests.get(url, verify=not should_disable_connection_verify())
@@ -45,19 +42,19 @@ def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=
 
         version_prerelease = next((v for v in version_json if v['prerelease']), None)
         if not version_prerelease:
-            raise CLIError('--pre no prerelease versions found for {}/{}'.format(org, repo))
+            raise CLIError(f'--pre no prerelease versions found for {org}/{repo}')
 
         return version_prerelease
 
-    url += ('/tags/{}'.format(version) if version else '/latest')
+    url += (f'/tags/{version}' if version else '/latest')
 
     version_res = requests.get(url, verify=not should_disable_connection_verify())
 
     if version_res.status_code == 404:
         raise CLIError(
-            'No release version exists for {}/{}. '
+            f'No release version exists for {org}/{repo}. '
             'Specify a specific prerelease version with --version '
-            'or use latest prerelease with --pre'.format(org, repo))
+            'or use latest prerelease with --pre')
 
     return version_res.json()
 
@@ -68,7 +65,7 @@ def get_github_latest_release_version(cli_ctx, repo, org='microsoft', prerelease
 
 
 def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
-    version_url = 'https://api.github.com/repos/{}/{}/releases/tags/{}'.format(org, repo, version)
+    version_url = f'https://api.github.com/repos/{org}/{repo}/releases/tags/{version}'
     version_res = requests.get(version_url, verify=not should_disable_connection_verify())
     return version_res.status_code < 400
 
@@ -171,7 +168,7 @@ def open_url_in_browser(url):
         open_page_in_browser(url)
     else:
         print("There isn't an available browser finish the setup. Please copy and paste the url"
-              " below in a browser to complete the configuration.\n\n{}\n\n".format(url))
+              f" below in a browser to complete the configuration.\n\n{url}\n\n")
 
 
 def get_index(index_url):
@@ -207,8 +204,7 @@ def get_teamcloud_index(cli_ctx, version=None, prerelease=False, index_file=None
         if index_url is None:
             version = version or get_github_latest_release_version(
                 cli_ctx, 'TeamCloud', prerelease=prerelease)
-            index_url = 'https://github.com/microsoft/TeamCloud/releases/download/{}/index.json'.format(
-                version)
+            index_url = f'https://github.com/microsoft/TeamCloud/releases/download/{version}/index.json'
         index = get_index(index_url=index_url)
 
     teamcloud = index.get('teamcloud')
@@ -236,7 +232,7 @@ def get_arm_output(outputs, key, raise_on_error=True):
     except KeyError as e:
         if raise_on_error:
             raise CLIError(
-                "A value for '{}' was not provided in the ARM template outputs".format(key)) from e
+                f"A value for '{key}' was not provided in the ARM template outputs") from e
         value = None
 
     return value
