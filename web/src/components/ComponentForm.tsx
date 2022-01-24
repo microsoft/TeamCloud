@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ActionButton, DefaultButton, Dropdown, FontIcon, getTheme, IColumn, IconButton, IDropdownOption, Image, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm'
@@ -22,7 +22,7 @@ export const ComponentForm: React.FC = () => {
     const deviderRe = /^(?:-{3,})$/gm
     const imageOrLinkRe = /^(?:!?\[[^\]]*\]\([^[\]()]*\))$/gm
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [template, setTemplate] = useState<ComponentTemplate>();
     const [deploymentScopeOptions, setDeploymentScopeOptions] = useState<IDropdownOption[]>();
@@ -165,7 +165,7 @@ export const ComponentForm: React.FC = () => {
             <ContentProgress progressHidden={formEnabled && !orgIsLoading && !scopesIsLoading && !projectIsLoading && !templatesIsLoading} />
             <ContentHeader title='New Component'>
                 <IconButton iconProps={{ iconName: 'ChromeClose' }}
-                    onClick={() => history.push(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
+                    onClick={() => navigate(`/orgs/${org?.slug}/projects/${project?.slug}`)} />
             </ContentHeader>
             <ContentContainer>
                 <Stack tokens={{ childrenGap: '40px' }}>
@@ -239,7 +239,7 @@ export const ComponentForm: React.FC = () => {
                                         backgroundColor: theme.palette.white
                                     }
                                 }}>
-                                    <ReactMarkdown plugins={[gfm]}>{template?.description ?? undefined as any}</ReactMarkdown>
+                                    <ReactMarkdown remarkPlugins={[gfm]}>{template?.description ?? undefined as any}</ReactMarkdown>
                                 </Stack.Item>
                             </Stack>
                         </Stack.Item>

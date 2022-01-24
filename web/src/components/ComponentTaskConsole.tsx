@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FocusZone, FocusZoneDirection, getTheme, IconButton, IList, Link, List, ScrollToMode, SearchBox, Stack, Text } from '@fluentui/react';
 import { ComponentTask, KnownComponentTaskState } from 'teamcloud';
 import { ContentSeparator } from '.';
@@ -14,7 +14,7 @@ export interface IComponentTaskConsoleProps {
 
 export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsoleProps> = (props) => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const theme = getTheme();
@@ -110,7 +110,7 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
 
         return (
             <Stack
-                onClick={() => history.push(`#${item.line}`)}
+                onClick={() => navigate(`#${item.line}`)}
                 horizontal
                 verticalAlign='start'
                 styles={{
@@ -173,39 +173,39 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
                         </Stack>
                     </Stack.Item>
                     <Stack.Item>
-                        <Stack tokens={{ childrenGap: '4px'}} horizontal>
+                        <Stack tokens={{ childrenGap: '4px' }} horizontal>
                             <SearchBox onChange={(_ev, val) => setOutputFilter(val)} styles={_searchBoxStyles} />
-                            <IconButton 
-                                iconProps={{ 
-                                    iconName: followOutput ? 'ChevronDownEnd6' : 'GlobalNavButton', 
-                                    styles: { 
-                                        root: { 
-                                            color: textColor, 
+                            <IconButton
+                                iconProps={{
+                                    iconName: followOutput ? 'ChevronDownEnd6' : 'GlobalNavButton',
+                                    styles: {
+                                        root: {
+                                            color: textColor,
                                             backgroundColor: bgColor
                                         }
-                                    } 
-                                }} 
+                                    }
+                                }}
                                 styles={{
                                     root: {
-                                        color: textColor, 
+                                        color: textColor,
                                         backgroundColor: bgColor,
                                         '&:active': {
-                                            color: textColor, 
+                                            color: textColor,
                                             backgroundColor: bgColor
                                         }
                                     },
-                                    rootHovered : {
-                                        color: textColor, 
+                                    rootHovered: {
+                                        color: textColor,
                                         backgroundColor: bgColor
                                     },
-                                    rootDisabled : {
-                                        color: textColor, 
+                                    rootDisabled: {
+                                        color: textColor,
                                         backgroundColor: bgColor
                                     }
                                 }}
                                 text="Follow output"
-                                onClick={() => isActiveComponentTaskState(task?.taskState as KnownComponentTaskState) ? setFollowOutput(!followOutput) : setFollowOutput(false) } 
-                                disabled={isFinalComponentTaskState(task?.taskState as KnownComponentTaskState)}/>
+                                onClick={() => isActiveComponentTaskState(task?.taskState as KnownComponentTaskState) ? setFollowOutput(!followOutput) : setFollowOutput(false)}
+                                disabled={isFinalComponentTaskState(task?.taskState as KnownComponentTaskState)} />
                         </Stack>
                     </Stack.Item>
                 </Stack>
@@ -213,23 +213,23 @@ export const ComponentTaskConsole: React.FunctionComponent<IComponentTaskConsole
             <Stack.Item>
                 <ContentSeparator color={theme.palette.neutralPrimary} />
             </Stack.Item>
-            <Stack.Item styles={{ 
-                root: { 
-                    overflowY: 'auto', 
-                    height: '100%', 
-                    padding: '0px 16px 16px 16px', 
-                    marginRight: '24px', 
+            <Stack.Item styles={{
+                root: {
+                    overflowY: 'auto',
+                    height: '100%',
+                    padding: '0px 16px 16px 16px',
+                    marginRight: '24px',
 
-                    '&::-webkit-scrollbar': { width: '8px', height: '3px'},
+                    '&::-webkit-scrollbar': { width: '8px', height: '3px' },
                     '&::-webkit-scrollbar-button': { display: 'none', backgroundColor: '#666' },
-                    '&::-webkit-scrollbar-track': {  backgroundColor: '#646464' },
+                    '&::-webkit-scrollbar-track': { backgroundColor: '#646464' },
                     '&::-webkit-scrollbar-track-piece': { backgroundColor: '#000' },
                     '&::-webkit-scrollbar-thumb': { height: '50px', backgroundColor: '#666', borderRadius: '3px' },
                     '&::-webkit-scrollbar-corner': { backgroundColor: '#646464' },
                     '&::-webkit-resizer': { backgroundColor: '#666' },
 
-                    } 
-                }} data-is-scrollable>
+                }
+            }} data-is-scrollable>
                 <FocusZone direction={FocusZoneDirection.vertical} >
                     <List
                         getPageSpecification={(i, r) => ({ height: 20 * 33, itemCount: 33 })}

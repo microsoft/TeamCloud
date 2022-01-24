@@ -13,141 +13,141 @@ import * as Mappers from "./models/mappers";
 import { TeamCloudContext } from "./teamCloudContext";
 import {
   TeamCloudOptionalParams,
-  TeamCloudGetAdaptersOptionalParams,
-  TeamCloudGetAdaptersResponse,
-  TeamCloudGetComponentsOptionalParams,
-  TeamCloudGetComponentsResponse,
-  TeamCloudCreateComponentOptionalParams,
-  TeamCloudCreateComponentResponse,
-  TeamCloudGetComponentOptionalParams,
-  TeamCloudGetComponentResponse,
-  TeamCloudDeleteComponentOptionalParams,
-  TeamCloudDeleteComponentResponse,
-  TeamCloudGetComponentTasksOptionalParams,
-  TeamCloudGetComponentTasksResponse,
-  TeamCloudCreateComponentTaskOptionalParams,
-  TeamCloudCreateComponentTaskResponse,
-  TeamCloudGetComponentTaskOptionalParams,
-  TeamCloudGetComponentTaskResponse,
-  TeamCloudCancelComponentTaskOptionalParams,
-  TeamCloudCancelComponentTaskResponse,
-  TeamCloudReRunComponentTaskOptionalParams,
-  TeamCloudReRunComponentTaskResponse,
-  TeamCloudGetComponentTemplatesOptionalParams,
-  TeamCloudGetComponentTemplatesResponse,
-  TeamCloudGetComponentTemplateOptionalParams,
-  TeamCloudGetComponentTemplateResponse,
-  TeamCloudGetDeploymentScopesOptionalParams,
-  TeamCloudGetDeploymentScopesResponse,
-  TeamCloudCreateDeploymentScopeOptionalParams,
-  TeamCloudCreateDeploymentScopeResponse,
-  TeamCloudGetDeploymentScopeOptionalParams,
-  TeamCloudGetDeploymentScopeResponse,
-  TeamCloudUpdateDeploymentScopeOptionalParams,
-  TeamCloudUpdateDeploymentScopeResponse,
-  TeamCloudDeleteDeploymentScopeOptionalParams,
-  TeamCloudDeleteDeploymentScopeResponse,
-  TeamCloudInitializeAuthorizationOptionalParams,
-  TeamCloudInitializeAuthorizationResponse,
-  TeamCloudNegotiateSignalROptionalParams,
-  TeamCloudGetAuditEntriesOptionalParams,
-  TeamCloudGetAuditEntriesResponse,
-  TeamCloudGetAuditEntryOptionalParams,
-  TeamCloudGetAuditEntryResponse,
-  TeamCloudGetAuditCommandsOptionalParams,
-  TeamCloudGetAuditCommandsResponse,
-  TeamCloudGetOrganizationsOptionalParams,
-  TeamCloudGetOrganizationsResponse,
-  TeamCloudCreateOrganizationOptionalParams,
-  TeamCloudCreateOrganizationResponse,
-  TeamCloudGetOrganizationOptionalParams,
-  TeamCloudGetOrganizationResponse,
-  TeamCloudDeleteOrganizationOptionalParams,
-  TeamCloudDeleteOrganizationResponse,
-  TeamCloudGetOrganizationUsersOptionalParams,
-  TeamCloudGetOrganizationUsersResponse,
-  TeamCloudCreateOrganizationUserOptionalParams,
-  TeamCloudCreateOrganizationUserResponse,
-  TeamCloudGetOrganizationUserOptionalParams,
-  TeamCloudGetOrganizationUserResponse,
-  TeamCloudUpdateOrganizationUserOptionalParams,
-  TeamCloudUpdateOrganizationUserResponse,
-  TeamCloudDeleteOrganizationUserOptionalParams,
-  TeamCloudDeleteOrganizationUserResponse,
-  TeamCloudGetOrganizationUserMeOptionalParams,
-  TeamCloudGetOrganizationUserMeResponse,
-  TeamCloudUpdateOrganizationUserMeOptionalParams,
-  TeamCloudUpdateOrganizationUserMeResponse,
-  TeamCloudGetProjectsOptionalParams,
-  TeamCloudGetProjectsResponse,
-  TeamCloudCreateProjectOptionalParams,
-  TeamCloudCreateProjectResponse,
-  TeamCloudGetProjectOptionalParams,
-  TeamCloudGetProjectResponse,
-  TeamCloudDeleteProjectOptionalParams,
-  TeamCloudDeleteProjectResponse,
-  TeamCloudGetProjectIdentitiesOptionalParams,
-  TeamCloudGetProjectIdentitiesResponse,
-  TeamCloudCreateProjectIdentityOptionalParams,
-  TeamCloudCreateProjectIdentityResponse,
-  TeamCloudGetProjectIdentityOptionalParams,
-  TeamCloudGetProjectIdentityResponse,
-  TeamCloudUpdateProjectIdentityOptionalParams,
-  TeamCloudUpdateProjectIdentityResponse,
-  TeamCloudDeleteProjectIdentityOptionalParams,
-  TeamCloudDeleteProjectIdentityResponse,
-  TeamCloudGetProjectTagsOptionalParams,
-  TeamCloudGetProjectTagsResponse,
-  TeamCloudCreateProjectTagOptionalParams,
-  TeamCloudCreateProjectTagResponse,
-  TeamCloudUpdateProjectTagOptionalParams,
-  TeamCloudUpdateProjectTagResponse,
-  TeamCloudGetProjectTagByKeyOptionalParams,
-  TeamCloudGetProjectTagByKeyResponse,
-  TeamCloudDeleteProjectTagOptionalParams,
-  TeamCloudDeleteProjectTagResponse,
-  TeamCloudGetProjectTemplatesOptionalParams,
-  TeamCloudGetProjectTemplatesResponse,
-  TeamCloudCreateProjectTemplateOptionalParams,
-  TeamCloudCreateProjectTemplateResponse,
-  TeamCloudGetProjectTemplateOptionalParams,
-  TeamCloudGetProjectTemplateResponse,
-  TeamCloudUpdateProjectTemplateOptionalParams,
-  TeamCloudUpdateProjectTemplateResponse,
-  TeamCloudDeleteProjectTemplateOptionalParams,
-  TeamCloudDeleteProjectTemplateResponse,
-  TeamCloudGetProjectUsersOptionalParams,
-  TeamCloudGetProjectUsersResponse,
-  TeamCloudCreateProjectUserOptionalParams,
-  TeamCloudCreateProjectUserResponse,
-  TeamCloudGetProjectUserOptionalParams,
-  TeamCloudGetProjectUserResponse,
-  TeamCloudUpdateProjectUserOptionalParams,
-  TeamCloudUpdateProjectUserResponse,
-  TeamCloudDeleteProjectUserOptionalParams,
-  TeamCloudDeleteProjectUserResponse,
-  TeamCloudGetProjectUserMeOptionalParams,
-  TeamCloudGetProjectUserMeResponse,
-  TeamCloudUpdateProjectUserMeOptionalParams,
-  TeamCloudUpdateProjectUserMeResponse,
-  TeamCloudGetSchedulesOptionalParams,
-  TeamCloudGetSchedulesResponse,
-  TeamCloudCreateScheduleOptionalParams,
-  TeamCloudCreateScheduleResponse,
-  TeamCloudGetScheduleOptionalParams,
-  TeamCloudGetScheduleResponse,
-  TeamCloudUpdateScheduleOptionalParams,
-  TeamCloudUpdateScheduleResponse,
-  TeamCloudRunScheduleOptionalParams,
-  TeamCloudRunScheduleResponse,
-  TeamCloudGetStatusOptionalParams,
-  TeamCloudGetStatusResponse,
-  TeamCloudGetProjectStatusOptionalParams,
-  TeamCloudGetProjectStatusResponse,
-  TeamCloudGetUserProjectsOptionalParams,
-  TeamCloudGetUserProjectsResponse,
-  TeamCloudGetUserProjectsMeOptionalParams,
-  TeamCloudGetUserProjectsMeResponse
+  GetAdaptersOptionalParams,
+  GetAdaptersResponse,
+  GetComponentsOptionalParams,
+  GetComponentsResponse,
+  CreateComponentOptionalParams,
+  CreateComponentResponse,
+  GetComponentOptionalParams,
+  GetComponentResponse,
+  DeleteComponentOptionalParams,
+  DeleteComponentResponse,
+  GetComponentTasksOptionalParams,
+  GetComponentTasksResponse,
+  CreateComponentTaskOptionalParams,
+  CreateComponentTaskResponse,
+  GetComponentTaskOptionalParams,
+  GetComponentTaskResponse,
+  CancelComponentTaskOptionalParams,
+  CancelComponentTaskResponse,
+  ReRunComponentTaskOptionalParams,
+  ReRunComponentTaskResponse,
+  GetComponentTemplatesOptionalParams,
+  GetComponentTemplatesResponse,
+  GetComponentTemplateOptionalParams,
+  GetComponentTemplateResponse,
+  GetDeploymentScopesOptionalParams,
+  GetDeploymentScopesResponse,
+  CreateDeploymentScopeOptionalParams,
+  CreateDeploymentScopeResponse,
+  GetDeploymentScopeOptionalParams,
+  GetDeploymentScopeResponse,
+  UpdateDeploymentScopeOptionalParams,
+  UpdateDeploymentScopeResponse,
+  DeleteDeploymentScopeOptionalParams,
+  DeleteDeploymentScopeResponse,
+  InitializeAuthorizationOptionalParams,
+  InitializeAuthorizationResponse,
+  NegotiateSignalROptionalParams,
+  GetAuditEntriesOptionalParams,
+  GetAuditEntriesResponse,
+  GetAuditEntryOptionalParams,
+  GetAuditEntryResponse,
+  GetAuditCommandsOptionalParams,
+  GetAuditCommandsResponse,
+  GetOrganizationsOptionalParams,
+  GetOrganizationsResponse,
+  CreateOrganizationOptionalParams,
+  CreateOrganizationResponse,
+  GetOrganizationOptionalParams,
+  GetOrganizationResponse,
+  DeleteOrganizationOptionalParams,
+  DeleteOrganizationResponse,
+  GetOrganizationUsersOptionalParams,
+  GetOrganizationUsersResponse,
+  CreateOrganizationUserOptionalParams,
+  CreateOrganizationUserResponse,
+  GetOrganizationUserOptionalParams,
+  GetOrganizationUserResponse,
+  UpdateOrganizationUserOptionalParams,
+  UpdateOrganizationUserResponse,
+  DeleteOrganizationUserOptionalParams,
+  DeleteOrganizationUserResponse,
+  GetOrganizationUserMeOptionalParams,
+  GetOrganizationUserMeResponse,
+  UpdateOrganizationUserMeOptionalParams,
+  UpdateOrganizationUserMeResponse,
+  GetProjectsOptionalParams,
+  GetProjectsResponse,
+  CreateProjectOptionalParams,
+  CreateProjectResponse,
+  GetProjectOptionalParams,
+  GetProjectResponse,
+  DeleteProjectOptionalParams,
+  DeleteProjectResponse,
+  GetProjectIdentitiesOptionalParams,
+  GetProjectIdentitiesResponse,
+  CreateProjectIdentityOptionalParams,
+  CreateProjectIdentityResponse,
+  GetProjectIdentityOptionalParams,
+  GetProjectIdentityResponse,
+  UpdateProjectIdentityOptionalParams,
+  UpdateProjectIdentityResponse,
+  DeleteProjectIdentityOptionalParams,
+  DeleteProjectIdentityResponse,
+  GetProjectTagsOptionalParams,
+  GetProjectTagsResponse,
+  CreateProjectTagOptionalParams,
+  CreateProjectTagResponse,
+  UpdateProjectTagOptionalParams,
+  UpdateProjectTagResponse,
+  GetProjectTagByKeyOptionalParams,
+  GetProjectTagByKeyResponse,
+  DeleteProjectTagOptionalParams,
+  DeleteProjectTagResponse,
+  GetProjectTemplatesOptionalParams,
+  GetProjectTemplatesResponse,
+  CreateProjectTemplateOptionalParams,
+  CreateProjectTemplateResponse,
+  GetProjectTemplateOptionalParams,
+  GetProjectTemplateResponse,
+  UpdateProjectTemplateOptionalParams,
+  UpdateProjectTemplateResponse,
+  DeleteProjectTemplateOptionalParams,
+  DeleteProjectTemplateResponse,
+  GetProjectUsersOptionalParams,
+  GetProjectUsersResponse,
+  CreateProjectUserOptionalParams,
+  CreateProjectUserResponse,
+  GetProjectUserOptionalParams,
+  GetProjectUserResponse,
+  UpdateProjectUserOptionalParams,
+  UpdateProjectUserResponse,
+  DeleteProjectUserOptionalParams,
+  DeleteProjectUserResponse,
+  GetProjectUserMeOptionalParams,
+  GetProjectUserMeResponse,
+  UpdateProjectUserMeOptionalParams,
+  UpdateProjectUserMeResponse,
+  GetSchedulesOptionalParams,
+  GetSchedulesResponse,
+  CreateScheduleOptionalParams,
+  CreateScheduleResponse,
+  GetScheduleOptionalParams,
+  GetScheduleResponse,
+  UpdateScheduleOptionalParams,
+  UpdateScheduleResponse,
+  RunScheduleOptionalParams,
+  RunScheduleResponse,
+  GetStatusOptionalParams,
+  GetStatusResponse,
+  GetProjectStatusOptionalParams,
+  GetProjectStatusResponse,
+  GetUserProjectsOptionalParams,
+  GetUserProjectsResponse,
+  GetUserProjectsMeOptionalParams,
+  GetUserProjectsMeResponse
 } from "./models";
 
 export class TeamCloud extends TeamCloudContext {
@@ -170,8 +170,8 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getAdapters(
-    options?: TeamCloudGetAdaptersOptionalParams
-  ): Promise<TeamCloudGetAdaptersResponse> {
+    options?: GetAdaptersOptionalParams
+  ): Promise<GetAdaptersResponse> {
     return this.sendOperationRequest({ options }, getAdaptersOperationSpec);
   }
 
@@ -184,8 +184,8 @@ export class TeamCloud extends TeamCloudContext {
   getComponents(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetComponentsOptionalParams
-  ): Promise<TeamCloudGetComponentsResponse> {
+    options?: GetComponentsOptionalParams
+  ): Promise<GetComponentsResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       getComponentsOperationSpec
@@ -201,8 +201,8 @@ export class TeamCloud extends TeamCloudContext {
   createComponent(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudCreateComponentOptionalParams
-  ): Promise<TeamCloudCreateComponentResponse> {
+    options?: CreateComponentOptionalParams
+  ): Promise<CreateComponentResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       createComponentOperationSpec
@@ -217,11 +217,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getComponent(
-    componentId: string | null,
+    componentId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetComponentOptionalParams
-  ): Promise<TeamCloudGetComponentResponse> {
+    options?: GetComponentOptionalParams
+  ): Promise<GetComponentResponse> {
     return this.sendOperationRequest(
       { componentId, organizationId, projectId, options },
       getComponentOperationSpec
@@ -236,11 +236,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   deleteComponent(
-    componentId: string | null,
+    componentId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudDeleteComponentOptionalParams
-  ): Promise<TeamCloudDeleteComponentResponse> {
+    options?: DeleteComponentOptionalParams
+  ): Promise<DeleteComponentResponse> {
     return this.sendOperationRequest(
       { componentId, organizationId, projectId, options },
       deleteComponentOperationSpec
@@ -257,9 +257,9 @@ export class TeamCloud extends TeamCloudContext {
   getComponentTasks(
     organizationId: string,
     projectId: string,
-    componentId: string | null,
-    options?: TeamCloudGetComponentTasksOptionalParams
-  ): Promise<TeamCloudGetComponentTasksResponse> {
+    componentId: string,
+    options?: GetComponentTasksOptionalParams
+  ): Promise<GetComponentTasksResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, componentId, options },
       getComponentTasksOperationSpec
@@ -276,9 +276,9 @@ export class TeamCloud extends TeamCloudContext {
   createComponentTask(
     organizationId: string,
     projectId: string,
-    componentId: string | null,
-    options?: TeamCloudCreateComponentTaskOptionalParams
-  ): Promise<TeamCloudCreateComponentTaskResponse> {
+    componentId: string,
+    options?: CreateComponentTaskOptionalParams
+  ): Promise<CreateComponentTaskResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, componentId, options },
       createComponentTaskOperationSpec
@@ -294,12 +294,12 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getComponentTask(
-    taskId: string | null,
+    taskId: string,
     organizationId: string,
     projectId: string,
-    componentId: string | null,
-    options?: TeamCloudGetComponentTaskOptionalParams
-  ): Promise<TeamCloudGetComponentTaskResponse> {
+    componentId: string,
+    options?: GetComponentTaskOptionalParams
+  ): Promise<GetComponentTaskResponse> {
     return this.sendOperationRequest(
       { taskId, organizationId, projectId, componentId, options },
       getComponentTaskOperationSpec
@@ -317,10 +317,10 @@ export class TeamCloud extends TeamCloudContext {
   cancelComponentTask(
     organizationId: string,
     projectId: string,
-    componentId: string | null,
-    taskId: string | null,
-    options?: TeamCloudCancelComponentTaskOptionalParams
-  ): Promise<TeamCloudCancelComponentTaskResponse> {
+    componentId: string,
+    taskId: string,
+    options?: CancelComponentTaskOptionalParams
+  ): Promise<CancelComponentTaskResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, componentId, taskId, options },
       cancelComponentTaskOperationSpec
@@ -338,10 +338,10 @@ export class TeamCloud extends TeamCloudContext {
   reRunComponentTask(
     organizationId: string,
     projectId: string,
-    componentId: string | null,
-    taskId: string | null,
-    options?: TeamCloudReRunComponentTaskOptionalParams
-  ): Promise<TeamCloudReRunComponentTaskResponse> {
+    componentId: string,
+    taskId: string,
+    options?: ReRunComponentTaskOptionalParams
+  ): Promise<ReRunComponentTaskResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, componentId, taskId, options },
       reRunComponentTaskOperationSpec
@@ -357,8 +357,8 @@ export class TeamCloud extends TeamCloudContext {
   getComponentTemplates(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetComponentTemplatesOptionalParams
-  ): Promise<TeamCloudGetComponentTemplatesResponse> {
+    options?: GetComponentTemplatesOptionalParams
+  ): Promise<GetComponentTemplatesResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       getComponentTemplatesOperationSpec
@@ -373,11 +373,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getComponentTemplate(
-    id: string | null,
+    id: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetComponentTemplateOptionalParams
-  ): Promise<TeamCloudGetComponentTemplateResponse> {
+    options?: GetComponentTemplateOptionalParams
+  ): Promise<GetComponentTemplateResponse> {
     return this.sendOperationRequest(
       { id, organizationId, projectId, options },
       getComponentTemplateOperationSpec
@@ -391,8 +391,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getDeploymentScopes(
     organizationId: string,
-    options?: TeamCloudGetDeploymentScopesOptionalParams
-  ): Promise<TeamCloudGetDeploymentScopesResponse> {
+    options?: GetDeploymentScopesOptionalParams
+  ): Promise<GetDeploymentScopesResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getDeploymentScopesOperationSpec
@@ -406,8 +406,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   createDeploymentScope(
     organizationId: string,
-    options?: TeamCloudCreateDeploymentScopeOptionalParams
-  ): Promise<TeamCloudCreateDeploymentScopeResponse> {
+    options?: CreateDeploymentScopeOptionalParams
+  ): Promise<CreateDeploymentScopeResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       createDeploymentScopeOperationSpec
@@ -423,8 +423,8 @@ export class TeamCloud extends TeamCloudContext {
   getDeploymentScope(
     organizationId: string,
     deploymentScopeId: string,
-    options?: TeamCloudGetDeploymentScopeOptionalParams
-  ): Promise<TeamCloudGetDeploymentScopeResponse> {
+    options?: GetDeploymentScopeOptionalParams
+  ): Promise<GetDeploymentScopeResponse> {
     return this.sendOperationRequest(
       { organizationId, deploymentScopeId, options },
       getDeploymentScopeOperationSpec
@@ -440,8 +440,8 @@ export class TeamCloud extends TeamCloudContext {
   updateDeploymentScope(
     organizationId: string,
     deploymentScopeId: string,
-    options?: TeamCloudUpdateDeploymentScopeOptionalParams
-  ): Promise<TeamCloudUpdateDeploymentScopeResponse> {
+    options?: UpdateDeploymentScopeOptionalParams
+  ): Promise<UpdateDeploymentScopeResponse> {
     return this.sendOperationRequest(
       { organizationId, deploymentScopeId, options },
       updateDeploymentScopeOperationSpec
@@ -457,8 +457,8 @@ export class TeamCloud extends TeamCloudContext {
   deleteDeploymentScope(
     organizationId: string,
     deploymentScopeId: string,
-    options?: TeamCloudDeleteDeploymentScopeOptionalParams
-  ): Promise<TeamCloudDeleteDeploymentScopeResponse> {
+    options?: DeleteDeploymentScopeOptionalParams
+  ): Promise<DeleteDeploymentScopeResponse> {
     return this.sendOperationRequest(
       { organizationId, deploymentScopeId, options },
       deleteDeploymentScopeOperationSpec
@@ -474,8 +474,8 @@ export class TeamCloud extends TeamCloudContext {
   initializeAuthorization(
     organizationId: string,
     deploymentScopeId: string,
-    options?: TeamCloudInitializeAuthorizationOptionalParams
-  ): Promise<TeamCloudInitializeAuthorizationResponse> {
+    options?: InitializeAuthorizationOptionalParams
+  ): Promise<InitializeAuthorizationResponse> {
     return this.sendOperationRequest(
       { organizationId, deploymentScopeId, options },
       initializeAuthorizationOperationSpec
@@ -491,7 +491,7 @@ export class TeamCloud extends TeamCloudContext {
   negotiateSignalR(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudNegotiateSignalROptionalParams
+    options?: NegotiateSignalROptionalParams
   ): Promise<void> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
@@ -506,8 +506,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getAuditEntries(
     organizationId: string,
-    options?: TeamCloudGetAuditEntriesOptionalParams
-  ): Promise<TeamCloudGetAuditEntriesResponse> {
+    options?: GetAuditEntriesOptionalParams
+  ): Promise<GetAuditEntriesResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getAuditEntriesOperationSpec
@@ -523,8 +523,8 @@ export class TeamCloud extends TeamCloudContext {
   getAuditEntry(
     commandId: string,
     organizationId: string,
-    options?: TeamCloudGetAuditEntryOptionalParams
-  ): Promise<TeamCloudGetAuditEntryResponse> {
+    options?: GetAuditEntryOptionalParams
+  ): Promise<GetAuditEntryResponse> {
     return this.sendOperationRequest(
       { commandId, organizationId, options },
       getAuditEntryOperationSpec
@@ -538,8 +538,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getAuditCommands(
     organizationId: string,
-    options?: TeamCloudGetAuditCommandsOptionalParams
-  ): Promise<TeamCloudGetAuditCommandsResponse> {
+    options?: GetAuditCommandsOptionalParams
+  ): Promise<GetAuditCommandsResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getAuditCommandsOperationSpec
@@ -551,8 +551,8 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getOrganizations(
-    options?: TeamCloudGetOrganizationsOptionalParams
-  ): Promise<TeamCloudGetOrganizationsResponse> {
+    options?: GetOrganizationsOptionalParams
+  ): Promise<GetOrganizationsResponse> {
     return this.sendOperationRequest(
       { options },
       getOrganizationsOperationSpec
@@ -564,8 +564,8 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   createOrganization(
-    options?: TeamCloudCreateOrganizationOptionalParams
-  ): Promise<TeamCloudCreateOrganizationResponse> {
+    options?: CreateOrganizationOptionalParams
+  ): Promise<CreateOrganizationResponse> {
     return this.sendOperationRequest(
       { options },
       createOrganizationOperationSpec
@@ -579,8 +579,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getOrganization(
     organizationId: string,
-    options?: TeamCloudGetOrganizationOptionalParams
-  ): Promise<TeamCloudGetOrganizationResponse> {
+    options?: GetOrganizationOptionalParams
+  ): Promise<GetOrganizationResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getOrganizationOperationSpec
@@ -594,8 +594,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   deleteOrganization(
     organizationId: string,
-    options?: TeamCloudDeleteOrganizationOptionalParams
-  ): Promise<TeamCloudDeleteOrganizationResponse> {
+    options?: DeleteOrganizationOptionalParams
+  ): Promise<DeleteOrganizationResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       deleteOrganizationOperationSpec
@@ -609,8 +609,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getOrganizationUsers(
     organizationId: string,
-    options?: TeamCloudGetOrganizationUsersOptionalParams
-  ): Promise<TeamCloudGetOrganizationUsersResponse> {
+    options?: GetOrganizationUsersOptionalParams
+  ): Promise<GetOrganizationUsersResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getOrganizationUsersOperationSpec
@@ -624,8 +624,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   createOrganizationUser(
     organizationId: string,
-    options?: TeamCloudCreateOrganizationUserOptionalParams
-  ): Promise<TeamCloudCreateOrganizationUserResponse> {
+    options?: CreateOrganizationUserOptionalParams
+  ): Promise<CreateOrganizationUserResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       createOrganizationUserOperationSpec
@@ -639,10 +639,10 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getOrganizationUser(
-    userId: string | null,
+    userId: string,
     organizationId: string,
-    options?: TeamCloudGetOrganizationUserOptionalParams
-  ): Promise<TeamCloudGetOrganizationUserResponse> {
+    options?: GetOrganizationUserOptionalParams
+  ): Promise<GetOrganizationUserResponse> {
     return this.sendOperationRequest(
       { userId, organizationId, options },
       getOrganizationUserOperationSpec
@@ -656,10 +656,10 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   updateOrganizationUser(
-    userId: string | null,
+    userId: string,
     organizationId: string,
-    options?: TeamCloudUpdateOrganizationUserOptionalParams
-  ): Promise<TeamCloudUpdateOrganizationUserResponse> {
+    options?: UpdateOrganizationUserOptionalParams
+  ): Promise<UpdateOrganizationUserResponse> {
     return this.sendOperationRequest(
       { userId, organizationId, options },
       updateOrganizationUserOperationSpec
@@ -673,10 +673,10 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   deleteOrganizationUser(
-    userId: string | null,
+    userId: string,
     organizationId: string,
-    options?: TeamCloudDeleteOrganizationUserOptionalParams
-  ): Promise<TeamCloudDeleteOrganizationUserResponse> {
+    options?: DeleteOrganizationUserOptionalParams
+  ): Promise<DeleteOrganizationUserResponse> {
     return this.sendOperationRequest(
       { userId, organizationId, options },
       deleteOrganizationUserOperationSpec
@@ -690,8 +690,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getOrganizationUserMe(
     organizationId: string,
-    options?: TeamCloudGetOrganizationUserMeOptionalParams
-  ): Promise<TeamCloudGetOrganizationUserMeResponse> {
+    options?: GetOrganizationUserMeOptionalParams
+  ): Promise<GetOrganizationUserMeResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getOrganizationUserMeOperationSpec
@@ -705,8 +705,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   updateOrganizationUserMe(
     organizationId: string,
-    options?: TeamCloudUpdateOrganizationUserMeOptionalParams
-  ): Promise<TeamCloudUpdateOrganizationUserMeResponse> {
+    options?: UpdateOrganizationUserMeOptionalParams
+  ): Promise<UpdateOrganizationUserMeResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       updateOrganizationUserMeOperationSpec
@@ -720,8 +720,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getProjects(
     organizationId: string,
-    options?: TeamCloudGetProjectsOptionalParams
-  ): Promise<TeamCloudGetProjectsResponse> {
+    options?: GetProjectsOptionalParams
+  ): Promise<GetProjectsResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getProjectsOperationSpec
@@ -735,8 +735,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   createProject(
     organizationId: string,
-    options?: TeamCloudCreateProjectOptionalParams
-  ): Promise<TeamCloudCreateProjectResponse> {
+    options?: CreateProjectOptionalParams
+  ): Promise<CreateProjectResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       createProjectOperationSpec
@@ -752,8 +752,8 @@ export class TeamCloud extends TeamCloudContext {
   getProject(
     projectId: string,
     organizationId: string,
-    options?: TeamCloudGetProjectOptionalParams
-  ): Promise<TeamCloudGetProjectResponse> {
+    options?: GetProjectOptionalParams
+  ): Promise<GetProjectResponse> {
     return this.sendOperationRequest(
       { projectId, organizationId, options },
       getProjectOperationSpec
@@ -769,8 +769,8 @@ export class TeamCloud extends TeamCloudContext {
   deleteProject(
     projectId: string,
     organizationId: string,
-    options?: TeamCloudDeleteProjectOptionalParams
-  ): Promise<TeamCloudDeleteProjectResponse> {
+    options?: DeleteProjectOptionalParams
+  ): Promise<DeleteProjectResponse> {
     return this.sendOperationRequest(
       { projectId, organizationId, options },
       deleteProjectOperationSpec
@@ -786,8 +786,8 @@ export class TeamCloud extends TeamCloudContext {
   getProjectIdentities(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetProjectIdentitiesOptionalParams
-  ): Promise<TeamCloudGetProjectIdentitiesResponse> {
+    options?: GetProjectIdentitiesOptionalParams
+  ): Promise<GetProjectIdentitiesResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       getProjectIdentitiesOperationSpec
@@ -803,8 +803,8 @@ export class TeamCloud extends TeamCloudContext {
   createProjectIdentity(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudCreateProjectIdentityOptionalParams
-  ): Promise<TeamCloudCreateProjectIdentityResponse> {
+    options?: CreateProjectIdentityOptionalParams
+  ): Promise<CreateProjectIdentityResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       createProjectIdentityOperationSpec
@@ -819,11 +819,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getProjectIdentity(
-    projectIdentityId: string | null,
+    projectIdentityId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetProjectIdentityOptionalParams
-  ): Promise<TeamCloudGetProjectIdentityResponse> {
+    options?: GetProjectIdentityOptionalParams
+  ): Promise<GetProjectIdentityResponse> {
     return this.sendOperationRequest(
       { projectIdentityId, organizationId, projectId, options },
       getProjectIdentityOperationSpec
@@ -838,11 +838,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   updateProjectIdentity(
-    projectIdentityId: string | null,
+    projectIdentityId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudUpdateProjectIdentityOptionalParams
-  ): Promise<TeamCloudUpdateProjectIdentityResponse> {
+    options?: UpdateProjectIdentityOptionalParams
+  ): Promise<UpdateProjectIdentityResponse> {
     return this.sendOperationRequest(
       { projectIdentityId, organizationId, projectId, options },
       updateProjectIdentityOperationSpec
@@ -857,11 +857,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   deleteProjectIdentity(
-    projectIdentityId: string | null,
+    projectIdentityId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudDeleteProjectIdentityOptionalParams
-  ): Promise<TeamCloudDeleteProjectIdentityResponse> {
+    options?: DeleteProjectIdentityOptionalParams
+  ): Promise<DeleteProjectIdentityResponse> {
     return this.sendOperationRequest(
       { projectIdentityId, organizationId, projectId, options },
       deleteProjectIdentityOperationSpec
@@ -877,8 +877,8 @@ export class TeamCloud extends TeamCloudContext {
   getProjectTags(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetProjectTagsOptionalParams
-  ): Promise<TeamCloudGetProjectTagsResponse> {
+    options?: GetProjectTagsOptionalParams
+  ): Promise<GetProjectTagsResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       getProjectTagsOperationSpec
@@ -894,8 +894,8 @@ export class TeamCloud extends TeamCloudContext {
   createProjectTag(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudCreateProjectTagOptionalParams
-  ): Promise<TeamCloudCreateProjectTagResponse> {
+    options?: CreateProjectTagOptionalParams
+  ): Promise<CreateProjectTagResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       createProjectTagOperationSpec
@@ -911,8 +911,8 @@ export class TeamCloud extends TeamCloudContext {
   updateProjectTag(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudUpdateProjectTagOptionalParams
-  ): Promise<TeamCloudUpdateProjectTagResponse> {
+    options?: UpdateProjectTagOptionalParams
+  ): Promise<UpdateProjectTagResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       updateProjectTagOperationSpec
@@ -927,11 +927,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getProjectTagByKey(
-    tagKey: string | null,
+    tagKey: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetProjectTagByKeyOptionalParams
-  ): Promise<TeamCloudGetProjectTagByKeyResponse> {
+    options?: GetProjectTagByKeyOptionalParams
+  ): Promise<GetProjectTagByKeyResponse> {
     return this.sendOperationRequest(
       { tagKey, organizationId, projectId, options },
       getProjectTagByKeyOperationSpec
@@ -946,11 +946,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   deleteProjectTag(
-    tagKey: string | null,
+    tagKey: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudDeleteProjectTagOptionalParams
-  ): Promise<TeamCloudDeleteProjectTagResponse> {
+    options?: DeleteProjectTagOptionalParams
+  ): Promise<DeleteProjectTagResponse> {
     return this.sendOperationRequest(
       { tagKey, organizationId, projectId, options },
       deleteProjectTagOperationSpec
@@ -964,8 +964,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getProjectTemplates(
     organizationId: string,
-    options?: TeamCloudGetProjectTemplatesOptionalParams
-  ): Promise<TeamCloudGetProjectTemplatesResponse> {
+    options?: GetProjectTemplatesOptionalParams
+  ): Promise<GetProjectTemplatesResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getProjectTemplatesOperationSpec
@@ -979,8 +979,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   createProjectTemplate(
     organizationId: string,
-    options?: TeamCloudCreateProjectTemplateOptionalParams
-  ): Promise<TeamCloudCreateProjectTemplateResponse> {
+    options?: CreateProjectTemplateOptionalParams
+  ): Promise<CreateProjectTemplateResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       createProjectTemplateOperationSpec
@@ -994,10 +994,10 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getProjectTemplate(
-    projectTemplateId: string | null,
+    projectTemplateId: string,
     organizationId: string,
-    options?: TeamCloudGetProjectTemplateOptionalParams
-  ): Promise<TeamCloudGetProjectTemplateResponse> {
+    options?: GetProjectTemplateOptionalParams
+  ): Promise<GetProjectTemplateResponse> {
     return this.sendOperationRequest(
       { projectTemplateId, organizationId, options },
       getProjectTemplateOperationSpec
@@ -1011,10 +1011,10 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   updateProjectTemplate(
-    projectTemplateId: string | null,
+    projectTemplateId: string,
     organizationId: string,
-    options?: TeamCloudUpdateProjectTemplateOptionalParams
-  ): Promise<TeamCloudUpdateProjectTemplateResponse> {
+    options?: UpdateProjectTemplateOptionalParams
+  ): Promise<UpdateProjectTemplateResponse> {
     return this.sendOperationRequest(
       { projectTemplateId, organizationId, options },
       updateProjectTemplateOperationSpec
@@ -1028,10 +1028,10 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   deleteProjectTemplate(
-    projectTemplateId: string | null,
+    projectTemplateId: string,
     organizationId: string,
-    options?: TeamCloudDeleteProjectTemplateOptionalParams
-  ): Promise<TeamCloudDeleteProjectTemplateResponse> {
+    options?: DeleteProjectTemplateOptionalParams
+  ): Promise<DeleteProjectTemplateResponse> {
     return this.sendOperationRequest(
       { projectTemplateId, organizationId, options },
       deleteProjectTemplateOperationSpec
@@ -1047,8 +1047,8 @@ export class TeamCloud extends TeamCloudContext {
   getProjectUsers(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetProjectUsersOptionalParams
-  ): Promise<TeamCloudGetProjectUsersResponse> {
+    options?: GetProjectUsersOptionalParams
+  ): Promise<GetProjectUsersResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       getProjectUsersOperationSpec
@@ -1064,8 +1064,8 @@ export class TeamCloud extends TeamCloudContext {
   createProjectUser(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudCreateProjectUserOptionalParams
-  ): Promise<TeamCloudCreateProjectUserResponse> {
+    options?: CreateProjectUserOptionalParams
+  ): Promise<CreateProjectUserResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       createProjectUserOperationSpec
@@ -1080,11 +1080,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getProjectUser(
-    userId: string | null,
+    userId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetProjectUserOptionalParams
-  ): Promise<TeamCloudGetProjectUserResponse> {
+    options?: GetProjectUserOptionalParams
+  ): Promise<GetProjectUserResponse> {
     return this.sendOperationRequest(
       { userId, organizationId, projectId, options },
       getProjectUserOperationSpec
@@ -1099,11 +1099,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   updateProjectUser(
-    userId: string | null,
+    userId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudUpdateProjectUserOptionalParams
-  ): Promise<TeamCloudUpdateProjectUserResponse> {
+    options?: UpdateProjectUserOptionalParams
+  ): Promise<UpdateProjectUserResponse> {
     return this.sendOperationRequest(
       { userId, organizationId, projectId, options },
       updateProjectUserOperationSpec
@@ -1118,11 +1118,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   deleteProjectUser(
-    userId: string | null,
+    userId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudDeleteProjectUserOptionalParams
-  ): Promise<TeamCloudDeleteProjectUserResponse> {
+    options?: DeleteProjectUserOptionalParams
+  ): Promise<DeleteProjectUserResponse> {
     return this.sendOperationRequest(
       { userId, organizationId, projectId, options },
       deleteProjectUserOperationSpec
@@ -1138,8 +1138,8 @@ export class TeamCloud extends TeamCloudContext {
   getProjectUserMe(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetProjectUserMeOptionalParams
-  ): Promise<TeamCloudGetProjectUserMeResponse> {
+    options?: GetProjectUserMeOptionalParams
+  ): Promise<GetProjectUserMeResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       getProjectUserMeOperationSpec
@@ -1155,8 +1155,8 @@ export class TeamCloud extends TeamCloudContext {
   updateProjectUserMe(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudUpdateProjectUserMeOptionalParams
-  ): Promise<TeamCloudUpdateProjectUserMeResponse> {
+    options?: UpdateProjectUserMeOptionalParams
+  ): Promise<UpdateProjectUserMeResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       updateProjectUserMeOperationSpec
@@ -1172,8 +1172,8 @@ export class TeamCloud extends TeamCloudContext {
   getSchedules(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetSchedulesOptionalParams
-  ): Promise<TeamCloudGetSchedulesResponse> {
+    options?: GetSchedulesOptionalParams
+  ): Promise<GetSchedulesResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       getSchedulesOperationSpec
@@ -1189,8 +1189,8 @@ export class TeamCloud extends TeamCloudContext {
   createSchedule(
     organizationId: string,
     projectId: string,
-    options?: TeamCloudCreateScheduleOptionalParams
-  ): Promise<TeamCloudCreateScheduleResponse> {
+    options?: CreateScheduleOptionalParams
+  ): Promise<CreateScheduleResponse> {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       createScheduleOperationSpec
@@ -1205,11 +1205,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   getSchedule(
-    scheduleId: string | null,
+    scheduleId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudGetScheduleOptionalParams
-  ): Promise<TeamCloudGetScheduleResponse> {
+    options?: GetScheduleOptionalParams
+  ): Promise<GetScheduleResponse> {
     return this.sendOperationRequest(
       { scheduleId, organizationId, projectId, options },
       getScheduleOperationSpec
@@ -1224,11 +1224,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   updateSchedule(
-    scheduleId: string | null,
+    scheduleId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudUpdateScheduleOptionalParams
-  ): Promise<TeamCloudUpdateScheduleResponse> {
+    options?: UpdateScheduleOptionalParams
+  ): Promise<UpdateScheduleResponse> {
     return this.sendOperationRequest(
       { scheduleId, organizationId, projectId, options },
       updateScheduleOperationSpec
@@ -1243,11 +1243,11 @@ export class TeamCloud extends TeamCloudContext {
    * @param options The options parameters.
    */
   runSchedule(
-    scheduleId: string | null,
+    scheduleId: string,
     organizationId: string,
     projectId: string,
-    options?: TeamCloudRunScheduleOptionalParams
-  ): Promise<TeamCloudRunScheduleResponse> {
+    options?: RunScheduleOptionalParams
+  ): Promise<RunScheduleResponse> {
     return this.sendOperationRequest(
       { scheduleId, organizationId, projectId, options },
       runScheduleOperationSpec
@@ -1263,8 +1263,8 @@ export class TeamCloud extends TeamCloudContext {
   getStatus(
     trackingId: string,
     organizationId: string,
-    options?: TeamCloudGetStatusOptionalParams
-  ): Promise<TeamCloudGetStatusResponse> {
+    options?: GetStatusOptionalParams
+  ): Promise<GetStatusResponse> {
     return this.sendOperationRequest(
       { trackingId, organizationId, options },
       getStatusOperationSpec
@@ -1282,8 +1282,8 @@ export class TeamCloud extends TeamCloudContext {
     projectId: string,
     trackingId: string,
     organizationId: string,
-    options?: TeamCloudGetProjectStatusOptionalParams
-  ): Promise<TeamCloudGetProjectStatusResponse> {
+    options?: GetProjectStatusOptionalParams
+  ): Promise<GetProjectStatusResponse> {
     return this.sendOperationRequest(
       { projectId, trackingId, organizationId, options },
       getProjectStatusOperationSpec
@@ -1298,9 +1298,9 @@ export class TeamCloud extends TeamCloudContext {
    */
   getUserProjects(
     organizationId: string,
-    userId: string | null,
-    options?: TeamCloudGetUserProjectsOptionalParams
-  ): Promise<TeamCloudGetUserProjectsResponse> {
+    userId: string,
+    options?: GetUserProjectsOptionalParams
+  ): Promise<GetUserProjectsResponse> {
     return this.sendOperationRequest(
       { organizationId, userId, options },
       getUserProjectsOperationSpec
@@ -1314,8 +1314,8 @@ export class TeamCloud extends TeamCloudContext {
    */
   getUserProjectsMe(
     organizationId: string,
-    options?: TeamCloudGetUserProjectsMeOptionalParams
-  ): Promise<TeamCloudGetUserProjectsMeResponse> {
+    options?: GetUserProjectsMeOptionalParams
+  ): Promise<GetUserProjectsMeResponse> {
     return this.sendOperationRequest(
       { organizationId, options },
       getUserProjectsMeOperationSpec

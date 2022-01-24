@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, Stack, getTheme } from '@fluentui/react';
 
 export const OrgSettingsNav: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId, settingId } = useParams() as { orgId: string, settingId: string };
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
@@ -16,56 +16,56 @@ export const OrgSettingsNav: React.FC = () => {
                 key: 'overview',
                 name: 'Overview',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings`),
+                onClick: () => navigate(`/orgs/${orgId}/settings`),
                 iconProps: { iconName: 'Settings' }
             },
             {
                 key: 'members',
                 name: 'Members',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings/members`),
+                onClick: () => navigate(`/orgs/${orgId}/settings/members`),
                 iconProps: { iconName: 'Group' }
             },
             // {
             //     key: 'configuration',
             //     name: 'Configuration',
             //     url: '',
-            //     onClick: () => history.push(`/orgs/${orgId}/settings/configuration`),
+            //     onClick: () => navigate(`/orgs/${orgId}/settings/configuration`),
             //     iconProps: { iconName: 'Processing' } // Repair
             // },
             {
                 key: 'scopes',
                 name: 'Deployment Scopes',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings/scopes`),
+                onClick: () => navigate(`/orgs/${orgId}/settings/scopes`),
                 iconProps: { iconName: 'ScopeTemplate' }
             },
             {
                 key: 'templates',
                 name: 'Project Templates',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings/templates`),
+                onClick: () => navigate(`/orgs/${orgId}/settings/templates`),
                 iconProps: { iconName: 'Rocket' }
             },
             {
                 key: 'auditing',
                 name: 'Auditing',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings/audit`),
+                onClick: () => navigate(`/orgs/${orgId}/settings/audit`),
                 iconProps: { iconName: 'WaitlistConfirm' } // MultiSelectMirrored, ActivateOrders, IssueTrackingMirrored
             },
             {
                 key: 'usage',
                 name: 'Usage',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/settings/usage`),
+                onClick: () => navigate(`/orgs/${orgId}/settings/usage`),
                 iconProps: { iconName: 'BarChartVertical' } // BarChart4, BIDashboard
             },
             // {
             //     key: 'providers',
             //     name: 'Custom Providers',
             //     url: '',
-            //     onClick: () => history.push(`/orgs/${orgId}/settings/providers`),
+            //     onClick: () => navigate(`/orgs/${orgId}/settings/providers`),
             //     iconProps: { iconName: 'WebAppBuilderFragment' }
             // }
         ] : []

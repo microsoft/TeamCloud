@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
 import { endsWithLowerCase, includesLowerCase, matchesLowerCase, matchesRouteParam } from '../Utils';
 import { useOrgs, useProject, useProjectComponent } from '../hooks';
@@ -10,7 +10,7 @@ import { useOrgs, useProject, useProjectComponent } from '../hooks';
 export const HeaderBreadcrumb: React.FC = () => {
 
     const location = useLocation();
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId, projectId, navId, itemId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, itemId: string, settingId: string };
 
     const { data: orgs } = useOrgs();
@@ -25,23 +25,23 @@ export const HeaderBreadcrumb: React.FC = () => {
 
         const orgPath = `/orgs/${orgId}`;
         const orgName = orgs?.find(o => matchesRouteParam(o, orgId))?.displayName ?? orgId;
-        const orgCrumb = { key: orgId, text: orgName, onClick: () => history.push(orgPath) };
+        const orgCrumb = { key: orgId, text: orgName, onClick: () => navigate(orgPath) };
 
         if (location.pathname.toLowerCase().endsWith('/projects/new')) {
 
             // Org / Projects / New Project
-            crumbs.push({ key: 'projects', text: 'Projects', onClick: () => history.push(orgPath) });
+            crumbs.push({ key: 'projects', text: 'Projects', onClick: () => navigate(orgPath) });
             crumbs.push({ key: 'new', text: 'New Project' });
 
         } else if (projectId !== undefined) {
 
             // Org / Projects / Project
-            crumbs.push({ key: 'projects', text: 'Projects', onClick: () => history.push(orgPath) });
-            crumbs.push({ key: projectId, text: project?.displayName ?? projectId, onClick: () => history.push(`${orgPath}/projects/${projectId}`) });
+            crumbs.push({ key: 'projects', text: 'Projects', onClick: () => navigate(orgPath) });
+            crumbs.push({ key: projectId, text: project?.displayName ?? projectId, onClick: () => navigate(`${orgPath}/projects/${projectId}`) });
 
             // Org / Projects / Project / Category
             if (navId !== undefined) {
-                crumbs.push({ key: navId, text: navId, onClick: () => history.push(`${orgPath}/projects/${projectId}/${navId}`) });
+                crumbs.push({ key: navId, text: navId, onClick: () => navigate(`${orgPath}/projects/${projectId}/${navId}`) });
 
                 if (endsWithLowerCase(location.pathname, '/new')) {
                     crumbs.push({ key: 'new', text: `New ${navId.slice(0, -1)}` });
@@ -49,7 +49,7 @@ export const HeaderBreadcrumb: React.FC = () => {
                 } else if (itemId !== undefined) {
 
                     if (matchesLowerCase(navId, 'components')) {
-                        crumbs.push({ key: itemId, text: component?.displayName ?? itemId, onClick: () => history.push(`${orgPath}/projects/${projectId}/components/${component?.slug}`) });
+                        crumbs.push({ key: itemId, text: component?.displayName ?? itemId, onClick: () => navigate(`${orgPath}/projects/${projectId}/components/${component?.slug}`) });
                     }
                 }
             }
@@ -60,12 +60,12 @@ export const HeaderBreadcrumb: React.FC = () => {
             // Org / Settings
             // Org / Projects / Project / Settings
             const settingPath = projectId === undefined ? `${orgPath}/settings` : `${orgPath}/projects/${projectId}/settings`;
-            crumbs.push({ key: 'settings', text: 'Settings', onClick: () => history.push(settingPath) });
+            crumbs.push({ key: 'settings', text: 'Settings', onClick: () => navigate(settingPath) });
 
             // Org / Settings / Setting
             // Org / Projects / Project / Settings / Setting
             if (settingId !== undefined) {
-                crumbs.push({ key: settingId, text: settingId, onClick: () => history.push(`${settingPath}/${settingId}`) });
+                crumbs.push({ key: settingId, text: settingId, onClick: () => navigate(`${settingPath}/${settingId}`) });
                 if (projectId === undefined && endsWithLowerCase(location.pathname, '/new'))
                     crumbs.push({ key: 'new', text: `New ${settingId.slice(0, -1)}` });
             }

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { Route, useHistory } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { IconButton, Stack } from '@fluentui/react';
 import { DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { OrgSettingsOverview, DeploymentScopeList, ProjectTemplateList, ContentHeader, ContentContainer, ContentProgress, MemberList, DeploymentScopeForm, ProjectTemplateForm, NoData, AuditList } from '../components';
@@ -12,7 +12,7 @@ import business from '../img/MSC17_business_001_noBG.png'
 
 export const OrgSettingsView: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [progressHidden, setProgressHidden] = useState(true);
 
@@ -32,7 +32,7 @@ export const OrgSettingsView: React.FC = () => {
         setProgressHidden(false);
         await createDeploymentScope(scope);
         setProgressHidden(true);
-        history.push(`/orgs/${org?.slug}/settings/scopes`);
+        navigate(`/orgs/${org?.slug}/settings/scopes`);
     };
 
 
@@ -40,77 +40,51 @@ export const OrgSettingsView: React.FC = () => {
         setProgressHidden(false);
         await createProjectTemplate(template);
         setProgressHidden(true);
-        history.push(`/orgs/${org?.slug}/settings/templates`);
+        navigate(`/orgs/${org?.slug}/settings/templates`);
     };
 
 
     return (
         <Stack>
-            <Route exact path='/orgs/:orgId/settings'>
-                <ContentProgress progressHidden={progressHidden && !orgIsLoading} />
-                <ContentHeader title={org?.displayName} />
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/members'>
-                <ContentProgress progressHidden={progressHidden && !membersIsLoading} />
-                <ContentHeader title='Members' />
-            </Route>
-            <Route exact path={['/orgs/:orgId/settings/scopes']}>
-                <ContentProgress progressHidden={progressHidden && !scopesIsLoading} />
-                <ContentHeader title='Deployment Scopes' />
-            </Route>
-            <Route exact path={['/orgs/:orgId/settings/scopes/new']}>
-                {/* <ContentProgress progressHidden={progressHidden && subscriptions !== undefined && managementGroups !== undefined} /> */}
-                <ContentProgress progressHidden={progressHidden && !subscriptionsIsLoading} />
-                <ContentHeader title='New Deployment Scope'>
-                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${org?.slug}/settings/scopes`)} />
-                </ContentHeader>
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/templates'>
-                <ContentProgress progressHidden={progressHidden && !templatesIsLoading} />
-                <ContentHeader title='Project Templates' />
-            </Route>
-            <Route exact path={['/orgs/:orgId/settings/templates/new']}>
-                <ContentProgress progressHidden={progressHidden && !templatesIsLoading} />
-                <ContentHeader title='New Project Template'>
-                    <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${org?.slug}/settings/templates`)} />
-                </ContentHeader>
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/audit'>
-                <ContentProgress progressHidden />
-                <ContentHeader title='Auditing' />
-            </Route>
-            <Route exact path='/orgs/:orgId/settings/usage'>
-                <ContentProgress progressHidden />
-                <ContentHeader title='Usage' />
-            </Route>
+            <Routes>
+                <Route path='' element={<ContentProgress progressHidden={progressHidden && !orgIsLoading} />} />
+                <Route path='members' element={<ContentProgress progressHidden={progressHidden && !membersIsLoading} />} />
+                <Route path='scopes' element={<ContentProgress progressHidden={progressHidden && !scopesIsLoading} />} />
+                <Route path='scopes/new' element={<ContentProgress progressHidden={progressHidden && !subscriptionsIsLoading} />} />
+                <Route path='templates' element={<ContentProgress progressHidden={progressHidden && !templatesIsLoading} />} />
+                <Route path='templates/new' element={<ContentProgress progressHidden={progressHidden && !templatesIsLoading} />} />
+                <Route path='audit' element={<ContentProgress progressHidden />} />
+                <Route path='usage' element={<ContentProgress progressHidden />} />
+            </Routes>
 
+            <Routes>
+                <Route path='' element={<ContentHeader title={org?.displayName} />} />
+                <Route path='members' element={<ContentHeader title='Members' />} />
+                <Route path='scopes' element={<ContentHeader title='Deployment Scopes' />} />
+                <Route path='scopes/new' element={
+                    <ContentHeader title='New Deployment Scope'>
+                        <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => navigate(`/orgs/${org?.slug}/settings/scopes`)} />
+                    </ContentHeader>} />
+                <Route path='templates' element={<ContentHeader title='Project Templates' />} />
+                <Route path='templates/new' element={
+                    <ContentHeader title='New Project Template'>
+                        <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => navigate(`/orgs/${org?.slug}/settings/templates`)} />
+                    </ContentHeader>} />
+                <Route path='audit' element={<ContentHeader title='Auditing' />} />
+                <Route path='usage' element={<ContentHeader title='Usage' />} />
+            </Routes>
 
             <ContentContainer>
-                <Route exact path='/orgs/:orgId/settings'>
-                    <OrgSettingsOverview {...{}} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/members'>
-                    <MemberList {...{ members: members, addMembers: addMembers }} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/scopes'>
-                    <DeploymentScopeList {...{}} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/scopes/new'>
-                    <DeploymentScopeForm {...{ createDeploymentScope: _createDeploymentScope }} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/templates'>
-                    <ProjectTemplateList {...{}} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/templates/new'>
-                    <ProjectTemplateForm {...{ createProjectTemplate: _createProjectTemplate }} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/audit'>
-                    <AuditList {...{}} />
-                </Route>
-                <Route exact path='/orgs/:orgId/settings/usage'>
-                    <NoData image={business} title='Coming soon' description='Come back to see usage information per org, project, and user.' />
-                </Route>
-
+                <Routes>
+                    <Route path='' element={<OrgSettingsOverview {...{}} />} />
+                    <Route path='members' element={<MemberList {...{ members: members, addMembers: addMembers }} />} />
+                    <Route path='scopes' element={<DeploymentScopeList {...{}} />} />
+                    <Route path='scopes/new' element={<DeploymentScopeForm {...{ createDeploymentScope: _createDeploymentScope }} />} />
+                    <Route path='templates' element={<ProjectTemplateList {...{}} />} />
+                    <Route path='templates/new' element={<ProjectTemplateForm {...{ createProjectTemplate: _createProjectTemplate }} />} />
+                    <Route path='audit' element={<AuditList {...{}} />} />
+                    <Route path='usage' element={<NoData image={business} title='Coming soon' description='Come back to see usage information per org, project, and user.' />} />
+                </Routes>
             </ContentContainer>
         </Stack>
     );

@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
 import { useOrgs } from '../../hooks';
 
 export const RootNav: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId } = useParams() as { orgId: string };
 
@@ -21,7 +21,7 @@ export const RootNav: React.FC = () => {
             key: o.slug,
             name: o.displayName,
             url: '',
-            onClick: () => history.push(`/orgs/${o.slug}`),
+            onClick: () => navigate(`/orgs/${o.slug}`),
         })) ?? [];
 
         if (!newOrgView)
@@ -29,10 +29,10 @@ export const RootNav: React.FC = () => {
                 key: 'new',
                 name: "New organization",
                 url: '',
-                onClick: () => history.push('/orgs/new')
+                onClick: () => navigate('/orgs/new')
             });
 
-        
+
         return [{ links: links }];
     };
 
@@ -62,7 +62,7 @@ export const RootNav: React.FC = () => {
                     iconProps={{ iconName: 'Settings' }}
                     styles={{ root: { padding: '10px 8px 10px 12px' } }}
                     text={'Organization settings'}
-                    onClick={() => history.push(`/orgs/${orgId}/settings`)} />)}
+                    onClick={() => navigate(`/orgs/${orgId}/settings`)} />)}
             </Stack.Item>
         </Stack>
     );

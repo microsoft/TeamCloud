@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import { useMutation, useQueryClient } from 'react-query'
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ProjectDefinition } from 'teamcloud';
 import { api } from '../API';
 import { useOrg, useProjects } from '.';
 
 export const useCreateProject = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { data: org } = useOrg();
     const { data: projects } = useProjects();
@@ -34,7 +34,7 @@ export const useCreateProject = () => {
                 queryClient.setQueryData(['org', org.id, 'project', data.slug], data);
                 queryClient.setQueryData(['org', org.id, 'projects'], projects ? [...projects, data] : [data]);
 
-                history.push(`/orgs/${org.slug}/projects/${data.slug}`);
+                navigate(`/orgs/${org.slug}/projects/${data.slug}`);
             }
         }
     }).mutateAsync

@@ -14,7 +14,7 @@ echo ""
 
 # check for autorest
 if ! [ -x "$(command -v autorest)" ]; then
-    echo "Installing AutoRest"
+    echo "[AutoRest] Installing AutoRest"
     npm install -g autorest
     echo ""
     # echo 'Error: autorest cli is not installed.\nAutoRest is required to run this script. To install the AutoRest, run npm install -g autorest, then try again. Aborting.' >&2
@@ -24,27 +24,29 @@ fi
 
 pushd $tc_dir/src/TeamCloud.API > /dev/null
 
-    echo "Restoring dotnet tools"
+    echo "[dotnet] Restoring dotnet tools"
     dotnet tool restore
     echo ""
 
-    echo "Generating openapi.json"
+    echo "[OpenAPI] Generating openapi.json"
     dotnet swagger tofile --output ../../openapi/openapi.json $apiDll v1
     echo ""
 
-    echo "Generating openapi.yaml"
+    echo "[OpenAPI] Generating openapi.yaml"
     dotnet swagger tofile --yaml --output ../../openapi/openapi.yaml $apiDll v1
     echo ""
 
     if [ "$CI" = true ] ; then
+        echo "[OpenAPI] copying open api files to release_assets"
         cp ../../openapi/openapi.json ../../openapi/openapi.yaml ../../release_assets
+        echo ""
     fi
 
 popd > /dev/null
 
 pushd $tc_dir/web > /dev/null
 
-    echo "Uninstalling teamcloud from web"
+    echo "[Web] Uninstalling teamcloud from web"
     npm uninstall teamcloud
     echo ""
 
@@ -68,15 +70,16 @@ popd > /dev/null
 
 pushd $tc_dir/openapi > /dev/null
 
-    echo "Reseting autorest"
+    echo "[AutoRest] Reseting autorest"
     autorest --reset
     echo ""
 
-    echo "Generating python client"
+    echo "[AutoRest] Generating python client"
     autorest --v3 python.md
     echo ""
 
-    echo "[TypeScript] Generating client"
+
+    echo "[AutoRest] Generating typescript client"
     autorest --v3 typescript.md
     echo ""
 

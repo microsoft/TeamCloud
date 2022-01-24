@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, Stack, getTheme } from '@fluentui/react';
 
 export interface IProjectSettingsNavProps { }
 
 export const ProjectSettingsNav: React.FC<IProjectSettingsNavProps> = (props) => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId, projectId, settingId } = useParams() as { orgId: string, projectId: string, settingId: string };
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
@@ -18,14 +18,14 @@ export const ProjectSettingsNav: React.FC<IProjectSettingsNavProps> = (props) =>
                 key: 'overview',
                 name: 'Overview',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings`),
+                onClick: () => navigate(`/orgs/${orgId}/projects/${projectId}/settings`),
                 iconProps: { iconName: 'Settings' }
             },
             {
                 key: 'schedules',
                 name: 'Schedules',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules`),
+                onClick: () => navigate(`/orgs/${orgId}/projects/${projectId}/settings/schedules`),
                 iconProps: { iconName: 'ScheduleEventAction' }
             }
         ] : []

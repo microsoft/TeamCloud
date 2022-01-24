@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from "react-query";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ComponentTask } from "teamcloud";
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks } from ".";
 import { api } from "../API";
@@ -8,7 +8,7 @@ import { api } from "../API";
 
 export const useCancelProjectComponentTask = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
 
@@ -36,7 +36,7 @@ export const useCancelProjectComponentTask = () => {
                 queryClient.setQueryData(['org', data.organization, 'project', data.projectId, 'component', data.componentId, 'componenttask'], componentTasks?.map(ct => ct.id === data.id ? data : ct))
                 queryClient.setQueryData(['org', data.organization, 'project', data.projectId, 'component', data.componentId, 'componenttask', data.id], data)
 
-                history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${data.id}`);
+                navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${data.id}`);
             }
         }
     }).mutateAsync

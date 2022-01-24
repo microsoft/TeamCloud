@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IColumn, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
 import { Component, ComponentTemplate } from 'teamcloud';
 import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates, useDeleteProjectComponent } from '../hooks';
@@ -10,7 +10,7 @@ import { DetailCard, ComponentLink, ComponentIcon } from '.';
 
 export const ComponentsCard: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
@@ -37,7 +37,7 @@ export const ComponentsCard: React.FC = () => {
 
 
     const _getCommandBarItems = (): ICommandBarItemProps[] => [
-        { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`) },
+        { key: 'newComponent', text: 'New', iconProps: { iconName: 'WebAppBuilderFragmentCreate' }, onClick: () => navigate(`/orgs/${orgId}/projects/${projectId}/components/new`) },
     ];
 
 
@@ -85,7 +85,7 @@ export const ComponentsCard: React.FC = () => {
     ];
 
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
-        history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
+        navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${item.component.slug}`);
     };
 
     return (

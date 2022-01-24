@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { IColumn, Stack, Text } from '@fluentui/react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Component, ComponentTemplate } from 'teamcloud';
 import { ContentList, ComponentLink, ComponentTemplateLink, UserPersona } from '.';
 import { useDeploymentScopes, useProjectMembers, useProjectComponentTemplates, useProjectComponents } from '../hooks';
@@ -17,7 +17,7 @@ export interface IComponentListProps {
 
 export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
@@ -71,7 +71,7 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
 
     const _onItemInvoked = (item: { component: Component, template: ComponentTemplate }): void => {
-        history.push(`/orgs/${orgId}/projects/${projectId}/components/${item.component.slug}`);
+        navigate(`/orgs/${orgId}/projects/${projectId}/components/${item.component.slug}`);
     };
 
     return (
@@ -82,12 +82,12 @@ export const ComponentList: React.FC<IComponentListProps> = (props) => {
             filterPlaceholder='Filter components'
             buttonText='Create component'
             buttonIcon='Add'
-            onButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`)}
+            onButtonClick={() => navigate(`/orgs/${orgId}/projects/${projectId}/components/new`)}
             noDataTitle='You do not have any components yet'
             noDataImage={collaboration}
             noDataDescription='Components are project resources like cloud environments'
             noDataButtonText='Create component'
             noDataButtonIcon='Add'
-            onNoDataButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/components/new`)} />
+            onNoDataButtonClick={() => navigate(`/orgs/${orgId}/projects/${projectId}/components/new`)} />
     );
 }

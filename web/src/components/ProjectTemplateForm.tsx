@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DefaultButton, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { ProjectTemplateDefinition } from 'teamcloud';
 
@@ -14,7 +14,7 @@ export interface IProjectTemplateFormProps {
 
 export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId } = useParams() as { orgId: string };
 
     // Project Template
@@ -66,7 +66,7 @@ export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) 
 
     const _resetAndCloseForm = () => {
         setFormEnabled(true);
-        history.push(`/orgs/${orgId}/settings/templates`);
+        navigate(`/orgs/${orgId}/settings/templates`);
     };
 
     return (

@@ -4,9 +4,9 @@ import { api } from "../API";
 
 export const useDeleteProject = () => {
 
-	const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-	return useMutation(async (project: Project) => {
+    return useMutation(async (project: Project) => {
         const result = await api.deleteProject(project.id, project.organization);
         if (result.code !== 202 && (result as ErrorResult).errors) {
             console.log(result as ErrorResult);
@@ -16,7 +16,7 @@ export const useDeleteProject = () => {
         onSuccess: (data, project) => {
             queryClient.setQueryData(['org', project?.organization, 'project', project?.id], data)
 
-            // history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug}`);
+            // navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug}`);
         }
     }).mutateAsync
 }

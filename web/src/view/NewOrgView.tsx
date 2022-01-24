@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption } from '@fluentui/react';
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { AzureRegions, Tags } from '../model';
@@ -11,7 +11,7 @@ import { useCreateOrg, useAzureSubscriptions } from '../hooks';
 
 export const NewOrgView: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { data: subscriptions } = useAzureSubscriptions();
 
@@ -148,7 +148,7 @@ export const NewOrgView: React.FC = () => {
                 percentComplete={percentComplete}
                 progressHidden={formEnabled} />
             <ContentHeader title='New Organization' coin={false} wide>
-                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push('/')} />
+                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => navigate('/')} />
             </ContentHeader>
             <ContentContainer wide full>
                 <Pivot selectedKey={pivotKey} onLinkClick={(i, ev) => setPivotKey(i?.props.itemKey ?? 'Basic Settings')} styles={{ root: { height: '100%' } }}>

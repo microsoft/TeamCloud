@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Checkbox, IColumn, PersonaSize, Stack, Text } from '@fluentui/react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Component, ComponentTaskTemplate, ComponentTemplate, Schedule } from 'teamcloud';
 import { ContentList, UserPersona } from '.';
 import { useProjectMembers, useProjectComponentTemplates, useProjectComponents, useProjectSchedules } from '../hooks';
@@ -17,7 +17,7 @@ export interface IScheduleListProps {
 
 export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [items, setItems] = useState<{ schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }[]>()
@@ -101,7 +101,7 @@ export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
 
 
     const _onItemInvoked = (item: { schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }): void => {
-        history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules/${item.schedule.id}`);
+        navigate(`/orgs/${orgId}/projects/${projectId}/settings/schedules/${item.schedule.id}`);
     };
 
     return (
@@ -113,12 +113,12 @@ export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
             filterPlaceholder='Filter schedules'
             buttonText='Create schedule'
             buttonIcon='Add'
-            onButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules/new`)}
+            onButtonClick={() => navigate(`/orgs/${orgId}/projects/${projectId}/settings/schedules/new`)}
             noDataTitle='You do not have any schedules yet'
             noDataImage={collaboration}
             noDataDescription='Schedule component tasks'
             noDataButtonText='Create schedule'
             noDataButtonIcon='Add'
-            onNoDataButtonClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules/new`)} />
+            onNoDataButtonClick={() => navigate(`/orgs/${orgId}/projects/${projectId}/settings/schedules/new`)} />
     );
 }

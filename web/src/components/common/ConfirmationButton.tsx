@@ -1,4 +1,4 @@
-import { BaseButton, Button, DefaultButton, Dialog, DialogFooter, IButtonProps, PrimaryButton, Stack, StackItem, Text, TextField } from "office-ui-fabric-react";
+import { BaseButton, DefaultButton, Dialog, DialogFooter, IButtonProps, PrimaryButton, Stack, StackItem, Text, TextField } from "@fluentui/react";
 import React, { useRef, useState } from "react";
 
 export interface IConfirmationButtonProps extends IButtonProps {
@@ -14,12 +14,12 @@ export const ConfirmationButton: React.FunctionComponent<IConfirmationButtonProp
 	const [hiddenDialog, SetHiddenDialog] = useState<boolean>(true);
 	const [confirmationValue, SetConfirmationValue] = useState<string>();
 
-	const requestConfirmation = (evt: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement | HTMLDivElement | BaseButton | Button | HTMLSpanElement, MouseEvent>) => {
+	const requestConfirmation = (evt: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement | HTMLDivElement | BaseButton | HTMLSpanElement, MouseEvent>) => {
 		evt.stopPropagation();
 		SetHiddenDialog(false)
 	}
 
-	const onConfirmed = (evt: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement | HTMLDivElement | BaseButton | Button | HTMLSpanElement, MouseEvent>) => {
+	const onConfirmed = (evt: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement | HTMLDivElement | BaseButton | HTMLSpanElement, MouseEvent>) => {
 		SetHiddenDialog(true);
 		props.onClick && props.onClick(evt);
 		buttonRef.current?.forceUpdate();
@@ -36,9 +36,9 @@ export const ConfirmationButton: React.FunctionComponent<IConfirmationButtonProp
 
 	const renderConfirmationValue = () => {
 		if (props.confirmationValue) {
-			return 	<StackItem>
+			return <StackItem>
 				<Text block nowrap style={{ marginBottom: 10 }}>
-					To confirm this action, please type "<Text style={{ fontWeight: "bold"}}>{props.confirmationValue}</Text>":
+					To confirm this action, please type "<Text style={{ fontWeight: "bold" }}>{props.confirmationValue}</Text>":
 				</Text>
 				<TextField
 					placeholder={props.confirmationValue}
@@ -58,8 +58,8 @@ export const ConfirmationButton: React.FunctionComponent<IConfirmationButtonProp
 				modalProps={{ isBlocking: true }}
 				maxWidth={500}>
 				<Stack style={{ minHeight: 100, minWidth: 450 }} tokens={{ childrenGap: '20px' }}>
-					{ renderConfirmationBody() }
-					{ renderConfirmationValue() }
+					{renderConfirmationBody()}
+					{renderConfirmationValue()}
 				</Stack>
 				<DialogFooter>
 					<PrimaryButton {...props} onClick={onConfirmed} disabled={confirmationValue !== (props.confirmationValue ?? confirmationValue)} />

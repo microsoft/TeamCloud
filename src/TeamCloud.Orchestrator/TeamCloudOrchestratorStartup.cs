@@ -220,7 +220,7 @@ public class TeamCloudOrchestratorStartup : FunctionsStartup
 
             try
             {
-                configurationBuilder.AddUserSecrets<TeamCloudOrchestratorStartup>();
+                configurationBuilder.AddUserSecrets<TeamCloudOrchestratorStartup>(true);
             }
             catch (InvalidOperationException exc) when (exc.Message.Contains(nameof(UserSecretsIdAttribute), StringComparison.Ordinal))
             {

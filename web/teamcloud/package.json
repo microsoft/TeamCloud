@@ -4,28 +4,20 @@
   "author": "Microsoft Corporation",
   "description": "A generated SDK for TeamCloud.",
   "version": "1.0.0-beta.1",
-  "engines": {
-    "node": ">=12.0.0"
-  },
+  "engines": { "node": ">=12.0.0" },
   "dependencies": {
     "@azure/core-client": "^1.0.0",
     "@azure/core-auth": "^1.3.0",
     "@azure/core-rest-pipeline": "^1.1.0",
     "tslib": "^2.2.0"
   },
-  "keywords": [
-    "node",
-    "azure",
-    "typescript",
-    "browser",
-    "isomorphic"
-  ],
+  "keywords": ["node", "azure", "typescript", "browser", "isomorphic"],
   "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist-esm/index.js",
   "types": "./types/teamcloud.d.ts",
   "devDependencies": {
-    "@microsoft/api-extractor": "7.7.11",
+    "@microsoft/api-extractor": "^7.18.11",
     "@rollup/plugin-commonjs": "11.0.2",
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-multi-entry": "^3.0.0",
@@ -41,9 +33,7 @@
     "type": "git",
     "url": "https://github.com/Azure/azure-sdk-for-js.git"
   },
-  "bugs": {
-    "url": "https://github.com/Azure/azure-sdk-for-js/issues"
-  },
+  "bugs": { "url": "https://github.com/Azure/azure-sdk-for-js/issues" },
   "files": [
     "dist/**/*.js",
     "dist/**/*.js.map",
@@ -63,14 +53,14 @@
     "types/*"
   ],
   "scripts": {
-    "build": "tsc && rollup -c 2>&1 && npm run minify && mkdirp ./review && npm run extract-api",
+    "build": "npm run clean && tsc && rollup -c 2>&1 && npm run minify && mkdirp ./review && npm run extract-api",
     "minify": "uglifyjs -c -m --comments --source-map \"content='./dist/index.js.map'\" -o ./dist/index.min.js ./dist/index.js",
     "prepack": "npm run build",
     "pack": "npm pack 2>&1",
     "extract-api": "api-extractor run --local",
     "lint": "echo skipped",
     "audit": "echo skipped",
-    "clean": "echo skipped",
+    "clean": "rimraf dist dist-browser dist-esm test-dist temp types *.tgz *.log",
     "build:node": "echo skipped",
     "build:browser": "echo skipped",
     "build:test": "echo skipped",
@@ -79,7 +69,6 @@
     "execute:samples": "echo skipped",
     "format": "echo skipped",
     "test": "echo skipped",
-    "prebuild": "echo skipped",
     "test:node": "echo skipped",
     "test:browser": "echo skipped",
     "unit-test": "echo skipped",

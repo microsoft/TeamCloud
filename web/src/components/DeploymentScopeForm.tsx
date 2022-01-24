@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, IComboBoxOption, PrimaryButton, Stack, TextField } from '@fluentui/react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FuiForm } from '@rjsf/fluent-ui'
 import { IChangeEvent, ISubmitEvent } from '@rjsf/core';
 import { DeploymentScopeDefinition } from 'teamcloud';
@@ -19,7 +19,7 @@ export interface IDeploymentScopeFormProps {
 export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) => {
 
     const { onScopeChange } = props;
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId } = useParams() as { orgId: string };
 
     const { data: adapterInformation } = useAdapters();
@@ -55,7 +55,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const _resetAndCloseForm = () => {
         setFormEnabled(true);
-        history.push(`/orgs/${orgId}/settings/scopes`);
+        navigate(`/orgs/${orgId}/settings/scopes`);
     };
 
     useEffect(() => {
@@ -124,7 +124,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     label='Type'
                     disabled={!formEnabled}
                     selectedKey={scopeType}
-                    options={scopeTypeOptions}
+                    options={scopeTypeOptions ?? []}
                     onChange={(_ev, val) => setScopeType(val ? val.key as string : undefined)} />
             </Stack.Item>
             <Stack.Item>

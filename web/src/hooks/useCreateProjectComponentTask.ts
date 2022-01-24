@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import { useMutation, useQueryClient } from 'react-query'
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ComponentTaskDefinition } from 'teamcloud';
 import { api } from '../API';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks } from '.';
 
 export const useCreateProjectComponentTask = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
 
@@ -39,7 +39,7 @@ export const useCreateProjectComponentTask = () => {
                 queryClient.setQueryData(['org', project?.organization, 'project', project?.id, 'component', component?.id, 'componenttask', data.id], data)
                 queryClient.setQueryData(['org', project?.organization, 'project', project?.id, 'component', component?.id, 'componenttask'], componentTasks ? [...componentTasks, data] : [data])
 
-                history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${data.id}`);
+                navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${data.id}`);
             }
         }
     }).mutateAsync

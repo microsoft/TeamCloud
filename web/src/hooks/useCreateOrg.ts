@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from 'react-query'
 import { DeploymentScopeDefinition, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { api } from '../API';
 
 export const useCreateOrg = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
 
     return useMutation(async (def: { orgDef: OrganizationDefinition, scopeDef?: DeploymentScopeDefinition, templateDef?: ProjectTemplateDefinition }) => {
@@ -74,7 +74,7 @@ export const useCreateOrg = () => {
                 console.log(`+ setOrg (${data.org.slug})`);
                 queryClient.setQueryData(['org', data.org.slug], data.org)
 
-                history.push(`/orgs/${data.org.slug}`);
+                navigate(`/orgs/${data.org.slug}`);
             }
         }
     }).mutateAsync

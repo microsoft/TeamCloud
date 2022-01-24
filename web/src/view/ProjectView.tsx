@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Route, Switch, useHistory, useParams } from 'react-router-dom';
+import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { useQueryClient } from 'react-query';
 import { ComponentTaskMenu, ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview, ScheduleForm, ScheduleList } from '../components';
@@ -12,7 +12,7 @@ import { Message } from '../model';
 
 export const ProjectView: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
     const [favorite, setFavorate] = useState(false);
@@ -110,14 +110,14 @@ export const ProjectView: React.FC = () => {
                 }
             }
         }
-        
+
     }, [project, handleMessage])
 
 
     return (
-        <Stack>
-            <Switch>
-                <Route exact path='/orgs/:orgId/projects/:projectId'>
+        <Routes>
+            <Route path='' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !componentsIsLoading && !membersIsLoading} />
                     <ContentHeader title={project?.displayName} coin>
                         <IconButton toggle checked={favorite} onClick={() => setFavorate(!favorite)}
@@ -126,18 +126,22 @@ export const ProjectView: React.FC = () => {
                     <ContentContainer>
                         <ProjectOverview />
                     </ContentContainer>
-                </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/components/new'>
-                    <ComponentForm />
-                </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/components'>
+                </Stack>
+            } />
+            <Route path='components/new' element={<Stack><ComponentForm /></Stack>} />
+
+            <Route path='components' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
                     <ContentHeader title='Components' />
                     <ContentContainer>
                         <ComponentList />
                     </ContentContainer>
-                </Route>
-                <Route exact path={['/orgs/:orgId/projects/:projectId/components/:itemId', '/orgs/:orgId/projects/:projectId/components/:itemId/tasks/:subitemId']}>
+                </Stack>
+            } />
+
+            <Route path='components/:itemId/*' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !componentsIsLoading && !templatesIsLoading && !membersIsLoading} />
                     <ContentHeader title={component?.displayName ?? undefined}>
                         <ComponentTaskMenu />
@@ -145,49 +149,64 @@ export const ProjectView: React.FC = () => {
                     <ContentContainer>
                         <ComponentOverview />
                     </ContentContainer>
-                </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/members'>
+                </Stack>
+            } />
+
+            <Route path='members' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading} />
                     <ContentHeader title='Members' />
                     <ContentContainer>
                         <MemberList {...{ project: project, members: members, addMembers: addMembers }} />
                     </ContentContainer>
-                </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/settings'>
+                </Stack>
+            } />
+
+            <Route path='settings' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading} />
                     <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Settings') : 'Settings')}`} coin={project?.displayName !== undefined} />
                     <ContentContainer>
                         <ProjectSettingsOverview />
                     </ContentContainer>
-                </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules'>
+                </Stack>
+            } />
+
+            <Route path='settings/schedules' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !schedulesIsLoading} />
                     <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Schedules') : 'Schedules')}`} coin={project?.displayName !== undefined} />
                     <ContentContainer>
                         <ScheduleList />
                     </ContentContainer>
-                </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules/new'>
+                </Stack>
+            } />
+
+            <Route path='settings/schedules/new' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading && !componentsIsLoading && !templatesIsLoading} />
                     <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - New Schedule') : 'New Schedule')}`} coin={project?.displayName !== undefined} >
                         <IconButton iconProps={{ iconName: 'ChromeClose' }}
-                            onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules`)} />
+                            onClick={() => navigate(`/orgs/${orgId}/projects/${projectId}/settings/schedules`)} />
                     </ContentHeader>
                     <ContentContainer>
                         <ScheduleForm />
                     </ContentContainer>
-                </Route>
-                <Route exact path='/orgs/:orgId/projects/:projectId/settings/schedules/:itemId'>
+                </Stack>
+            } />
+
+            <Route path='settings/schedules/:itemId' element={
+                <Stack>
                     <ContentProgress progressHidden={!orgIsLoading && !projectIsLoading && !membersIsLoading && !componentsIsLoading && !templatesIsLoading && !scheduleIsLoading} />
                     <ContentHeader title={`${(project?.displayName ? (project.displayName + ' - Schedule') : 'Schedule')}`} coin={project?.displayName !== undefined} >
                         <IconButton iconProps={{ iconName: 'ChromeClose' }}
-                            onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings/schedules`)} />
+                            onClick={() => navigate(`/orgs/${orgId}/projects/${projectId}/settings/schedules`)} />
                     </ContentHeader>
                     <ContentContainer>
                         <ScheduleForm />
                     </ContentContainer>
-                </Route>
-            </Switch>
-        </Stack>
+                </Stack>
+            } />
+        </Routes>
     );
 }
