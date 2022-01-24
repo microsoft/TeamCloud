@@ -1,7 +1,7 @@
 @echo off
 
 SET cdir=%~dp0
-SET apiDll="bin\Debug\netcoreapp3.1\TeamCloud.API.dll"
+SET apiDll="bin\Debug\net6.0\TeamCloud.API.dll"
 CD %cdir% && CLS
 
 echo TeamCloud Client Generator
@@ -10,7 +10,7 @@ echo.
 echo Installing AutoRest
 call npm install -g autorest
 
-pushd %cdir%..\src\TeamCloud.API 
+pushd %cdir%..\src\TeamCloud.API
 
     echo Restoring dotnet tools
     dotnet tool restore
@@ -24,17 +24,17 @@ pushd %cdir%..\src\TeamCloud.API
     dotnet swagger tofile --yaml --output ..\..\openapi\openapi.yaml %apiDll% v1
     echo.
 
-popd 
+popd
 
-pushd %cdir%..\web 
+pushd %cdir%..\web
 
     echo Uninstalling teamcloud from web
     call npm uninstall teamcloud
     echo.
 
-popd 
+popd
 
-pushd %cdir%..\web\teamcloud 
+pushd %cdir%..\web\teamcloud
 
     echo [TypeScript] Deleteing old node_modules
     rd /s /q .\node_modules
@@ -44,9 +44,9 @@ pushd %cdir%..\web\teamcloud
     del /f /q .\package-lock.json
     echo.
 
-popd 
+popd
 
-pushd %cdir%..\openapi 
+pushd %cdir%..\openapi
 
     echo Reseting autorest
     call autorest --reset
@@ -60,9 +60,9 @@ pushd %cdir%..\openapi
     call autorest --v3 typescript.md
     echo.
 
-popd 
+popd
 
-pushd %cdir%..\web\teamcloud 
+pushd %cdir%..\web\teamcloud
 
     echo [TypeScript] Installing node packages
     call npm install
@@ -72,15 +72,15 @@ pushd %cdir%..\web\teamcloud
     call npm run-script build
     echo.
 
-popd 
+popd
 
-pushd %cdir%..\web 
+pushd %cdir%..\web
 
     echo [TypeScript] Installing temacloud to web
     call npm install .\teamcloud
     echo.
 
-popd 
+popd
 
 echo Done
 echo.

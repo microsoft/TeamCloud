@@ -2,8 +2,9 @@
 set -e
 
 cdir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+tc_dir=${cdir%/*}
 
-apiDll=${1:-"bin/Debug/netcoreapp3.1/TeamCloud.API.dll"}
+apiDll=${1:-"bin/Debug/net6.0/TeamCloud.API.dll"}
 
 echo "TeamCloud Python & Typescript Client Generator"
 echo ""
@@ -21,7 +22,7 @@ if ! [ -x "$(command -v autorest)" ]; then
 fi
 
 
-pushd $cdir/../src/TeamCloud.API > /dev/null
+pushd $tc_dir/src/TeamCloud.API > /dev/null
 
     echo "Restoring dotnet tools"
     dotnet tool restore
@@ -41,7 +42,7 @@ pushd $cdir/../src/TeamCloud.API > /dev/null
 
 popd > /dev/null
 
-pushd $cdir/../web > /dev/null
+pushd $tc_dir/web > /dev/null
 
     echo "Uninstalling teamcloud from web"
     npm uninstall teamcloud
@@ -49,7 +50,7 @@ pushd $cdir/../web > /dev/null
 
 popd > /dev/null
 
-pushd $cdir/../web/teamcloud > /dev/null
+pushd $tc_dir/web/teamcloud > /dev/null
 
     if [ -d ./node_modules ]; then
         echo "[TypeScript] Deleteing old node_modules"
@@ -65,7 +66,7 @@ pushd $cdir/../web/teamcloud > /dev/null
 
 popd > /dev/null
 
-pushd $cdir/../openapi > /dev/null
+pushd $tc_dir/openapi > /dev/null
 
     echo "Reseting autorest"
     autorest --reset
@@ -81,7 +82,7 @@ pushd $cdir/../openapi > /dev/null
 
 popd > /dev/null
 
-pushd $cdir/../web/teamcloud > /dev/null
+pushd $tc_dir/web/teamcloud > /dev/null
 
     echo "[TypeScript] Installing node packages"
     npm install
@@ -91,9 +92,15 @@ pushd $cdir/../web/teamcloud > /dev/null
     npm run-script build
     echo ""
 
+    if [ -f ./README.md ]; then
+        echo "[TypeScript] Deleteing README.md"
+        rm ./README.md
+        echo ""
+    fi
+
 popd > /dev/null
 
-pushd $cdir/../web > /dev/null
+pushd $tc_dir/web > /dev/null
 
     echo "[TypeScript] Installing temacloud to web"
     npm install ./teamcloud

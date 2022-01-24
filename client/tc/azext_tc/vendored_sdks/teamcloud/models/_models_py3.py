@@ -17,14 +17,15 @@ from ._team_cloud_client_enums import *
 class AdapterInformation(msrest.serialization.Model):
     """AdapterInformation.
 
-    :param type:  Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub".
-    :type type: str or ~teamcloud.models.AdapterInformationType
-    :param display_name:
-    :type display_name: str
-    :param input_data_schema:
-    :type input_data_schema: str
-    :param input_data_form:
-    :type input_data_form: str
+    :ivar type: Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+     "Kubernetes".
+    :vartype type: str or ~teamcloud.models.AdapterInformationType
+    :ivar display_name:
+    :vartype display_name: str
+    :ivar input_data_schema:
+    :vartype input_data_schema: str
+    :ivar input_data_form:
+    :vartype input_data_form: str
     """
 
     _attribute_map = {
@@ -43,6 +44,17 @@ class AdapterInformation(msrest.serialization.Model):
         input_data_form: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword type: Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+         "Kubernetes".
+        :paramtype type: str or ~teamcloud.models.AdapterInformationType
+        :keyword display_name:
+        :paramtype display_name: str
+        :keyword input_data_schema:
+        :paramtype input_data_schema: str
+        :keyword input_data_form:
+        :paramtype input_data_form: str
+        """
         super(AdapterInformation, self).__init__(**kwargs)
         self.type = type
         self.display_name = display_name
@@ -55,14 +67,14 @@ class AdapterInformationListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.AdapterInformation]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -84,6 +96,14 @@ class AdapterInformationListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(AdapterInformationListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -94,8 +114,8 @@ class AdapterInformationListDataResult(msrest.serialization.Model):
 class AlternateIdentity(msrest.serialization.Model):
     """AlternateIdentity.
 
-    :param login:
-    :type login: str
+    :ivar login:
+    :vartype login: str
     """
 
     _attribute_map = {
@@ -108,6 +128,10 @@ class AlternateIdentity(msrest.serialization.Model):
         login: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword login:
+        :paramtype login: str
+        """
         super(AlternateIdentity, self).__init__(**kwargs)
         self.login = login
 
@@ -121,31 +145,31 @@ class CommandAuditEntity(msrest.serialization.Model):
     :vartype command_id: str
     :ivar organization_id:
     :vartype organization_id: str
-    :param command_json:
-    :type command_json: str
-    :param result_json:
-    :type result_json: str
+    :ivar command_json:
+    :vartype command_json: str
+    :ivar result_json:
+    :vartype result_json: str
     :ivar project_id:
     :vartype project_id: str
     :ivar user_id:
     :vartype user_id: str
     :ivar parent_id:
     :vartype parent_id: str
-    :param command:
-    :type command: str
+    :ivar command:
+    :vartype command: str
     :ivar component_task:
     :vartype component_task: str
-    :param runtime_status:  Possible values include: "Unknown", "Running", "Completed",
-     "ContinuedAsNew", "Failed", "Canceled", "Terminated", "Pending".
-    :type runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
-    :param custom_status:
-    :type custom_status: str
-    :param errors:
-    :type errors: str
-    :param created:
-    :type created: ~datetime.datetime
-    :param updated:
-    :type updated: ~datetime.datetime
+    :ivar runtime_status: Possible values include: "Running", "Completed", "ContinuedAsNew",
+     "Failed", "Canceled", "Terminated", "Pending", "Unknown".
+    :vartype runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
+    :ivar custom_status:
+    :vartype custom_status: str
+    :ivar errors:
+    :vartype errors: str
+    :ivar created:
+    :vartype created: ~datetime.datetime
+    :ivar updated:
+    :vartype updated: ~datetime.datetime
     """
 
     _validation = {
@@ -187,6 +211,25 @@ class CommandAuditEntity(msrest.serialization.Model):
         updated: Optional[datetime.datetime] = None,
         **kwargs
     ):
+        """
+        :keyword command_json:
+        :paramtype command_json: str
+        :keyword result_json:
+        :paramtype result_json: str
+        :keyword command:
+        :paramtype command: str
+        :keyword runtime_status: Possible values include: "Running", "Completed", "ContinuedAsNew",
+         "Failed", "Canceled", "Terminated", "Pending", "Unknown".
+        :paramtype runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
+        :keyword custom_status:
+        :paramtype custom_status: str
+        :keyword errors:
+        :paramtype errors: str
+        :keyword created:
+        :paramtype created: ~datetime.datetime
+        :keyword updated:
+        :paramtype updated: ~datetime.datetime
+        """
         super(CommandAuditEntity, self).__init__(**kwargs)
         self.command_id = None
         self.organization_id = None
@@ -207,14 +250,14 @@ class CommandAuditEntity(msrest.serialization.Model):
 class CommandAuditEntityDataResult(msrest.serialization.Model):
     """CommandAuditEntityDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.CommandAuditEntity
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.CommandAuditEntity
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -233,6 +276,16 @@ class CommandAuditEntityDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.CommandAuditEntity
+        :keyword location:
+        :paramtype location: str
+        """
         super(CommandAuditEntityDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -245,14 +298,14 @@ class CommandAuditEntityListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.CommandAuditEntity]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -274,6 +327,14 @@ class CommandAuditEntityListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(CommandAuditEntityListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -286,45 +347,45 @@ class Component(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param href:
-    :type href: str
-    :param organization: Required.
-    :type organization: str
-    :param template_id: Required.
-    :type template_id: str
-    :param project_id: Required.
-    :type project_id: str
-    :param creator: Required.
-    :type creator: str
-    :param display_name:
-    :type display_name: str
-    :param description:
-    :type description: str
-    :param input_json:
-    :type input_json: str
-    :param value_json:
-    :type value_json: str
-    :param type: Required.  Possible values include: "Environment", "Repository".
-    :type type: str or ~teamcloud.models.ComponentType
-    :param resource_id:
-    :type resource_id: str
-    :param resource_url:
-    :type resource_url: str
-    :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar href:
+    :vartype href: str
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar template_id: Required.
+    :vartype template_id: str
+    :ivar project_id: Required.
+    :vartype project_id: str
+    :ivar creator: Required.
+    :vartype creator: str
+    :ivar display_name:
+    :vartype display_name: str
+    :ivar description:
+    :vartype description: str
+    :ivar input_json:
+    :vartype input_json: str
+    :ivar value_json:
+    :vartype value_json: str
+    :ivar type: Required. Possible values include: "Environment", "Repository", "Namespace".
+    :vartype type: str or ~teamcloud.models.ComponentType
+    :ivar resource_id:
+    :vartype resource_id: str
+    :ivar resource_url:
+    :vartype resource_url: str
+    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
-    :type resource_state: str or ~teamcloud.models.ComponentResourceState
-    :param deployment_scope_id:
-    :type deployment_scope_id: str
-    :param identity_id:
-    :type identity_id: str
-    :param deleted:
-    :type deleted: ~datetime.datetime
-    :param ttl:
-    :type ttl: int
-    :param slug: Required.
-    :type slug: str
-    :param id: Required.
-    :type id: str
+    :vartype resource_state: str or ~teamcloud.models.ComponentResourceState
+    :ivar deployment_scope_id:
+    :vartype deployment_scope_id: str
+    :ivar identity_id:
+    :vartype identity_id: str
+    :ivar deleted:
+    :vartype deleted: ~datetime.datetime
+    :ivar ttl:
+    :vartype ttl: int
+    :ivar slug: Required.
+    :vartype slug: str
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -383,6 +444,47 @@ class Component(msrest.serialization.Model):
         ttl: Optional[int] = None,
         **kwargs
     ):
+        """
+        :keyword href:
+        :paramtype href: str
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword template_id: Required.
+        :paramtype template_id: str
+        :keyword project_id: Required.
+        :paramtype project_id: str
+        :keyword creator: Required.
+        :paramtype creator: str
+        :keyword display_name:
+        :paramtype display_name: str
+        :keyword description:
+        :paramtype description: str
+        :keyword input_json:
+        :paramtype input_json: str
+        :keyword value_json:
+        :paramtype value_json: str
+        :keyword type: Required. Possible values include: "Environment", "Repository", "Namespace".
+        :paramtype type: str or ~teamcloud.models.ComponentType
+        :keyword resource_id:
+        :paramtype resource_id: str
+        :keyword resource_url:
+        :paramtype resource_url: str
+        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+         "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
+        :paramtype resource_state: str or ~teamcloud.models.ComponentResourceState
+        :keyword deployment_scope_id:
+        :paramtype deployment_scope_id: str
+        :keyword identity_id:
+        :paramtype identity_id: str
+        :keyword deleted:
+        :paramtype deleted: ~datetime.datetime
+        :keyword ttl:
+        :paramtype ttl: int
+        :keyword slug: Required.
+        :paramtype slug: str
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(Component, self).__init__(**kwargs)
         self.href = href
         self.organization = organization
@@ -408,14 +510,14 @@ class Component(msrest.serialization.Model):
 class ComponentDataResult(msrest.serialization.Model):
     """ComponentDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.Component
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.Component
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -434,6 +536,16 @@ class ComponentDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.Component
+        :keyword location:
+        :paramtype location: str
+        """
         super(ComponentDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -446,14 +558,14 @@ class ComponentDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param template_id: Required.
-    :type template_id: str
-    :param display_name: Required.
-    :type display_name: str
-    :param input_json:
-    :type input_json: str
-    :param deployment_scope_id:
-    :type deployment_scope_id: str
+    :ivar template_id: Required.
+    :vartype template_id: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar input_json:
+    :vartype input_json: str
+    :ivar deployment_scope_id:
+    :vartype deployment_scope_id: str
     """
 
     _validation = {
@@ -477,6 +589,16 @@ class ComponentDefinition(msrest.serialization.Model):
         deployment_scope_id: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword template_id: Required.
+        :paramtype template_id: str
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword input_json:
+        :paramtype input_json: str
+        :keyword deployment_scope_id:
+        :paramtype deployment_scope_id: str
+        """
         super(ComponentDefinition, self).__init__(**kwargs)
         self.template_id = template_id
         self.display_name = display_name
@@ -489,14 +611,14 @@ class ComponentListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.Component]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -518,6 +640,14 @@ class ComponentListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(ComponentListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -530,39 +660,39 @@ class ComponentTask(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param organization: Required.
-    :type organization: str
-    :param component_id: Required.
-    :type component_id: str
-    :param project_id: Required.
-    :type project_id: str
-    :param requested_by:
-    :type requested_by: str
-    :param schedule_id:
-    :type schedule_id: str
-    :param type:  Possible values include: "Custom", "Create", "Delete".
-    :type type: str or ~teamcloud.models.ComponentTaskType
-    :param type_name:
-    :type type_name: str
-    :param created:
-    :type created: ~datetime.datetime
-    :param started:
-    :type started: ~datetime.datetime
-    :param finished:
-    :type finished: ~datetime.datetime
-    :param input_json:
-    :type input_json: str
-    :param output:
-    :type output: str
-    :param resource_id:
-    :type resource_id: str
-    :param task_state:  Possible values include: "Pending", "Initializing", "Processing",
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar component_id: Required.
+    :vartype component_id: str
+    :ivar project_id: Required.
+    :vartype project_id: str
+    :ivar requested_by:
+    :vartype requested_by: str
+    :ivar schedule_id:
+    :vartype schedule_id: str
+    :ivar type: Possible values include: "Custom", "Create", "Delete".
+    :vartype type: str or ~teamcloud.models.ComponentTaskType
+    :ivar type_name:
+    :vartype type_name: str
+    :ivar created:
+    :vartype created: ~datetime.datetime
+    :ivar started:
+    :vartype started: ~datetime.datetime
+    :ivar finished:
+    :vartype finished: ~datetime.datetime
+    :ivar input_json:
+    :vartype input_json: str
+    :ivar output:
+    :vartype output: str
+    :ivar resource_id:
+    :vartype resource_id: str
+    :ivar task_state: Possible values include: "Pending", "Initializing", "Processing",
      "Succeeded", "Canceled", "Failed".
-    :type task_state: str or ~teamcloud.models.ComponentTaskState
-    :param exit_code:
-    :type exit_code: int
-    :param id: Required.
-    :type id: str
+    :vartype task_state: str or ~teamcloud.models.ComponentTaskState
+    :ivar exit_code:
+    :vartype exit_code: int
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -612,6 +742,41 @@ class ComponentTask(msrest.serialization.Model):
         exit_code: Optional[int] = None,
         **kwargs
     ):
+        """
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword component_id: Required.
+        :paramtype component_id: str
+        :keyword project_id: Required.
+        :paramtype project_id: str
+        :keyword requested_by:
+        :paramtype requested_by: str
+        :keyword schedule_id:
+        :paramtype schedule_id: str
+        :keyword type: Possible values include: "Custom", "Create", "Delete".
+        :paramtype type: str or ~teamcloud.models.ComponentTaskType
+        :keyword type_name:
+        :paramtype type_name: str
+        :keyword created:
+        :paramtype created: ~datetime.datetime
+        :keyword started:
+        :paramtype started: ~datetime.datetime
+        :keyword finished:
+        :paramtype finished: ~datetime.datetime
+        :keyword input_json:
+        :paramtype input_json: str
+        :keyword output:
+        :paramtype output: str
+        :keyword resource_id:
+        :paramtype resource_id: str
+        :keyword task_state: Possible values include: "Pending", "Initializing", "Processing",
+         "Succeeded", "Canceled", "Failed".
+        :paramtype task_state: str or ~teamcloud.models.ComponentTaskState
+        :keyword exit_code:
+        :paramtype exit_code: int
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(ComponentTask, self).__init__(**kwargs)
         self.organization = organization
         self.component_id = component_id
@@ -634,14 +799,14 @@ class ComponentTask(msrest.serialization.Model):
 class ComponentTaskDataResult(msrest.serialization.Model):
     """ComponentTaskDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.ComponentTask
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.ComponentTask
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -660,6 +825,16 @@ class ComponentTaskDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.ComponentTask
+        :keyword location:
+        :paramtype location: str
+        """
         super(ComponentTaskDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -672,10 +847,10 @@ class ComponentTaskDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param task_id: Required.
-    :type task_id: str
-    :param input_json:
-    :type input_json: str
+    :ivar task_id: Required.
+    :vartype task_id: str
+    :ivar input_json:
+    :vartype input_json: str
     """
 
     _validation = {
@@ -694,6 +869,12 @@ class ComponentTaskDefinition(msrest.serialization.Model):
         input_json: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword task_id: Required.
+        :paramtype task_id: str
+        :keyword input_json:
+        :paramtype input_json: str
+        """
         super(ComponentTaskDefinition, self).__init__(**kwargs)
         self.task_id = task_id
         self.input_json = input_json
@@ -704,14 +885,14 @@ class ComponentTaskListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.ComponentTask]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -733,6 +914,14 @@ class ComponentTaskListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(ComponentTaskListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -743,12 +932,12 @@ class ComponentTaskListDataResult(msrest.serialization.Model):
 class ComponentTaskReference(msrest.serialization.Model):
     """ComponentTaskReference.
 
-    :param component_id:
-    :type component_id: str
-    :param component_task_template_id:
-    :type component_task_template_id: str
-    :param input_json:
-    :type input_json: str
+    :ivar component_id:
+    :vartype component_id: str
+    :ivar component_task_template_id:
+    :vartype component_task_template_id: str
+    :ivar input_json:
+    :vartype input_json: str
     """
 
     _attribute_map = {
@@ -765,6 +954,14 @@ class ComponentTaskReference(msrest.serialization.Model):
         input_json: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword component_id:
+        :paramtype component_id: str
+        :keyword component_task_template_id:
+        :paramtype component_task_template_id: str
+        :keyword input_json:
+        :paramtype input_json: str
+        """
         super(ComponentTaskReference, self).__init__(**kwargs)
         self.component_id = component_id
         self.component_task_template_id = component_task_template_id
@@ -774,10 +971,10 @@ class ComponentTaskReference(msrest.serialization.Model):
 class ComponentTaskRunner(msrest.serialization.Model):
     """ComponentTaskRunner.
 
-    :param id:
-    :type id: str
-    :param with_property: Dictionary of :code:`<string>`.
-    :type with_property: dict[str, str]
+    :ivar id:
+    :vartype id: str
+    :ivar with_property: Dictionary of :code:`<string>`.
+    :vartype with_property: dict[str, str]
     """
 
     _attribute_map = {
@@ -792,6 +989,12 @@ class ComponentTaskRunner(msrest.serialization.Model):
         with_property: Optional[Dict[str, str]] = None,
         **kwargs
     ):
+        """
+        :keyword id:
+        :paramtype id: str
+        :keyword with_property: Dictionary of :code:`<string>`.
+        :paramtype with_property: dict[str, str]
+        """
         super(ComponentTaskRunner, self).__init__(**kwargs)
         self.id = id
         self.with_property = with_property
@@ -802,16 +1005,16 @@ class ComponentTaskTemplate(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param id:
-    :type id: str
-    :param display_name:
-    :type display_name: str
-    :param description:
-    :type description: str
-    :param input_json_schema:
-    :type input_json_schema: str
-    :param type:  Possible values include: "Custom", "Create", "Delete".
-    :type type: str or ~teamcloud.models.ComponentTaskTemplateType
+    :ivar id:
+    :vartype id: str
+    :ivar display_name:
+    :vartype display_name: str
+    :ivar description:
+    :vartype description: str
+    :ivar input_json_schema:
+    :vartype input_json_schema: str
+    :ivar type: Possible values include: "Custom", "Create", "Delete".
+    :vartype type: str or ~teamcloud.models.ComponentTaskTemplateType
     :ivar type_name:
     :vartype type_name: str
     """
@@ -839,6 +1042,18 @@ class ComponentTaskTemplate(msrest.serialization.Model):
         type: Optional[Union[str, "ComponentTaskTemplateType"]] = None,
         **kwargs
     ):
+        """
+        :keyword id:
+        :paramtype id: str
+        :keyword display_name:
+        :paramtype display_name: str
+        :keyword description:
+        :paramtype description: str
+        :keyword input_json_schema:
+        :paramtype input_json_schema: str
+        :keyword type: Possible values include: "Custom", "Create", "Delete".
+        :paramtype type: str or ~teamcloud.models.ComponentTaskTemplateType
+        """
         super(ComponentTaskTemplate, self).__init__(**kwargs)
         self.id = id
         self.display_name = display_name
@@ -853,32 +1068,32 @@ class ComponentTemplate(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param organization: Required.
-    :type organization: str
-    :param parent_id: Required.
-    :type parent_id: str
-    :param display_name:
-    :type display_name: str
-    :param description:
-    :type description: str
-    :param repository: Required.
-    :type repository: ~teamcloud.models.RepositoryReference
-    :param permissions:
-    :type permissions: ~teamcloud.models.ComponentTemplatePermissions
-    :param input_json_schema:
-    :type input_json_schema: str
-    :param tasks:
-    :type tasks: list[~teamcloud.models.ComponentTaskTemplate]
-    :param task_runner:
-    :type task_runner: ~teamcloud.models.ComponentTaskRunner
-    :param type: Required.  Possible values include: "Environment", "Repository".
-    :type type: str or ~teamcloud.models.ComponentTemplateType
-    :param folder:
-    :type folder: str
-    :param configuration: Anything.
-    :type configuration: any
-    :param id: Required.
-    :type id: str
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar parent_id: Required.
+    :vartype parent_id: str
+    :ivar display_name:
+    :vartype display_name: str
+    :ivar description:
+    :vartype description: str
+    :ivar repository: Required.
+    :vartype repository: ~teamcloud.models.RepositoryReference
+    :ivar permissions:
+    :vartype permissions: ~teamcloud.models.ComponentTemplatePermissions
+    :ivar input_json_schema:
+    :vartype input_json_schema: str
+    :ivar tasks:
+    :vartype tasks: list[~teamcloud.models.ComponentTaskTemplate]
+    :ivar task_runner:
+    :vartype task_runner: ~teamcloud.models.ComponentTaskRunner
+    :ivar type: Required. Possible values include: "Environment", "Repository", "Namespace".
+    :vartype type: str or ~teamcloud.models.ComponentTemplateType
+    :ivar folder:
+    :vartype folder: str
+    :ivar configuration: Anything.
+    :vartype configuration: any
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -923,6 +1138,34 @@ class ComponentTemplate(msrest.serialization.Model):
         configuration: Optional[Any] = None,
         **kwargs
     ):
+        """
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword parent_id: Required.
+        :paramtype parent_id: str
+        :keyword display_name:
+        :paramtype display_name: str
+        :keyword description:
+        :paramtype description: str
+        :keyword repository: Required.
+        :paramtype repository: ~teamcloud.models.RepositoryReference
+        :keyword permissions:
+        :paramtype permissions: ~teamcloud.models.ComponentTemplatePermissions
+        :keyword input_json_schema:
+        :paramtype input_json_schema: str
+        :keyword tasks:
+        :paramtype tasks: list[~teamcloud.models.ComponentTaskTemplate]
+        :keyword task_runner:
+        :paramtype task_runner: ~teamcloud.models.ComponentTaskRunner
+        :keyword type: Required. Possible values include: "Environment", "Repository", "Namespace".
+        :paramtype type: str or ~teamcloud.models.ComponentTemplateType
+        :keyword folder:
+        :paramtype folder: str
+        :keyword configuration: Anything.
+        :paramtype configuration: any
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(ComponentTemplate, self).__init__(**kwargs)
         self.organization = organization
         self.parent_id = parent_id
@@ -942,14 +1185,14 @@ class ComponentTemplate(msrest.serialization.Model):
 class ComponentTemplateDataResult(msrest.serialization.Model):
     """ComponentTemplateDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.ComponentTemplate
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.ComponentTemplate
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -968,6 +1211,16 @@ class ComponentTemplateDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.ComponentTemplate
+        :keyword location:
+        :paramtype location: str
+        """
         super(ComponentTemplateDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -980,14 +1233,14 @@ class ComponentTemplateListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.ComponentTemplate]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -1009,6 +1262,14 @@ class ComponentTemplateListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(ComponentTemplateListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1019,16 +1280,16 @@ class ComponentTemplateListDataResult(msrest.serialization.Model):
 class ComponentTemplatePermissions(msrest.serialization.Model):
     """ComponentTemplatePermissions.
 
-    :param none:
-    :type none: list[str]
-    :param member:
-    :type member: list[str]
-    :param admin:
-    :type admin: list[str]
-    :param owner:
-    :type owner: list[str]
-    :param adapter:
-    :type adapter: list[str]
+    :ivar none:
+    :vartype none: list[str]
+    :ivar member:
+    :vartype member: list[str]
+    :ivar admin:
+    :vartype admin: list[str]
+    :ivar owner:
+    :vartype owner: list[str]
+    :ivar adapter:
+    :vartype adapter: list[str]
     """
 
     _attribute_map = {
@@ -1049,6 +1310,18 @@ class ComponentTemplatePermissions(msrest.serialization.Model):
         adapter: Optional[List[str]] = None,
         **kwargs
     ):
+        """
+        :keyword none:
+        :paramtype none: list[str]
+        :keyword member:
+        :paramtype member: list[str]
+        :keyword admin:
+        :paramtype admin: list[str]
+        :keyword owner:
+        :paramtype owner: list[str]
+        :keyword adapter:
+        :paramtype adapter: list[str]
+        """
         super(ComponentTemplatePermissions, self).__init__(**kwargs)
         self.none = none
         self.member = member
@@ -1062,35 +1335,35 @@ class DeploymentScope(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param organization: Required.
-    :type organization: str
-    :param display_name: Required.
-    :type display_name: str
-    :param slug: Required.
-    :type slug: str
-    :param is_default: Required.
-    :type is_default: bool
-    :param type: Required.  Possible values include: "AzureResourceManager", "AzureDevOps",
-     "GitHub".
-    :type type: str or ~teamcloud.models.DeploymentScopeType
-    :param input_data_schema:
-    :type input_data_schema: str
-    :param input_data:
-    :type input_data: str
-    :param management_group_id:
-    :type management_group_id: str
-    :param subscription_ids:
-    :type subscription_ids: list[str]
-    :param authorizable:
-    :type authorizable: bool
-    :param authorized:
-    :type authorized: bool
-    :param authorize_url:
-    :type authorize_url: str
-    :param component_types:
-    :type component_types: list[str or ~teamcloud.models.DeploymentScopeComponentTypesItem]
-    :param id: Required.
-    :type id: str
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar slug: Required.
+    :vartype slug: str
+    :ivar is_default: Required.
+    :vartype is_default: bool
+    :ivar type: Required. Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+     "Kubernetes".
+    :vartype type: str or ~teamcloud.models.DeploymentScopeType
+    :ivar input_data_schema:
+    :vartype input_data_schema: str
+    :ivar input_data:
+    :vartype input_data: str
+    :ivar management_group_id:
+    :vartype management_group_id: str
+    :ivar subscription_ids:
+    :vartype subscription_ids: list[str]
+    :ivar authorizable:
+    :vartype authorizable: bool
+    :ivar authorized:
+    :vartype authorized: bool
+    :ivar authorize_url:
+    :vartype authorize_url: str
+    :ivar component_types:
+    :vartype component_types: list[str or ~teamcloud.models.DeploymentScopeComponentTypesItem]
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -1138,6 +1411,37 @@ class DeploymentScope(msrest.serialization.Model):
         component_types: Optional[List[Union[str, "DeploymentScopeComponentTypesItem"]]] = None,
         **kwargs
     ):
+        """
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword slug: Required.
+        :paramtype slug: str
+        :keyword is_default: Required.
+        :paramtype is_default: bool
+        :keyword type: Required. Possible values include: "AzureResourceManager", "AzureDevOps",
+         "GitHub", "Kubernetes".
+        :paramtype type: str or ~teamcloud.models.DeploymentScopeType
+        :keyword input_data_schema:
+        :paramtype input_data_schema: str
+        :keyword input_data:
+        :paramtype input_data: str
+        :keyword management_group_id:
+        :paramtype management_group_id: str
+        :keyword subscription_ids:
+        :paramtype subscription_ids: list[str]
+        :keyword authorizable:
+        :paramtype authorizable: bool
+        :keyword authorized:
+        :paramtype authorized: bool
+        :keyword authorize_url:
+        :paramtype authorize_url: str
+        :keyword component_types:
+        :paramtype component_types: list[str or ~teamcloud.models.DeploymentScopeComponentTypesItem]
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(DeploymentScope, self).__init__(**kwargs)
         self.organization = organization
         self.display_name = display_name
@@ -1158,14 +1462,14 @@ class DeploymentScope(msrest.serialization.Model):
 class DeploymentScopeDataResult(msrest.serialization.Model):
     """DeploymentScopeDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.DeploymentScope
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.DeploymentScope
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -1184,6 +1488,16 @@ class DeploymentScopeDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.DeploymentScope
+        :keyword location:
+        :paramtype location: str
+        """
         super(DeploymentScopeDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1198,17 +1512,17 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param display_name: Required.
-    :type display_name: str
-    :param type: Required.  Possible values include: "AzureResourceManager", "AzureDevOps",
-     "GitHub".
-    :type type: str or ~teamcloud.models.DeploymentScopeDefinitionType
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar type: Required. Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+     "Kubernetes".
+    :vartype type: str or ~teamcloud.models.DeploymentScopeDefinitionType
     :ivar slug:
     :vartype slug: str
-    :param input_data:
-    :type input_data: str
-    :param is_default:
-    :type is_default: bool
+    :ivar input_data:
+    :vartype input_data: str
+    :ivar is_default:
+    :vartype is_default: bool
     """
 
     _validation = {
@@ -1234,6 +1548,17 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
         is_default: Optional[bool] = None,
         **kwargs
     ):
+        """
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword type: Required. Possible values include: "AzureResourceManager", "AzureDevOps",
+         "GitHub", "Kubernetes".
+        :paramtype type: str or ~teamcloud.models.DeploymentScopeDefinitionType
+        :keyword input_data:
+        :paramtype input_data: str
+        :keyword is_default:
+        :paramtype is_default: bool
+        """
         super(DeploymentScopeDefinition, self).__init__(**kwargs)
         self.display_name = display_name
         self.type = type
@@ -1247,14 +1572,14 @@ class DeploymentScopeListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.DeploymentScope]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -1276,6 +1601,14 @@ class DeploymentScopeListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(DeploymentScopeListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1286,12 +1619,12 @@ class DeploymentScopeListDataResult(msrest.serialization.Model):
 class ErrorResult(msrest.serialization.Model):
     """ErrorResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param errors:
-    :type errors: list[~teamcloud.models.ResultError]
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar errors:
+    :vartype errors: list[~teamcloud.models.ResultError]
     """
 
     _attribute_map = {
@@ -1308,6 +1641,14 @@ class ErrorResult(msrest.serialization.Model):
         errors: Optional[List["ResultError"]] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword errors:
+        :paramtype errors: list[~teamcloud.models.ResultError]
+        """
         super(ErrorResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1319,31 +1660,33 @@ class Organization(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param tenant: Required.
-    :type tenant: str
-    :param slug: Required.
-    :type slug: str
-    :param display_name: Required.
-    :type display_name: str
-    :param subscription_id: Required.
-    :type subscription_id: str
-    :param location: Required.
-    :type location: str
-    :param tags: A set of tags. Dictionary of :code:`<string>`.
-    :type tags: dict[str, str]
-    :param resource_id:
-    :type resource_id: str
-    :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar tenant: Required.
+    :vartype tenant: str
+    :ivar slug: Required.
+    :vartype slug: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar subscription_id: Required.
+    :vartype subscription_id: str
+    :ivar location: Required.
+    :vartype location: str
+    :ivar tags: A set of tags. Dictionary of :code:`<string>`.
+    :vartype tags: dict[str, str]
+    :ivar resource_id:
+    :vartype resource_id: str
+    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
-    :type resource_state: str or ~teamcloud.models.OrganizationResourceState
-    :param gallery_id:
-    :type gallery_id: str
-    :param registry_id:
-    :type registry_id: str
-    :param storage_id:
-    :type storage_id: str
-    :param id: Required.
-    :type id: str
+    :vartype resource_state: str or ~teamcloud.models.OrganizationResourceState
+    :ivar secrets_vault_id:
+    :vartype secrets_vault_id: str
+    :ivar gallery_id:
+    :vartype gallery_id: str
+    :ivar registry_id:
+    :vartype registry_id: str
+    :ivar storage_id:
+    :vartype storage_id: str
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -1364,6 +1707,7 @@ class Organization(msrest.serialization.Model):
         'tags': {'key': 'tags', 'type': '{str}'},
         'resource_id': {'key': 'resourceId', 'type': 'str'},
         'resource_state': {'key': 'resourceState', 'type': 'str'},
+        'secrets_vault_id': {'key': 'secretsVaultId', 'type': 'str'},
         'gallery_id': {'key': 'galleryId', 'type': 'str'},
         'registry_id': {'key': 'registryId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
@@ -1382,11 +1726,41 @@ class Organization(msrest.serialization.Model):
         tags: Optional[Dict[str, str]] = None,
         resource_id: Optional[str] = None,
         resource_state: Optional[Union[str, "OrganizationResourceState"]] = None,
+        secrets_vault_id: Optional[str] = None,
         gallery_id: Optional[str] = None,
         registry_id: Optional[str] = None,
         storage_id: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword tenant: Required.
+        :paramtype tenant: str
+        :keyword slug: Required.
+        :paramtype slug: str
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword subscription_id: Required.
+        :paramtype subscription_id: str
+        :keyword location: Required.
+        :paramtype location: str
+        :keyword tags: A set of tags. Dictionary of :code:`<string>`.
+        :paramtype tags: dict[str, str]
+        :keyword resource_id:
+        :paramtype resource_id: str
+        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+         "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
+        :paramtype resource_state: str or ~teamcloud.models.OrganizationResourceState
+        :keyword secrets_vault_id:
+        :paramtype secrets_vault_id: str
+        :keyword gallery_id:
+        :paramtype gallery_id: str
+        :keyword registry_id:
+        :paramtype registry_id: str
+        :keyword storage_id:
+        :paramtype storage_id: str
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(Organization, self).__init__(**kwargs)
         self.tenant = tenant
         self.slug = slug
@@ -1396,6 +1770,7 @@ class Organization(msrest.serialization.Model):
         self.tags = tags
         self.resource_id = resource_id
         self.resource_state = resource_state
+        self.secrets_vault_id = secrets_vault_id
         self.gallery_id = gallery_id
         self.registry_id = registry_id
         self.storage_id = storage_id
@@ -1405,14 +1780,14 @@ class Organization(msrest.serialization.Model):
 class OrganizationDataResult(msrest.serialization.Model):
     """OrganizationDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.Organization
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.Organization
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -1431,6 +1806,16 @@ class OrganizationDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.Organization
+        :keyword location:
+        :paramtype location: str
+        """
         super(OrganizationDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1447,12 +1832,12 @@ class OrganizationDefinition(msrest.serialization.Model):
 
     :ivar slug:
     :vartype slug: str
-    :param display_name: Required.
-    :type display_name: str
-    :param subscription_id: Required.
-    :type subscription_id: str
-    :param location: Required.
-    :type location: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar subscription_id: Required.
+    :vartype subscription_id: str
+    :ivar location: Required.
+    :vartype location: str
     """
 
     _validation = {
@@ -1477,6 +1862,14 @@ class OrganizationDefinition(msrest.serialization.Model):
         location: str,
         **kwargs
     ):
+        """
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword subscription_id: Required.
+        :paramtype subscription_id: str
+        :keyword location: Required.
+        :paramtype location: str
+        """
         super(OrganizationDefinition, self).__init__(**kwargs)
         self.slug = None
         self.display_name = display_name
@@ -1489,14 +1882,14 @@ class OrganizationListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.Organization]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -1518,6 +1911,14 @@ class OrganizationListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(OrganizationListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1532,39 +1933,39 @@ class Project(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param organization: Required.
-    :type organization: str
-    :param slug: Required.
-    :type slug: str
-    :param display_name: Required.
-    :type display_name: str
-    :param template: Required.
-    :type template: str
-    :param template_input:
-    :type template_input: str
-    :param users:
-    :type users: list[~teamcloud.models.User]
-    :param tags: A set of tags. Dictionary of :code:`<string>`.
-    :type tags: dict[str, str]
-    :param resource_id:
-    :type resource_id: str
-    :param resource_state:  Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar slug: Required.
+    :vartype slug: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar template: Required.
+    :vartype template: str
+    :ivar template_input:
+    :vartype template_input: str
+    :ivar users:
+    :vartype users: list[~teamcloud.models.User]
+    :ivar tags: A set of tags. Dictionary of :code:`<string>`.
+    :vartype tags: dict[str, str]
+    :ivar resource_id:
+    :vartype resource_id: str
+    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
-    :type resource_state: str or ~teamcloud.models.ProjectResourceState
+    :vartype resource_state: str or ~teamcloud.models.ProjectResourceState
     :ivar vault_id:
     :vartype vault_id: str
-    :param shared_vault_id:
-    :type shared_vault_id: str
-    :param secrets_vault_id:
-    :type secrets_vault_id: str
-    :param storage_id:
-    :type storage_id: str
-    :param deleted:
-    :type deleted: ~datetime.datetime
-    :param ttl:
-    :type ttl: int
-    :param id: Required.
-    :type id: str
+    :ivar shared_vault_id:
+    :vartype shared_vault_id: str
+    :ivar secrets_vault_id:
+    :vartype secrets_vault_id: str
+    :ivar storage_id:
+    :vartype storage_id: str
+    :ivar deleted:
+    :vartype deleted: ~datetime.datetime
+    :ivar ttl:
+    :vartype ttl: int
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -1615,6 +2016,39 @@ class Project(msrest.serialization.Model):
         ttl: Optional[int] = None,
         **kwargs
     ):
+        """
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword slug: Required.
+        :paramtype slug: str
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword template: Required.
+        :paramtype template: str
+        :keyword template_input:
+        :paramtype template_input: str
+        :keyword users:
+        :paramtype users: list[~teamcloud.models.User]
+        :keyword tags: A set of tags. Dictionary of :code:`<string>`.
+        :paramtype tags: dict[str, str]
+        :keyword resource_id:
+        :paramtype resource_id: str
+        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+         "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
+        :paramtype resource_state: str or ~teamcloud.models.ProjectResourceState
+        :keyword shared_vault_id:
+        :paramtype shared_vault_id: str
+        :keyword secrets_vault_id:
+        :paramtype secrets_vault_id: str
+        :keyword storage_id:
+        :paramtype storage_id: str
+        :keyword deleted:
+        :paramtype deleted: ~datetime.datetime
+        :keyword ttl:
+        :paramtype ttl: int
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(Project, self).__init__(**kwargs)
         self.organization = organization
         self.slug = slug
@@ -1637,14 +2071,14 @@ class Project(msrest.serialization.Model):
 class ProjectDataResult(msrest.serialization.Model):
     """ProjectDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.Project
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.Project
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -1663,6 +2097,16 @@ class ProjectDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.Project
+        :keyword location:
+        :paramtype location: str
+        """
         super(ProjectDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1679,14 +2123,14 @@ class ProjectDefinition(msrest.serialization.Model):
 
     :ivar slug:
     :vartype slug: str
-    :param display_name: Required.
-    :type display_name: str
-    :param template: Required.
-    :type template: str
-    :param template_input: Required.
-    :type template_input: str
-    :param users:
-    :type users: list[~teamcloud.models.UserDefinition]
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar template: Required.
+    :vartype template: str
+    :ivar template_input: Required.
+    :vartype template_input: str
+    :ivar users:
+    :vartype users: list[~teamcloud.models.UserDefinition]
     """
 
     _validation = {
@@ -1713,6 +2157,16 @@ class ProjectDefinition(msrest.serialization.Model):
         users: Optional[List["UserDefinition"]] = None,
         **kwargs
     ):
+        """
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword template: Required.
+        :paramtype template: str
+        :keyword template_input: Required.
+        :paramtype template_input: str
+        :keyword users:
+        :paramtype users: list[~teamcloud.models.UserDefinition]
+        """
         super(ProjectDefinition, self).__init__(**kwargs)
         self.slug = None
         self.display_name = display_name
@@ -1726,26 +2180,26 @@ class ProjectIdentity(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param project_id: Required.
-    :type project_id: str
-    :param organization: Required.
-    :type organization: str
-    :param display_name: Required.
-    :type display_name: str
-    :param deployment_scope_id: Required.
-    :type deployment_scope_id: str
-    :param tenant_id:
-    :type tenant_id: str
-    :param client_id:
-    :type client_id: str
-    :param client_secret:
-    :type client_secret: str
-    :param redirect_urls:
-    :type redirect_urls: list[str]
-    :param object_id:
-    :type object_id: str
-    :param id: Required.
-    :type id: str
+    :ivar project_id: Required.
+    :vartype project_id: str
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar deployment_scope_id: Required.
+    :vartype deployment_scope_id: str
+    :ivar tenant_id:
+    :vartype tenant_id: str
+    :ivar client_id:
+    :vartype client_id: str
+    :ivar client_secret:
+    :vartype client_secret: str
+    :ivar redirect_urls:
+    :vartype redirect_urls: list[str]
+    :ivar object_id:
+    :vartype object_id: str
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -1784,6 +2238,28 @@ class ProjectIdentity(msrest.serialization.Model):
         object_id: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword project_id: Required.
+        :paramtype project_id: str
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword deployment_scope_id: Required.
+        :paramtype deployment_scope_id: str
+        :keyword tenant_id:
+        :paramtype tenant_id: str
+        :keyword client_id:
+        :paramtype client_id: str
+        :keyword client_secret:
+        :paramtype client_secret: str
+        :keyword redirect_urls:
+        :paramtype redirect_urls: list[str]
+        :keyword object_id:
+        :paramtype object_id: str
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(ProjectIdentity, self).__init__(**kwargs)
         self.project_id = project_id
         self.organization = organization
@@ -1800,14 +2276,14 @@ class ProjectIdentity(msrest.serialization.Model):
 class ProjectIdentityDataResult(msrest.serialization.Model):
     """ProjectIdentityDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.ProjectIdentity
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.ProjectIdentity
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -1826,6 +2302,16 @@ class ProjectIdentityDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.ProjectIdentity
+        :keyword location:
+        :paramtype location: str
+        """
         super(ProjectIdentityDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1838,10 +2324,10 @@ class ProjectIdentityDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param display_name: Required.
-    :type display_name: str
-    :param deployment_scope_id: Required.
-    :type deployment_scope_id: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar deployment_scope_id: Required.
+    :vartype deployment_scope_id: str
     """
 
     _validation = {
@@ -1861,6 +2347,12 @@ class ProjectIdentityDefinition(msrest.serialization.Model):
         deployment_scope_id: str,
         **kwargs
     ):
+        """
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword deployment_scope_id: Required.
+        :paramtype deployment_scope_id: str
+        """
         super(ProjectIdentityDefinition, self).__init__(**kwargs)
         self.display_name = display_name
         self.deployment_scope_id = deployment_scope_id
@@ -1871,14 +2363,14 @@ class ProjectIdentityListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.ProjectIdentity]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -1900,6 +2392,14 @@ class ProjectIdentityListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(ProjectIdentityListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1912,14 +2412,14 @@ class ProjectListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.Project]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -1941,6 +2441,14 @@ class ProjectListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(ProjectListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -1953,12 +2461,12 @@ class ProjectMembership(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param project_id: Required.
-    :type project_id: str
-    :param role: Required.  Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
-    :type role: str or ~teamcloud.models.ProjectMembershipRole
-    :param properties: Dictionary of :code:`<string>`.
-    :type properties: dict[str, str]
+    :ivar project_id: Required.
+    :vartype project_id: str
+    :ivar role: Required. Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
+    :vartype role: str or ~teamcloud.models.ProjectMembershipRole
+    :ivar properties: Dictionary of :code:`<string>`.
+    :vartype properties: dict[str, str]
     """
 
     _validation = {
@@ -1980,6 +2488,15 @@ class ProjectMembership(msrest.serialization.Model):
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
+        """
+        :keyword project_id: Required.
+        :paramtype project_id: str
+        :keyword role: Required. Possible values include: "None", "Member", "Admin", "Owner",
+         "Adapter".
+        :paramtype role: str or ~teamcloud.models.ProjectMembershipRole
+        :keyword properties: Dictionary of :code:`<string>`.
+        :paramtype properties: dict[str, str]
+        """
         super(ProjectMembership, self).__init__(**kwargs)
         self.project_id = project_id
         self.role = role
@@ -1991,26 +2508,26 @@ class ProjectTemplate(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param organization: Required.
-    :type organization: str
-    :param slug: Required.
-    :type slug: str
-    :param name:
-    :type name: str
-    :param display_name: Required.
-    :type display_name: str
-    :param components:
-    :type components: list[str]
-    :param repository: Required.
-    :type repository: ~teamcloud.models.RepositoryReference
-    :param description:
-    :type description: str
-    :param is_default: Required.
-    :type is_default: bool
-    :param input_json_schema:
-    :type input_json_schema: str
-    :param id: Required.
-    :type id: str
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar slug: Required.
+    :vartype slug: str
+    :ivar name:
+    :vartype name: str
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar components:
+    :vartype components: list[str]
+    :ivar repository: Required.
+    :vartype repository: ~teamcloud.models.RepositoryReference
+    :ivar description:
+    :vartype description: str
+    :ivar is_default: Required.
+    :vartype is_default: bool
+    :ivar input_json_schema:
+    :vartype input_json_schema: str
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -2050,6 +2567,28 @@ class ProjectTemplate(msrest.serialization.Model):
         input_json_schema: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword slug: Required.
+        :paramtype slug: str
+        :keyword name:
+        :paramtype name: str
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword components:
+        :paramtype components: list[str]
+        :keyword repository: Required.
+        :paramtype repository: ~teamcloud.models.RepositoryReference
+        :keyword description:
+        :paramtype description: str
+        :keyword is_default: Required.
+        :paramtype is_default: bool
+        :keyword input_json_schema:
+        :paramtype input_json_schema: str
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(ProjectTemplate, self).__init__(**kwargs)
         self.organization = organization
         self.slug = slug
@@ -2066,14 +2605,14 @@ class ProjectTemplate(msrest.serialization.Model):
 class ProjectTemplateDataResult(msrest.serialization.Model):
     """ProjectTemplateDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.ProjectTemplate
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.ProjectTemplate
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -2092,6 +2631,16 @@ class ProjectTemplateDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.ProjectTemplate
+        :keyword location:
+        :paramtype location: str
+        """
         super(ProjectTemplateDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2104,10 +2653,10 @@ class ProjectTemplateDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param display_name: Required.
-    :type display_name: str
-    :param repository: Required.
-    :type repository: ~teamcloud.models.RepositoryDefinition
+    :ivar display_name: Required.
+    :vartype display_name: str
+    :ivar repository: Required.
+    :vartype repository: ~teamcloud.models.RepositoryDefinition
     """
 
     _validation = {
@@ -2127,6 +2676,12 @@ class ProjectTemplateDefinition(msrest.serialization.Model):
         repository: "RepositoryDefinition",
         **kwargs
     ):
+        """
+        :keyword display_name: Required.
+        :paramtype display_name: str
+        :keyword repository: Required.
+        :paramtype repository: ~teamcloud.models.RepositoryDefinition
+        """
         super(ProjectTemplateDefinition, self).__init__(**kwargs)
         self.display_name = display_name
         self.repository = repository
@@ -2137,14 +2692,14 @@ class ProjectTemplateListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.ProjectTemplate]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -2166,6 +2721,14 @@ class ProjectTemplateListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(ProjectTemplateListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2178,12 +2741,12 @@ class RepositoryDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param url: Required.
-    :type url: str
-    :param token:
-    :type token: str
-    :param version:
-    :type version: str
+    :ivar url: Required.
+    :vartype url: str
+    :ivar token:
+    :vartype token: str
+    :ivar version:
+    :vartype version: str
     """
 
     _validation = {
@@ -2204,6 +2767,14 @@ class RepositoryDefinition(msrest.serialization.Model):
         version: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword url: Required.
+        :paramtype url: str
+        :keyword token:
+        :paramtype token: str
+        :keyword version:
+        :paramtype version: str
+        """
         super(RepositoryDefinition, self).__init__(**kwargs)
         self.url = url
         self.token = token
@@ -2215,28 +2786,28 @@ class RepositoryReference(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param url: Required.
-    :type url: str
-    :param token:
-    :type token: str
-    :param version:
-    :type version: str
-    :param basel_url:
-    :type basel_url: str
-    :param mount_url:
-    :type mount_url: str
-    :param ref:
-    :type ref: str
-    :param provider: Required.  Possible values include: "Unknown", "GitHub", "DevOps".
-    :type provider: str or ~teamcloud.models.RepositoryReferenceProvider
-    :param type: Required.  Possible values include: "Unknown", "Tag", "Branch", "Hash".
-    :type type: str or ~teamcloud.models.RepositoryReferenceType
-    :param organization:
-    :type organization: str
-    :param repository:
-    :type repository: str
-    :param project:
-    :type project: str
+    :ivar url: Required.
+    :vartype url: str
+    :ivar token:
+    :vartype token: str
+    :ivar version:
+    :vartype version: str
+    :ivar basel_url:
+    :vartype basel_url: str
+    :ivar mount_url:
+    :vartype mount_url: str
+    :ivar ref:
+    :vartype ref: str
+    :ivar provider: Required. Possible values include: "Unknown", "GitHub", "DevOps".
+    :vartype provider: str or ~teamcloud.models.RepositoryReferenceProvider
+    :ivar type: Required. Possible values include: "Unknown", "Tag", "Branch", "Hash".
+    :vartype type: str or ~teamcloud.models.RepositoryReferenceType
+    :ivar organization:
+    :vartype organization: str
+    :ivar repository:
+    :vartype repository: str
+    :ivar project:
+    :vartype project: str
     """
 
     _validation = {
@@ -2275,6 +2846,30 @@ class RepositoryReference(msrest.serialization.Model):
         project: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword url: Required.
+        :paramtype url: str
+        :keyword token:
+        :paramtype token: str
+        :keyword version:
+        :paramtype version: str
+        :keyword basel_url:
+        :paramtype basel_url: str
+        :keyword mount_url:
+        :paramtype mount_url: str
+        :keyword ref:
+        :paramtype ref: str
+        :keyword provider: Required. Possible values include: "Unknown", "GitHub", "DevOps".
+        :paramtype provider: str or ~teamcloud.models.RepositoryReferenceProvider
+        :keyword type: Required. Possible values include: "Unknown", "Tag", "Branch", "Hash".
+        :paramtype type: str or ~teamcloud.models.RepositoryReferenceType
+        :keyword organization:
+        :paramtype organization: str
+        :keyword repository:
+        :paramtype repository: str
+        :keyword project:
+        :paramtype project: str
+        """
         super(RepositoryReference, self).__init__(**kwargs)
         self.url = url
         self.token = token
@@ -2292,13 +2887,13 @@ class RepositoryReference(msrest.serialization.Model):
 class ResultError(msrest.serialization.Model):
     """ResultError.
 
-    :param code:  Possible values include: "Unknown", "Failed", "Conflict", "NotFound",
+    :ivar code: Possible values include: "Unknown", "Failed", "Conflict", "NotFound",
      "ServerError", "ValidationError", "Unauthorized", "Forbidden".
-    :type code: str or ~teamcloud.models.ResultErrorCode
-    :param message:
-    :type message: str
-    :param errors:
-    :type errors: list[~teamcloud.models.ValidationError]
+    :vartype code: str or ~teamcloud.models.ResultErrorCode
+    :ivar message:
+    :vartype message: str
+    :ivar errors:
+    :vartype errors: list[~teamcloud.models.ValidationError]
     """
 
     _attribute_map = {
@@ -2315,6 +2910,15 @@ class ResultError(msrest.serialization.Model):
         errors: Optional[List["ValidationError"]] = None,
         **kwargs
     ):
+        """
+        :keyword code: Possible values include: "Unknown", "Failed", "Conflict", "NotFound",
+         "ServerError", "ValidationError", "Unauthorized", "Forbidden".
+        :paramtype code: str or ~teamcloud.models.ResultErrorCode
+        :keyword message:
+        :paramtype message: str
+        :keyword errors:
+        :paramtype errors: list[~teamcloud.models.ValidationError]
+        """
         super(ResultError, self).__init__(**kwargs)
         self.code = code
         self.message = message
@@ -2326,34 +2930,34 @@ class Schedule(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param organization: Required.
-    :type organization: str
-    :param project_id: Required.
-    :type project_id: str
-    :param enabled:
-    :type enabled: bool
-    :param recurring:
-    :type recurring: bool
-    :param days_of_week:
-    :type days_of_week: list[str or ~teamcloud.models.ScheduleDaysOfWeekItem]
-    :param utc_hour:
-    :type utc_hour: int
-    :param utc_minute:
-    :type utc_minute: int
-    :param creator:
-    :type creator: str
-    :param created:
-    :type created: ~datetime.datetime
-    :param last_updated_by:
-    :type last_updated_by: str
-    :param last_updated:
-    :type last_updated: ~datetime.datetime
-    :param last_run:
-    :type last_run: ~datetime.datetime
-    :param component_tasks:
-    :type component_tasks: list[~teamcloud.models.ComponentTaskReference]
-    :param id: Required.
-    :type id: str
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar project_id: Required.
+    :vartype project_id: str
+    :ivar enabled:
+    :vartype enabled: bool
+    :ivar recurring:
+    :vartype recurring: bool
+    :ivar days_of_week:
+    :vartype days_of_week: list[str or ~teamcloud.models.ScheduleDaysOfWeekItem]
+    :ivar utc_hour:
+    :vartype utc_hour: int
+    :ivar utc_minute:
+    :vartype utc_minute: int
+    :ivar creator:
+    :vartype creator: str
+    :ivar created:
+    :vartype created: ~datetime.datetime
+    :ivar last_updated_by:
+    :vartype last_updated_by: str
+    :ivar last_updated:
+    :vartype last_updated: ~datetime.datetime
+    :ivar last_run:
+    :vartype last_run: ~datetime.datetime
+    :ivar component_tasks:
+    :vartype component_tasks: list[~teamcloud.models.ComponentTaskReference]
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -2398,6 +3002,36 @@ class Schedule(msrest.serialization.Model):
         component_tasks: Optional[List["ComponentTaskReference"]] = None,
         **kwargs
     ):
+        """
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword project_id: Required.
+        :paramtype project_id: str
+        :keyword enabled:
+        :paramtype enabled: bool
+        :keyword recurring:
+        :paramtype recurring: bool
+        :keyword days_of_week:
+        :paramtype days_of_week: list[str or ~teamcloud.models.ScheduleDaysOfWeekItem]
+        :keyword utc_hour:
+        :paramtype utc_hour: int
+        :keyword utc_minute:
+        :paramtype utc_minute: int
+        :keyword creator:
+        :paramtype creator: str
+        :keyword created:
+        :paramtype created: ~datetime.datetime
+        :keyword last_updated_by:
+        :paramtype last_updated_by: str
+        :keyword last_updated:
+        :paramtype last_updated: ~datetime.datetime
+        :keyword last_run:
+        :paramtype last_run: ~datetime.datetime
+        :keyword component_tasks:
+        :paramtype component_tasks: list[~teamcloud.models.ComponentTaskReference]
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(Schedule, self).__init__(**kwargs)
         self.organization = organization
         self.project_id = project_id
@@ -2418,14 +3052,14 @@ class Schedule(msrest.serialization.Model):
 class ScheduleDataResult(msrest.serialization.Model):
     """ScheduleDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.Schedule
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.Schedule
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -2444,6 +3078,16 @@ class ScheduleDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.Schedule
+        :keyword location:
+        :paramtype location: str
+        """
         super(ScheduleDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2454,18 +3098,18 @@ class ScheduleDataResult(msrest.serialization.Model):
 class ScheduleDefinition(msrest.serialization.Model):
     """ScheduleDefinition.
 
-    :param enabled:
-    :type enabled: bool
-    :param recurring:
-    :type recurring: bool
-    :param days_of_week:
-    :type days_of_week: list[str or ~teamcloud.models.ScheduleDefinitionDaysOfWeekItem]
-    :param utc_hour:
-    :type utc_hour: int
-    :param utc_minute:
-    :type utc_minute: int
-    :param component_tasks:
-    :type component_tasks: list[~teamcloud.models.ComponentTaskReference]
+    :ivar enabled:
+    :vartype enabled: bool
+    :ivar recurring:
+    :vartype recurring: bool
+    :ivar days_of_week:
+    :vartype days_of_week: list[str or ~teamcloud.models.ScheduleDefinitionDaysOfWeekItem]
+    :ivar utc_hour:
+    :vartype utc_hour: int
+    :ivar utc_minute:
+    :vartype utc_minute: int
+    :ivar component_tasks:
+    :vartype component_tasks: list[~teamcloud.models.ComponentTaskReference]
     """
 
     _attribute_map = {
@@ -2488,6 +3132,20 @@ class ScheduleDefinition(msrest.serialization.Model):
         component_tasks: Optional[List["ComponentTaskReference"]] = None,
         **kwargs
     ):
+        """
+        :keyword enabled:
+        :paramtype enabled: bool
+        :keyword recurring:
+        :paramtype recurring: bool
+        :keyword days_of_week:
+        :paramtype days_of_week: list[str or ~teamcloud.models.ScheduleDefinitionDaysOfWeekItem]
+        :keyword utc_hour:
+        :paramtype utc_hour: int
+        :keyword utc_minute:
+        :paramtype utc_minute: int
+        :keyword component_tasks:
+        :paramtype component_tasks: list[~teamcloud.models.ComponentTaskReference]
+        """
         super(ScheduleDefinition, self).__init__(**kwargs)
         self.enabled = enabled
         self.recurring = recurring
@@ -2502,14 +3160,14 @@ class ScheduleListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.Schedule]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -2531,6 +3189,14 @@ class ScheduleListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(ScheduleListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2543,20 +3209,20 @@ class StatusResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar state:
     :vartype state: str
-    :param state_message:
-    :type state_message: str
-    :param location:
-    :type location: str
-    :param errors:
-    :type errors: list[~teamcloud.models.ResultError]
-    :param tracking_id:
-    :type tracking_id: str
+    :ivar state_message:
+    :vartype state_message: str
+    :ivar location:
+    :vartype location: str
+    :ivar errors:
+    :vartype errors: list[~teamcloud.models.ResultError]
+    :ivar tracking_id:
+    :vartype tracking_id: str
     """
 
     _validation = {
@@ -2584,6 +3250,20 @@ class StatusResult(msrest.serialization.Model):
         tracking_id: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword state_message:
+        :paramtype state_message: str
+        :keyword location:
+        :paramtype location: str
+        :keyword errors:
+        :paramtype errors: list[~teamcloud.models.ResultError]
+        :keyword tracking_id:
+        :paramtype tracking_id: str
+        """
         super(StatusResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2599,14 +3279,14 @@ class StringDictionaryDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data: Dictionary of :code:`<string>`.
     :vartype data: dict[str, str]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -2628,6 +3308,14 @@ class StringDictionaryDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(StringDictionaryDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2640,14 +3328,14 @@ class StringListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[str]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -2669,6 +3357,14 @@ class StringListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(StringListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2681,26 +3377,26 @@ class User(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param organization: Required.
-    :type organization: str
-    :param display_name:
-    :type display_name: str
-    :param login_name:
-    :type login_name: str
-    :param mail_address:
-    :type mail_address: str
-    :param user_type: Required.  Possible values include: "User", "Group", "System", "Service".
-    :type user_type: str or ~teamcloud.models.UserType
-    :param role: Required.  Possible values include: "None", "Member", "Admin", "Owner".
-    :type role: str or ~teamcloud.models.UserRole
-    :param project_memberships:
-    :type project_memberships: list[~teamcloud.models.ProjectMembership]
-    :param alternate_identities:
-    :type alternate_identities: ~teamcloud.models.UserAlternateIdentities
-    :param properties: Dictionary of :code:`<string>`.
-    :type properties: dict[str, str]
-    :param id: Required.
-    :type id: str
+    :ivar organization: Required.
+    :vartype organization: str
+    :ivar display_name:
+    :vartype display_name: str
+    :ivar login_name:
+    :vartype login_name: str
+    :ivar mail_address:
+    :vartype mail_address: str
+    :ivar user_type: Required. Possible values include: "User", "Group", "System", "Service".
+    :vartype user_type: str or ~teamcloud.models.UserType
+    :ivar role: Required. Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
+    :vartype role: str or ~teamcloud.models.UserRole
+    :ivar project_memberships:
+    :vartype project_memberships: list[~teamcloud.models.ProjectMembership]
+    :ivar alternate_identities:
+    :vartype alternate_identities: ~teamcloud.models.UserAlternateIdentities
+    :ivar properties: Dictionary of :code:`<string>`.
+    :vartype properties: dict[str, str]
+    :ivar id: Required.
+    :vartype id: str
     """
 
     _validation = {
@@ -2738,6 +3434,29 @@ class User(msrest.serialization.Model):
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
+        """
+        :keyword organization: Required.
+        :paramtype organization: str
+        :keyword display_name:
+        :paramtype display_name: str
+        :keyword login_name:
+        :paramtype login_name: str
+        :keyword mail_address:
+        :paramtype mail_address: str
+        :keyword user_type: Required. Possible values include: "User", "Group", "System", "Service".
+        :paramtype user_type: str or ~teamcloud.models.UserType
+        :keyword role: Required. Possible values include: "None", "Member", "Admin", "Owner",
+         "Adapter".
+        :paramtype role: str or ~teamcloud.models.UserRole
+        :keyword project_memberships:
+        :paramtype project_memberships: list[~teamcloud.models.ProjectMembership]
+        :keyword alternate_identities:
+        :paramtype alternate_identities: ~teamcloud.models.UserAlternateIdentities
+        :keyword properties: Dictionary of :code:`<string>`.
+        :paramtype properties: dict[str, str]
+        :keyword id: Required.
+        :paramtype id: str
+        """
         super(User, self).__init__(**kwargs)
         self.organization = organization
         self.display_name = display_name
@@ -2754,18 +3473,21 @@ class User(msrest.serialization.Model):
 class UserAlternateIdentities(msrest.serialization.Model):
     """UserAlternateIdentities.
 
-    :param azure_resource_manager:
-    :type azure_resource_manager: ~teamcloud.models.AlternateIdentity
-    :param azure_dev_ops:
-    :type azure_dev_ops: ~teamcloud.models.AlternateIdentity
-    :param git_hub:
-    :type git_hub: ~teamcloud.models.AlternateIdentity
+    :ivar azure_resource_manager:
+    :vartype azure_resource_manager: ~teamcloud.models.AlternateIdentity
+    :ivar azure_dev_ops:
+    :vartype azure_dev_ops: ~teamcloud.models.AlternateIdentity
+    :ivar git_hub:
+    :vartype git_hub: ~teamcloud.models.AlternateIdentity
+    :ivar kubernetes:
+    :vartype kubernetes: ~teamcloud.models.AlternateIdentity
     """
 
     _attribute_map = {
         'azure_resource_manager': {'key': 'AzureResourceManager', 'type': 'AlternateIdentity'},
         'azure_dev_ops': {'key': 'AzureDevOps', 'type': 'AlternateIdentity'},
         'git_hub': {'key': 'GitHub', 'type': 'AlternateIdentity'},
+        'kubernetes': {'key': 'Kubernetes', 'type': 'AlternateIdentity'},
     }
 
     def __init__(
@@ -2774,25 +3496,37 @@ class UserAlternateIdentities(msrest.serialization.Model):
         azure_resource_manager: Optional["AlternateIdentity"] = None,
         azure_dev_ops: Optional["AlternateIdentity"] = None,
         git_hub: Optional["AlternateIdentity"] = None,
+        kubernetes: Optional["AlternateIdentity"] = None,
         **kwargs
     ):
+        """
+        :keyword azure_resource_manager:
+        :paramtype azure_resource_manager: ~teamcloud.models.AlternateIdentity
+        :keyword azure_dev_ops:
+        :paramtype azure_dev_ops: ~teamcloud.models.AlternateIdentity
+        :keyword git_hub:
+        :paramtype git_hub: ~teamcloud.models.AlternateIdentity
+        :keyword kubernetes:
+        :paramtype kubernetes: ~teamcloud.models.AlternateIdentity
+        """
         super(UserAlternateIdentities, self).__init__(**kwargs)
         self.azure_resource_manager = azure_resource_manager
         self.azure_dev_ops = azure_dev_ops
         self.git_hub = git_hub
+        self.kubernetes = kubernetes
 
 
 class UserDataResult(msrest.serialization.Model):
     """UserDataResult.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
-    :param data:
-    :type data: ~teamcloud.models.User
-    :param location:
-    :type location: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.User
+    :ivar location:
+    :vartype location: str
     """
 
     _attribute_map = {
@@ -2811,6 +3545,16 @@ class UserDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.User
+        :keyword location:
+        :paramtype location: str
+        """
         super(UserDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2823,12 +3567,12 @@ class UserDefinition(msrest.serialization.Model):
 
     All required parameters must be populated in order to send to Azure.
 
-    :param identifier: Required.
-    :type identifier: str
-    :param role: Required.
-    :type role: str
-    :param properties: Dictionary of :code:`<string>`.
-    :type properties: dict[str, str]
+    :ivar identifier: Required.
+    :vartype identifier: str
+    :ivar role: Required.
+    :vartype role: str
+    :ivar properties: Dictionary of :code:`<string>`.
+    :vartype properties: dict[str, str]
     """
 
     _validation = {
@@ -2850,6 +3594,14 @@ class UserDefinition(msrest.serialization.Model):
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
+        """
+        :keyword identifier: Required.
+        :paramtype identifier: str
+        :keyword role: Required.
+        :paramtype role: str
+        :keyword properties: Dictionary of :code:`<string>`.
+        :paramtype properties: dict[str, str]
+        """
         super(UserDefinition, self).__init__(**kwargs)
         self.identifier = identifier
         self.role = role
@@ -2861,14 +3613,14 @@ class UserListDataResult(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
-    :param code:
-    :type code: int
-    :param status:
-    :type status: str
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
     :ivar data:
     :vartype data: list[~teamcloud.models.User]
-    :param location:
-    :type location: str
+    :ivar location:
+    :vartype location: str
     """
 
     _validation = {
@@ -2890,6 +3642,14 @@ class UserListDataResult(msrest.serialization.Model):
         location: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword location:
+        :paramtype location: str
+        """
         super(UserListDataResult, self).__init__(**kwargs)
         self.code = code
         self.status = status
@@ -2900,10 +3660,10 @@ class UserListDataResult(msrest.serialization.Model):
 class ValidationError(msrest.serialization.Model):
     """ValidationError.
 
-    :param field:
-    :type field: str
-    :param message:
-    :type message: str
+    :ivar field:
+    :vartype field: str
+    :ivar message:
+    :vartype message: str
     """
 
     _attribute_map = {
@@ -2918,6 +3678,12 @@ class ValidationError(msrest.serialization.Model):
         message: Optional[str] = None,
         **kwargs
     ):
+        """
+        :keyword field:
+        :paramtype field: str
+        :keyword message:
+        :paramtype message: str
+        """
         super(ValidationError, self).__init__(**kwargs)
         self.field = field
         self.message = message

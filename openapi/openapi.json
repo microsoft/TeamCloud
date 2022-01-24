@@ -230,8 +230,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -302,8 +301,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -559,8 +557,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -888,8 +885,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -1365,8 +1361,7 @@
             "name": "timeRange",
             "in": "query",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -1376,8 +1371,7 @@
               "type": "array",
               "items": {
                 "type": "string"
-              },
-              "nullable": true
+              }
             }
           },
           {
@@ -1684,8 +1678,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -1740,8 +1733,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -1919,8 +1911,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -1983,8 +1974,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -2066,8 +2056,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -2384,8 +2373,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -2448,8 +2436,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -2641,8 +2628,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -2713,8 +2699,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -2794,8 +2779,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -2950,8 +2934,7 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "string"
-                },
-                "nullable": true
+                }
               }
             }
           }
@@ -3036,8 +3019,7 @@
                 "type": "object",
                 "additionalProperties": {
                   "type": "string"
-                },
-                "nullable": true
+                }
               }
             }
           }
@@ -3095,8 +3077,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3167,8 +3148,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3352,8 +3332,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3416,8 +3395,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3489,8 +3467,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3712,8 +3689,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3784,8 +3760,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3875,8 +3850,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -4233,8 +4207,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -4305,8 +4278,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -4398,8 +4370,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -4558,8 +4529,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -4772,7 +4742,8 @@
             "enum": [
               "AzureResourceManager",
               "AzureDevOps",
-              "GitHub"
+              "GitHub",
+              "Kubernetes"
             ],
             "type": "string"
           },
@@ -4817,51 +4788,96 @@
         },
         "additionalProperties": false
       },
-      "ValidationError": {
+      "AlternateIdentity": {
         "type": "object",
         "properties": {
-          "field": {
-            "type": "string",
-            "nullable": true
-          },
-          "message": {
+          "login": {
             "type": "string",
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "ResultError": {
+      "CommandAuditEntity": {
         "type": "object",
         "properties": {
-          "code": {
+          "commandId": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "organizationId": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "commandJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "resultJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "projectId": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "command": {
+            "type": "string",
+            "nullable": true
+          },
+          "componentTask": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "runtimeStatus": {
             "enum": [
-              "Unknown",
+              "Running",
+              "Completed",
+              "ContinuedAsNew",
               "Failed",
-              "Conflict",
-              "NotFound",
-              "ServerError",
-              "ValidationError",
-              "Unauthorized",
-              "Forbidden"
+              "Canceled",
+              "Terminated",
+              "Pending",
+              "Unknown"
             ],
             "type": "string"
           },
-          "message": {
+          "customStatus": {
             "type": "string",
             "nullable": true
           },
           "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
+            "type": "string",
+            "nullable": true
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updated": {
+            "type": "string",
+            "format": "date-time",
             "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "ErrorResult": {
+      "CommandAuditEntityDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -4872,11 +4888,37 @@
             "type": "string",
             "nullable": true
           },
-          "errors": {
+          "data": {
+            "$ref": "#/components/schemas/CommandAuditEntity"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommandAuditEntityListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ResultError"
+              "$ref": "#/components/schemas/CommandAuditEntity"
             },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -4929,7 +4971,8 @@
           "type": {
             "enum": [
               "Environment",
-              "Repository"
+              "Repository",
+              "Namespace"
             ],
             "type": "string"
           },
@@ -4980,7 +5023,7 @@
         },
         "additionalProperties": false
       },
-      "ComponentListDataResult": {
+      "ComponentDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -4992,12 +5035,7 @@
             "nullable": true
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Component"
-            },
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/Component"
           },
           "location": {
             "type": "string",
@@ -5030,7 +5068,7 @@
         },
         "additionalProperties": false
       },
-      "ComponentDataResult": {
+      "ComponentListDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -5042,47 +5080,14 @@
             "nullable": true
           },
           "data": {
-            "$ref": "#/components/schemas/Component"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "StatusResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "state": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Component"
+            },
             "nullable": true,
             "readOnly": true
           },
-          "stateMessage": {
-            "type": "string",
-            "nullable": true
-          },
           "location": {
-            "type": "string",
-            "nullable": true
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ResultError"
-            },
-            "nullable": true
-          },
-          "_trackingId": {
             "type": "string",
             "nullable": true
           }
@@ -5175,6 +5180,43 @@
         },
         "additionalProperties": false
       },
+      "ComponentTaskDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ComponentTask"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentTaskDefinition": {
+        "required": [
+          "taskId"
+        ],
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "string"
+          },
+          "inputJson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ComponentTaskListDataResult": {
         "type": "object",
         "properties": {
@@ -5201,14 +5243,16 @@
         },
         "additionalProperties": false
       },
-      "ComponentTaskDefinition": {
-        "required": [
-          "taskId"
-        ],
+      "ComponentTaskReference": {
         "type": "object",
         "properties": {
-          "taskId": {
-            "type": "string"
+          "componentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "componentTaskTemplateId": {
+            "type": "string",
+            "nullable": true
           },
           "inputJson": {
             "type": "string",
@@ -5217,85 +5261,18 @@
         },
         "additionalProperties": false
       },
-      "ComponentTaskDataResult": {
+      "ComponentTaskRunner": {
         "type": "object",
         "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
+          "id": {
             "type": "string",
             "nullable": true
           },
-          "data": {
-            "$ref": "#/components/schemas/ComponentTask"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RepositoryReference": {
-        "required": [
-          "provider",
-          "type",
-          "url"
-        ],
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string",
-            "nullable": true
-          },
-          "version": {
-            "type": "string",
-            "nullable": true
-          },
-          "baselUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "mountUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "ref": {
-            "type": "string",
-            "nullable": true
-          },
-          "provider": {
-            "enum": [
-              "Unknown",
-              "GitHub",
-              "DevOps"
-            ],
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "Unknown",
-              "Tag",
-              "Branch",
-              "Hash"
-            ],
-            "type": "string"
-          },
-          "organization": {
-            "type": "string",
-            "nullable": true
-          },
-          "repository": {
-            "type": "string",
-            "nullable": true
-          },
-          "project": {
-            "type": "string",
+          "with": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
             "nullable": true
           }
         },
@@ -5332,23 +5309,6 @@
             "type": "string",
             "nullable": true,
             "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ComponentTaskRunner": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true
-          },
-          "with": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5414,6 +5374,7 @@
                 }
               }
             },
+            "additionalProperties": false,
             "nullable": true
           },
           "inputJsonSchema": {
@@ -5433,7 +5394,8 @@
           "type": {
             "enum": [
               "Environment",
-              "Repository"
+              "Repository",
+              "Namespace"
             ],
             "type": "string"
           },
@@ -5446,6 +5408,27 @@
           },
           "id": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ComponentTemplateDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ComponentTemplate"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5468,27 +5451,6 @@
             },
             "nullable": true,
             "readOnly": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ComponentTemplateDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/ComponentTemplate"
           },
           "location": {
             "type": "string",
@@ -5524,7 +5486,8 @@
             "enum": [
               "AzureResourceManager",
               "AzureDevOps",
-              "GitHub"
+              "GitHub",
+              "Kubernetes"
             ],
             "type": "string"
           },
@@ -5563,7 +5526,8 @@
             "items": {
               "enum": [
                 "Environment",
-                "Repository"
+                "Repository",
+                "Namespace"
               ],
               "type": "string"
             },
@@ -5571,6 +5535,61 @@
           },
           "id": {
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeploymentScopeDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/DeploymentScope"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeploymentScopeDefinition": {
+        "required": [
+          "displayName",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "AzureResourceManager",
+              "AzureDevOps",
+              "GitHub",
+              "Kubernetes"
+            ],
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "inputData": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5601,40 +5620,7 @@
         },
         "additionalProperties": false
       },
-      "DeploymentScopeDefinition": {
-        "required": [
-          "displayName",
-          "type"
-        ],
-        "type": "object",
-        "properties": {
-          "displayName": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "AzureResourceManager",
-              "AzureDevOps",
-              "GitHub"
-            ],
-            "type": "string"
-          },
-          "slug": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "inputData": {
-            "type": "string",
-            "nullable": true
-          },
-          "isDefault": {
-            "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "DeploymentScopeDataResult": {
+      "ErrorResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -5642,166 +5628,14 @@
             "format": "int32"
           },
           "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/DeploymentScope"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CommandAuditEntity": {
-        "type": "object",
-        "properties": {
-          "commandId": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "organizationId": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "commandJson": {
-            "type": "string",
-            "nullable": true
-          },
-          "resultJson": {
-            "type": "string",
-            "nullable": true
-          },
-          "projectId": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "userId": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "parentId": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "command": {
-            "type": "string",
-            "nullable": true
-          },
-          "componentTask": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "runtimeStatus": {
-            "enum": [
-              "Unknown",
-              "Running",
-              "Completed",
-              "ContinuedAsNew",
-              "Failed",
-              "Canceled",
-              "Terminated",
-              "Pending"
-            ],
-            "type": "string"
-          },
-          "customStatus": {
             "type": "string",
             "nullable": true
           },
           "errors": {
-            "type": "string",
-            "nullable": true
-          },
-          "created": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "updated": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CommandAuditEntityListDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CommandAuditEntity"
+              "$ref": "#/components/schemas/ResultError"
             },
-            "nullable": true,
-            "readOnly": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CommandAuditEntityDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/CommandAuditEntity"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "StringListDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true,
-            "readOnly": true
-          },
-          "location": {
-            "type": "string",
             "nullable": true
           }
         },
@@ -5856,6 +5690,10 @@
             ],
             "type": "string"
           },
+          "secretsVaultId": {
+            "type": "string",
+            "nullable": true
+          },
           "galleryId": {
             "type": "string",
             "nullable": true
@@ -5874,7 +5712,7 @@
         },
         "additionalProperties": false
       },
-      "OrganizationListDataResult": {
+      "OrganizationDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -5886,12 +5724,7 @@
             "nullable": true
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Organization"
-            },
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/Organization"
           },
           "location": {
             "type": "string",
@@ -5925,145 +5758,7 @@
         },
         "additionalProperties": false
       },
-      "OrganizationDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/Organization"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ProjectMembership": {
-        "required": [
-          "projectId",
-          "role"
-        ],
-        "type": "object",
-        "properties": {
-          "projectId": {
-            "type": "string"
-          },
-          "role": {
-            "enum": [
-              "None",
-              "Member",
-              "Admin",
-              "Owner",
-              "Adapter"
-            ],
-            "type": "string"
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AlternateIdentity": {
-        "type": "object",
-        "properties": {
-          "login": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "User": {
-        "required": [
-          "id",
-          "organization",
-          "role",
-          "userType"
-        ],
-        "type": "object",
-        "properties": {
-          "organization": {
-            "type": "string"
-          },
-          "displayName": {
-            "type": "string",
-            "nullable": true
-          },
-          "loginName": {
-            "type": "string",
-            "nullable": true
-          },
-          "mailAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "userType": {
-            "enum": [
-              "User",
-              "Group",
-              "System",
-              "Service"
-            ],
-            "type": "string"
-          },
-          "role": {
-            "enum": [
-              "None",
-              "Member",
-              "Admin",
-              "Owner"
-            ],
-            "type": "string"
-          },
-          "projectMemberships": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProjectMembership"
-            },
-            "nullable": true
-          },
-          "alternateIdentities": {
-            "type": "object",
-            "properties": {
-              "AzureResourceManager": {
-                "$ref": "#/components/schemas/AlternateIdentity"
-              },
-              "AzureDevOps": {
-                "$ref": "#/components/schemas/AlternateIdentity"
-              },
-              "GitHub": {
-                "$ref": "#/components/schemas/AlternateIdentity"
-              }
-            },
-            "nullable": true
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "id": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserListDataResult": {
+      "OrganizationListDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -6077,54 +5772,10 @@
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/User"
+              "$ref": "#/components/schemas/Organization"
             },
             "nullable": true,
             "readOnly": true
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserDefinition": {
-        "required": [
-          "identifier",
-          "role"
-        ],
-        "type": "object",
-        "properties": {
-          "identifier": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "properties": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "UserDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/User"
           },
           "location": {
             "type": "string",
@@ -6223,7 +5874,7 @@
         },
         "additionalProperties": false
       },
-      "ProjectListDataResult": {
+      "ProjectDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -6235,12 +5886,7 @@
             "nullable": true
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Project"
-            },
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/Project"
           },
           "location": {
             "type": "string",
@@ -6276,27 +5922,6 @@
             "items": {
               "$ref": "#/components/schemas/UserDefinition"
             },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ProjectDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "$ref": "#/components/schemas/Project"
-          },
-          "location": {
-            "type": "string",
             "nullable": true
           }
         },
@@ -6353,6 +5978,43 @@
         },
         "additionalProperties": false
       },
+      "ProjectIdentityDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectIdentity"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectIdentityDefinition": {
+        "required": [
+          "deploymentScopeId",
+          "displayName"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "deploymentScopeId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
       "ProjectIdentityListDataResult": {
         "type": "object",
         "properties": {
@@ -6379,23 +6041,7 @@
         },
         "additionalProperties": false
       },
-      "ProjectIdentityDefinition": {
-        "required": [
-          "deploymentScopeId",
-          "displayName"
-        ],
-        "type": "object",
-        "properties": {
-          "displayName": {
-            "type": "string"
-          },
-          "deploymentScopeId": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ProjectIdentityDataResult": {
+      "ProjectListDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -6407,36 +6053,45 @@
             "nullable": true
           },
           "data": {
-            "$ref": "#/components/schemas/ProjectIdentity"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "StringStringDictionaryDataResult": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Project"
             },
             "nullable": true,
             "readOnly": true
           },
           "location": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectMembership": {
+        "required": [
+          "projectId",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "None",
+              "Member",
+              "Admin",
+              "Owner",
+              "Adapter"
+            ],
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
             "nullable": true
           }
         },
@@ -6493,6 +6148,43 @@
         },
         "additionalProperties": false
       },
+      "ProjectTemplateDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProjectTemplate"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectTemplateDefinition": {
+        "required": [
+          "displayName",
+          "repository"
+        ],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "repository": {
+            "$ref": "#/components/schemas/RepositoryDefinition"
+          }
+        },
+        "additionalProperties": false
+      },
       "ProjectTemplateListDataResult": {
         "type": "object",
         "properties": {
@@ -6539,56 +6231,94 @@
         },
         "additionalProperties": false
       },
-      "ProjectTemplateDefinition": {
+      "RepositoryReference": {
         "required": [
-          "displayName",
-          "repository"
+          "provider",
+          "type",
+          "url"
         ],
         "type": "object",
         "properties": {
-          "displayName": {
+          "url": {
             "type": "string"
           },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "string",
+            "nullable": true
+          },
+          "baselUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "mountUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "ref": {
+            "type": "string",
+            "nullable": true
+          },
+          "provider": {
+            "enum": [
+              "Unknown",
+              "GitHub",
+              "DevOps"
+            ],
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "Unknown",
+              "Tag",
+              "Branch",
+              "Hash"
+            ],
+            "type": "string"
+          },
+          "organization": {
+            "type": "string",
+            "nullable": true
+          },
           "repository": {
-            "$ref": "#/components/schemas/RepositoryDefinition"
+            "type": "string",
+            "nullable": true
+          },
+          "project": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
       },
-      "ProjectTemplateDataResult": {
+      "ResultError": {
         "type": "object",
         "properties": {
           "code": {
-            "type": "integer",
-            "format": "int32"
+            "enum": [
+              "Unknown",
+              "Failed",
+              "Conflict",
+              "NotFound",
+              "ServerError",
+              "ValidationError",
+              "Unauthorized",
+              "Forbidden"
+            ],
+            "type": "string"
           },
-          "status": {
+          "message": {
             "type": "string",
             "nullable": true
           },
-          "data": {
-            "$ref": "#/components/schemas/ProjectTemplate"
-          },
-          "location": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ComponentTaskReference": {
-        "type": "object",
-        "properties": {
-          "componentId": {
-            "type": "string",
-            "nullable": true
-          },
-          "componentTaskTemplateId": {
-            "type": "string",
-            "nullable": true
-          },
-          "inputJson": {
-            "type": "string",
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
             "nullable": true
           }
         },
@@ -6672,7 +6402,7 @@
         },
         "additionalProperties": false
       },
-      "ScheduleListDataResult": {
+      "ScheduleDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -6684,12 +6414,7 @@
             "nullable": true
           },
           "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Schedule"
-            },
-            "nullable": true,
-            "readOnly": true
+            "$ref": "#/components/schemas/Schedule"
           },
           "location": {
             "type": "string",
@@ -6741,7 +6466,7 @@
         },
         "additionalProperties": false
       },
-      "ScheduleDataResult": {
+      "ScheduleListDataResult": {
         "type": "object",
         "properties": {
           "code": {
@@ -6753,9 +6478,270 @@
             "nullable": true
           },
           "data": {
-            "$ref": "#/components/schemas/Schedule"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Schedule"
+            },
+            "nullable": true,
+            "readOnly": true
           },
           "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StatusResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "stateMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultError"
+            },
+            "nullable": true
+          },
+          "_trackingId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StringListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "StringStringDictionaryDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "User": {
+        "required": [
+          "id",
+          "organization",
+          "role",
+          "userType"
+        ],
+        "type": "object",
+        "properties": {
+          "organization": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "loginName": {
+            "type": "string",
+            "nullable": true
+          },
+          "mailAddress": {
+            "type": "string",
+            "nullable": true
+          },
+          "userType": {
+            "enum": [
+              "User",
+              "Group",
+              "System",
+              "Service"
+            ],
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "None",
+              "Member",
+              "Admin",
+              "Owner",
+              "Adapter"
+            ],
+            "type": "string"
+          },
+          "projectMemberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectMembership"
+            },
+            "nullable": true
+          },
+          "alternateIdentities": {
+            "type": "object",
+            "properties": {
+              "AzureResourceManager": {
+                "$ref": "#/components/schemas/AlternateIdentity"
+              },
+              "AzureDevOps": {
+                "$ref": "#/components/schemas/AlternateIdentity"
+              },
+              "GitHub": {
+                "$ref": "#/components/schemas/AlternateIdentity"
+              },
+              "Kubernetes": {
+                "$ref": "#/components/schemas/AlternateIdentity"
+              }
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/User"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserDefinition": {
+        "required": [
+          "identifier",
+          "role"
+        ],
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserListDataResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "nullable": true,
+            "readOnly": true
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
             "type": "string",
             "nullable": true
           }
