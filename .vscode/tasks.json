@@ -4,7 +4,7 @@
         {
             "type": "func",
             "options": {
-                "cwd": "${workspaceFolder}/src/TeamCloud.Orchestrator/bin/Debug/netcoreapp3.1"
+                "cwd": "${workspaceFolder}/src/TeamCloud.Orchestrator/bin/Debug/net6.0"
             },
             "command": "start --no-build",
             "isBackground": true,

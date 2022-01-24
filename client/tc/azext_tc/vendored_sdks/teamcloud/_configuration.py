@@ -35,9 +35,9 @@ class TeamCloudClientConfiguration(Configuration):
         **kwargs  # type: Any
     ):
         # type: (...) -> None
+        super(TeamCloudClientConfiguration, self).__init__(**kwargs)
         if credential is None:
             raise ValueError("Parameter 'credential' must not be None.")
-        super(TeamCloudClientConfiguration, self).__init__(**kwargs)
 
         self.credential = credential
         self.credential_scopes = kwargs.pop('credential_scopes', ['openid'])

@@ -16,7 +16,7 @@
             "name": "API",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/src/TeamCloud.API/bin/Debug/netcoreapp3.1/TeamCloud.API.dll",
+            "program": "${workspaceFolder}/src/TeamCloud.API/bin/Debug/net6.0/TeamCloud.API.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/TeamCloud.API",
             "stopAtEntry": false,
