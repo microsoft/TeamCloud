@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Checkbox, IColumn, IconButton, Label, Modal, Stack, Text } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
 import { ProjectTemplate } from 'teamcloud';
@@ -13,7 +13,7 @@ import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const ProjectTemplateList: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId } = useParams() as { orgId: string };
 
@@ -47,13 +47,13 @@ export const ProjectTemplateList: React.FC = () => {
                 filterPlaceholder='Filter templates'
                 buttonText='New template'
                 buttonIcon='Add'
-                onButtonClick={() => history.push(`/orgs/${orgId}/settings/templates/new`)}
+                onButtonClick={() => navigate(`/orgs/${orgId}/settings/templates/new`)}
                 noDataTitle='You do not have any project templates yet'
                 noDataImage={collaboration}
                 noDataDescription='Project templates are...'
                 noDataButtonText='Create template'
                 noDataButtonIcon='Add'
-                onNoDataButtonClick={() => history.push(`/orgs/${orgId}/settings/templates/new`)}
+                onNoDataButtonClick={() => navigate(`/orgs/${orgId}/settings/templates/new`)}
             />
             <Modal
                 // isLightDismiss

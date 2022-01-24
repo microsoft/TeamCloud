@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IconButton, IContextualMenuProps, IDetailsRowProps, IIconProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask, KnownComponentTaskState } from 'teamcloud';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
@@ -16,7 +16,7 @@ export interface IComponentTaskListProps { }
 export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps> = (props) => {
 
     const theme = getTheme();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId, projectId, itemId, subitemId } = useParams() as { orgId: string, projectId: string, itemId: string, subitemId: string };
 
@@ -32,9 +32,9 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     useEffect(() => {
         if (!subitemId && org && project && component && componentTasks && componentTasks.length > 0) {
-            history.push(`/orgs/${org.slug}/projects/${project.slug}/components/${component.slug}/tasks/${componentTasks[0].id}`);
+            navigate(`/orgs/${org.slug}/projects/${project.slug}/components/${component.slug}/tasks/${componentTasks[0].id}`);
         }
-    }, [org, project, component, componentTasks, componentTask, subitemId, history]);
+    }, [org, project, component, componentTasks, componentTask, subitemId, navigate]);
 
     const _getStateIcon = (task?: ComponentTask) => {
         switch (task?.taskState) {
@@ -49,7 +49,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     };
 
     const _getIconProps = (task?: ComponentTask) => {
-        return { 
+        return {
             iconName: _getStateIcon(task),
             className: `deployment-state-icon-${task?.taskState?.toLowerCase() ?? 'pending'}`
 
@@ -58,7 +58,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
 
     const _getMenuProps = (task?: ComponentTask) => {
         return {
-            items : [
+            items: [
                 {
                     key: 'cancel',
                     text: 'Cancel Task',
@@ -78,7 +78,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     }
 
     const _onActiveItemChanged = (item?: ComponentTask, index?: number | undefined) => {
-        history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${item?.id}`);
+        navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug ?? itemId}/tasks/${item?.id}`);
     };
 
     const columns: IColumn[] = [
@@ -100,16 +100,16 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
                     </Stack>
                     {(t.scheduleId ?? false) &&
                         (<Stack.Item>
-                            <Link onClick={() => history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/settings/schedules/${t.scheduleId}`)}>
+                            <Link onClick={() => navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/settings/schedules/${t.scheduleId}`)}>
                                 <FontIcon iconName='ScheduleEventAction' className='component-task-icon' />
                             </Link>
                         </Stack.Item>)
                     }
                     <Stack.Item>
-                    <IconButton
-                        menuProps={_getMenuProps(t)}
-                        iconProps={_getIconProps(t)}
-                        title={t?.taskState}
+                        <IconButton
+                            menuProps={_getMenuProps(t)}
+                            iconProps={_getIconProps(t)}
+                            title={t?.taskState}
                         />
                     </Stack.Item>
                 </Stack>

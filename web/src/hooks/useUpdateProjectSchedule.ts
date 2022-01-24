@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import { useMutation, useQueryClient } from 'react-query'
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Schedule } from 'teamcloud';
 import { api } from '../API';
 import { useOrg, useProject } from '.';
 
 export const useUpdateProjectSchedule = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
 
@@ -37,7 +37,7 @@ export const useUpdateProjectSchedule = () => {
                 queryClient.invalidateQueries(['org', project?.organization, 'project', project?.id, 'schedule'])
                 queryClient.setQueryData(['org', project?.organization, 'project', project?.id, 'schedule', data.id], data)
 
-                history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/settings/schedules`);
+                navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/settings/schedules`);
             }
         }
     }).mutateAsync

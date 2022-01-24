@@ -26,7 +26,7 @@
     "react-json-pretty": "^2.2.0",
     "react-markdown": "^8.0.0",
     "react-query": "^3.34.11",
-    "react-router-dom": "^5.2.0",
+    "react-router-dom": "^6.2.1",
     "remark-gfm": "^3.0.1",
     "teamcloud": "file:teamcloud",
     "typescript": "^4.5.5",
@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^2.11.0",
-    "@types/react-router-dom": "^5.1.5",
+    "@types/react-router-dom": "^5.3.3",
     "react-scripts": "5.0.0"
   }
 }

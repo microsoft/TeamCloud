@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
 import { Project } from 'teamcloud';
 import { NoData } from '.';
@@ -12,7 +12,7 @@ import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
 export const ProjectList: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { orgId } = useParams() as { orgId: string };
 
@@ -61,7 +61,7 @@ export const ProjectList: React.FC = () => {
     const _onItemInvoked = (project: Project): void => {
         if (project) {
             _onLinkClicked(project);
-            history.push(`${orgId}/projects/${project.slug}`);
+            navigate(`/orgs/${orgId}/projects/${project.slug}`);
         } else {
             console.error('nope');
         }
@@ -86,7 +86,7 @@ export const ProjectList: React.FC = () => {
                 description='Projects are home to collaboration and cloud development.'
                 buttonText='New project'
                 buttonIcon='Add'
-                onButtonClick={() => history.push(`/orgs/${orgId}/projects/new`)} />)
+                onButtonClick={() => navigate(`/orgs/${orgId}/projects/new`)} />)
 
     return (
         <DetailsList

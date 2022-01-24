@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Checkbox, IColumn, DefaultButton } from '@fluentui/react';
 import { DeploymentScope } from 'teamcloud';
 import { ContentList } from '.';
@@ -13,7 +13,7 @@ import { useAuthorizeDeployemntScope } from '../hooks/useAuthorizeDeploymentScop
 
 export const DeploymentScopeList: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { data: org } = useOrg();
     const { data: scopes } = useDeploymentScopes();
@@ -50,12 +50,12 @@ export const DeploymentScopeList: React.FC = () => {
             filterPlaceholder='Filter deployment scopes'
             buttonText='New scope'
             buttonIcon='Add'
-            onButtonClick={() => history.push(`/orgs/${org.slug}/settings/scopes/new`)}
+            onButtonClick={() => navigate(`/orgs/${org.slug}/settings/scopes/new`)}
             noDataTitle='You do not have any deployment scopes yet'
             noDataImage={collaboration}
             noDataDescription='Deployment Scopes are...'
             noDataButtonText='Create scope'
             noDataButtonIcon='Add'
-            onNoDataButtonClick={() => history.push(`/orgs/${org.slug}/settings/scopes/new`)} />
+            onNoDataButtonClick={() => navigate(`/orgs/${org.slug}/settings/scopes/new`)} />
     ) : <></>;
 }

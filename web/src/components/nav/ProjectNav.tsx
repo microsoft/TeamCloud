@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize } from '@fluentui/react';
 
 export const ProjectNav: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { orgId, projectId, navId } = useParams() as { orgId: string, projectId: string, navId: string };
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
@@ -16,19 +16,19 @@ export const ProjectNav: React.FC = () => {
                 key: 'overview',
                 name: 'Overview',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}`),
+                onClick: () => navigate(`/orgs/${orgId}/projects/${projectId}`),
             },
             {
                 key: 'components',
                 name: 'Components',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/components`),
+                onClick: () => navigate(`/orgs/${orgId}/projects/${projectId}/components`),
             },
             {
                 key: 'members',
                 name: 'Members',
                 url: '',
-                onClick: () => history.push(`/orgs/${orgId}/projects/${projectId}/members`),
+                onClick: () => navigate(`/orgs/${orgId}/projects/${projectId}/members`),
             },
         ] : []
     }];
@@ -62,7 +62,7 @@ export const ProjectNav: React.FC = () => {
                     iconProps={{ iconName: 'Settings' }}
                     styles={{ root: { padding: '10px 8px 10px 12px' } }}
                     text={'Project settings'}
-                    onClick={() => history.push(`/orgs/${orgId}/projects/${projectId}/settings`)} />
+                    onClick={() => navigate(`/orgs/${orgId}/projects/${projectId}/settings`)} />
             </Stack.Item>
         </Stack>
     );

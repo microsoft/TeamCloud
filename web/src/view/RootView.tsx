@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { InteractionType } from '@azure/msal-browser';
 import { AuthenticatedTemplate, MsalAuthenticationResult, useMsalAuthentication } from '@azure/msal-react';
 import { getTheme, Stack } from '@fluentui/react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { HeaderBar } from '../components';
 import { auth } from '../API';
 import { ContentRouter, NavRouter } from '.';
@@ -43,14 +43,29 @@ export const RootView: React.FC<IRootViewProps> = (props) => {
 
 
     return (
-        <Switch>
-            <Redirect exact from='/orgs' to='/' />
-            <Redirect exact from='/orgs/:orgId/projects' to='/orgs/:orgId' />
-            <Redirect exact from='/orgs/:orgId/settings/overview' to='/orgs/:orgId/settings' />
-            <Redirect exact from='/orgs/:orgId/projects/:projectId/overview' to='/orgs/:orgId/projects/:projectId' />
-            <Redirect exact from='/orgs/:orgId/projects/:projectId/settings/overview' to='/orgs/:orgId/projects/:projectId/settings' />
-            <Redirect exact from='/orgs/:orgId/projects/:projectId/components/:itemId/tasks' to='/orgs/:orgId/projects/:projectId/components/:itemId' />
-            <Route exact path={[
+        <Routes>
+            <Route path='/orgs' element={<Navigate to='/' replace />} />
+            <Route path='/orgs/:orgId/projects' element={<Navigate replace to='/orgs/:orgId' />} />
+            <Route path='/orgs/:orgId/settings/overview' element={<Navigate replace to='/orgs/:orgId/settings' />} />
+            <Route path='/orgs/:orgId/projects/:projectId/overview' element={<Navigate replace to='/orgs/:orgId/projects/:projectId' />} />
+            <Route path='/orgs/:orgId/projects/:projectId/settings/overview' element={<Navigate replace to='/orgs/:orgId/projects/:projectId/settings' />} />
+            <Route path='/orgs/:orgId/projects/:projectId/components/:itemId/tasks' element={<Navigate replace to='/orgs/:orgId/projects/:projectId/components/:itemId' />} />
+            <Route path='/*' element={
+                <Stack verticalFill style={{ height: "100vh" }}>
+                    <HeaderBar {...{}} />
+                    <AuthenticatedTemplate>
+                        <Stack horizontal disableShrink verticalFill verticalAlign='stretch'>
+                            <Stack.Item styles={leftStackStyles}>
+                                <NavRouter {...{}} />
+                            </Stack.Item>
+                            <Stack.Item grow styles={rightStackStyles}>
+                                <ContentRouter {...{}} />
+                            </Stack.Item>
+                        </Stack>
+                    </AuthenticatedTemplate>
+                </Stack>
+            } />
+            {/* <Route exact path={[
                 '/',
                 '/orgs/new',
                 '/orgs/:orgId',
@@ -81,7 +96,7 @@ export const RootView: React.FC<IRootViewProps> = (props) => {
                         </Stack>
                     </AuthenticatedTemplate>
                 </Stack>
-            </Route>
-        </Switch>
+            </Route> */}
+        </Routes>
     );
 }

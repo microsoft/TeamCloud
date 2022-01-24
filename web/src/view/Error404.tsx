@@ -3,7 +3,7 @@
 
 import { Text, Stack, StackItem, PrimaryButton } from '@fluentui/react';
 import React from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import NotFound from '../img/notfound.png';
 
 export const Error404: React.FC = () => {
@@ -14,18 +14,18 @@ export const Error404: React.FC = () => {
     //eslint-disable-next-line
     const organizationsExpression = /.*\/orgs\/[^\/]*/i;
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const navigateHome = () => {
         [projectsExpression, organizationsExpression].forEach(expression => {
             let match = expression.exec(location.pathname);
             if (match) {
-                history.push(match[0]);
+                navigate(match[0]);
                 return;
             }
         });
-        history.push('');
+        navigate('');
     }
 
     return (

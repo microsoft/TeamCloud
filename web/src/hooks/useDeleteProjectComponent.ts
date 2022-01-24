@@ -25,7 +25,7 @@ export const useDeleteProjectComponent = () => {
             queryClient.invalidateQueries(['org', project?.organization, 'project', project?.id, 'component'])
             queryClient.setQueryData(['org', project?.organization, 'project', project?.id, 'component', component.slug], data)
 
-            // history.push(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug}`);
+            // navigate(`/orgs/${org?.slug ?? orgId}/projects/${project?.slug ?? projectId}/components/${component?.slug}`);
         }
     }).mutateAsync
 }

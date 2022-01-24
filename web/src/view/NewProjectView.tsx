@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ISubmitEvent } from '@rjsf/core';
 import { FuiForm } from '@rjsf/fluent-ui';
 import { Stack, TextField, Dropdown, IDropdownOption, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
@@ -12,7 +12,7 @@ import { useCreateProject, useOrg, useProjectTemplates } from '../hooks';
 
 export const NewProjectView: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const [projectName, setProjectName] = useState<string>();
     const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate>();
@@ -67,7 +67,7 @@ export const NewProjectView: React.FC = () => {
         <Stack styles={{ root: { height: '100%' } }}>
             <ContentProgress progressHidden={formEnabled} />
             <ContentHeader title='New Project'>
-                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => history.push(`/orgs/${org?.slug}`)} />
+                <IconButton iconProps={{ iconName: 'ChromeClose' }} onClick={() => navigate(`/orgs/${org?.slug}`)} />
             </ContentHeader>
             <ContentContainer wide full>
                 <Stack
@@ -95,7 +95,7 @@ export const NewProjectView: React.FC = () => {
                             schema={projectTemplate?.inputJsonSchema ? JSON.parse(projectTemplate.inputJsonSchema) : {}}>
                             <div style={{ paddingTop: '24px' }}>
                                 <PrimaryButton type='submit' text='Create project' disabled={!formEnabled || !(projectName && projectTemplate)} styles={{ root: { marginRight: 8 } }} />
-                                <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => history.push(`/orgs/${org?.slug}`)} />
+                                <DefaultButton text='Cancel' disabled={!formEnabled} onClick={() => navigate(`/orgs/${org?.slug}`)} />
                             </div>
                         </FuiForm>
                     </Stack.Item>

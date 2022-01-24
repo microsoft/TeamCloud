@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Stack, PrimaryButton, Pivot, PivotItem } from '@fluentui/react';
 import { ContentContainer, ContentHeader, ContentProgress, ProjectList } from '../components';
 import { useOrg, useProjects } from '../hooks';
 
 export const ProjectsView: React.FC = () => {
 
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const { data: org, isLoading: orgIsLoading } = useOrg();
     const { isLoading: projectsIsLoading } = useProjects();
@@ -23,7 +23,7 @@ export const ProjectsView: React.FC = () => {
                     text='New project'
                     iconProps={{ iconName: 'Add' }}
                     disabled={!org}
-                    onClick={() => history.push(`/orgs/${org?.slug}/projects/new`)} />
+                    onClick={() => navigate(`/orgs/${org?.slug}/projects/new`)} />
             </ContentHeader>
             <ContentContainer>
                 <Pivot>

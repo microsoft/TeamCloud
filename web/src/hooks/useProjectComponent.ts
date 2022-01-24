@@ -20,7 +20,7 @@ export const useProjectComponent = (required?: boolean) => {
     const handleError = (err: Error) => {
         if (err instanceof HttpError && err.statusCode === 404)
             setErrorStatusCode(err.statusCode);
-        else 
+        else
             throw err;
     };
 
@@ -30,14 +30,14 @@ export const useProjectComponent = (required?: boolean) => {
             onResponse: (raw, flat) => {
                 if (raw.status >= 400)
                     throw new HttpError(raw.status, raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`);
-            }            
+            }
         });
 
         return data;
 
     }, {
-        enabled: isAuthenticated && !!project?.id && !!navId && navId.toLowerCase() === 'components' && !!itemId,
+        enabled: isAuthenticated && !!project?.id && !!navId && navId.toLowerCase() === 'components' && !!itemId && itemId.toLowerCase() !== 'new',
         retry: (cnt, err) => !(err instanceof HttpError && err.statusCode === 404),
-        onError: required ? handleError : undefined    
+        onError: required ? handleError : undefined
     });
 }
