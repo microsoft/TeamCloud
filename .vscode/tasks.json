@@ -63,7 +63,7 @@
             "args": [
                 "http",
                 "--region=us",
-                "--hostname=teamcloud.ngrok.io",
+                // "--hostname=teamcloud.ngrok.io",
                 "https://localhost:5001"
             ],
             "isBackground": true,
@@ -71,6 +71,15 @@
                 "panel": "dedicated",
                 "showReuseMessage": false
             },
+            "problemMatcher": [],
+        },
+        {
+            "label": "setNgrokUrl",
+            "command": "python3",
+            "args": [
+                "scripts/get-url.py"
+            ],
+            "isBackground": true,
             "problemMatcher": []
         },
         {
@@ -86,7 +95,10 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}/web"
-            }
+            },
+            "dependsOn": [
+                "setNgrokUrl"
+            ]
         }
     ]
 }

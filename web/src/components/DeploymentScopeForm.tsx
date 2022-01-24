@@ -124,7 +124,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
                     label='Type'
                     disabled={!formEnabled}
                     selectedKey={scopeType}
-                    options={scopeTypeOptions}
+                    options={scopeTypeOptions ?? []}
                     onChange={(_ev, val) => setScopeType(val ? val.key as string : undefined)} />
             </Stack.Item>
             <Stack.Item>

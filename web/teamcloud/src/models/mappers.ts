@@ -1706,6 +1706,13 @@ export const Organization: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      secretsVaultId: {
+        serializedName: "secretsVaultId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
       galleryId: {
         serializedName: "galleryId",
         nullable: true,
@@ -1993,6 +2000,13 @@ export const UserAlternateIdentities: coreClient.CompositeMapper = {
       },
       gitHub: {
         serializedName: "GitHub",
+        type: {
+          name: "Composite",
+          className: "AlternateIdentity"
+        }
+      },
+      kubernetes: {
+        serializedName: "Kubernetes",
         type: {
           name: "Composite",
           className: "AlternateIdentity"

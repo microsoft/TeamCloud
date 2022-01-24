@@ -9,7 +9,7 @@ export interface ILightboxProps {
 	titleSize?: keyof IFontStyles;
 	isBlocking?: boolean;
 	isOpen?: boolean;
-	onDismiss?: (ev?: React.MouseEvent<HTMLButtonElement>) => any;
+	onDismiss?: (ev?: React.MouseEvent<HTMLButtonElement | HTMLElement>) => any;
 	onDismissed?: () => any;
 	onRenderHeader?: () => JSX.Element;
 	onRenderFooter?: () => JSX.Element;

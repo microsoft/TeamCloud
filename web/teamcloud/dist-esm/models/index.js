@@ -11,6 +11,7 @@ export var KnownAdapterInformationType;
     KnownAdapterInformationType["AzureResourceManager"] = "AzureResourceManager";
     KnownAdapterInformationType["AzureDevOps"] = "AzureDevOps";
     KnownAdapterInformationType["GitHub"] = "GitHub";
+    KnownAdapterInformationType["Kubernetes"] = "Kubernetes";
 })(KnownAdapterInformationType || (KnownAdapterInformationType = {}));
 /** Known values of {@link ResultErrorCode} that the service accepts. */
 export var KnownResultErrorCode;
@@ -29,6 +30,7 @@ export var KnownComponentType;
 (function (KnownComponentType) {
     KnownComponentType["Environment"] = "Environment";
     KnownComponentType["Repository"] = "Repository";
+    KnownComponentType["Namespace"] = "Namespace";
 })(KnownComponentType || (KnownComponentType = {}));
 /** Known values of {@link ComponentResourceState} that the service accepts. */
 export var KnownComponentResourceState;
@@ -85,6 +87,7 @@ export var KnownComponentTemplateType;
 (function (KnownComponentTemplateType) {
     KnownComponentTemplateType["Environment"] = "Environment";
     KnownComponentTemplateType["Repository"] = "Repository";
+    KnownComponentTemplateType["Namespace"] = "Namespace";
 })(KnownComponentTemplateType || (KnownComponentTemplateType = {}));
 /** Known values of {@link DeploymentScopeType} that the service accepts. */
 export var KnownDeploymentScopeType;
@@ -92,12 +95,14 @@ export var KnownDeploymentScopeType;
     KnownDeploymentScopeType["AzureResourceManager"] = "AzureResourceManager";
     KnownDeploymentScopeType["AzureDevOps"] = "AzureDevOps";
     KnownDeploymentScopeType["GitHub"] = "GitHub";
+    KnownDeploymentScopeType["Kubernetes"] = "Kubernetes";
 })(KnownDeploymentScopeType || (KnownDeploymentScopeType = {}));
 /** Known values of {@link DeploymentScopeComponentTypesItem} that the service accepts. */
 export var KnownDeploymentScopeComponentTypesItem;
 (function (KnownDeploymentScopeComponentTypesItem) {
     KnownDeploymentScopeComponentTypesItem["Environment"] = "Environment";
     KnownDeploymentScopeComponentTypesItem["Repository"] = "Repository";
+    KnownDeploymentScopeComponentTypesItem["Namespace"] = "Namespace";
 })(KnownDeploymentScopeComponentTypesItem || (KnownDeploymentScopeComponentTypesItem = {}));
 /** Known values of {@link DeploymentScopeDefinitionType} that the service accepts. */
 export var KnownDeploymentScopeDefinitionType;
@@ -105,11 +110,11 @@ export var KnownDeploymentScopeDefinitionType;
     KnownDeploymentScopeDefinitionType["AzureResourceManager"] = "AzureResourceManager";
     KnownDeploymentScopeDefinitionType["AzureDevOps"] = "AzureDevOps";
     KnownDeploymentScopeDefinitionType["GitHub"] = "GitHub";
+    KnownDeploymentScopeDefinitionType["Kubernetes"] = "Kubernetes";
 })(KnownDeploymentScopeDefinitionType || (KnownDeploymentScopeDefinitionType = {}));
 /** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
 export var KnownCommandAuditEntityRuntimeStatus;
 (function (KnownCommandAuditEntityRuntimeStatus) {
-    KnownCommandAuditEntityRuntimeStatus["Unknown"] = "Unknown";
     KnownCommandAuditEntityRuntimeStatus["Running"] = "Running";
     KnownCommandAuditEntityRuntimeStatus["Completed"] = "Completed";
     KnownCommandAuditEntityRuntimeStatus["ContinuedAsNew"] = "ContinuedAsNew";
@@ -117,6 +122,7 @@ export var KnownCommandAuditEntityRuntimeStatus;
     KnownCommandAuditEntityRuntimeStatus["Canceled"] = "Canceled";
     KnownCommandAuditEntityRuntimeStatus["Terminated"] = "Terminated";
     KnownCommandAuditEntityRuntimeStatus["Pending"] = "Pending";
+    KnownCommandAuditEntityRuntimeStatus["Unknown"] = "Unknown";
 })(KnownCommandAuditEntityRuntimeStatus || (KnownCommandAuditEntityRuntimeStatus = {}));
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export var KnownOrganizationResourceState;
@@ -144,6 +150,7 @@ export var KnownUserRole;
     KnownUserRole["Member"] = "Member";
     KnownUserRole["Admin"] = "Admin";
     KnownUserRole["Owner"] = "Owner";
+    KnownUserRole["Adapter"] = "Adapter";
 })(KnownUserRole || (KnownUserRole = {}));
 /** Known values of {@link ProjectMembershipRole} that the service accepts. */
 export var KnownProjectMembershipRole;

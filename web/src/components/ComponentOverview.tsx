@@ -127,7 +127,7 @@ export const ComponentOverview: React.FC = () => {
                                         backgroundColor: theme.palette.white
                                     }
                                 }}>
-                                    <ReactMarkdown plugins={[gfm]}>{template?.description ?? undefined as any}</ReactMarkdown>
+                                    <ReactMarkdown remarkPlugins={[gfm]}>{template?.description ?? undefined as any}</ReactMarkdown>
                                 </Stack.Item>
                             )}
                         </Stack>

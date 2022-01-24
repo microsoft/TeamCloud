@@ -1673,6 +1673,13 @@ export const Organization = {
                     name: "String"
                 }
             },
+            secretsVaultId: {
+                serializedName: "secretsVaultId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
             galleryId: {
                 serializedName: "galleryId",
                 nullable: true,
@@ -1954,6 +1961,13 @@ export const UserAlternateIdentities = {
             },
             gitHub: {
                 serializedName: "GitHub",
+                type: {
+                    name: "Composite",
+                    className: "AlternateIdentity"
+                }
+            },
+            kubernetes: {
+                serializedName: "Kubernetes",
                 type: {
                     name: "Composite",
                     className: "AlternateIdentity"
