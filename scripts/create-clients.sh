@@ -54,6 +54,9 @@ popd > /dev/null
 
 pushd $tc_dir/web/teamcloud > /dev/null
 
+    echo "[TypeScript] Deleteing everything from teamcloud"
+    rm -rf ./*
+
     if [ -d ./node_modules ]; then
         echo "[TypeScript] Deleteing old node_modules"
         rm -rf ./node_modules
