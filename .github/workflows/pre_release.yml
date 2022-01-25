@@ -43,7 +43,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '16'
 
       # Everything added to release_assets will be published as an asset on the release
       - name: Create Assets Directory
