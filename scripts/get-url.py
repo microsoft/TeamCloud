@@ -22,7 +22,7 @@ def get_ole_uri():
         for line in f:
             if line.startswith('REACT_APP_TC_API_URL'):
                 txt = str(line).rstrip()
-                match = search(r'REACT_APP_TC_API_URL=(?:https://[0-9a-zA-Z-]*\.ngrok\.io)*$', txt)
+                match = search(r'REACT_APP_TC_API_URL=(?:https?://[0-9a-zA-Z.-]*\.ngrok\.io)*$', txt)
                 if match:
                     return match.group(0)
     return None
