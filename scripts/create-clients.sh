@@ -6,114 +6,138 @@ tc_dir=${cdir%/*}
 
 apiDll=${1:-"bin/Debug/net6.0/TeamCloud.API.dll"}
 
-echo "TeamCloud Python & Typescript Client Generator"
-echo ""
 
+log() { echo " " ; echo "[$(date +"%Y-%m-%d-%H%M%S")] $1"; echo " "; }
+line() { echo " "; }
+
+log "TeamCloud Python & Typescript Client Generator"
+
+
+log "$tc_dir"
 # echo $apiDll
 # exit 0
 
 # check for autorest
 if ! [ -x "$(command -v autorest)" ]; then
-    echo "[AutoRest] Installing AutoRest"
+    log "[AutoRest] Installing AutoRest"
     npm install -g autorest
-    echo ""
     # echo 'Error: autorest cli is not installed.\nAutoRest is required to run this script. To install the AutoRest, run npm install -g autorest, then try again. Aborting.' >&2
     # exit 1
 fi
 
+line
 
-pushd $tc_dir/src/TeamCloud.API > /dev/null
+pushd $tc_dir/src/TeamCloud.API
 
-    echo "[dotnet] Restoring dotnet tools"
+    log "[dotnet] Restoring dotnet tools"
     dotnet tool restore
-    echo ""
 
-    echo "[OpenAPI] Generating openapi.json"
+    log "[OpenAPI] Generating openapi.json"
     dotnet swagger tofile --output ../../openapi/openapi.json $apiDll v1
-    echo ""
 
-    echo "[OpenAPI] Generating openapi.yaml"
+    log "[OpenAPI] Generating openapi.yaml"
     dotnet swagger tofile --yaml --output ../../openapi/openapi.yaml $apiDll v1
-    echo ""
 
     if [ "$CI" = true ] ; then
-        echo "[OpenAPI] copying open api files to release_assets"
+        log "[OpenAPI] copying open api files to release_assets"
         cp ../../openapi/openapi.json ../../openapi/openapi.yaml ../../release_assets
-        echo ""
     fi
 
-popd > /dev/null
+    line
 
-pushd $tc_dir/web > /dev/null
+popd
 
-    echo "[Web] Uninstalling teamcloud from web"
-    npm uninstall teamcloud
-    echo ""
+line
 
-popd > /dev/null
+pushd $tc_dir/web
 
-pushd $tc_dir/web/teamcloud > /dev/null
-
-    echo "[TypeScript] Deleteing everything from teamcloud"
-    rm -rf ./*
+    log "[Web] Uninstalling teamcloud from web"
+    npm uninstall teamcloud --legacy-peer-deps
 
     if [ -d ./node_modules ]; then
-        echo "[TypeScript] Deleteing old node_modules"
+        log "[Web] Deleteing web node_modules"
         rm -rf ./node_modules
-        echo ""
     fi
 
     if [ -f ./package-lock.json ]; then
-        echo "[TypeScript] Deleteing package.lock"
+        log "[Web] Deleteing web package.lock"
         rm ./package-lock.json
-        echo ""
     fi
 
-popd > /dev/null
+    line
 
-pushd $tc_dir/openapi > /dev/null
+popd
 
-    echo "[AutoRest] Reseting autorest"
+line
+
+pushd $tc_dir/web/teamcloud
+
+    # log "[TypeScript] Deleteing everything from teamcloud"
+    # rm -rf ./*
+
+    if [ -d ./node_modules ]; then
+        log "[TypeScript] Deleteing teamcloud node_modules"
+        rm -rf ./node_modules
+    fi
+
+    if [ -f ./package-lock.json ]; then
+        log "[TypeScript] Deleteing teamcloud package.lock"
+        rm ./package-lock.json
+    fi
+
+    line
+
+popd
+
+line
+
+pushd $tc_dir/openapi
+
+    log "[AutoRest] Reseting autorest"
     autorest --reset
-    echo ""
 
-    echo "[AutoRest] Generating python client"
+    log "[AutoRest] Generating python client"
     autorest --v3 python.md
-    echo ""
 
-
-    echo "[AutoRest] Generating typescript client"
+    log "[AutoRest] Generating typescript client"
     autorest --v3 typescript.md
-    echo ""
 
-popd > /dev/null
+    line
 
-pushd $tc_dir/web/teamcloud > /dev/null
+popd
 
-    echo "[TypeScript] Installing node packages"
+line
+
+pushd $tc_dir/web/teamcloud
+
+    log "[TypeScript] Installing node packages in teamcloud"
     npm install
-    echo ""
 
-    echo "[TypeScript] Building client"
-    npm run-script build
-    echo ""
+    log "[TypeScript] adding rimraf to dev dependencies"
+    npm install rimraf@^3.0.0 -D
+
+    log "[TypeScript] Building client"
+    npm run build
 
     if [ -f ./README.md ]; then
-        echo "[TypeScript] Deleteing README.md"
+        log "[TypeScript] Deleteing README.md"
         rm ./README.md
-        echo ""
     fi
 
-popd > /dev/null
+    line
 
-pushd $tc_dir/web > /dev/null
+popd
 
-    echo "[TypeScript] Installing temacloud to web"
-    npm install ./teamcloud
-    echo ""
+line
 
-popd > /dev/null
+pushd $tc_dir/web
 
-echo "Done."
-echo ""
+    log "[TypeScript] Installing temacloud to web"
+    npm install ./teamcloud --legacy-peer-deps
+    # npm install ./teamcloud
 
+    line
+
+popd
+
+log "Done."

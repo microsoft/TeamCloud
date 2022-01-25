@@ -30,5 +30,5 @@ credential-scopes: openid
 license-header: MICROSOFT_MIT_NO_VERSION
 output-folder: './../web/teamcloud'
 enum-types: true
-# clear-output-folder: true
+clear-output-folder: true
 ```

@@ -59,3 +59,4 @@ fi
 
 
 logMessage "Finished successfully."
+exit 0
