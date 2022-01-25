@@ -44,7 +44,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
     from azure.cli.core._profile import Profile
     from ._deploy_utils import (
         deploy_arm_template_at_resource_group, get_resource_group_by_name, get_arm_output,
-        create_resource_group_name, create_resource_manager_sp, get_teamcloud_index)
+        create_resource_group_name, create_resource_manager_sp, get_teamcloud_index, zip_deploy)
 
     cli_ctx = cmd.cli_ctx
 
@@ -93,45 +93,38 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
         parameters.append(f'reactAppMsalScope={scope}')
 
     remote_deploy = deploy_url.lower().startswith('https://') or deploy_url.lower().startswith('http://')
-    local_url = deploy_url if not remote_deploy else None
-    remote_url = deploy_url if remote_deploy else None
 
     hook.add(message='Deploying ARM template')
     outputs = deploy_arm_template_at_resource_group(
-        cmd, resource_group_name, template_file=local_url, template_uri=remote_url, parameters=[parameters])
+        cmd, resource_group_name, template_file=(deploy_url if not remote_deploy else None),
+        template_uri=(deploy_url if remote_deploy else None), parameters=[parameters])
 
-    api_url = get_arm_output(outputs, 'apiUrl')
-    orchestrator_url = get_arm_output(outputs, 'orchestratorUrl')
     api_app_name = get_arm_output(outputs, 'apiAppName')
-    web_url = get_arm_output(outputs, 'webUrl')
     web_app_name = get_arm_output(outputs, 'webAppName')
     orchestrator_app_name = get_arm_output(outputs, 'orchestratorAppName')
+    api_url = get_arm_output(outputs, 'apiUrl')
+    web_url = get_arm_output(outputs, 'webUrl')
+    orchestrator_url = get_arm_output(outputs, 'orchestratorUrl')
 
     if skip_app_deployment:
         logger.warning(
             'IMPORTANT: --skip-app-deployment prevented source code for the TeamCloud instance deployment. '
             'To deploy the applications use `az tc upgrade`.')
     else:
-        from azure.cli.core.profiles import ResourceType
-        from azure.cli.command_modules.appservice.custom import (enable_zip_deploy_functionapp,
-                                                                 enable_zip_deploy_webapp)
-
         timeout = 1800
-
-        cmd.command_kwargs['resource_type'] = ResourceType.MGMT_APPSERVICE
 
         hook.add(message='Deploying Orchestrator source code')
         logger.warning('Starting deployment of Orchestrator source code')
-        enable_zip_deploy_functionapp(cmd, resource_group_name, orchestrator_app_name,
-                                      orchestrator_zip_url, timeout=timeout)
+        zip_deploy(cmd, resource_group_name, orchestrator_app_name, orchestrator_zip_url,
+                   function_app=True, timeout=timeout)
 
         hook.add(message='Deploying API source code')
         logger.warning('Starting deployment of API source code')
-        enable_zip_deploy_webapp(cmd, resource_group_name, api_app_name, api_zip_url, timeout=timeout)
+        zip_deploy(cmd, resource_group_name, api_app_name, api_zip_url, timeout=timeout)
 
         hook.add(message='Deploying Web app source code')
         logger.warning('Starting deployment of Web source code')
-        enable_zip_deploy_webapp(cmd, resource_group_name, web_app_name, web_zip_url, timeout=timeout)
+        zip_deploy(cmd, resource_group_name, web_app_name, web_zip_url, timeout=timeout)
 
         version_string = version or 'the latest version'
         hook.add(message=f'Successfully created TeamCloud instance ({version_string})')

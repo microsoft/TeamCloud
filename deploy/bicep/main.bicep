@@ -157,26 +157,17 @@ module orchestratorKey 'functionKey.bicep' = {
   }
   dependsOn: [
     sleepHack
-    orchestrator
-    orchestratorPolicy
-    orchestratorRole
-    signalr
   ]
 }
 
-// this is a hack to sleep for a couple of minutes, otherwise
-// the function host runtime isn't ready to create a new host key
+// this is a hack to wait until the function app host key is available,
+// otherwise, the function host runtime isn't ready to create a new host key
 // and fails with InternalServerError
 module sleepHack 'sleepHack.bicep' = if (doSleepHack) {
   name: 'sleepHack'
   params: {
-    time: '5m'
+    functionAppName: orchestrator.outputs.name
   }
-  dependsOn: [
-    orchestrator
-    orchestratorPolicy
-    orchestratorRole
-  ]
 }
 
 module commonConfigs 'appConfigKeys.bicep' = {

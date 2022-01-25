@@ -38,7 +38,7 @@ resource app 'Microsoft.Web/sites@2021-02-01' = {
     siteConfig: {
       alwaysOn: true
       phpVersion: 'off'
-      linuxFxVersion: 'NODE|12-lts'
+      linuxFxVersion: 'NODE|14-lts'
       appCommandLine: 'pm2 serve /home/site/wwwroot --no-daemon --spa'
       appSettings: [
         {
@@ -63,7 +63,7 @@ resource app 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '12'
+          value: '16'
         }
         {
           name: 'WEBSITE_NPM_DEFAULT_VERSION'
