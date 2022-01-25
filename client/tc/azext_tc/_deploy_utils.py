@@ -130,7 +130,7 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
                                                                       template_uri=template_uri, parameters=parameters,
                                                                       mode='Incremental')
 
-    deployment_client = deployment_client_factory(cmd.cli_ctx)
+    deployment_client = deployment_client_factory(cmd.cli_ctx, plug_pipeline=(template_uri is None))
 
     for try_number in range(TRIES):
         try:

@@ -65,11 +65,14 @@ def resource_client_factory(cli_ctx, **_):
 
 
 # pylint: disable=protected-access
-def deployment_client_factory(cli_ctx, **_):
+def deployment_client_factory(cli_ctx, plug_pipeline=True):
 
     smc = resource_client_factory(cli_ctx)
 
     deployment_client = smc.deployments  # This solves the multi-api for you
+
+    if not plug_pipeline:
+        return deployment_client
 
     deployment_client._serialize = JSONSerializer(
         deployment_client._serialize.dependencies
