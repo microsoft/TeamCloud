@@ -81,8 +81,8 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: teamcloud.azurecr.io
-          username: ${{ secrets.TEAMCLOUD_CI_USERNAME }}
-          password: ${{ secrets.TEAMCLOUD_CI_PASSWORD }}
+          username: ${{ secrets.TEAMCLOUD_ACR_USERNAME }}
+          password: ${{ secrets.TEAMCLOUD_ACR_PASSWORD }}
 
       - name: Build and push API Image
         uses: docker/build-push-action@v2
@@ -173,7 +173,3 @@ jobs:
                 reset_demo: '${{ contains(join(github.event.commits.*.message), '+resetdemo') }}'
               }
             });
-
-      - name: Logout Azure CLI
-        if: ${{ always() }}
-        run: az logout
