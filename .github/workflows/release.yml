@@ -66,6 +66,11 @@ jobs:
           echo "logging in to azure cli"
           az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
 
+      - name: Install az util extension
+        if: github.event.inputs.reset_demo == 'true'
+        run: |
+          az extension add -s https://github.com/colbylwilliams/az-util/releases/latest/download/util-0.1.2-py2.py3-none-any.whl -y
+
       - name: Guard Demo environment
         uses: softprops/turnstyle@v1
         env:
@@ -78,19 +83,8 @@ jobs:
 
             echo "Cleaning up subscripton '$( az account show --subscription $SUBSCRIPTIONID --query name -o tsv )'"
 
-            while read RESOURCEGROUPNAME; do
-              echo "- deleting resource group '$RESOURCEGROUPNAME'"
-              az group delete --subscription $SUBSCRIPTIONID -n $RESOURCEGROUPNAME -y &
-            done < <( az group list --subscription $SUBSCRIPTIONID --query "[].name" -o tsv )
-
-            wait
-
-            while read KEYVAULTNAME; do
-              echo "- purging key vault '$KEYVAULTNAME'"
-              az keyvault purge --subscription $SUBSCRIPTIONID -n $KEYVAULTNAME &
-            done < <( az keyvault list-deleted --subscription $SUBSCRIPTIONID --query "[].name" -o tsv )
-
-            wait && echo "- done"
+            az util group delete --subscription $SUBSCRIPTIONID --prefix T --skip TeamCloud-Registry
+            az util keyvault purge --subscription $SUBSCRIPTIONID
 
           done < <( az account list --refresh --only-show-errors --query "[?(starts_with(@.name, 'TeamCloud DEMO'))].id" -o tsv )
 
