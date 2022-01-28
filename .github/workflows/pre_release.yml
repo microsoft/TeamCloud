@@ -65,11 +65,22 @@ jobs:
         run: |
           dotnet publish TeamCloud.Orchestrator.csproj -o publish -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
 
+      - name: Compile Bicep Templates to ARM
+        working-directory: ./deploy/bicep
+        run: |
+          az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
+
+      - name: Create OpenAPI & Python Client
+        run: bash ./scripts/create-clients.sh ./publish/TeamCloud.API.dll
+
       - name: Create Release Asset - Web
         working-directory: ./web
         run: |
           npm install
           npm run build
+
+      - name: Build CLI
+        run: bash ./scripts/build-cli.sh
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -110,17 +121,6 @@ jobs:
           tags: |
             teamcloud.azurecr.io/teamcloud/website:${{ steps.gitversion.outputs.assemblySemVer }}
             teamcloud.azurecr.io/teamcloud/website:latest
-
-      - name: Compile Bicep Templates to ARM
-        working-directory: ./deploy/bicep
-        run: |
-          az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
-
-      - name: Create OpenAPI & Python Client
-        run: bash ./scripts/create-clients.sh ./publish/TeamCloud.API.dll
-
-      - name: Build CLI
-        run: bash ./scripts/build-cli.sh
 
       # This must be run LAST - AFTER everything is added to release_assets
       - name: Prepare Release Assets
