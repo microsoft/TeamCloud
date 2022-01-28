@@ -88,7 +88,6 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Build and push API Image
-        id: docker_build
         uses: docker/build-push-action@v2
         with:
           push: true
@@ -98,7 +97,6 @@ jobs:
             teamcloud.azurecr.io/teamcloud/api:latest
 
       - name: Build and push Orchestrator Image
-        id: docker_build
         uses: docker/build-push-action@v2
         with:
           push: true
@@ -108,7 +106,6 @@ jobs:
             teamcloud.azurecr.io/teamcloud/orchestrator:latest
 
       - name: Build and push Website Image
-        id: docker_build
         uses: docker/build-push-action@v2
         with:
           push: true
