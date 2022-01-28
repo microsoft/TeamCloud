@@ -87,9 +87,8 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
 
     if version:
         parameters.append(f'reactAppVersion={version}')
-
-    if index_file:
-        parameters.append(f'reactAppVersion=local')
+    elif index_file:
+        parameters.append('reactAppVersion=local')
 
     if scope:
         parameters.append(f'reactAppMsalScope={scope}')
