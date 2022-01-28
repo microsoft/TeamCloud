@@ -117,7 +117,7 @@ jobs:
           az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
 
       - name: Create OpenAPI & Python Client
-        run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
+        run: bash ./scripts/create-clients.sh ./publish/TeamCloud.API.dll
 
       - name: Build CLI
         run: bash ./scripts/build-cli.sh
