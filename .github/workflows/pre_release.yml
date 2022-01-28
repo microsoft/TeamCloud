@@ -55,17 +55,17 @@ jobs:
         working-directory: ${{ env.SOURCE_DIRECTORY }}
         run: dotnet build TeamCloud.sln -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
 
-      - name: Create Release Asset - TeamCloud.API
+      - name: Create Release Asset - API
         working-directory: ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
         run: |
           dotnet publish TeamCloud.API.csproj -o publish -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
 
-      - name: Create Release Asset - TeamCloud.Orchestrator
+      - name: Create Release Asset - Orchestrator
         working-directory: ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator
         run: |
           dotnet publish TeamCloud.Orchestrator.csproj -o publish -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
 
-      - name: Create Release Asset - TeamCloud.Web
+      - name: Create Release Asset - Web
         working-directory: ./web
         run: |
           npm install
@@ -117,9 +117,9 @@ jobs:
           az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
 
       - name: Create OpenAPI & Python Client
-        run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
+        run: bash ./scripts/create-clients.sh ./publish/TeamCloud.API.dll
 
-      - name: Build TeamCloud CLI
+      - name: Build CLI
         run: bash ./scripts/build-cli.sh
 
       # This must be run LAST - AFTER everything is added to release_assets
