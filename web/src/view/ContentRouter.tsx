@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { Error404, NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView } from '.';
+import { NewOrgView, NewProjectView, ProjectView, ProjectsView, OrgSettingsView } from '.';
 import { ErrorHandler } from './ErrorHandler';
 
 export const ContentRouter: React.FC = () => (
