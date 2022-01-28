@@ -28,6 +28,6 @@ export const useProjectComponentTask = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!project?.id && !!component?.id && !!itemId && matchesRouteParam(component, itemId) && !!subitemId,
+        enabled: isAuthenticated && !!project?.id && !!component?.id && !!itemId && matchesRouteParam(component, itemId) && !!subitemId && subitemId.toLowerCase() !== 'new',
     });
 }

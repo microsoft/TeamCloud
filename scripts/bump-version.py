@@ -1,7 +1,7 @@
 import argparse
 from re import search
 from pathlib import Path
-from packaging.version import parse # pylint: disable=unresolved-import
+from packaging.version import parse  # pylint: disable=unresolved-import
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--major', action='store_true', help='bump major version')
@@ -13,6 +13,7 @@ args = parser.parse_args()
 major = args.major
 minor = args.minor
 notes = '+ {}'.format('\n* '.join(args.notes))
+
 
 if major and minor:
     raise ValueError('usage error: --major | --minor')
@@ -88,5 +89,5 @@ with open(Path(Path.cwd()) / 'docs' / 'CLI.md', 'r') as f:
 
 cli_docs = cli_docs.replace(r_fmt.format(v.public), r_fmt.format(n.public))
 
-with open(Path(Path.cwd())  / 'docs' / 'CLI.md', 'w') as f:
+with open(Path(Path.cwd()) / 'docs' / 'CLI.md', 'w') as f:
     f.write(cli_docs)

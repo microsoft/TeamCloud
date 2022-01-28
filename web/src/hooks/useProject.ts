@@ -26,6 +26,6 @@ export const useProject = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!org?.id && !!projectId
+        enabled: isAuthenticated && !!org?.id && !!projectId && projectId.toLowerCase() !== 'new'
     });
 }

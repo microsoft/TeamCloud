@@ -8,7 +8,7 @@ param reactAppMsalClientId string
 param reactAppTcApiUrl string
 
 @description('Scope.')
-param reactAppMsalScope string = 'http://TeamCloud.Web/user_impersonation'
+param reactAppMsalScope string
 
 param reactAppVersion string = ''
 
@@ -29,7 +29,7 @@ resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
 
 resource app 'Microsoft.Web/sites@2021-02-01' = {
   name: name
-  kind: 'app'
+  kind: 'app,linux,container'
   location: resourceGroup().location
   properties: {
     reserved: true
@@ -38,8 +38,7 @@ resource app 'Microsoft.Web/sites@2021-02-01' = {
     siteConfig: {
       alwaysOn: true
       phpVersion: 'off'
-      linuxFxVersion: 'NODE|12-lts'
-      appCommandLine: 'pm2 serve /home/site/wwwroot --no-daemon --spa'
+      linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/teamcloud/website'
       appSettings: [
         {
           name: 'REACT_APP_MSAL_CLIENT_ID'
@@ -63,11 +62,23 @@ resource app 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'
-          value: '12'
+          value: '16'
         }
         {
           name: 'WEBSITE_NPM_DEFAULT_VERSION'
-          value: '6'
+          value: '8'
+        }
+        {
+          name: 'WEBSITES_PORT'
+          value: '8080'
+        }
+        {
+          name: 'DOCKER_REGISTRY_SERVER_URL'
+          value: 'https://teamcloud.azurecr.io'
+        }
+        {
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'false'
         }
       ]
     }

@@ -26,6 +26,6 @@ export const useProjectSchedule = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!project?.id && !!settingId && settingId.toLowerCase() === 'schedules' && !!itemId
+        enabled: isAuthenticated && !!project?.id && !!settingId && settingId.toLowerCase() === 'schedules' && !!itemId && itemId.toLowerCase() !== 'new'
     });
 }

@@ -3,6 +3,10 @@
 Release History
 ===============
 
+0.5.2
+++++++
++ Deploy apps using containers
+
 0.5.1
 ++++++
 + Deploy all apps on linux app services

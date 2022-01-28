@@ -1,4 +1,4 @@
-param time string
+param functionAppName string
 param utcValue string = utcNow()
 param location string = resourceGroup().location
 
@@ -37,7 +37,7 @@ resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     timeout: 'PT1H'
     cleanupPreference: 'Always'
     retentionInterval: 'PT1H'
-    scriptContent: 'sleep ${time} && az identity delete --ids "$AZ_SCRIPTS_USER_ASSIGNED_IDENTITY"'
+    scriptContent: 'counter=0; until az functionapp keys list -g ${resourceGroup().name} -n ${functionAppName} --query functionKeys.default > /dev/null; do echo "Function host key not available yet, retrying in 10 seconds..."; if [ $counter -ge 30 ]; then break; fi; ((counter++)); sleep 10; done; echo "done"; az identity delete --ids "$AZ_SCRIPTS_USER_ASSIGNED_IDENTITY"'
   }
   dependsOn: [
     roleAssignmentId

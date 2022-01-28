@@ -7,8 +7,13 @@ import { Project, TeamCloud } from 'teamcloud';
 import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from '@microsoft/signalr'
 
 const _getApiUrl = () => {
-    if (!process.env.REACT_APP_TC_API_URL) throw new Error('Must set env variable $REACT_APP_TC_API_URL');
-    return process.env.REACT_APP_TC_API_URL;
+    if (process.env.NODE_ENV !== 'production') {
+        if (!process.env.REACT_APP_TC_API_URL) throw new Error('Must set env variable $REACT_APP_TC_API_URL');
+        return process.env.REACT_APP_TC_API_URL;
+    }
+    else {
+        return "__REACT_APP_TC_API_URL__";
+    }
 };
 
 export const apiUrl = _getApiUrl();
@@ -34,8 +39,7 @@ export const resolveSignalR = async (project: Project | undefined, callback: (ac
 
 export const startSignalR = async (project: Project, callback: (action: string, data: any) => void) => {
 
-    try
-    {
+    try {
         const endpoint = `${apiUrl}/orgs/${project.organization}/projects/${project.id}`;
 
         if (connection) {
@@ -69,9 +73,8 @@ export const startSignalR = async (project: Project, callback: (action: string, 
 
         await connection.start();
     }
-    catch (err)
-    {
-        console.error(err);        
+    catch (err) {
+        console.error(err);
     }
 }
 

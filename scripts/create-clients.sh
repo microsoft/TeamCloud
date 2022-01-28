@@ -12,11 +12,6 @@ line() { echo " "; }
 
 log "TeamCloud Python & Typescript Client Generator"
 
-
-log "$tc_dir"
-# echo $apiDll
-# exit 0
-
 # check for autorest
 if ! [ -x "$(command -v autorest)" ]; then
     log "[AutoRest] Installing AutoRest"
@@ -24,8 +19,6 @@ if ! [ -x "$(command -v autorest)" ]; then
     # echo 'Error: autorest cli is not installed.\nAutoRest is required to run this script. To install the AutoRest, run npm install -g autorest, then try again. Aborting.' >&2
     # exit 1
 fi
-
-line
 
 pushd $tc_dir/src/TeamCloud.API
 
@@ -42,8 +35,6 @@ pushd $tc_dir/src/TeamCloud.API
         log "[OpenAPI] copying open api files to release_assets"
         cp ../../openapi/openapi.json ../../openapi/openapi.yaml ../../release_assets
     fi
-
-    line
 
 popd
 
@@ -64,8 +55,6 @@ pushd $tc_dir/web
         rm ./package-lock.json
     fi
 
-    line
-
 popd
 
 line
@@ -85,8 +74,6 @@ pushd $tc_dir/web/teamcloud
         rm ./package-lock.json
     fi
 
-    line
-
 popd
 
 line
@@ -101,8 +88,6 @@ pushd $tc_dir/openapi
 
     log "[AutoRest] Generating typescript client"
     autorest --v3 typescript.md
-
-    line
 
 popd
 
@@ -124,8 +109,6 @@ pushd $tc_dir/web/teamcloud
         rm ./README.md
     fi
 
-    line
-
 popd
 
 line
@@ -134,9 +117,6 @@ pushd $tc_dir/web
 
     log "[TypeScript] Installing temacloud to web"
     npm install ./teamcloud --legacy-peer-deps
-    # npm install ./teamcloud
-
-    line
 
 popd
 

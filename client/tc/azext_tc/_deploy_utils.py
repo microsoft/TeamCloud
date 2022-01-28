@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 # pylint: disable=unused-argument, protected-access, too-many-lines
+# pylint: disable=inconsistent-return-statements
 
 import json
 import requests
@@ -14,6 +15,7 @@ from azure.cli.core.commands.client_factory import get_subscription_id
 from azure.cli.core.profiles import ResourceType, get_sdk
 from azure.cli.core.util import (can_launch_browser, open_page_in_browser, in_cloud_console,
                                  random_string, sdk_no_wait, should_disable_connection_verify)
+
 
 from ._client_factory import (deployment_client_factory, resource_client_factory)
 
@@ -29,7 +31,7 @@ TRIES = 3
 logger = get_logger(__name__)
 
 
-def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=False):
+def get_github_release(repo, org='microsoft', version=None, prerelease=False):
     if version and prerelease:
         raise CLIError(
             'usage error: can only use one of --version/-v | --pre')
@@ -59,15 +61,62 @@ def get_github_release(cli_ctx, repo, org='microsoft', version=None, prerelease=
     return version_res.json()
 
 
-def get_github_latest_release_version(cli_ctx, repo, org='microsoft', prerelease=False):
-    version_json = get_github_release(cli_ctx, repo, org, prerelease=prerelease)
+def get_github_latest_release_version(repo, org='microsoft', prerelease=False):
+    version_json = get_github_release(repo, org, prerelease=prerelease)
     return version_json['tag_name']
 
 
-def github_release_version_exists(cli_ctx, version, repo, org='microsoft'):
+def github_release_version_exists(version, repo, org='microsoft'):
     version_url = f'https://api.github.com/repos/{org}/{repo}/releases/tags/{version}'
     version_res = requests.get(version_url, verify=not should_disable_connection_verify())
     return version_res.status_code < 400
+
+
+def get_index(index_url):
+    for try_number in range(TRIES):
+        try:
+            response = requests.get(index_url, verify=(not should_disable_connection_verify()))
+            if response.status_code == 200:
+                return response.json()
+            msg = ERR_TMPL_NON_200.format(response.status_code, index_url)
+            raise CLIError(msg)
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as err:
+            msg = ERR_TMPL_NO_NETWORK.format(str(err))
+            raise CLIError(msg) from err
+        except ValueError as err:
+            # Indicates that url is not redirecting properly to intended index url, we stop retrying after TRIES calls
+            if try_number == TRIES - 1:
+                msg = ERR_TMPL_BAD_JSON.format(str(err))
+                raise CLIError(msg) from err
+            import time
+            time.sleep(0.5)
+            continue
+
+
+def get_local_index(index_file):
+    from azure.cli.core.util import get_file_json
+    return get_file_json(index_file, preserve_order=True)
+
+
+def get_teamcloud_index(version=None, prerelease=False, index_file=None, index_url=None):
+    if index_file is not None:
+        index = get_local_index(index_file=index_file)
+    else:
+        if index_url is None:
+            version = version or get_github_latest_release_version('TeamCloud', prerelease=prerelease)
+            index_url = f'https://github.com/microsoft/TeamCloud/releases/download/{version}/index.json'
+        index = get_index(index_url=index_url)
+
+    teamcloud = index.get('teamcloud')
+
+    if teamcloud is None:
+        logger.warning(ERR_UNABLE_TO_GET_TEAMCLOUD)
+
+    deploy_url = teamcloud.get('deployUrl')
+
+    if not deploy_url:
+        raise CLIError('No deployUrl found in index')
+    return version, deploy_url
 
 
 def get_resource_group_by_name(cli_ctx, resource_group_name):
@@ -118,9 +167,6 @@ def create_resource_manager_sp(cmd, app_name):
     return sp
 
 
-# pylint: disable=inconsistent-return-statements
-
-
 def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, template_file=None,
                                           template_uri=None, parameters=None, no_wait=False):
 
@@ -130,7 +176,7 @@ def deploy_arm_template_at_resource_group(cmd, resource_group_name=None, templat
                                                                       template_uri=template_uri, parameters=parameters,
                                                                       mode='Incremental')
 
-    deployment_client = deployment_client_factory(cmd.cli_ctx)
+    deployment_client = deployment_client_factory(cmd.cli_ctx, plug_pipeline=(template_uri is None))
 
     for try_number in range(TRIES):
         try:
@@ -169,61 +215,6 @@ def open_url_in_browser(url):
     else:
         print("There isn't an available browser finish the setup. Please copy and paste the url"
               f" below in a browser to complete the configuration.\n\n{url}\n\n")
-
-
-def get_index(index_url):
-    for try_number in range(TRIES):
-        try:
-            response = requests.get(index_url, verify=(not should_disable_connection_verify()))
-            if response.status_code == 200:
-                return response.json()
-            msg = ERR_TMPL_NON_200.format(response.status_code, index_url)
-            raise CLIError(msg)
-        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as err:
-            msg = ERR_TMPL_NO_NETWORK.format(str(err))
-            raise CLIError(msg) from err
-        except ValueError as err:
-            # Indicates that url is not redirecting properly to intended index url, we stop retrying after TRIES calls
-            if try_number == TRIES - 1:
-                msg = ERR_TMPL_BAD_JSON.format(str(err))
-                raise CLIError(msg) from err
-            import time
-            time.sleep(0.5)
-            continue
-
-
-def get_local_index(index_file):
-    from azure.cli.core.util import get_file_json
-    return get_file_json(index_file, preserve_order=True)
-
-
-def get_teamcloud_index(cli_ctx, version=None, prerelease=False, index_file=None, index_url=None):
-    if index_file is not None:
-        index = get_local_index(index_file=index_file)
-    else:
-        if index_url is None:
-            version = version or get_github_latest_release_version(
-                cli_ctx, 'TeamCloud', prerelease=prerelease)
-            index_url = f'https://github.com/microsoft/TeamCloud/releases/download/{version}/index.json'
-        index = get_index(index_url=index_url)
-
-    teamcloud = index.get('teamcloud')
-
-    if teamcloud is None:
-        logger.warning(ERR_UNABLE_TO_GET_TEAMCLOUD)
-
-    deploy_url, api_zip_url, orchestrator_zip_url, web_zip_url = teamcloud.get('deployUrl'), teamcloud.get(
-        'apiZipUrl'), teamcloud.get('orchestratorZipUrl'), teamcloud.get('webZipUrl')
-
-    if not deploy_url:
-        raise CLIError('No deployUrl found in index')
-    if not api_zip_url:
-        raise CLIError('No apiZipUrl found in index')
-    if not orchestrator_zip_url:
-        raise CLIError('No orchestratorZipUrl found in index')
-    if not web_zip_url:
-        raise CLIError('No webZipUrl found in index')
-    return version, deploy_url, api_zip_url, orchestrator_zip_url, web_zip_url
 
 
 def get_arm_output(outputs, key, raise_on_error=True):

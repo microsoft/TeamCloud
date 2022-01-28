@@ -47,6 +47,14 @@ export const UserInfo: React.FC = () => {
         main: { height: 'fit-content' }
     };
 
+    const getVersion = () => {
+        if (process.env.NODE_ENV !== 'production') {
+            return process.env.REACT_APP_VERSION ?? 'Dev'
+        } else {
+            return '__REACT_APP_VERSION__';
+        }
+    };
+
     return graphUser ? (
         <>
             <UserPersona
@@ -68,7 +76,7 @@ export const UserInfo: React.FC = () => {
                         <DefaultButton text='Sign out' onClick={() => auth.logout()} />
                     </Stack>
                     <Separator />
-                    <Text styles={{ root: { color: theme.palette.neutralSecondary, padding: '0px', textAlign: 'center' } }}>{process.env.REACT_APP_VERSION ?? 'Dev'}</Text>
+                    <Text styles={{ root: { color: theme.palette.neutralSecondary, padding: '0px', textAlign: 'center' } }}>{getVersion()}</Text>
                 </Stack>
             </Panel>
             <UserForm

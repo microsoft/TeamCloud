@@ -18,8 +18,8 @@ export const useCreateProjectTemplate = () => {
         const { data } = await api.createProjectTemplate(org.id, {
             body: templateDef,
             onResponse: (raw, flat) => {
-                console.warn(JSON.stringify(raw))
-                console.warn(JSON.stringify(flat))
+                // console.warn(JSON.stringify(raw))
+                // console.warn(JSON.stringify(flat))
                 if (raw.status >= 400)
                     throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
             }

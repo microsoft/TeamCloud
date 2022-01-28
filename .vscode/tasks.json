@@ -63,7 +63,6 @@
             "args": [
                 "http",
                 "--region=us",
-                // "--hostname=teamcloud.ngrok.io",
                 "https://localhost:5001"
             ],
             "isBackground": true,
@@ -71,7 +70,7 @@
                 "panel": "dedicated",
                 "showReuseMessage": false
             },
-            "problemMatcher": [],
+            "problemMatcher": []
         },
         {
             "label": "setNgrokUrl",
@@ -98,6 +97,109 @@
             },
             "dependsOn": [
                 "setNgrokUrl"
+            ]
+        },
+        {
+            "label": "bicep: local",
+            "command": "az",
+            "args": [
+                "bicep",
+                "build",
+                "-f",
+                "${workspaceFolder}/deploy/bicep/main.bicep",
+                "--outfile",
+                "${workspaceFolder}/local/release_assets/azuredeploy.json"
+            ],
+            "presentation": {
+                "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker: build api",
+            "type": "docker-build",
+            "dockerBuild": {
+                "context": "${workspaceFolder}/src/TeamCloud.API",
+                "dockerfile": "${workspaceFolder}/src/TeamCloud.API/Dockerfile",
+                "tag": "teamcloud.azurecr.io/teamcloud/api:${input:imageTagVersion}",
+                "customOptions": "-t \"teamcloud.azurecr.io/teamcloud/api:latest\"",
+                "labels": {
+                    "includeDefaults": false
+                }
+            }
+        },
+        {
+            "label": "docker: build orchestrator",
+            "type": "docker-build",
+            "dockerBuild": {
+                "context": "${workspaceFolder}/src/TeamCloud.Orchestrator",
+                "dockerfile": "${workspaceFolder}/src/TeamCloud.Orchestrator/Dockerfile",
+                "tag": "teamcloud.azurecr.io/teamcloud/orchestrator:${input:imageTagVersion}",
+                "customOptions": "-t \"teamcloud.azurecr.io/teamcloud/orchestrator:latest\"",
+                "labels": {
+                    "includeDefaults": false
+                }
+            }
+        },
+        {
+            "label": "docker: build web",
+            "type": "docker-build",
+            "dockerBuild": {
+                "context": "${workspaceFolder}/web",
+                "dockerfile": "${workspaceFolder}/web/Dockerfile",
+                "tag": "teamcloud.azurecr.io/teamcloud/website:${input:imageTagVersion}",
+                "customOptions": "-t \"teamcloud.azurecr.io/teamcloud/website:latest\"",
+                "labels": {
+                    "includeDefaults": false
+                }
+            }
+        },
+        {
+            "label": "docker: push web",
+            "command": "docker",
+            "args": [
+                "push",
+                "teamcloud.azurecr.io/teamcloud/website:${input:imageTagVersion}"
+            ],
+            "dependsOn": []
+        },
+        {
+            "label": "docker: push web (latest)",
+            "command": "docker",
+            "args": [
+                "push",
+                "teamcloud.azurecr.io/teamcloud/website:latest"
+            ],
+            "dependsOn": [
+                "acr: login"
+            ]
+        },
+        {
+            "label": "acr: login",
+            "command": "az",
+            "args": [
+                "acr",
+                "login",
+                "-n",
+                "teamcloud"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "imageTagVersion",
+            "type": "promptString",
+            "description": "Version for this tag (also builds a latest version).",
+            "default": "0.0.0"
+        },
+        {
+            "id": "imageName",
+            "type": "pickString",
+            "description": "Image name.",
+            "options": [
+                "api",
+                "orchestrator",
+                "website"
             ]
         }
     ]

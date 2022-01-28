@@ -63,7 +63,6 @@ jobs:
 
       - name: Login to Azure
         run: |
-
           echo "logging in to azure cli"
           az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
 
@@ -102,7 +101,7 @@ jobs:
           az extension add -s ${{steps.get-cli.outputs.result}} -y
 
           echo "deploying demo teamcloud instance"
-          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo  
+          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
 
       - name: Promote Release
         uses: actions/github-script@v4

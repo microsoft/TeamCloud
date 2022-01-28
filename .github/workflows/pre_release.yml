@@ -52,35 +52,75 @@ jobs:
           script: await io.mkdirP('release_assets')
 
       - name: Build & Package for Release
-        run: dotnet build ${{ env.SOURCE_DIRECTORY }}/TeamCloud.sln -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
+        working-directory: ${{ env.SOURCE_DIRECTORY }}
+        run: dotnet build TeamCloud.sln -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true
 
       - name: Create Release Asset - TeamCloud.API
+        working-directory: ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
         run: |
-          dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API/TeamCloud.API.csproj -o TeamCloud.API -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
-
-          pushd TeamCloud.API
-            zip -r ../release_assets/TeamCloud.API.zip *
-          popd
+          dotnet publish TeamCloud.API.csproj -o publish -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
 
       - name: Create Release Asset - TeamCloud.Orchestrator
+        working-directory: ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator
         run: |
-          dotnet publish ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj -o TeamCloud.Orchestrator -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
-
-          pushd TeamCloud.Orchestrator
-            zip -r ../release_assets/TeamCloud.Orchestrator.zip *
-          popd
+          dotnet publish TeamCloud.Orchestrator.csproj -o publish -c ${{ env.BUILD_CONFIGURATION }} -p:VersionPrefix="${{ steps.gitversion.outputs.majorMinorPatch }}" -p:AssemblyVersion="${{ steps.gitversion.outputs.assemblySemVer }}" -p:FileVersion="${{ steps.gitversion.outputs.assemblySemFileVer }}" -p:IncludeSymbols=true --no-build
 
       - name: Create Release Asset - TeamCloud.Web
+        working-directory: ./web
         run: |
-          pushd web
-            zip -r ../release_assets/TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x .DS_Store -x .env.development -x build/\* -x lib/\* -x node_modules/\* -x .gitignore
-          popd
+          npm install
+          npm run build
+
+      - name: Login to Azure
+        run: |
+          echo "logging in to azure cli"
+          az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
+
+      - name: Login to ACR
+        run: |
+          echo "logging in to azure acr"
+          az acr login -n teamcloud
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push API Image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: ${{ env.SOURCE_DIRECTORY }}/TeamCloud.API
+          tags: |
+            teamcloud.azurecr.io/teamcloud/api:${{ steps.gitversion.outputs.assemblySemVer }}
+            teamcloud.azurecr.io/teamcloud/api:latest
+
+      - name: Build and push Orchestrator Image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: ${{ env.SOURCE_DIRECTORY }}/TeamCloud.Orchestrator
+          tags: |
+            teamcloud.azurecr.io/teamcloud/orchestrator:${{ steps.gitversion.outputs.assemblySemVer }}
+            teamcloud.azurecr.io/teamcloud/orchestrator:latest
+
+      - name: Build and push Website Image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: ./web
+          tags: |
+            teamcloud.azurecr.io/teamcloud/website:${{ steps.gitversion.outputs.assemblySemVer }}
+            teamcloud.azurecr.io/teamcloud/website:latest
 
       - name: Compile Bicep Templates to ARM
+        working-directory: ./deploy/bicep
         run: |
-          pushd deploy/bicep
-            az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
-          popd
+          az bicep build -f main.bicep --outfile ../../release_assets/azuredeploy.json
 
       - name: Create OpenAPI & Python Client
         run: bash ./scripts/create-clients.sh ../../TeamCloud.API/TeamCloud.API.dll
@@ -91,7 +131,7 @@ jobs:
       # This must be run LAST - AFTER everything is added to release_assets
       - name: Prepare Release Assets
         id: prepare_assets
-        run: python ./scripts/prepare_assets.py ${{ steps.gitversion.outputs.majorMinorPatch }}
+        run: python ./scripts/prepare-assets.py ${{ steps.gitversion.outputs.majorMinorPatch }}
 
       - name: Create Pre-release
         id: publish_assets
@@ -139,3 +179,7 @@ jobs:
                 reset_demo: '${{ contains(join(github.event.commits.*.message), '+resetdemo') }}'
               }
             });
+
+      - name: Logout Azure CLI
+        if: ${{ always() }}
+        run: az logout

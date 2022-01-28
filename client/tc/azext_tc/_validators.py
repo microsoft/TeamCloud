@@ -45,7 +45,7 @@ def tc_deploy_validator(cmd, ns):
             raise CLIError(
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
-        if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
+        if not github_release_version_exists(ns.version, 'TeamCloud'):
             raise CLIError(f'--version/-v {ns.version} does not exist')
 
     if ns.tags:
@@ -194,7 +194,7 @@ def teamcloud_source_version_validator(cmd, ns):
             raise CLIError(
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
-        if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
+        if not github_release_version_exists(ns.version, 'TeamCloud'):
             raise CLIError(f'--version/-v {ns.version} does not exist')
 
 
@@ -210,7 +210,7 @@ def teamcloud_cli_source_version_validator(cmd, ns):
             raise CLIError(
                 '--version/-v should be in format v0.0.0 do not include -pre suffix')
 
-        if not github_release_version_exists(cmd.cli_ctx, ns.version, 'TeamCloud'):
+        if not github_release_version_exists(ns.version, 'TeamCloud'):
             raise CLIError(f'--version/-v {ns.version} does not exist')
 
 
