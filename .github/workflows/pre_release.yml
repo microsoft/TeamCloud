@@ -77,15 +77,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Login to Azure
-        run: |
-          echo "logging in to azure cli"
-          az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
-
       - name: Login to ACR
-        run: |
-          echo "logging in to azure acr"
-          az acr login -n teamcloud
+        uses: docker/login-action@v1
+        with:
+          registry: teamcloud.azurecr.io
+          username: ${{ secrets.TEAMCLOUD_CI_USERNAME }}
+          password: ${{ secrets.TEAMCLOUD_CI_PASSWORD }}
 
       - name: Build and push API Image
         uses: docker/build-push-action@v2
