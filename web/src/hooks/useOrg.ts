@@ -23,6 +23,6 @@ export const useOrg = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!orgId
+        enabled: isAuthenticated && !!orgId && orgId.toLowerCase() !== 'new'
     });
 }

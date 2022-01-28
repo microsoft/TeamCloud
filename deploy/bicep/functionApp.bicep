@@ -34,7 +34,7 @@ resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
 }
 
 resource func 'Microsoft.Web/sites@2021-02-01' = {
-  kind: 'functionapp'
+  kind: 'functionapp,linux,container'
   name: name
   location: resourceGroup().location
   identity: {
@@ -46,7 +46,8 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
     clientAffinityEnabled: false
     siteConfig: {
       phpVersion: 'off'
-      linuxFxVersion: 'DOTNET|6.0'
+      linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/teamcloud/orchestrator'
+      use32BitWorkerProcess: false
       appSettings: [
         {
           name: 'AppConfiguration__ConnectionString'
@@ -85,11 +86,23 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
           value: name
         }
         {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
+          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+          value: 'false'
         }
         {
-          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+          name: 'DOCKER_REGISTRY_SERVER_URL'
+          value: 'https://teamcloud.azurecr.io'
+        }
+        {
+          name: 'DOCKER_CUSTOM_IMAGE_NAME'
+          value: 'teamcloud.azurecr.io/teamcloud/orchestrator'
+        }
+        {
+          name: 'FUNCTION_APP_EDIT_MODE'
+          value: 'readOnly'
+        }
+        {
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
           value: 'false'
         }
       ]
@@ -100,16 +113,6 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
           type: 'Custom'
         }
       ]
-    }
-  }
-}
-
-module orchestratorConfigs 'appConfigKeys.bicep' = {
-  name: 'orchestratorConfigs'
-  params: {
-    configName: appConfigName
-    keyValues: {
-      'Endpoint:Orchestrator:Url': 'https://${name}.azurewebsites.net'
     }
   }
 }

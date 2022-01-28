@@ -90,8 +90,11 @@ public class Startup
         else
         {
             app
-                .UseHsts()
-                .UseHttpsRedirection();
+                .UseHsts();
+            // Our app currently runs in a container in App Service
+            // which handels https, so this is not needed and causes
+            // errors when enabled
+            // .UseHttpsRedirection();
         }
 
         app

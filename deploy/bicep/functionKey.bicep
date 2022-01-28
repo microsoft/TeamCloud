@@ -1,14 +1,5 @@
-// param keyName string
-param functionAppName string
 param appConfigName string
-
-// #disable-next-line BCP081
-// resource key 'Microsoft.Web/sites/host/functionKeys@2021-02-01' = {
-//   name: '${functionAppName}/default/${keyName}'
-//   properties: {
-//     name: keyName
-//   }
-// }
+param functionAppName string
 
 resource func 'Microsoft.Web/sites@2021-02-01' existing = {
   name: functionAppName

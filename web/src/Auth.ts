@@ -8,18 +8,30 @@ import { AuthenticationProvider, AuthenticationProviderOptions } from "@microsof
 export class Auth implements TokenCredential, AuthenticationProvider {
 
     _getClientId = () => {
-        if (!process.env.REACT_APP_MSAL_CLIENT_ID) throw new Error('Must set env variable $REACT_APP_MSAL_CLIENT_ID');
-        return process.env.REACT_APP_MSAL_CLIENT_ID;
+        if (process.env.NODE_ENV !== 'production') {
+            if (!process.env.REACT_APP_MSAL_CLIENT_ID) throw new Error('Must set env variable $REACT_APP_MSAL_CLIENT_ID');
+            return process.env.REACT_APP_MSAL_CLIENT_ID;
+        } else {
+            return '__REACT_APP_MSAL_CLIENT_ID__';
+        }
     };
 
     _getAuthority = () => {
-        if (!process.env.REACT_APP_MSAL_TENANT_ID) throw new Error('Must set env variable $REACT_APP_MSAL_TENANT_ID');
-        return 'https://login.microsoftonline.com/' + process.env.REACT_APP_MSAL_TENANT_ID;
+        if (process.env.NODE_ENV !== 'production') {
+            if (!process.env.REACT_APP_MSAL_TENANT_ID) throw new Error('Must set env variable $REACT_APP_MSAL_TENANT_ID');
+            return 'https://login.microsoftonline.com/' + process.env.REACT_APP_MSAL_TENANT_ID;
+        } else {
+            return 'https://login.microsoftonline.com/__REACT_APP_MSAL_TENANT_ID__';
+        }
     };
 
     _getScope = () => {
-        if (!process.env.REACT_APP_MSAL_SCOPE) throw new Error('Must set env variable REACT_APP_MSAL_SCOPE');
-        return process.env.REACT_APP_MSAL_SCOPE;
+        if (process.env.NODE_ENV !== 'production') {
+            if (!process.env.REACT_APP_MSAL_SCOPE) throw new Error('Must set env variable REACT_APP_MSAL_SCOPE');
+            return process.env.REACT_APP_MSAL_SCOPE;
+        } else {
+            return '__REACT_APP_MSAL_SCOPE__';
+        }
     };
 
     configuration: Configuration = {

@@ -17,7 +17,6 @@ if version[:1].isdigit():
 ci = os.environ.get('CI', False)
 
 assets = []
-# assets_dir = 'release_assets' if ci else 'local/release_assets'
 
 bicep_dir = '{}/deploy/bicep'.format(Path.cwd())
 assets_dir = '{}/{}'.format(Path.cwd(), 'release_assets' if ci else 'local/release_assets')
@@ -39,16 +38,8 @@ index = {}
 index['teamcloud'] = {
     'version': '{}'.format(version),
     'deployUrl': f'{download_url}/azuredeploy.json',
-    'webZipUrl': f'{download_url}/TeamCloud.Web.zip',
-    'apiZipUrl': f'{download_url}/TeamCloud.API.zip',
-    'orchestratorZipUrl': f'{download_url}/TeamCloud.Orchestrator.zip',
 }
 
-# index['webapp'] = {
-#     'version': '{}'.format(version),
-#     'deployUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/azuredeploy.web.json'.format(version),
-#     'zipUrl': 'https://github.com/microsoft/TeamCloud/releases/download/{}/TeamCloud.Web.zip'.format(version),
-# }
 
 index['extensions'] = {
     'tc': [

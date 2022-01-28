@@ -1,4 +1,5 @@
 param name string
+param webAppName string
 param appConfigName string
 param appInsightsName string
 
@@ -24,7 +25,7 @@ resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
 }
 
 resource web 'Microsoft.Web/sites@2021-02-01' = {
-  kind: 'api'
+  kind: 'api,linux,container'
   name: name
   location: resourceGroup().location
   identity: {
@@ -37,11 +38,11 @@ resource web 'Microsoft.Web/sites@2021-02-01' = {
     siteConfig: {
       alwaysOn: true
       phpVersion: 'off'
-      linuxFxVersion: 'DOTNETCORE|6.0'
+      linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/teamcloud/api'
       cors: {
         allowedOrigins: [
           'http://localhost:3000'
-          'https://${name}-web.azurewebsites.net'
+          'https://${webAppName}.azurewebsites.net'
         ]
         supportCredentials: true
       }
@@ -95,8 +96,12 @@ resource web 'Microsoft.Web/sites@2021-02-01' = {
           value: 'https://${name}.scm.azurewebsites.net/detectors'
         }
         {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
+          name: 'WEBSITES_PORT'
+          value: '8080'
+        }
+        {
+          name: 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          value: 'false'
         }
       ]
       connectionStrings: [
@@ -106,16 +111,6 @@ resource web 'Microsoft.Web/sites@2021-02-01' = {
           type: 'Custom'
         }
       ]
-    }
-  }
-}
-
-module apiConfigs 'appConfigKeys.bicep' = {
-  name: 'apiConfigs'
-  params: {
-    configName: appConfigName
-    keyValues: {
-      'Endpoint:Api:Url': 'https://${name}.azurewebsites.net'
     }
   }
 }

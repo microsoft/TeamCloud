@@ -39,7 +39,7 @@ popd > /dev/null
 echo "Create Release Asset - TeamCloud.Web"
 
 pushd $web_dir > /dev/null
-    zip -r $rel_dir/TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x .DS_Store -x .env.development -x build/\* -x lib/\* -x node_modules/\* -x .gitignore
+    zip -r $rel_dir/TeamCloud.Web.zip * .deployment -x .vscode -x \*.md -x .DS_Store -x .env.development -x build/\* -x lib/\* -x node_modules/\* -x teamcloud/node_modules/\* -x .gitignore
 popd > /dev/null
 
 
