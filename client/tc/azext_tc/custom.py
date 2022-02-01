@@ -205,7 +205,7 @@ def deployment_scope_create(cmd, client, base_url, org, scope, scope_type='Azure
 
     parameters = json.loads(json.dumps(parameters))
 
-    payload = DeploymentScopeDefinition(display_name=scope, type=scope_type, input_date=parameters)
+    payload = DeploymentScopeDefinition(display_name=scope, type=scope_type, input_data=parameters)
 
     return _create(cmd, client, base_url, client.create_deployment_scope, payload, org=org)
 
