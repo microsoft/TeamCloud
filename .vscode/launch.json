@@ -7,8 +7,8 @@
                 "API",
                 "Orchestrator"
             ],
-            "preLaunchTask": "dotnet: build sln",
-            "stopAll": true
+            "preLaunchTask": "dotnet: build sln (debug)",
+            "stopAll": true,
         }
     ],
     "configurations": [
@@ -30,7 +30,7 @@
             "name": "Orchestrator",
             "type": "coreclr",
             "request": "attach",
-            "processId": "${command:azureFunctions.pickProcess}",
+            "processId": "${command:azureFunctions.pickProcess}"
         },
         {
             "name": "Web",

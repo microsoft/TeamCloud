@@ -2,12 +2,6 @@
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~4",
     // "azureFunctions.projectSubpath": "",
-    "spellright.language": [
-        "en"
-    ],
-    "spellright.documentTypes": [
-        "latex"
-    ],
     "files.exclude": {
         "**/.vs": true,
         "**/bin": true,
@@ -22,5 +16,12 @@
         "client/env/include": true,
         "client/env/pyvenv.cfg": true,
     },
+    "python.terminal.activateEnvironment": false,
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "latex"
+    ],
     "restructuredtext.confPath": ""
 }
