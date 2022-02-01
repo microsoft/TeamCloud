@@ -1,0 +1,102 @@
+name: Deploy Demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: false
+        description: 'Tag to release.'
+      reset_demo:
+        required: false
+        description: 'Reset the demo environment.'
+        default: 'false'
+
+jobs:
+  build:
+    name: Deploy Demo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve Tag
+        id: resolve-tag
+        uses: actions/github-script@v4
+        with:
+          result-encoding: string
+          script: |
+            let tag = '${{ github.event.inputs.tag }}';
+            if (!tag) {
+              const parts = context.ref.split('/');
+              if (!parts.includes('tags'))
+                throw new Error(`ref ${context.ref} is not a tag.`);
+              tag = parts[parts.length - 1];
+            }
+            console.log(`Resolved tag: ${tag}`);
+            return tag;
+
+      - name: Get Release
+        id: get-release
+        uses: actions/github-script@v4
+        with:
+          script: |
+            let tag = '${{steps.resolve-tag.outputs.result}}';
+            const release = await github.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: tag
+            });
+            console.log(release.data);
+            return release.data;
+
+      - name: Get CLI Release Asset
+        id: get-cli
+        uses: actions/github-script@v4
+        with:
+          result-encoding: string
+          script: |
+            const release = JSON.parse('${{steps.get-release.outputs.result}}');
+            const cli_asset = release.assets.find(a => a.browser_download_url.includes('py3-none-any.whl'));
+            if (!cli_asset)
+              throw new Error('Could not find cli wheel file in release assets');
+            const cli_url = cli_asset.browser_download_url;
+            console.log(cli_url);
+            return cli_url;
+
+      - name: Login to Azure
+        run: |
+          echo "logging in to azure cli"
+          az login --service-principal -u ${{ secrets.TEAMCLOUD_CI_USERNAME }} -p ${{ secrets.TEAMCLOUD_CI_PASSWORD }} --tenant ${{ secrets.TEAMCLOUD_CI_TENANT }}
+
+      - name: Install az util extension
+        if: github.event.inputs.reset_demo == 'true'
+        run: |
+          az extension add -s https://github.com/colbylwilliams/az-util/releases/latest/download/util-0.1.2-py2.py3-none-any.whl -y
+
+      - name: Guard Demo environment
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Reset Demo environment
+        if: github.event.inputs.reset_demo == 'true'
+        run: |
+          while read SUBSCRIPTIONID; do
+
+            echo "Cleaning up subscripton '$( az account show --subscription $SUBSCRIPTIONID --query name -o tsv )'"
+
+            az util group delete --subscription $SUBSCRIPTIONID --prefix T --skip TeamCloud-Registry
+            az util keyvault purge --subscription $SUBSCRIPTIONID
+
+          done < <( az account list --refresh --only-show-errors --query "[?(starts_with(@.name, 'TeamCloud DEMO'))].id" -o tsv )
+
+      - name: Deploy Demo environment
+        run: |
+
+          echo "installing teamcloud cli extension"
+          az extension add -s ${{steps.get-cli.outputs.result}} -y
+
+          echo "deploying demo teamcloud instance"
+          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
+
+      - name: Logout Azure CLI
+        if: ${{ always() }}
+        run: az logout
