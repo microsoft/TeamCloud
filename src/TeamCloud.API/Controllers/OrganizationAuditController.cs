@@ -37,7 +37,7 @@ public class OrganizationAuditController : TeamCloudController
     [SwaggerResponse(StatusCodes.Status200OK, "Returns audit entries.", typeof(DataResult<List<CommandAuditEntity>>))]
     [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
     [SwaggerResponse(StatusCodes.Status404NotFound, "The Organization was not found.", typeof(ErrorResult))]
-    public async Task<IActionResult> Get([FromQuery] string timeRange = null, [FromQuery] string[]? commands = null)
+    public async Task<IActionResult> Get([FromQuery] string timeRange = null, [FromQuery] string[] commands = default)
     {
         var organizationId = Guid.Parse(OrganizationId);
 
@@ -84,7 +84,7 @@ public class OrganizationAuditController : TeamCloudController
         var commands = AppDomain.CurrentDomain.GetAssemblies()
             .Where(asm => !asm.IsDynamic)
             .SelectMany(asm => asm.GetExportedTypes().Where(t => t.IsClass && !t.IsAbstract && typeof(ICommand).IsAssignableFrom(t)))
-            .Select(t => t.IsGenericType ? $"{t.Name.Substring(0, t.Name.IndexOf("`", StringComparison.OrdinalIgnoreCase))}<>" : t.Name)
+            .Select(t => t.IsGenericType ? $"{t.Name[..t.Name.IndexOf("`", StringComparison.OrdinalIgnoreCase)]}<>" : t.Name)
             .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
             .ToList();
 

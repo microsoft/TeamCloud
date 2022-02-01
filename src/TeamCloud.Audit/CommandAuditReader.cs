@@ -86,7 +86,7 @@ public class CommandAuditReader : ICommandAuditReader
         }
     }
 
-    public async IAsyncEnumerable<CommandAuditEntity> ListAsync(Guid organizationId, Guid? projectId = null, TimeSpan? timeRange = null, string[]? commands = null)
+    public async IAsyncEnumerable<CommandAuditEntity> ListAsync(Guid organizationId, Guid? projectId = null, TimeSpan? timeRange = null, string[] commands = default)
     {
         var auditTable = await auditTableInstance
             .EnsureTableAsync()

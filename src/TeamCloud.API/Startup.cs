@@ -9,8 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -19,13 +17,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Cosmos.Fluent;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Identity.Web;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using TeamCloud.Adapters;
@@ -297,7 +295,7 @@ public class Startup
                             AuthorizationUrl = new Uri($"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/oauth2/v2.0/authorize"),
                             Scopes = new Dictionary<string, string> {
                                     { "openid", "Sign you in" },
-                                    { "http://TeamCloud.aztcclitestsix/user_impersonation", "Access the TeamCloud API" }
+                                    { "http://TeamCloud.DEMO.Web/user_impersonation", "Access the TeamCloud API" }
                             }
                         }
                     }
@@ -310,7 +308,7 @@ public class Startup
                             {
                                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" },
                             },
-                            new [] { "openid", "http://TeamCloud.aztcclitestsix/user_impersonation" }
+                            new [] { "openid", "http://TeamCloud.DEMO.Web/user_impersonation" }
                         }
                 });
 
@@ -322,32 +320,15 @@ public class Startup
     private static void ConfigureAuthentication(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
     {
         services
-            .AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
-            .AddAzureADBearer(options =>
-            {
-                options.Instance = AzureEnvironment.AzureGlobalCloud.AuthenticationEndpoint;
-                options.TenantId = azureResourceManagerOptions.TenantId;
-            })
-            .AddAdapterAuthentication();
-
-        services
             .AddHttpContextAccessor()
-            .Configure<JwtBearerOptions>(AzureADDefaults.JwtBearerAuthenticationScheme, options =>
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddAdapterAuthentication()
+            .AddMicrosoftIdentityWebApi(jwtOptions =>
             {
-                // This is an Microsoft identity platform Web API
-                options.Authority += "/v2.0";
-
                 // Disable audience validation
-                options.TokenValidationParameters.ValidateAudience = false;
+                jwtOptions.TokenValidationParameters.ValidateAudience = false;
 
-                // The valid issuers can be based on Azure identity V1 or V2
-                options.TokenValidationParameters.ValidIssuers = new string[]
-            {
-                        $"https://login.microsoftonline.com/{azureResourceManagerOptions.TenantId}/v2.0",
-                        $"https://sts.windows.net/{azureResourceManagerOptions.TenantId}/"
-            };
-
-                options.Events = new JwtBearerEvents()
+                jwtOptions.Events = new JwtBearerEvents()
                 {
                     OnTokenValidated = async (TokenValidatedContext context) =>
                     {
@@ -358,7 +339,13 @@ public class Startup
                         if (userClaims.Any()) context.Principal.AddIdentity(new ClaimsIdentity(userClaims));
                     }
                 };
-            });
+            }, identityOptions =>
+            {
+                identityOptions.ClientId = azureResourceManagerOptions.ClientId;
+                identityOptions.ClientSecret = azureResourceManagerOptions.ClientSecret;
+                identityOptions.TenantId = azureResourceManagerOptions.TenantId;
+                identityOptions.Instance = "https://login.microsoftonline.com/";
+            }, JwtBearerDefaults.AuthenticationScheme);
     }
 
     private static void ConfigureAuthorization(IServiceCollection services)

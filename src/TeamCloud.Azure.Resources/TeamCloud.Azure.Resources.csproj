@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Files.Shares" Version="12.8.0" />
-    <PackageReference Include="Microsoft.Azure.Management.DevTestLabs" Version="3.0.0" />
     <PackageReference Include="System.Linq.Async" Version="5.1.0" />
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
     <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
