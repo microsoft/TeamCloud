@@ -16,7 +16,7 @@ namespace TeamCloud.Model.Data;
 
 public sealed class ProjectTemplateTests
 {
-    protected string GetProjectDefinitionAsJson(string suffix)
+    public string GetProjectDefinitionAsJson(string suffix)
     {
         var resourceName = GetType().Assembly
             .GetManifestResourceNames()

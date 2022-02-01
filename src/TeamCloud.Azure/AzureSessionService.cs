@@ -11,12 +11,13 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Core;
+using Azure.Identity;
 using Flurl.Http.Configuration;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Identity.Client;
 using Microsoft.Rest;
 using AZFluent = Microsoft.Azure.Management.Fluent;
 using IHttpClientFactory = Flurl.Http.Configuration.IHttpClientFactory;
@@ -138,13 +139,17 @@ public class AzureSessionService : IAzureSessionService
 
     public async Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint)
     {
+        AccessToken accessToken;
+
         if (string.IsNullOrEmpty(azureSessionOptions.ClientId))
         {
-            AzureServiceTokenProvider tokenProvider;
-
             if (IsAzureEnvironment)
             {
-                tokenProvider = new AzureServiceTokenProvider("RunAs=App");
+                var managedIdentityCredential = new ManagedIdentityCredential();
+
+                accessToken = await managedIdentityCredential.GetTokenAsync(
+                    new TokenRequestContext(scopes: new string[] { this.Environment.GetEndpointUrl(azureEndpoint) + "/.default" }) { }
+                ).ConfigureAwait(false);
             }
             else
             {
@@ -153,30 +158,39 @@ public class AzureSessionService : IAzureSessionService
                 // http traffix between our services or between service and other reset apis (e.g. Azure)
                 System.Environment.SetEnvironmentVariable("AZURE_CLI_DISABLE_CONNECTION_VERIFICATION", "1", EnvironmentVariableTarget.Process);
 
-                tokenProvider = new AzureServiceTokenProvider("RunAs=Developer;DeveloperTool=AzureCLI");
+                var azureCliCredential = new AzureCliCredential();
+
+                accessToken = await azureCliCredential.GetTokenAsync(
+                    new TokenRequestContext(scopes: new string[] { this.Environment.GetEndpointUrl(azureEndpoint) + "/.default" }) { }
+                ).ConfigureAwait(false);
             }
 
-            return await tokenProvider
-                .GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint))
-                .ConfigureAwait(false);
+            return accessToken.Token;
         }
         else if (string.IsNullOrEmpty(azureSessionOptions.ClientSecret))
         {
-            var tokenProvider = new AzureServiceTokenProvider($"RunAs=App;AppId={azureSessionOptions.ClientId}");
+            var managedIdentityCredential = new ManagedIdentityCredential(azureSessionOptions.ClientId);
 
-            return await tokenProvider
-                .GetAccessTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint))
-                .ConfigureAwait(false);
+            accessToken = await managedIdentityCredential.GetTokenAsync(
+                new TokenRequestContext(scopes: new string[] { this.Environment.GetEndpointUrl(azureEndpoint) + "/.default" }) { }
+            ).ConfigureAwait(false);
+
+            return accessToken.Token;
         }
         else
         {
-            var authenticationContext = new AuthenticationContext($"{this.Environment.AuthenticationEndpoint}{azureSessionOptions.TenantId}/", true);
+            var app = ConfidentialClientApplicationBuilder.Create(azureSessionOptions.ClientId)
+                .WithClientSecret(azureSessionOptions.ClientSecret)
+                .WithAuthority($"{this.Environment.AuthenticationEndpoint}{azureSessionOptions.TenantId}/", true)
+                .Build();
 
-            var authenticationResult = await authenticationContext
-                .AcquireTokenAsync(this.Environment.GetEndpointUrl(azureEndpoint), new ClientCredential(azureSessionOptions.ClientId, azureSessionOptions.ClientSecret))
+            var authResult = await app.AcquireTokenForClient(new[] { $"{this.Environment.GetEndpointUrl(azureEndpoint)}/.default" })
+                // .WithTenantId(specificTenant)
+                // See https://aka.ms/msal.net/withTenantId
+                .ExecuteAsync()
                 .ConfigureAwait(false);
 
-            return authenticationResult.AccessToken;
+            return authResult.AccessToken;
         }
     }
 
@@ -223,7 +237,7 @@ public class AzureSessionService : IAzureSessionService
                             // be an "params" parameter. means the parametertype is a array
 
                             if (parameters[i].ParameterType.GetElementType() != parameterTypes[i]
-                        && !parameters[i].ParameterType.GetElementType().IsAssignableFrom(parameterTypes[i]))
+                    && !parameters[i].ParameterType.GetElementType().IsAssignableFrom(parameterTypes[i]))
                             {
                                 return false;
                             }
