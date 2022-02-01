@@ -15,7 +15,7 @@
             }
         },
         {
-            "label": "buildSln",
+            "label": "dotnet: build sln (debug)",
             "command": "dotnet",
             "args": [
                 "build",
@@ -24,7 +24,7 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "type": "process",
-            "dependsOn": "cleanSln",
+            "dependsOn": "dotnet: clean sln",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -39,7 +39,7 @@
             }
         },
         {
-            "label": "cleanSln",
+            "label": "dotnet: clean sln",
             "command": "dotnet",
             "args": [
                 "clean",
@@ -58,7 +58,81 @@
             }
         },
         {
-            "label": "startNgrok",
+            "label": "dotnet: publish API",
+            "command": "dotnet",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/TeamCloud.API/TeamCloud.API.csproj",
+                "-o",
+                "${workspaceFolder}/src/TeamCloud.API/publish",
+                "-c",
+                "Release",
+                "-p:VersionPrefix=${input:dotnetReleaseVersion}",
+                "-p:AssemblyVersion=${input:dotnetReleaseVersion}",
+                "-p:FileVersion=${input:dotnetReleaseVersion}",
+                "-p:IncludeSymbols=true",
+                "--no-build"
+            ],
+            "type": "process",
+            "problemMatcher": "$msCompile",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "dotnet: publish Orchestrator",
+            "command": "dotnet",
+            "args": [
+                "publish",
+                "${workspaceFolder}/src/TeamCloud.Orchestrator/TeamCloud.Orchestrator.csproj",
+                "-o",
+                "${workspaceFolder}/src/TeamCloud.Orchestrator/publish",
+                "-c",
+                "Release",
+                "-p:VersionPrefix=${input:dotnetReleaseVersion}",
+                "-p:AssemblyVersion=${input:dotnetReleaseVersion}",
+                "-p:FileVersion=${input:dotnetReleaseVersion}",
+                "-p:IncludeSymbols=true",
+                "--no-build"
+            ],
+            "type": "process",
+            "problemMatcher": "$msCompile",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "dotnet: build sln (release)",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/TeamCloud.sln",
+                "-c",
+                "Release",
+                "-p:VersionPrefix=${input:dotnetReleaseVersion}",
+                "-p:AssemblyVersion=${input:dotnetReleaseVersion}",
+                "-p:FileVersion=${input:dotnetReleaseVersion}",
+                "-p:IncludeSymbols=true"
+            ],
+            "type": "process",
+            "dependsOn": "dotnet: clean sln",
+            "problemMatcher": "$msCompile",
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
+            "presentation": {
+                "group": "build",
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "ngrok: start",
             "command": "ngrok",
             "args": [
                 "http",
@@ -73,7 +147,7 @@
             "problemMatcher": []
         },
         {
-            "label": "setNgrokUrl",
+            "label": "ngrok: set url",
             "command": "python3",
             "args": [
                 "scripts/get-url.py"
@@ -82,7 +156,7 @@
             "problemMatcher": []
         },
         {
-            "label": "npmStart",
+            "label": "npm: start",
             "command": "npm",
             "args": [
                 "start"
@@ -96,7 +170,7 @@
                 "cwd": "${workspaceFolder}/web"
             },
             "dependsOn": [
-                "setNgrokUrl"
+                "ngrok: set url"
             ]
         },
         {
@@ -183,6 +257,83 @@
                 "-n",
                 "teamcloud"
             ]
+        },
+        {
+            "label": "cli: setup azdev",
+            "type": "shell",
+            "command": "source client/env/bin/activate; azdev setup -r ${workspaceFolder} -e tc",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "showReuseMessage": false,
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "cli: create venv",
+                "cli: install azdev"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "cli: install azdev",
+            "type": "shell",
+            "command": "source client/env/bin/activate; pip3 install azdev",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "showReuseMessage": false,
+            }
+        },
+        {
+            "label": "cli: create venv",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "-m",
+                "venv",
+                "env"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/client"
+            },
+            "presentation": {
+                "showReuseMessage": false,
+            }
+        },
+        {
+            "label": "cli: delete env",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-r",
+                "env"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/client"
+            },
+            "presentation": {
+                "showReuseMessage": false,
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "func: delete task hub",
+            "command": "func",
+            "args": [
+                "durable",
+                "delete-task-hub",
+                "--connection-string-setting",
+                "DurableFunctionsHubStorage"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/TeamCloud.Orchestrator"
+            },
+            "presentation": {
+                "showReuseMessage": false,
+            },
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -191,6 +342,12 @@
             "type": "promptString",
             "description": "Version for this tag (also builds a latest version).",
             "default": "0.0.0"
+        },
+        {
+            "id": "dotnetReleaseVersion",
+            "type": "promptString",
+            "description": "Version for this release.",
+            "default": "1.0.0"
         },
         {
             "id": "imageName",

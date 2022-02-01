@@ -7,7 +7,7 @@
                 "API",
                 "Orchestrator"
             ],
-            "preLaunchTask": "buildSln",
+            "preLaunchTask": "dotnet: build sln",
             "stopAll": true
         }
     ],
