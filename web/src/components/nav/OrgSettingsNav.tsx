@@ -48,7 +48,7 @@ export const OrgSettingsNav: React.FC = () => {
                 iconProps: { iconName: 'Rocket' }
             },
             {
-                key: 'auditing',
+                key: 'audit',
                 name: 'Auditing',
                 url: '',
                 onClick: () => navigate(`/orgs/${orgId}/settings/audit`),

@@ -23,5 +23,7 @@
     "spellright.documentTypes": [
         "latex"
     ],
-    "restructuredtext.confPath": ""
+    "restructuredtext.confPath": "",
+    "restructuredtext.syntaxHighlighting.disabled": true,
+    "restructuredtext.languageServer.disabled": true
 }

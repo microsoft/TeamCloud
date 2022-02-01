@@ -16,7 +16,7 @@ namespace TeamCloud.Model.Data;
 
 public sealed class ComponentTemplateTests
 {
-    protected string GetComponentDefinitionAsJson(string suffix)
+    public string GetComponentDefinitionAsJson(string suffix)
     {
         var resourceName = GetType().Assembly
             .GetManifestResourceNames()
