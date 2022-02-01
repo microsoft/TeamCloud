@@ -15,5 +15,5 @@ public interface ICommandAuditReader
 {
     Task<CommandAuditEntity> GetAsync(Guid organizationId, Guid commandId, bool includeJsonDumps = false);
 
-    IAsyncEnumerable<CommandAuditEntity> ListAsync(Guid organizationId, Guid? projectId = null, TimeSpan? timeRange = null, [FromQuery] string[]? commands = null);
+    IAsyncEnumerable<CommandAuditEntity> ListAsync(Guid organizationId, Guid? projectId = null, TimeSpan? timeRange = null, [FromQuery] string[] commands = default);
 }
