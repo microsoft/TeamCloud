@@ -79,11 +79,14 @@ jobs:
       - name: Reset Demo environment
         if: github.event.inputs.reset_demo == 'true'
         run: |
+
+          az group delete --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -n TeamCloud -y
+
           while read SUBSCRIPTIONID; do
 
             echo "Cleaning up subscripton '$( az account show --subscription $SUBSCRIPTIONID --query name -o tsv )'"
 
-            az util group delete --subscription $SUBSCRIPTIONID --prefix T --skip TeamCloud-Registry
+            az util group delete --subscription $SUBSCRIPTIONID --prefix T
             az util keyvault purge --subscription $SUBSCRIPTIONID
 
           done < <( az account list --refresh --only-show-errors --query "[?(starts_with(@.name, 'TeamCloud DEMO'))].id" -o tsv )
@@ -95,7 +98,7 @@ jobs:
           az extension add -s ${{steps.get-cli.outputs.result}} -y
 
           echo "deploying demo teamcloud instance"
-          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
+          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation ${{ github.event.inputs.reset_demo }} -n teamclouddemo
 
       - name: Logout Azure CLI
         if: ${{ always() }}
