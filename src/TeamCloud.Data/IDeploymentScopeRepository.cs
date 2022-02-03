@@ -10,6 +10,9 @@ namespace TeamCloud.Data;
 
 public interface IDeploymentScopeRepository : IDocumentRepository<DeploymentScope>
 {
-    Task<string> ResolveIdAsync(string tenant, string identifier);
+    Task<bool> NameExistsAsync(string organization, string name);
+
+    Task<string> ResolveIdAsync(string organization, string identifier);
+
     Task<DeploymentScope> GetDefaultAsync(string organization);
 }

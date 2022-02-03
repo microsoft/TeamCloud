@@ -30,6 +30,7 @@ public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organiza
         set => slug = value;
     }
 
+    [UniqueKey]
     [JsonProperty(Required = Required.Always)]
     public string DisplayName { get; set; }
 

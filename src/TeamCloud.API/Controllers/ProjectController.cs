@@ -131,7 +131,7 @@ public class ProjectController : TeamCloudController
                 .ToActionResult();
 
         var nameExists = await projectRepository
-            .NameExistsAsync(organization.Id, projectDefinition.DisplayName)
+            .NameExistsAsync(organization.Id, projectDefinition.Slug)
             .ConfigureAwait(false);
 
         if (nameExists)

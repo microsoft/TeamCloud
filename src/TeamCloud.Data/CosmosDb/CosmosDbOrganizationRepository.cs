@@ -50,6 +50,14 @@ public class CosmosDbOrganizationRepository : CosmosDbRepository<Organization>, 
         return id;
     }
 
+    public async Task<bool> NameExistsAsync(string organization, string name)
+    {
+        var project = await ResolveIdAsync(organization, name)
+            .ConfigureAwait(false);
+
+        return project is not null;
+    }
+
     public override async Task<Organization> AddAsync(Organization organization)
     {
         if (organization is null)

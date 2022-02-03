@@ -56,6 +56,14 @@ public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentSc
         cache.Remove($"{deploymentScope.Organization}_{deploymentScope.Id}");
     }
 
+    public async Task<bool> NameExistsAsync(string organization, string name)
+    {
+        var project = await ResolveIdAsync(organization, name)
+            .ConfigureAwait(false);
+
+        return project is not null;
+    }
+
     public override async Task<DeploymentScope> AddAsync(DeploymentScope deploymentScope)
     {
         if (deploymentScope is null)

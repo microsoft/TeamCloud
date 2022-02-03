@@ -31,6 +31,7 @@ public sealed class ProjectTemplate : ContainerDocument, ISlug, IOrganizationCon
 
     public string Name { get; set; }
 
+    [UniqueKey]
     [JsonProperty(Required = Required.Always)]
     public string DisplayName { get; set; }
 

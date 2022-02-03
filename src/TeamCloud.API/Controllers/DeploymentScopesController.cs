@@ -95,6 +95,15 @@ public class DeploymentScopesController : TeamCloudController
                .BadRequest(definitionValidationResult)
                .ToActionResult();
 
+       var nameExists = await deploymentScopeRepository
+            .NameExistsAsync(organization.Id, deploymentScopeDefinition.Slug)
+            .ConfigureAwait(false);
+
+       if (nameExists)
+           return ErrorResult
+               .Conflict($"A Deployment Scope with name '{deploymentScopeDefinition.DisplayName}' already exists. Deployment Scope names must be unique. Please try your request again with a unique name.")
+               .ToActionResult();
+
        var deploymentScope = new DeploymentScope
        {
            Id = Guid.NewGuid().ToString(),

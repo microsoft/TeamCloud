@@ -20,6 +20,7 @@ public sealed class DeploymentScope : ContainerDocument, IOrganizationContext, I
     [JsonProperty(Required = Required.Always)]
     public string Organization { get; set; }
 
+    [UniqueKey]
     [JsonProperty(Required = Required.Always)]
     public string DisplayName { get; set; }
 
