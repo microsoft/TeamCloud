@@ -142,7 +142,7 @@
             "isBackground": true,
             "presentation": {
                 "panel": "dedicated",
-                "showReuseMessage": true
+                "showReuseMessage": false
             },
             "problemMatcher": []
         },
