@@ -11,6 +11,8 @@ namespace TeamCloud.Data;
 
 public interface IOrganizationRepository : IDocumentRepository<Organization>
 {
+    Task<bool> NameExistsAsync(string organization, string name);
+
     Task<string> ResolveIdAsync(string tenant, string identifier);
 
     IAsyncEnumerable<Organization> ListAsync(string tenant, IEnumerable<string> identifiers);

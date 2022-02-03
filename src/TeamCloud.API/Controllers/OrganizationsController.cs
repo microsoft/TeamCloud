@@ -102,16 +102,16 @@ public class OrganizationsController : TeamCloudController
                 .BadRequest(validationResult)
                 .ToActionResult();
 
-        var organization = await organizationRepository
-            .GetAsync(UserService.CurrentUserTenant, organizationDefinition.Slug)
+        var nameExists = await organizationRepository
+            .NameExistsAsync(UserService.CurrentUserTenant, organizationDefinition.Slug)
             .ConfigureAwait(false);
 
-        if (organization is not null)
+        if (nameExists)
             return ErrorResult
                 .Conflict($"The Organication '{organizationDefinition.Slug}' already exists. Please try your request again with a unique Organization Name or Id.")
                 .ToActionResult();
 
-        organization = new Organization
+        var organization = new Organization
         {
             Id = Guid.NewGuid().ToString(),
             Tenant = UserService.CurrentUserTenant,

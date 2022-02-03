@@ -50,6 +50,7 @@ public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext,
     /// <summary>
     /// Gets or sets the component's display name.
     /// </summary>
+    [UniqueKey]
     public string DisplayName { get; set; }
 
     /// <summary>

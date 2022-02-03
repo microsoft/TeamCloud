@@ -10,5 +10,7 @@ namespace TeamCloud.Data;
 
 public interface IProjectTemplateRepository : IDocumentRepository<ProjectTemplate>
 {
+    // Task<bool> NameExistsAsync(string organization, string name);
+
     Task<ProjectTemplate> GetDefaultAsync(string organization);
 }
