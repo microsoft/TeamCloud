@@ -85,7 +85,7 @@ jobs:
       - name: Reset Demo environment
         if: github.event.inputs.reset_demo == 'true'
         run: |
-
+          echo "Cleaning up TeamCloud SVC resources"
           az group delete --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -n TeamCloud -y
 
           while read SUBSCRIPTIONID; do
@@ -97,17 +97,25 @@ jobs:
 
           done < <( az account list --refresh --only-show-errors --query "[?(starts_with(@.name, 'TeamCloud DEMO'))].id" -o tsv )
 
-      - name: Deploy Demo environment
+      - name: Install teamcloud cli extension
         run: |
-
           echo "installing teamcloud cli extension"
           az extension add -s ${{steps.get-cli.outputs.result}} -y
 
+      - name: Deploy fresh Demo environment
+        if: github.event.inputs.reset_demo == 'true'
+        run: |
           echo "deploying demo teamcloud instance"
-          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation ${{ github.event.inputs.reset_demo }} -n teamclouddemo
+          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} -n teamclouddemo
 
           echo "adding webhooks to acr"
           az deployment group create --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -g TeamCloud -f ./deploy/bicep/webhooks.bicep -p registrySubscriptionId=${{ secrets.TEAMCLOUD_ACR_SUBSCRIPTION }}
+
+      - name: Re-deploy Demo environment
+        if: github.event.inputs.reset_demo == 'false'
+        run: |
+          echo "deploying demo teamcloud instance"
+          az tc deploy --subscription ${{ secrets.TEAMCLOUD_SUBSCRIPTION }} -l eastus --principal-name ${{ secrets.TEAMCLOUD_RM_USERNAME }} --principal-password ${{ secrets.TEAMCLOUD_RM_PASSWORD }} --client-id ${{ secrets.TEAMCLOUD_WEB_USERNAME }} --scope ${{ secrets.TEAMCLOUD_WEB_SCOPE }} -v ${{steps.resolve-tag.outputs.result}} --skip-name-validation -n teamclouddemo
 
       - name: Logout Azure CLI
         if: ${{ always() }}

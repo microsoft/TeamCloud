@@ -152,8 +152,11 @@
             "args": [
                 "scripts/get-url.py"
             ],
-            "isBackground": true,
-            "problemMatcher": []
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent",
+                "close": true
+            }
         },
         {
             "label": "npm: start",
