@@ -20,7 +20,7 @@ export const useCreateDeploymentScope = () => {
             onResponse: (raw, flat) => {
                 if (raw.status >= 400)
                     throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            },
         });
 
         return data;
