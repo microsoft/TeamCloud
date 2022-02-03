@@ -29,6 +29,7 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Http.Telemetry;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Http;
 
@@ -145,8 +146,8 @@ public static class Extensions
         }
     }
 
-    public static string GetValueOrDefault(this QueryParamCollection queryParameters, string name, StringComparison comparisonType = StringComparison.Ordinal)
-        => queryParameters.FirstOrDefault(qp => qp.Name.Equals(name, comparisonType))?.Value as string;
+    public static string GetValueOrDefault(this QueryParamCollection queryParameters, string name)
+        => queryParameters.FirstOrDefault(name) as string ?? null;
 
     public static StringValues GetValueOrDefault(this IQueryCollection queryCollection, string key)
         => queryCollection.TryGetValue(key, out var value) ? value : StringValues.Empty;
@@ -159,6 +160,9 @@ public static class Extensions
         url.QueryParams.Clear();
         return url;
     }
+
+    public static bool IsSuccessStatusCode(this IFlurlResponse response)
+        => response.StatusCode is >= 200 and <= 299;
 
     [SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Following the method syntax of Flurl")]
     public static Task<JObject> GetJObjectAsync(this IFlurlRequest request, CancellationToken cancellationToken = default, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
@@ -238,4 +242,16 @@ public static class Extensions
         => (httpResponseMessage ?? throw new ArgumentNullException(nameof(httpResponseMessage)))
         .Content.ReadAsJsonAsync<T>();
 
+
+    public static IFlurlRequest UseTeamCloudSerializer(this string url)
+        => url.ConfigureRequest(settings => settings.JsonSerializer = new NewtonsoftJsonSerializer(TeamCloudSerializerSettings.Default));
+
+    public static IFlurlRequest UseTeamCloudSerializer(this Url url)
+        => url.ConfigureRequest(settings => settings.JsonSerializer = new NewtonsoftJsonSerializer(TeamCloudSerializerSettings.Default));
+
+    public static IFlurlRequest UseTeamCloudSerializer(this Uri uri)
+        => uri.ConfigureRequest(settings => settings.JsonSerializer = new NewtonsoftJsonSerializer(TeamCloudSerializerSettings.Default));
+
+    public static IFlurlRequest UseTeamCloudSerializer(this IFlurlRequest request)
+        => request.ConfigureRequest(settings => settings.JsonSerializer = new NewtonsoftJsonSerializer(TeamCloudSerializerSettings.Default));
 }

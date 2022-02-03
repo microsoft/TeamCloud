@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
@@ -15,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
 using TeamCloud.API.Data.Results;
 using TeamCloud.API.Initialization;
 using TeamCloud.API.Services;
@@ -138,21 +136,6 @@ internal static class Extensions
 
         return tenantId;
     }
-
-    // TODO: Update to use teamcloud serializer
-    public static Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializerSettings serializerSettings = null)
-        => httpContent.ReadAsAsync<T>(JsonSerializer.CreateDefault(serializerSettings));
-
-    public static async Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializer serializer)
-    {
-        using var stream = await httpContent.ReadAsStreamAsync().ConfigureAwait(false);
-        using var streamReader = new StreamReader(stream);
-        using var jsonReader = new JsonTextReader(streamReader);
-
-        return serializer.Deserialize<T>(jsonReader);
-    }
-
-
 
     public static bool IsUserIdentifier(this string identifier)
         => !string.IsNullOrWhiteSpace(identifier);

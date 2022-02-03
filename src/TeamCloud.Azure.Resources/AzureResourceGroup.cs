@@ -59,7 +59,7 @@ public sealed class AzureResourceGroup : AzureResource
 
                 break;
             }
-            catch (FlurlHttpException exc) when (deleteLocks && exc.Call.HttpStatus == System.Net.HttpStatusCode.Conflict)
+            catch (FlurlHttpException exc) when (deleteLocks && exc.Call.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.Conflict)
             {
                 // swallow exception take a rest and retry the delete call
                 // there is a chance that the in a "delete locks" scenario

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.ContainerRegistry.Fluent;
+using Newtonsoft.Json.Linq;
 using TeamCloud.Azure.Resources.Utilities;
 using TeamCloud.Http;
 
@@ -254,13 +255,13 @@ public sealed class AzureContainerRegistryResource : AzureTypedResource
             .GetAsync()
             .ConfigureAwait(false);
 
-        if (response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode())
         {
-            var responseJson = await response
-                .ReadAsJsonAsync()
+            var json = await response
+                .GetJsonAsync<JObject>()
                 .ConfigureAwait(false);
 
-            return responseJson.SelectToken("tag.digest")?.ToString();
+            return json.SelectToken("tag.digest")?.ToString();
         }
 
         return null;
@@ -330,8 +331,8 @@ public sealed class AzureContainerRegistryResource : AzureTypedResource
             .PostUrlEncodedAsync(payload)
             .ConfigureAwait(false);
 
-        var responseJson = await response.Content
-            .ReadAsJsonAsync()
+        var responseJson = await response
+            .GetJsonAsync<JObject>()
             .ConfigureAwait(false);
 
         return responseJson.SelectToken("refresh_token").ToString();
@@ -352,7 +353,7 @@ public sealed class AzureContainerRegistryResource : AzureTypedResource
         {
             grant_type = "refresh_token",
             service = registry.LoginServerUrl,
-            scope = scope,
+            scope,
             refresh_token = refreshToken
         };
 
@@ -360,8 +361,8 @@ public sealed class AzureContainerRegistryResource : AzureTypedResource
             .PostUrlEncodedAsync(payload)
             .ConfigureAwait(false);
 
-        var responseJson = await response.Content
-            .ReadAsJsonAsync()
+        var responseJson = await response
+            .GetJsonAsync<JObject>()
             .ConfigureAwait(false);
 
         return responseJson.SelectToken("access_token").ToString();

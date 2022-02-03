@@ -83,7 +83,7 @@ public class AzureResource
             .GetAsync(completionOption: HttpCompletionOption.ResponseHeadersRead)
             .ConfigureAwait(false);
 
-        return response.IsSuccessStatusCode;
+        return response.IsSuccessStatusCode();
     }
 
     public virtual async IAsyncEnumerable<IAzureIdentity> GetIdentitiesAsync()

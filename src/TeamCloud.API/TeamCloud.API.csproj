@@ -19,7 +19,7 @@
     <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.1.0" />
     <PackageReference Include="FluentValidation" Version="9.2.2" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.2.0" />
-    <PackageReference Include="Flurl.Http" Version="2.4.2" />
+    <PackageReference Include="Flurl.Http" Version="3.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
@@ -35,12 +35,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
-    <PackageReference Include="System.Interactive.Async" Version="5.1.0" />
-    <PackageReference Include="System.Linq.Async" Version="5.1.0" />
+    <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="Microsoft.Azure.SignalR" Version="1.15.0" />
     <PackageReference Include="Microsoft.Azure.SignalR.Management" Version="1.15.0" />
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.22.1" />
-    <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.22.1" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="1.22.2" />
+    <PackageReference Include="Microsoft.Identity.Web.UI" Version="1.22.2" />
   </ItemGroup>
 
   <ItemGroup>

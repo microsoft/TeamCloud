@@ -13,6 +13,7 @@ using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Newtonsoft.Json.Linq;
+using TeamCloud.Http;
 
 namespace TeamCloud.Azure.Deployment;
 
@@ -70,7 +71,7 @@ public class AzureDeploymentService : IAzureDeploymentService
             .GetAsync(completionOption: System.Net.Http.HttpCompletionOption.ResponseHeadersRead)
             .ConfigureAwait(false);
 
-        return response.IsSuccessStatusCode
+        return response.IsSuccessStatusCode()
             ? new AzureDeployment(resourceId, azureSessionService)
             : null;
     }
@@ -108,9 +109,9 @@ public class AzureDeploymentService : IAzureDeploymentService
                 .PutJsonAsync(payload)
                 .ConfigureAwait(false);
         }
-        catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
+        catch (FlurlHttpException exc) when (exc.Call.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.BadRequest)
         {
-            var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var validationResultJson = await exc.Call.Response.GetStringAsync().ConfigureAwait(false);
             var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
             var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 
@@ -146,9 +147,9 @@ public class AzureDeploymentService : IAzureDeploymentService
 
             return null;
         }
-        catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
+        catch (FlurlHttpException exc) when (exc.Call.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.BadRequest)
         {
-            var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var validationResultJson = await exc.Call.Response.GetStringAsync().ConfigureAwait(false);
             var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
             var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 
@@ -183,9 +184,9 @@ public class AzureDeploymentService : IAzureDeploymentService
                 .PutJsonAsync(payload)
                 .ConfigureAwait(false);
         }
-        catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
+        catch (FlurlHttpException exc) when (exc.Call.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.BadRequest)
         {
-            var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var validationResultJson = await exc.Call.Response.GetStringAsync().ConfigureAwait(false);
             var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
             var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 
@@ -221,9 +222,9 @@ public class AzureDeploymentService : IAzureDeploymentService
 
             return null;
         }
-        catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.BadRequest)
+        catch (FlurlHttpException exc) when (exc.Call.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.BadRequest)
         {
-            var validationResultJson = await exc.Call.Response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var validationResultJson = await exc.Call.Response.GetStringAsync().ConfigureAwait(false);
             var validationResultError = JObject.Parse(validationResultJson).SelectToken("$..error");
             var validationResultResourceErrors = AzureDeploymentException.ResolveResourceErrors(validationResultError);
 

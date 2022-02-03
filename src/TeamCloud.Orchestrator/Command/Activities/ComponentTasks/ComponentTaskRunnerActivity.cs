@@ -13,9 +13,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Resources;
@@ -288,13 +290,13 @@ public sealed class ComponentTaskRunnerActivity
                         .PutJsonAsync(componentRunnerDefinition)
                         .ConfigureAwait(false);
 
-                    var responseJson = await response.Content
-                        .ReadAsJsonAsync()
+                    var responseJson = await response
+                        .GetJsonAsync<JObject>()
                         .ConfigureAwait(false);
 
                     componentTask.ResourceId = responseJson.SelectToken("$.id").ToString();
                 }
-                catch (FlurlHttpException apiExc) when (apiExc.Call.HttpStatus == HttpStatusCode.Conflict)
+                catch (FlurlHttpException apiExc) when (apiExc.StatusCode == StatusCodes.Status409Conflict)
                 {
                     if (pairedRegionFallback)
                     {
@@ -313,10 +315,10 @@ public sealed class ComponentTaskRunnerActivity
                         .GetAsync()
                         .ConfigureAwait(false);
 
-                    if (response.IsSuccessStatusCode)
+                    if (response.IsSuccessStatusCode())
                     {
-                        var responseJson = await response.Content
-                            .ReadAsJsonAsync()
+                        var responseJson = await response
+                            .GetJsonAsync<JObject>()
                             .ConfigureAwait(false);
 
                         componentTask.ResourceId = responseJson
@@ -328,7 +330,7 @@ public sealed class ComponentTaskRunnerActivity
                         throw;
                     }
                 }
-                catch (FlurlHttpException apiExc) when (apiExc.Call.HttpStatus == HttpStatusCode.GatewayTimeout && !pairedRegionFallback)
+                catch (FlurlHttpException apiExc) when (apiExc.StatusCode == StatusCodes.Status504GatewayTimeout && !pairedRegionFallback)
                 {
                     // enable paired region fallback - this will affect error handling
                     pairedRegionFallback = true;
@@ -396,8 +398,8 @@ public sealed class ComponentTaskRunnerActivity
 
                 if (exc is FlurlHttpException flurlExc && flurlExc.Call.Completed)
                 {
-                    var error = await flurlExc.Call.Response
-                        .ReadAsJsonAsync()
+                    var error = await flurlExc
+                        .GetResponseJsonAsync<JObject>()
                         .ConfigureAwait(false);
 
                     errorMessage = error.SelectToken("..message")?.ToString() ?? errorMessage;
@@ -518,10 +520,10 @@ public sealed class ComponentTaskRunnerActivity
                 .GetAsync()
                 .ConfigureAwait(false);
 
-            if (response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode())
             {
-                var json = await response.Content
-                    .ReadAsJsonAsync()
+                var json = await response
+                    .GetJsonAsync<JObject>()
                     .ConfigureAwait(false);
 
                 return json.SelectToken("images[?(@.status == 'active')].digest")?.ToString();

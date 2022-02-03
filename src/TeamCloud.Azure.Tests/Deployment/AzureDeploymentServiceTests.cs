@@ -116,8 +116,8 @@ public class AzureDeploymentServiceTests : HttpTestContext
 
             Assert.Equal(AzureDeploymentState.Succeeded, deploymentState);
 
-            Assert.Contains(CallLog, call => call.Request.Method == HttpMethod.Delete
-                && call.Request.RequestUri.ToString().Contains(deployment.ResourceId, StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(CallLog, call => call.HttpRequestMessage.Method == HttpMethod.Delete
+                && call.Request.Url.ToString().Contains(deployment.ResourceId, StringComparison.OrdinalIgnoreCase));
         }
     }
 

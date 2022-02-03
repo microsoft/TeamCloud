@@ -5,6 +5,7 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -96,9 +97,8 @@ public class HttpTelemetryHandler : DelegatingHandler
             {
                 try
                 {
-                    var headerValue = response.GetHeaderValue($"{headerPrefix}-{headerName}");
-
-                    if (double.TryParse(headerValue, out double rateLimit))
+                    if (response.Headers.TryGetValues($"{headerPrefix}-{headerName}", out var headerValues)
+                    && double.TryParse(headerValues.First(), out double rateLimit))
                     {
                         var metricName = Regex.Replace(headerName, "(^|-)([a-z])",
                             match => match.Value

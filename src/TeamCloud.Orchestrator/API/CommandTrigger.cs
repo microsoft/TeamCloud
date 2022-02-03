@@ -27,8 +27,8 @@ using TeamCloud.Validation;
 using TeamCloud.Validation.Providers;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Serialization;
-using Azure.Storage.Queues.Models;
 using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
 
 namespace TeamCloud.Orchestrator.API;
 
@@ -170,7 +170,7 @@ public class CommandTrigger
 
                 if (command is null)
                 {
-                    // we could find a command based on the enqueued command id - warn and forget
+                    // we could not find a command based on the enqueued command id - warn and forget
 
                     log.LogWarning($"Monitoring command failed: Could not find command {commandId}");
                 }

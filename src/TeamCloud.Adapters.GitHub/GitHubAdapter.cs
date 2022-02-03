@@ -188,9 +188,9 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             throw new ArgumentNullException(nameof(authorizationEndpoints));
 
         var queryParams = Url.ParseQueryParams(request.QueryString.ToString());
-        var queryState = queryParams.GetValueOrDefault("state", StringComparison.OrdinalIgnoreCase);
-        var queryCode = queryParams.GetValueOrDefault("code", StringComparison.OrdinalIgnoreCase);
-        var queryError = queryParams.GetValueOrDefault("error", StringComparison.OrdinalIgnoreCase);
+        var queryState = queryParams.GetValueOrDefault("state");
+        var queryCode = queryParams.GetValueOrDefault("code");
+        var queryError = queryParams.GetValueOrDefault("error");
 
         var session = await SessionClient
             .GetAsync<GitHubSession>(deploymentScope)
@@ -231,13 +231,13 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 .PostStringAsync(string.Empty)
                 .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode())
             {
-                return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("error", $"Failed to get application token ({response.StatusCode} - {response.ReasonPhrase}).").ToString());
+                return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("error", $"Failed to get application token ({response.StatusCode} - {response.ResponseMessage.ReasonPhrase}).").ToString());
             }
 
-            var json = await response.Content
-                .ReadAsStringAsync()
+            var json = await response
+                .GetStringAsync()
                 .ConfigureAwait(false);
 
             TeamCloudSerialize.PopulateObject(json, token);
@@ -271,7 +271,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             data = data,
             session = session,
             error = queryError ?? string.Empty,
-            succeeded = queryParams.ContainsKey("succeeded")
+            succeeded = queryParams.Contains("succeeded")
         };
     }
 
@@ -780,7 +780,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     .PostJsonAsync(payload)
                     .ConfigureAwait(false);
 
-                if (response.StatusCode == HttpStatusCode.UnprocessableEntity)
+                if (response.StatusCode == StatusCodes.Status422UnprocessableEntity)
                 {
                     // the generate from template repo operation returns this
                     // status code if the target repo name already exists.
@@ -790,8 +790,8 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 }
                 else
                 {
-                    var json = await response.Content
-                        .ReadAsStringAsync()
+                    var json = await response
+                        .GetStringAsync()
                         .ConfigureAwait(false);
 
                     repository = GitHubSerializer.Deserialize<Repository>(json);
@@ -829,7 +829,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     .PutJsonAsync(payload)
                     .ConfigureAwait(false);
             }
-            catch (FlurlHttpException exc) when (exc.Call.HttpStatus == HttpStatusCode.Forbidden)
+            catch (FlurlHttpException exc) when (exc.StatusCode == StatusCodes.Status403Forbidden)
             {
                 // swallow and resume
             }

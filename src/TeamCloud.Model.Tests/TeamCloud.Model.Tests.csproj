@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Flurl.Http" Version="2.4.2" />
+    <PackageReference Include="Flurl.Http" Version="3.2.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
     <PackageReference Include="xunit" Version="2.4.1" />
