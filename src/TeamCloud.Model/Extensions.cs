@@ -44,7 +44,7 @@ public static class Extensions
             if (commandResult.Result is IContainerDocument containerDocument)
                 yield return containerDocument.ToBroadcastMessageItem();
             else
-                throw new NotSupportedException($"Command results of type '{commandResult.GetType()}' cannot be converter into a broadcast message.");
+                throw new NotSupportedException($"Command results of type '{commandResult.GetType()}' cannot be converted into a broadcast message.");
         }
     }
 

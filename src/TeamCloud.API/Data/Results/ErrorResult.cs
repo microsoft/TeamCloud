@@ -27,7 +27,7 @@ public sealed class ErrorResult : IErrorResult
     public IList<ResultError> Errors { get; set; }
 
     public static ErrorResult BadRequest(List<ResultError> errors = null)
-        => new ErrorResult { Code = StatusCodes.Status400BadRequest, Status = "BadRequest", Errors = errors };
+        => new() { Code = StatusCodes.Status400BadRequest, Status = "BadRequest", Errors = errors };
 
     public static ErrorResult BadRequest(string message, ResultErrorCode code)
         => BadRequest(new List<ResultError> { new ResultError { Code = code, Message = message } });
@@ -39,13 +39,13 @@ public sealed class ErrorResult : IErrorResult
         => BadRequest(new List<ResultError> { ResultError.ValidationFailure(validationError) });
 
     public static ErrorResult NotFound(string message)
-        => new ErrorResult { Code = StatusCodes.Status404NotFound, Status = "NotFound", Errors = new List<ResultError> { ResultError.NotFound(message) } };
+        => new() { Code = StatusCodes.Status404NotFound, Status = "NotFound", Errors = new List<ResultError> { ResultError.NotFound(message) } };
 
     public static ErrorResult Conflict(string message)
-        => new ErrorResult { Code = StatusCodes.Status409Conflict, Status = "Conflict", Errors = new List<ResultError> { ResultError.Conflict(message) } };
+        => new() { Code = StatusCodes.Status409Conflict, Status = "Conflict", Errors = new List<ResultError> { ResultError.Conflict(message) } };
 
     public static ErrorResult ServerError(IList<ResultError> errors = null)
-        => new ErrorResult { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors ?? new List<ResultError>() };
+        => new() { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors ?? new List<ResultError>() };
 
     public static ErrorResult ServerError(Exception error)
         => error is null
@@ -62,14 +62,14 @@ public sealed class ErrorResult : IErrorResult
     }
 
     public static ErrorResult ServerError(IList<CommandError> errors)
-        => new ErrorResult { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors?.Select(e => ResultError.Failed(e)).ToList() ?? new List<ResultError>() };
+        => new() { Code = StatusCodes.Status500InternalServerError, Status = "ServerError", Errors = errors?.Select(e => ResultError.Failed(e)).ToList() ?? new List<ResultError>() };
 
     public static ErrorResult Unauthorized()
-        => new ErrorResult { Code = StatusCodes.Status401Unauthorized, Status = "Unauthorized", Errors = new List<ResultError> { ResultError.Unauthorized() } };
+        => new() { Code = StatusCodes.Status401Unauthorized, Status = "Unauthorized", Errors = new List<ResultError> { ResultError.Unauthorized() } };
 
     public static ErrorResult Forbidden()
-        => new ErrorResult { Code = StatusCodes.Status403Forbidden, Status = "Forbidden", Errors = new List<ResultError> { ResultError.Forbidden() } };
+        => new() { Code = StatusCodes.Status403Forbidden, Status = "Forbidden", Errors = new List<ResultError> { ResultError.Forbidden() } };
 
     public static ErrorResult Unknown(int? code)
-        => new ErrorResult { Code = code ?? StatusCodes.Status500InternalServerError, Status = "Unknown", Errors = new List<ResultError> { ResultError.Unknown() } };
+        => new() { Code = code ?? StatusCodes.Status500InternalServerError, Status = "Unknown", Errors = new List<ResultError> { ResultError.Unknown() } };
 }

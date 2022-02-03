@@ -67,7 +67,7 @@ public sealed class AzureDeployment : IAzureDeployment
 
             return json;
         }
-        catch (FlurlHttpException exc) when (exc.Call.HttpStatus == System.Net.HttpStatusCode.NotFound)
+        catch (FlurlHttpException exc) when (exc.Call.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             return null;
         }

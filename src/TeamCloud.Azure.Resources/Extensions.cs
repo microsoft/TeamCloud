@@ -121,17 +121,10 @@ public static class Extensions
         {
             try
             {
-                if (call.Request.RequestUri.ToString().StartsWith(environment.ResourceManagerEndpoint, StringComparison.OrdinalIgnoreCase) && call.Response is not null)
+                if (call.Request.Url.ToString().StartsWith(environment.ResourceManagerEndpoint, StringComparison.OrdinalIgnoreCase) && call.Response is not null)
                 {
-                    await call.Response.Content
-                        .LoadIntoBufferAsync()
-                        .ConfigureAwait(false);
-
-                    using var jsonStream = await call.Response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                    using var jsonReader = new JsonTextReader(new StreamReader(jsonStream));
-
-                    var json = await JObject
-                        .ReadFromAsync(jsonReader)
+                    var json = await call.Response
+                        .GetJsonAsync<JObject>()
                         .ConfigureAwait(false);
 
                     var errorMessage = json
@@ -142,7 +135,7 @@ public static class Extensions
                         throw new AzureResourceException(errorMessage);
                 }
             }
-            catch (Exception exc) when (!(exc is AzureResourceException))
+            catch (Exception exc) when (exc is not AzureResourceException)
             {
                 // swallow all exceptions other than AzureResourceException
             }

@@ -8,7 +8,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -159,14 +158,14 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
             .SetAsync(new AzureDevOpsSession(deploymentScope))
             .ConfigureAwait(false);
 
-        var task = request.Method.ToUpperInvariant() switch
-        {
-            "GET" => HandleAuthorizeGetAsync(deploymentScope, authorizationSession, request, authorizationEndpoints),
-            "POST" => HandleAuthorizePostAsync(deploymentScope, authorizationSession, request, authorizationEndpoints),
-            _ => Task.FromException<IActionResult>(new NotImplementedException())
-        };
+        if (request.Method.ToUpperInvariant() == "GET")
+            return HandleAuthorizeGetAsync(deploymentScope, authorizationSession, request, authorizationEndpoints);
 
-        return await task.ConfigureAwait(false);
+        if (request.Method.ToUpperInvariant() == "GET")
+            return await HandleAuthorizePostAsync(deploymentScope, authorizationSession, request, authorizationEndpoints)
+                .ConfigureAwait(false);
+
+        return await Task.FromException<IActionResult>(new NotImplementedException()).ConfigureAwait(false);
     }
 
     async Task<IActionResult> IAdapterAuthorize.HandleCallbackAsync(DeploymentScope deploymentScope, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
@@ -208,13 +207,13 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
                 redirect_uri = authorizationEndpoints.CallbackUrl
             };
 
-            var responseMessage = await VisualStudioTokenUrl
+            var response = await VisualStudioTokenUrl
                 .WithHeaders(new MediaTypeWithQualityHeaderValue("application/json"))
                 .AllowAnyHttpStatus()
                 .PostUrlEncodedAsync(form)
                 .ConfigureAwait(false);
 
-            if (responseMessage.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode())
             {
                 var azureDevOpsAuthorizationToken = new AzureDevOpsToken(deploymentScope)
                 {
@@ -224,11 +223,11 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
                     RefreshCallback = authorizationEndpoints.CallbackUrl
                 };
 
-                var json = await responseMessage
-                    .ReadAsJsonAsync()
+                var json = await response
+                    .GetStringAsync()
                     .ConfigureAwait(false);
 
-                TeamCloudSerialize.PopulateObject(json.ToString(), azureDevOpsAuthorizationToken);
+                TeamCloudSerialize.PopulateObject(json, azureDevOpsAuthorizationToken);
 
                 _ = await TokenClient
                     .SetAsync(azureDevOpsAuthorizationToken, true)
@@ -238,9 +237,9 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
             }
             else
             {
-                error = await (responseMessage.StatusCode == HttpStatusCode.BadRequest
-                    ? GetErrorDescriptionAsync(responseMessage)
-                    : Task.FromResult(responseMessage.ReasonPhrase)).ConfigureAwait(false);
+                error = await (response.ResponseMessage.StatusCode == HttpStatusCode.BadRequest
+                    ? response.GetBadRequestErrorDescriptionAsync()
+                    : Task.FromResult(response.ResponseMessage.ReasonPhrase)).ConfigureAwait(false);
 
                 return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("error", error));
             }
@@ -251,25 +250,9 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
             .ConfigureAwait(false);
 
         return new RedirectResult(authorizationEndpoints.AuthorizationUrl.SetQueryParam("succeeded"));
-
-        static async Task<string> GetErrorDescriptionAsync(HttpResponseMessage responseMessage)
-        {
-            try
-            {
-                var json = await responseMessage
-                    .ReadAsJsonAsync()
-                    .ConfigureAwait(false);
-
-                return json?.SelectToken("$..ErrorDescription")?.ToString() ?? json.ToString();
-            }
-            catch
-            {
-                return null;
-            }
-        }
     }
 
-    private async Task<IActionResult> HandleAuthorizeGetAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
+    private IActionResult HandleAuthorizeGetAsync(DeploymentScope deploymentScope, AzureDevOpsSession authorizationSession, HttpRequest request, IAuthorizationEndpoints authorizationEndpoints)
     {
         var queryError = request.Query.GetValueOrDefault("error").ToString();
 
@@ -310,8 +293,8 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
 
         var payloadParams = Url.ParseQueryParams(payload);
 
-        var organization = payloadParams.GetValueOrDefault("organization", StringComparison.OrdinalIgnoreCase);
-        var personalAccessToken = payloadParams.GetValueOrDefault("pat", StringComparison.OrdinalIgnoreCase);
+        var organization = payloadParams.GetValueOrDefault("organization");
+        var personalAccessToken = payloadParams.GetValueOrDefault("pat");
 
         string redirectUrl;
 
@@ -325,8 +308,8 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
         else if (string.IsNullOrEmpty(personalAccessToken))
         {
             authorizationSession.Organization = organization;
-            authorizationSession.ClientId = payloadParams.GetValueOrDefault("client_id", StringComparison.OrdinalIgnoreCase);
-            authorizationSession.ClientSecret = payloadParams.GetValueOrDefault("client_secret", StringComparison.OrdinalIgnoreCase);
+            authorizationSession.ClientId = payloadParams.GetValueOrDefault("client_id");
+            authorizationSession.ClientSecret = payloadParams.GetValueOrDefault("client_secret");
             authorizationSession = await SessionClient.SetAsync(authorizationSession).ConfigureAwait(false);
 
             redirectUrl = VisualStudioAuthUrl
@@ -429,10 +412,10 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
             .PostUrlEncodedAsync(form)
             .ConfigureAwait(false);
 
-        if (response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode())
         {
-            var json = await response.Content
-                .ReadAsStringAsync()
+            var json = await response
+                .GetStringAsync()
                 .ConfigureAwait(false);
 
             TeamCloudSerialize.PopulateObject(json, token);
@@ -441,7 +424,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
                 .SetAsync(token)
                 .ConfigureAwait(false);
         }
-        else if (response.StatusCode == HttpStatusCode.BadRequest)
+        else if (response.ResponseMessage.StatusCode == HttpStatusCode.BadRequest)
         {
             _ = await response
                 .GetBadRequestErrorDescriptionAsync()
@@ -451,7 +434,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
         }
         else
         {
-            throw new Exception(response.ReasonPhrase);
+            throw new Exception(response.ResponseMessage.ReasonPhrase);
         }
 
         return token;

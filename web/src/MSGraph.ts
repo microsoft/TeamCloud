@@ -93,7 +93,6 @@ export const getGraphUser = async (id: string): Promise<GraphUser | null> => {
             .select(_userSelect)
             // .header('X-PeopleQuery-QuerySources', 'Directory')
             .get();
-        console.warn(response)
         let user = response as GraphUser;
         user.type = 'User';
         if (user.userType?.toLowerCase() === 'member')

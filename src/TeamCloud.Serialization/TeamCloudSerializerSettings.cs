@@ -12,11 +12,11 @@ namespace TeamCloud.Serialization;
 
 public sealed class TeamCloudSerializerSettings : JsonSerializerSettings
 {
-    public static readonly TeamCloudSerializerSettings Default = new TeamCloudSerializerSettings();
+    public static readonly TeamCloudSerializerSettings Default = new();
 
     public static TeamCloudSerializerSettings Create<TContractResolver>()
         where TContractResolver : class, IContractResolver, new()
-        => new TeamCloudSerializerSettings(Activator.CreateInstance<TContractResolver>());
+        => new(Activator.CreateInstance<TContractResolver>());
 
     public TeamCloudSerializerSettings(IContractResolver contractResolver) : this()
     {

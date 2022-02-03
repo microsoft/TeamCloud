@@ -11,12 +11,14 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using Flurl.Http;
 using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.TeamFoundation.DistributedTask.WebApi;
 using Microsoft.TeamFoundation.SourceControl.WebApi;
 using Microsoft.VisualStudio.Services.Graph.Client;
 using Microsoft.VisualStudio.Services.Operations;
 using Microsoft.VisualStudio.Services.WebApi;
+using Newtonsoft.Json.Linq;
 using TeamCloud.Http;
 
 namespace TeamCloud.Adapters.AzureDevOps;
@@ -69,12 +71,12 @@ public static class AzureDevOpsExtensions
         return value != default;
     }
 
-    internal static async Task<string> GetBadRequestErrorDescriptionAsync(this HttpResponseMessage httpResponseMessage)
+    internal static async Task<string> GetBadRequestErrorDescriptionAsync(this IFlurlResponse response)
     {
         try
         {
-            var json = await httpResponseMessage
-                .ReadAsJsonAsync()
+            var json = await response
+                .GetJsonAsync<JObject>()
                 .ConfigureAwait(false);
 
             return json?.SelectToken("$..ErrorDescription")?.ToString() ?? json.ToString();

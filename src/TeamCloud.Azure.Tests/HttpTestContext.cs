@@ -21,17 +21,19 @@ public abstract class HttpTestContext : IDisposable
 {
     private bool disposed = false;
 
-    private readonly HttpTest testContext = new HttpTest();
+    private readonly HttpTest testContext = new();
 
-    protected IEnumerable<HttpCall> CallLog
+    protected IEnumerable<FlurlCall> CallLog
         => testContext.CallLog;
 
     protected IDisposable WithResponses(string sequenceName)
     {
         foreach (var response in GetResponseMessages(sequenceName))
-            testContext.ResponseQueue.Enqueue(response);
+            testContext.RespondWith(() => response.Content);
+        // testContext.ResponseQueue.Enqueue(response);
 
-        return new ResponseScope(testContext.ResponseQueue);
+        return testContext;
+        // return new ResponseScope(testContext.(testContext.ResponseQueue);
     }
 
     private IEnumerable<HttpResponseMessage> GetResponseMessages(string sequenceName)
@@ -97,15 +99,15 @@ public abstract class HttpTestContext : IDisposable
         disposed = true;
     }
 
-    private class ResponseScope : IDisposable
-    {
-        private readonly Queue<HttpResponseMessage> queue;
+    // private class ResponseScope : IDisposable
+    // {
+    //     private readonly Queue<HttpResponseMessage> queue;
 
-        public ResponseScope(Queue<HttpResponseMessage> queue)
-        {
-            this.queue = queue ?? throw new ArgumentNullException(nameof(queue));
-        }
+    //     public ResponseScope(Queue<HttpResponseMessage> queue)
+    //     {
+    //         this.queue = queue ?? throw new ArgumentNullException(nameof(queue));
+    //     }
 
-        public void Dispose() => queue.Clear();
-    }
+    //     public void Dispose() => queue.Clear();
+    // }
 }

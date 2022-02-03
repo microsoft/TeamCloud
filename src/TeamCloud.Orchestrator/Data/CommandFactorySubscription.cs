@@ -25,7 +25,12 @@ public abstract class CommandFactorySubscription : DocumentSubscription
         {
             try
             {
-                var queue = new QueueClient(connectionString, CommandHandler.ProcessorQueue);
+                var queue = new QueueClient(connectionString, CommandHandler.ProcessorQueue, new QueueClientOptions
+                {
+                    // By default messages received from the queue are expected to be Base64-encoded
+                    // and are decoded before calling the function.
+                    MessageEncoding = QueueMessageEncoding.Base64
+                });
 
                 await queue.CreateIfNotExistsAsync()
                     .ConfigureAwait(false);

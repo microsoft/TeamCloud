@@ -175,7 +175,7 @@ public static class FunctionsEnvironment
             .ConfigureAwait(false);
 
         return await response
-            .ReadAsJsonAsync()
+            .GetJsonAsync<JObject>()
             .ConfigureAwait(false);
     }
 
