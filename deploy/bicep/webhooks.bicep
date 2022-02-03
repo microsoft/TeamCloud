@@ -1,13 +1,10 @@
 param registryName string = 'TeamCloud'
 param registryResourceGroupName string = 'TeamCloud-Registry'
-param registrySubscriptionId string = 'b6de8d3f-8477-45fe-8d60-f30c6db2cb06'
+param registrySubscriptionId string
 
 param apiAppName string = 'teamclouddemo-api'
 param orchestratorAppName string = 'teamclouddemo-orchestrator'
 param webAppName string = 'teamclouddemo'
-
-// param resourceGroupName string = 'TeamCloud'
-// param subscriptionId string = '12223725-70b0-45a6-96c4-a13c344fdc57'
 
 resource api 'Microsoft.Web/sites@2021-02-01' existing = {
   name: apiAppName
