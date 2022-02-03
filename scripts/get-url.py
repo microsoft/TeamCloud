@@ -10,9 +10,8 @@ def get_new_uri():
         res = requests.get(tunnels_uri)
         res_unicode = res.content.decode("utf-8")
         res_json = json.loads(res_unicode)
-        public_url = res_json["tunnels"][0]["public_url"]
-        print(public_url)
-        return public_url
+        https_url = next((t['public_url'] for t in res_json["tunnels"] if t['public_url'].startswith('https')), None)
+        return https_url
     except requests.exceptions.ConnectionError:
         return None
 
