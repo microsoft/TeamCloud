@@ -92,7 +92,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: teamcloud.azurecr.io
-          username: ${{ secrets.TEAMCLOUD_ACR_USERNAME }}
+          username: TeamCloud
           password: ${{ secrets.TEAMCLOUD_ACR_PASSWORD }}
 
       - name: Build and push API Image
