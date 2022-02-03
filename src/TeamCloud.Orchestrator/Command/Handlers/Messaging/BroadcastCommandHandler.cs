@@ -115,6 +115,7 @@ public sealed class BroadcastCommandHandler : CommandHandler
             {
                 IProjectContext projectContext => projectContext.GetHubName(),
                 IOrganizationContext organizationContext => organizationContext.GetHubName(),
+                Organization organization => organization.GetHubName(),
                 _ => throw new NotSupportedException($"Unable to resolve hub name for command result payload of type '{commandResultPayload?.GetType()}'.")
             };
 
