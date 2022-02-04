@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ISubmitEvent } from '@rjsf/core';
 import { FuiForm } from '@rjsf/fluent-ui';
 import { Stack, TextField, Dropdown, IDropdownOption, PrimaryButton, DefaultButton, IconButton } from '@fluentui/react';
-import { ProjectTemplate, ProjectDefinition } from 'teamcloud';
+import { ErrorResult, ProjectTemplate, ProjectDefinition } from 'teamcloud';
 import { ContentContainer, ContentHeader, ContentProgress } from '../components';
 import { useCreateProject, useOrg, useProjectTemplates } from '../hooks';
 
@@ -17,6 +17,7 @@ export const NewProjectView: React.FC = () => {
     const [projectName, setProjectName] = useState<string>();
     const [projectTemplate, setProjectTemplate] = useState<ProjectTemplate>();
     const [projectTemplateOptions, setProjectTemplateOptions] = useState<IDropdownOption[]>();
+    const [errorMessage, setErrorMessage] = useState<string>();
     const [formEnabled, setFormEnabled] = useState<boolean>(false);
 
     const { data: org } = useOrg();
@@ -52,8 +53,15 @@ export const NewProjectView: React.FC = () => {
                 template: projectTemplate.id,
                 templateInput: JSON.stringify(e.formData),
             };
-
-            await createProject(projectDefinition)
+            try {
+                await createProject(projectDefinition)
+            } catch (e) {
+                const error = e as ErrorResult;
+                if (error) {
+                    setErrorMessage(error.errors?.at(0)?.message)
+                }
+                setFormEnabled(true)
+            }
         }
     };
 
@@ -76,6 +84,7 @@ export const NewProjectView: React.FC = () => {
                         <TextField
                             required
                             label='Name'
+                            errorMessage={errorMessage}
                             disabled={!formEnabled}
                             onChange={(ev, val) => setProjectName(val)} />
                     </Stack.Item>

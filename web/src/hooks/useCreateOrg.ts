@@ -4,7 +4,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from 'react-query'
 import { DeploymentScopeDefinition, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 
 export const useCreateOrg = () => {
 
@@ -13,43 +13,34 @@ export const useCreateOrg = () => {
 
     return useMutation(async (def: { orgDef: OrganizationDefinition, scopeDef?: DeploymentScopeDefinition, templateDef?: ProjectTemplateDefinition }) => {
 
-        console.log(`- createOrg`);
+        console.debug(`- createOrg`);
         const orgResponse = await api.createOrganization({
             body: def.orgDef,
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
         const newOrg = orgResponse.data;
-        console.log(`+ createOrg`);
+        console.debug(`+ createOrg`);
 
         let scope, template;
 
         if (newOrg?.id) {
             if (def.scopeDef) {
-                console.log(`- createDeploymentScope`);
+                console.debug(`- createDeploymentScope`);
                 const scopeResponse = await api.createDeploymentScope(newOrg.id, {
                     body: def.scopeDef,
-                    onResponse: (raw, flat) => {
-                        if (raw.status >= 400)
-                            throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-                    }
+                    onResponse: onResponse
                 });
                 scope = scopeResponse.data;
-                console.log(`+ createDeploymentScope`);
+                console.debug(`+ createDeploymentScope`);
             }
             if (def.templateDef) {
-                console.log(`- createProjectTemplate`);
+                console.debug(`- createProjectTemplate`);
                 const templateResponse = await api.createProjectTemplate(newOrg.id, {
                     body: def.templateDef,
-                    onResponse: (raw, flat) => {
-                        if (raw.status >= 400)
-                            throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-                    }
+                    onResponse: onResponse
                 });
                 template = templateResponse.data;
-                console.log(`+ createProjectTemplate`);
+                console.debug(`+ createProjectTemplate`);
             }
         }
 
@@ -62,16 +53,16 @@ export const useCreateOrg = () => {
                 queryClient.invalidateQueries('orgs');
 
                 if (data.scope) {
-                    console.log(`+ setDeploymentScopes (${data.org.slug})`);
+                    console.debug(`+ setDeploymentScopes (${data.org.slug})`);
                     queryClient.setQueryData(['org', data.org.id, 'scopes'], [data.scope])
                 }
 
                 if (data.template) {
-                    console.log(`+ setProjectTemplates (${data.org.slug})`);
+                    console.debug(`+ setProjectTemplates (${data.org.slug})`);
                     queryClient.setQueryData(['org', data.org.id, 'templates'], [data.template])
                 }
 
-                console.log(`+ setOrg (${data.org.slug})`);
+                console.debug(`+ setOrg (${data.org.slug})`);
                 queryClient.setQueryData(['org', data.org.slug], data.org)
 
                 navigate(`/orgs/${data.org.slug}`);

@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
 import { Auth } from './Auth';
-import { Project, TeamCloud } from 'teamcloud';
+import { ErrorResult, Project, TeamCloud } from 'teamcloud';
 import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from '@microsoft/signalr'
 
 const _getApiUrl = () => {
@@ -19,10 +18,20 @@ const _getApiUrl = () => {
 export const apiUrl = _getApiUrl();
 
 export const auth = new Auth();
+// export const api = new TeamCloud(auth, apiUrl, { credentialScopes: [], retryOptions: { maxRetries: 0 } });
 export const api = new TeamCloud(auth, apiUrl, { credentialScopes: [] });
 
 const httpOptions: IHttpConnectionOptions = {
     accessTokenFactory: async () => (await auth.getToken())?.token ?? '',
+}
+
+export const onResponse = (raw: any, flat: unknown) => {
+    if (raw.status >= 400) {
+        const error = flat as ErrorResult
+        if (error)
+            throw error
+        throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
+    }
 }
 
 let connection: HubConnection | undefined

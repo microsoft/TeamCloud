@@ -4,7 +4,7 @@
 import { useMutation, useQueryClient } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom';
 import { ScheduleDefinition } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useOrg, useProject, useProjectSchedules } from '.';
 
 export const useCreateProjectSchedule = () => {
@@ -24,10 +24,7 @@ export const useCreateProjectSchedule = () => {
 
         const { data } = await api.createSchedule(project.organization, project.id, {
             body: scheduletDef,
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

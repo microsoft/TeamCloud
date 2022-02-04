@@ -1,10 +1,11 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { useQueryClient, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { ComponentTask } from "teamcloud";
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks } from ".";
-import { api } from "../API";
-
-
+import { api, onResponse } from "../API";
 
 export const useCancelProjectComponentTask = () => {
 
@@ -22,10 +23,7 @@ export const useCancelProjectComponentTask = () => {
     return useMutation(async (componentTask: ComponentTask) => {
 
         const { data } = await api.cancelComponentTask(componentTask?.organization, componentTask.projectId, componentTask.componentId, componentTask.id, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

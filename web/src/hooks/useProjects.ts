@@ -3,7 +3,7 @@
 
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useOrg } from '.';
 
 export const useProjects = () => {
@@ -15,10 +15,7 @@ export const useProjects = () => {
     return useQuery(['org', org?.id, 'projects'], async () => {
 
         const { data } = await api.getProjects(org!.id, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

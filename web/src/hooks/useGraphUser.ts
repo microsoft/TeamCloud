@@ -12,7 +12,7 @@ export const useGraphUser = () => {
     return useQuery(['graphUser', 'me'], async () => await getMe(), {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 60 * 5, // 5 minutes
         enabled: isAuthenticated
     });
 }

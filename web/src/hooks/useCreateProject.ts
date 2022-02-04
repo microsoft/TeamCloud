@@ -4,7 +4,7 @@
 import { useMutation, useQueryClient } from 'react-query'
 import { useNavigate } from 'react-router-dom';
 import { ProjectDefinition } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useOrg, useProjects } from '.';
 
 export const useCreateProject = () => {
@@ -21,10 +21,7 @@ export const useCreateProject = () => {
 
         const { data } = await api.createProject(org.id, {
             body: projectDef,
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;
@@ -36,6 +33,6 @@ export const useCreateProject = () => {
 
                 navigate(`/orgs/${org.slug}/projects/${data.slug}`);
             }
-        }
+        },
     }).mutateAsync
 }

@@ -1,23 +1,20 @@
 import { useQueryClient, useMutation } from "react-query";
 import { DeploymentScope } from "teamcloud";
 import { useDeploymentScopes } from ".";
-import { api } from "../API";
+import { api, onResponse } from "../API";
 
 
 
 export const useAuthorizeDeployemntScope = () => {
 
-	const { data: deploymentScopes } = useDeploymentScopes();
+    const { data: deploymentScopes } = useDeploymentScopes();
 
     const queryClient = useQueryClient();
 
     return useMutation(async (deploymentScope: DeploymentScope) => {
 
         const { data } = await api.initializeAuthorization(deploymentScope.organization, deploymentScope.id, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;
