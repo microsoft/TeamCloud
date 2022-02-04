@@ -4,7 +4,7 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 
 export const useOrg = () => {
 
@@ -15,10 +15,7 @@ export const useOrg = () => {
     return useQuery(['org', orgId], async () => {
 
         const { data } = await api.getOrganization(orgId, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

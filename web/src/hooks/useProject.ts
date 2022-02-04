@@ -4,7 +4,7 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useOrg } from '.';
 
 export const useProject = () => {
@@ -18,10 +18,7 @@ export const useProject = () => {
     return useQuery(['org', org?.id, 'project', projectId], async () => {
 
         const { data } = await api.getProject(projectId, org!.id, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

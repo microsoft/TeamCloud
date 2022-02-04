@@ -24,6 +24,7 @@ export const useProjectComponent = (required?: boolean) => {
             throw err;
     };
 
+    // TODO: what?
     return useQuery(['org', project?.organization, 'project', project?.id, 'component', itemId], async () => {
 
         const { data } = await api.getComponent(itemId, project!.organization, project!.id, {

@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from 'react-query'
 import { DeploymentScopeDefinition } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useOrg } from '.';
 
 export const useCreateDeploymentScope = () => {
@@ -17,10 +17,7 @@ export const useCreateDeploymentScope = () => {
 
         const { data } = await api.createDeploymentScope(org.id, {
             body: scopeDef,
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            },
+            onResponse: onResponse
         });
 
         return data;

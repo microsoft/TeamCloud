@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from 'react-query'
 import { Schedule } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 
 export const useRunProjectSchedule = () => {
 
@@ -12,10 +12,7 @@ export const useRunProjectSchedule = () => {
     return useMutation(async (schedule: Schedule) => {
 
         const { data } = await api.runSchedule(schedule.id, schedule.organization, schedule.projectId, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

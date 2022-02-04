@@ -5,7 +5,7 @@ import { useQuery } from 'react-query'
 import { useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { matchesRouteParam } from '../Utils';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useProject, useProjectComponent } from '.';
 
 export const useProjectComponentTasks = () => {
@@ -20,10 +20,7 @@ export const useProjectComponentTasks = () => {
     return useQuery(['org', project?.organization, 'project', project?.id, 'component', component?.id, 'componenttask'], async () => {
 
         const { data } = await api.getComponentTasks(project!.organization, project!.id, component!.id, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

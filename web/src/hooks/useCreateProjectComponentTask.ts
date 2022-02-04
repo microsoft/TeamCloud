@@ -4,7 +4,7 @@
 import { useMutation, useQueryClient } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom';
 import { ComponentTaskDefinition } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks } from '.';
 
 export const useCreateProjectComponentTask = () => {
@@ -26,10 +26,7 @@ export const useCreateProjectComponentTask = () => {
 
         const { data } = await api.createComponentTask(project.organization, project.id, component.id, {
             body: componentTaskDef,
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

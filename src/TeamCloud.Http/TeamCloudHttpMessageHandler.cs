@@ -62,12 +62,9 @@ public class TeamCloudHttpMessageHandler : DelegatingHandler
         {
             Debug.WriteLine($"<=> {request.Method.ToString().ToUpperInvariant()} {request.RequestUri}");
 
-            response = (await request.RequestUri.ToString()
-                .AllowAnyHttpStatus()
-                .WithHeaders(request.Headers)
-                .SendAsync(request.Method, request.Content, cancellationToken)
-                .ConfigureAwait(false))
-                .ResponseMessage;
+            response = await base
+                .SendAsync(request, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         return response;

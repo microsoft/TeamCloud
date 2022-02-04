@@ -3,7 +3,7 @@
 
 import { useMutation, useQueryClient } from 'react-query'
 import { ProjectTemplateDefinition } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { useOrg } from '.';
 
 export const useCreateProjectTemplate = () => {
@@ -17,18 +17,12 @@ export const useCreateProjectTemplate = () => {
 
         const { data } = await api.createProjectTemplate(org.id, {
             body: templateDef,
-            onResponse: (raw, flat) => {
-                // console.warn(JSON.stringify(raw))
-                // console.warn(JSON.stringify(flat))
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
-        console.warn(JSON.stringify(data))
+
         return data;
     }, {
         onSuccess: data => {
-            console.warn('onsuccess')
             if (data) {
                 queryClient.invalidateQueries(['org', org!.id, 'templates'])
                 queryClient.setQueryData(['org', org!.id, 'templates', data!.id], data);

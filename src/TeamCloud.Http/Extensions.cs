@@ -35,9 +35,6 @@ namespace TeamCloud.Http;
 
 public static class Extensions
 {
-    public static HttpClient CreateHttpClient(this IHttpClientFactory factory)
-        => factory.CreateHttpClient(factory.CreateMessageHandler());
-
     public static async Task<string> ReadStringAsync(this HttpRequest request, bool leaveOpen = false)
     {
         if (request is null)

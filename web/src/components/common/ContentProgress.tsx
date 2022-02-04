@@ -15,6 +15,6 @@ export const ContentProgress: React.FC<IContentProgressProps> = (props) => {
         <ProgressIndicator
             percentComplete={props.percentComplete}
             progressHidden={props.progressHidden}
-            styles={{ itemProgress: { padding: '0px', marginTop: '-2px' } }} />
+            styles={{ itemProgress: { padding: '0px', /*marginTop: '-2px' */ } }} />
     );
 }

@@ -2,7 +2,7 @@ import { useQueryClient, useMutation } from "react-query";
 import { useNavigate, useParams } from "react-router";
 import { ComponentTask } from "teamcloud";
 import { useOrg, useProject, useProjectComponent, useProjectComponentTasks } from ".";
-import { api } from "../API";
+import { api, onResponse } from "../API";
 
 
 export const useRerunProjectComponentTask = () => {
@@ -21,10 +21,7 @@ export const useRerunProjectComponentTask = () => {
     return useMutation(async (componentTask: ComponentTask) => {
 
         const { data } = await api.reRunComponentTask(componentTask?.organization, componentTask.projectId, componentTask.componentId, componentTask.id, {
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
 
         return data;

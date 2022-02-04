@@ -21,11 +21,6 @@ public class TeamCloudHttpClientFactory : DefaultHttpClientFactory
     public TeamCloudHttpClientFactory(TelemetryConfiguration telemetryConfiguration = null)
         => this.telemetryConfiguration = telemetryConfiguration ?? new TelemetryConfiguration(Guid.Empty.ToString());
 
-    public override HttpClient CreateHttpClient(HttpMessageHandler handler)
-    {
-        return base.CreateHttpClient(handler ?? CreateMessageHandler());
-    }
-
     [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "Lifetime is managed by the returned HttpMessageHandler instance.")]
     public override HttpMessageHandler CreateMessageHandler()
     {
