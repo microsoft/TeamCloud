@@ -2794,6 +2794,58 @@ export const ProjectTemplateDataResult: coreClient.CompositeMapper = {
   }
 };
 
+export const TeamCloudInformationDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "TeamCloudInformationDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "TeamCloudInformation"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
+export const TeamCloudInformation: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "TeamCloudInformation",
+    modelProperties: {
+      version: {
+        serializedName: "version",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
 export const ScheduleListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",

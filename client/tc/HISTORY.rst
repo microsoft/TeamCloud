@@ -3,6 +3,10 @@
 Release History
 ===============
 
+0.5.3
+++++++
++ Rename ARM template param to version
+
 0.5.2
 ++++++
 + Deploy apps using containers

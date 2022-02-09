@@ -53,6 +53,8 @@ export declare const ProjectTemplate: coreClient.CompositeMapper;
 export declare const ProjectTemplateDefinition: coreClient.CompositeMapper;
 export declare const RepositoryDefinition: coreClient.CompositeMapper;
 export declare const ProjectTemplateDataResult: coreClient.CompositeMapper;
+export declare const TeamCloudInformationDataResult: coreClient.CompositeMapper;
+export declare const TeamCloudInformation: coreClient.CompositeMapper;
 export declare const ScheduleListDataResult: coreClient.CompositeMapper;
 export declare const Schedule: coreClient.CompositeMapper;
 export declare const ComponentTaskReference: coreClient.CompositeMapper;

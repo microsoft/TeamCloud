@@ -550,6 +550,13 @@ export class TeamCloud extends TeamCloudContext {
         return this.sendOperationRequest({ organizationId, projectId, options }, updateProjectUserMeOperationSpec);
     }
     /**
+     * Gets information about this TeamCloud deployment.
+     * @param options The options parameters.
+     */
+    getInfo(options) {
+        return this.sendOperationRequest({ options }, getInfoOperationSpec);
+    }
+    /**
      * Gets all Schedule.
      * @param organizationId
      * @param projectId
@@ -2057,6 +2064,18 @@ const updateProjectUserMeOperationSpec = {
     ],
     headerParameters: [Parameters.accept, Parameters.contentType],
     mediaType: "json",
+    serializer
+};
+const getInfoOperationSpec = {
+    path: "/",
+    httpMethod: "GET",
+    responses: {
+        200: {
+            bodyMapper: Mappers.TeamCloudInformationDataResult
+        }
+    },
+    urlParameters: [Parameters.$host],
+    headerParameters: [Parameters.accept],
     serializer
 };
 const getSchedulesOperationSpec = {

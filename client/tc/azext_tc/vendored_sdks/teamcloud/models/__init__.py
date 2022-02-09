@@ -60,6 +60,8 @@ try:
     from ._models_py3 import StatusResult
     from ._models_py3 import StringDictionaryDataResult
     from ._models_py3 import StringListDataResult
+    from ._models_py3 import TeamCloudInformation
+    from ._models_py3 import TeamCloudInformationDataResult
     from ._models_py3 import User
     from ._models_py3 import UserAlternateIdentities
     from ._models_py3 import UserDataResult
@@ -120,6 +122,8 @@ except (SyntaxError, ImportError):
     from ._models import StatusResult  # type: ignore
     from ._models import StringDictionaryDataResult  # type: ignore
     from ._models import StringListDataResult  # type: ignore
+    from ._models import TeamCloudInformation  # type: ignore
+    from ._models import TeamCloudInformationDataResult  # type: ignore
     from ._models import User  # type: ignore
     from ._models import UserAlternateIdentities  # type: ignore
     from ._models import UserDataResult  # type: ignore
@@ -205,6 +209,8 @@ __all__ = [
     'StatusResult',
     'StringDictionaryDataResult',
     'StringListDataResult',
+    'TeamCloudInformation',
+    'TeamCloudInformationDataResult',
     'User',
     'UserAlternateIdentities',
     'UserDataResult',
