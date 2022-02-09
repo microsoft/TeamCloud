@@ -16,7 +16,7 @@ def get_new_uri():
         return None
 
 
-def get_ole_uri():
+def get_old_uri():
     with open(Path(Path.cwd() / 'web') / '.env.development', 'r') as f:
         for line in f:
             if line.startswith('REACT_APP_TC_API_URL'):
@@ -32,7 +32,7 @@ new_uri = get_new_uri()
 if not new_uri:
     raise ValueError('ngrok not running, start ngrok and try again.')
 
-old_uri = get_ole_uri()
+old_uri = get_old_uri()
 
 if not old_uri:
     raise ValueError('no old uri found in .env.development')
