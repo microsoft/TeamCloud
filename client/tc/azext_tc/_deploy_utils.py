@@ -101,6 +101,7 @@ def get_local_index(index_file):
 def get_teamcloud_index(version=None, prerelease=False, index_file=None, index_url=None):
     if index_file is not None:
         index = get_local_index(index_file=index_file)
+        version = 'local'
     else:
         if index_url is None:
             version = version or get_github_latest_release_version('TeamCloud', prerelease=prerelease)
@@ -113,9 +114,12 @@ def get_teamcloud_index(version=None, prerelease=False, index_file=None, index_u
         logger.warning(ERR_UNABLE_TO_GET_TEAMCLOUD)
 
     deploy_url = teamcloud.get('deployUrl')
+    version = version or teamcloud.get('version')
 
     if not deploy_url:
         raise CLIError('No deployUrl found in index')
+    if not version:
+        version = 'unknown'
     return version, deploy_url
 
 

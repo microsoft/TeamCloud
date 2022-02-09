@@ -3,6 +3,7 @@ param appConfigName string
 param appInsightsName string
 param webjobStorageName string
 param taskhubStorageName string
+param teamcloudImageRepo string = 'teamcloud'
 
 resource config 'Microsoft.AppConfiguration/configurationStores@2021-03-01-preview' existing = {
   name: appConfigName
@@ -46,8 +47,10 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
     clientAffinityEnabled: false
     siteConfig: {
       phpVersion: 'off'
-      linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/teamcloud/orchestrator'
+      linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/${teamcloudImageRepo}/orchestrator'
       use32BitWorkerProcess: false
+      // detailedErrorLoggingEnabled: true
+      // httpLoggingEnabled: true
       appSettings: [
         {
           name: 'AppConfiguration__ConnectionString'
@@ -95,7 +98,7 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
         }
         {
           name: 'DOCKER_CUSTOM_IMAGE_NAME'
-          value: 'teamcloud.azurecr.io/teamcloud/orchestrator'
+          value: 'teamcloud.azurecr.io/${teamcloudImageRepo}/orchestrator'
         }
         {
           name: 'FUNCTION_APP_EDIT_MODE'
@@ -116,6 +119,29 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
     }
   }
 }
+
+// resource orchestratorLogging 'Microsoft.Web/sites/config@2021-02-01' = {
+//   name: 'logs'
+//   parent: func
+//   properties: {
+//     applicationLogs: {
+//       fileSystem: {
+//         level: 'Warning'
+//       }
+//     }
+//     detailedErrorMessages: {
+//       enabled: true
+//     }
+//     httpLogs: {
+//       fileSystem: {
+//         enabled: true
+//       }
+//     }
+//     failedRequestsTracing: {
+//       enabled: true
+//     }
+//   }
+// }
 
 output name string = name
 output url string = 'https://${name}.azurewebsites.net'
