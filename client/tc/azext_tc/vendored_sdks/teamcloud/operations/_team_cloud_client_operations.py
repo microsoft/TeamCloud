@@ -1760,6 +1760,26 @@ def build_update_project_user_me_request(
     )
 
 
+def build_get_info_request(
+    **kwargs  # type: Any
+):
+    # type: (...) -> HttpRequest
+    accept = "application/json"
+    # Construct URL
+    url = kwargs.pop("template_url", '/')
+
+    # Construct headers
+    header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
+    header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+
+    return HttpRequest(
+        method="GET",
+        url=url,
+        headers=header_parameters,
+        **kwargs
+    )
+
+
 def build_get_schedules_request(
     organization_id,  # type: str
     project_id,  # type: str
@@ -5871,6 +5891,51 @@ class TeamCloudClientOperationsMixin(object):
         return deserialized
 
     update_project_user_me.metadata = {'url': '/orgs/{organizationId}/projects/{projectId}/users/me'}  # type: ignore
+
+
+    @distributed_trace
+    def get_info(
+        self,
+        **kwargs  # type: Any
+    ):
+        # type: (...) -> "_models.TeamCloudInformationDataResult"
+        """Gets information about this TeamCloud deployment.
+
+        Gets information about this TeamCloud deployment.
+
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: TeamCloudInformationDataResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.TeamCloudInformationDataResult
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType["_models.TeamCloudInformationDataResult"]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+
+        
+        request = build_get_info_request(
+            template_url=self.get_info.metadata['url'],
+        )
+        request = _convert_request(request)
+        request.url = self._client.format_url(request.url)
+
+        pipeline_response = self._client._pipeline.run(request, stream=False, **kwargs)
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = self._deserialize('TeamCloudInformationDataResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+
+    get_info.metadata = {'url': '/'}  # type: ignore
 
 
     @distributed_trace
