@@ -1,6 +1,5 @@
 {
   "namespace": "teamcloud",
-  "configurationSource": {
-    "file": "file"
-  }
+  "source": "file",
+  "file" : ""
 }
