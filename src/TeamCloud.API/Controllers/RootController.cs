@@ -33,7 +33,8 @@ public class RootController : ControllerBase
     {
         var info = new TeamCloudInformation
         {
-            Version = teamCloudOptions.Version
+            ImageVersion = System.Environment.GetEnvironmentVariable("TEAMCLOUD_IMAGE_VERSION"),
+            TemplateVersion = teamCloudOptions.Version
         };
 
         return DataResult<TeamCloudInformation>

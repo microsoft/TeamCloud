@@ -2,15 +2,14 @@
 // Licensed under the MIT License.
 
 import { useQuery } from 'react-query'
-import { useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { matchesRouteParam } from '../Utils';
 import { api, onResponse } from '../API';
-import { useProject, useProjectComponent } from '.';
+import { useProject, useProjectComponent, useUrl } from '.';
 
 export const useProjectComponentTasks = () => {
 
-    const { itemId } = useParams() as { itemId: string };
+    const { itemId } = useUrl() as { itemId: string };
 
     const isAuthenticated = useIsAuthenticated();
 

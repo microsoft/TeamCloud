@@ -103,6 +103,8 @@ jobs:
           tags: |
             teamcloud.azurecr.io/teamcloud/api:${{ steps.gitversion.outputs.assemblySemVer }}
             teamcloud.azurecr.io/teamcloud/api:latest
+          build-args: |
+            image_version=${{ steps.gitversion.outputs.assemblySemVer }}
 
       - name: Build and push Orchestrator Image
         uses: docker/build-push-action@v2
@@ -112,6 +114,8 @@ jobs:
           tags: |
             teamcloud.azurecr.io/teamcloud/orchestrator:${{ steps.gitversion.outputs.assemblySemVer }}
             teamcloud.azurecr.io/teamcloud/orchestrator:latest
+          build-args: |
+            image_version=${{ steps.gitversion.outputs.assemblySemVer }}
 
       - name: Build and push Website Image
         uses: docker/build-push-action@v2
@@ -121,6 +125,8 @@ jobs:
           tags: |
             teamcloud.azurecr.io/teamcloud/website:${{ steps.gitversion.outputs.assemblySemVer }}
             teamcloud.azurecr.io/teamcloud/website:latest
+          build-args: |
+            image_version=${{ steps.gitversion.outputs.assemblySemVer }}
 
       # This must be run LAST - AFTER everything is added to release_assets
       - name: Prepare Release Assets

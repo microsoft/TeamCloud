@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { DetailsListLayoutMode, IColumn, IRenderFunction, IDetailsRowProps, CheckboxVisibility, SelectionMode, Persona, PersonaSize, getTheme, DetailsList, Stack } from '@fluentui/react';
 import { Project } from 'teamcloud';
 import { NoData } from '.';
-import { useProjects } from '../hooks';
+import { useProjects, useUrl } from '../hooks';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
@@ -14,7 +14,7 @@ export const ProjectList: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const { orgId } = useParams() as { orgId: string };
+    const { orgId } = useUrl() as { orgId: string };
 
     const { data: projects } = useProjects();
 

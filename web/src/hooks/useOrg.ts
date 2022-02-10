@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api, onResponse } from '../API';
+import { useUrl } from '.';
 
 export const useOrg = () => {
 
-    const { orgId } = useParams() as { orgId: string };
+    const { orgId } = useUrl() as { orgId: string };
 
     const isAuthenticated = useIsAuthenticated();
 
@@ -20,6 +20,6 @@ export const useOrg = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!orgId && orgId.toLowerCase() !== 'new'
+        enabled: isAuthenticated && !!orgId
     });
 }

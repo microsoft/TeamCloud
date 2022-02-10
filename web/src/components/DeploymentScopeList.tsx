@@ -6,10 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { Checkbox, IColumn, DefaultButton } from '@fluentui/react';
 import { DeploymentScope } from 'teamcloud';
 import { ContentList } from '.';
-import { useOrg, useDeploymentScopes } from '../hooks';
+import { useOrg, useDeploymentScopes, useAuthorizeDeployemntScope } from '../hooks';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
-import { useAuthorizeDeployemntScope } from '../hooks/useAuthorizeDeploymentScope';
 
 export const DeploymentScopeList: React.FC = () => {
 

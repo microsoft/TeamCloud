@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Stack, IconButton } from '@fluentui/react';
 import { useQueryClient } from 'react-query';
 import { ComponentTaskMenu, ComponentOverview, ProjectOverview, ContentHeader, ContentProgress, ContentContainer, MemberList, ComponentList, ComponentForm, ProjectSettingsOverview, ScheduleForm, ScheduleList } from '../components';
-import { useAddProjectMembers, useOrg, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers, useProjectSchedule, useProjectSchedules } from '../hooks';
+import { useAddProjectMembers, useOrg, useProject, useProjectComponent, useProjectComponents, useProjectComponentTemplates, useProjectMembers, useProjectSchedule, useProjectSchedules, useUrl } from '../hooks';
 import { startSignalR, stopSignalR } from '../API';
 import { Message } from '../model';
 
 export const ProjectView: React.FC = () => {
 
     const navigate = useNavigate();
-    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const { orgId, projectId } = useUrl() as { orgId: string, projectId: string };
 
     const [favorite, setFavorate] = useState(false);
 

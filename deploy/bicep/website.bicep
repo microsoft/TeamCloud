@@ -10,8 +10,6 @@ param reactAppTcApiUrl string
 @description('Scope.')
 param reactAppMsalScope string
 
-param reactAppVersion string = ''
-
 param teamcloudImageRepo string = 'teamcloud'
 
 var name = toLower(webAppName)
@@ -59,10 +57,6 @@ resource web 'Microsoft.Web/sites@2021-02-01' = {
         {
           name: 'REACT_APP_TC_API_URL'
           value: reactAppTcApiUrl
-        }
-        {
-          name: 'REACT_APP_VERSION'
-          value: reactAppVersion
         }
         {
           name: 'WEBSITE_NODE_DEFAULT_VERSION'

@@ -3,10 +3,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { IColumn, Stack, Text } from '@fluentui/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Component, ComponentTemplate } from 'teamcloud';
 import { ContentList, ComponentLink, ComponentTemplateLink, UserPersona } from '.';
-import { useDeploymentScopes, useProjectMembers, useProjectComponentTemplates, useProjectComponents } from '../hooks';
+import { useDeploymentScopes, useProjectMembers, useProjectComponentTemplates, useProjectComponents, useUrl } from '../hooks';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 import { ComponentIcon } from './ComponentIcon';
@@ -18,7 +18,7 @@ export interface IComponentListProps {
 export const ComponentList: React.FC<IComponentListProps> = (props) => {
 
     const navigate = useNavigate();
-    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const { orgId, projectId } = useUrl() as { orgId: string, projectId: string };
 
     const [items, setItems] = useState<{ component: Component, template: ComponentTemplate }[]>()
 

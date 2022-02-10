@@ -18,6 +18,10 @@ RUN mkdir -p /home/LogFiles /opt/startup /home/site/wwwroot \
     iproute2 \
     nano
 
+ARG image_version=unknown
+ENV REACT_APP_VERSION=$image_version
+ENV TEAMCLOUD_IMAGE_VERSION=$image_version
+
 # setup default site
 RUN rm -f /etc/ssh/sshd_config
 COPY deploy/startup /opt/startup
