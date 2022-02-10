@@ -11,5 +11,6 @@ namespace TeamCloud.API.Data;
 [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
 public class TeamCloudInformation
 {
-    public string Version { get; set; }
+    public string ImageVersion { get; set; }
+    public string TemplateVersion { get; set; }
 }

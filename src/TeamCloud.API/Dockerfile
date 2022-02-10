@@ -1,5 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
+ARG image_version=unknown
+ENV TEAMCLOUD_IMAGE_VERSION=$image_version
+
 ENV PORT 8080
 EXPOSE 8080
 
