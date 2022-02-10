@@ -53,24 +53,24 @@ public sealed class ComponentDeploymentMonitorActivity
                     .CreateSessionAsync(resourceId.SubscriptionId)
                     .ConfigureAwait(false);
 
-                var runner = await session.ContainerGroups
+                var group = await session.ContainerGroups
                     .GetByIdAsync(resourceId.ToString())
                     .ConfigureAwait(false);
 
-                var container = runner.Containers
-                    .SingleOrDefault()
+                var runner = group.Containers
+                    .SingleOrDefault(c => c.Key.Equals("runner", StringComparison.OrdinalIgnoreCase))
                     .Value;
 
-                if (container?.InstanceView is null)
+                if (runner?.InstanceView is null)
                 {
                     componentDeployment.TaskState = TaskState.Initializing;
                 }
-                else if (container.InstanceView.CurrentState is not null)
+                else if (runner.InstanceView.CurrentState is not null)
                 {
                     componentDeployment.TaskState = TaskState.Processing;
-                    componentDeployment.ExitCode = container.InstanceView.CurrentState.ExitCode;
-                    componentDeployment.Started = container.InstanceView.CurrentState.StartTime;
-                    componentDeployment.Finished = container.InstanceView.CurrentState.FinishTime;
+                    componentDeployment.ExitCode = runner.InstanceView.CurrentState.ExitCode;
+                    componentDeployment.Started = runner.InstanceView.CurrentState.StartTime;
+                    componentDeployment.Finished = runner.InstanceView.CurrentState.FinishTime;
 
                     if (componentDeployment.ExitCode.HasValue)
                     {
@@ -78,7 +78,7 @@ public sealed class ComponentDeploymentMonitorActivity
                             ? TaskState.Succeeded   // ExitCode indicates successful provisioning
                             : TaskState.Failed;     // ExitCode indicates failed provisioning
                     }
-                    else if (container.InstanceView.CurrentState.State?.Equals("Terminated", StringComparison.OrdinalIgnoreCase) ?? false)
+                    else if (runner.InstanceView.CurrentState.State?.Equals("Terminated", StringComparison.OrdinalIgnoreCase) ?? false)
                     {
                         // container instance was terminated without exit code
                         componentDeployment.TaskState = TaskState.Failed;
@@ -88,8 +88,8 @@ public sealed class ComponentDeploymentMonitorActivity
                     {
                         var output = new StringBuilder();
 
-                        output.AppendLine($"Creating runner {runner.Id} ended in state {runner.State} !!! {Environment.NewLine}");
-                        output.AppendLine(await runner.GetLogContentAsync(container.Name).ConfigureAwait(false));
+                        output.AppendLine($"Creating runner {group.Id} ended in state {group.State} !!! {Environment.NewLine}");
+                        output.AppendLine(await group.GetLogContentAsync(runner.Name).ConfigureAwait(false));
 
                         var project = await projectRepository
                             .GetAsync(componentDeployment.Organization, componentDeployment.ProjectId)
