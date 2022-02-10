@@ -1,5 +1,0 @@
-**/node_modules
-.deployment
-.env.deployment
-.dockerignore
-deploy.sh
