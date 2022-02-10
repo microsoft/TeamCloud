@@ -17,7 +17,7 @@ The [TeamCloud CLI](docs/CLI.md) is an [extension](https://docs.microsoft.com/en
 To install the Azure CLI TeamCloud extension, simply run the following command:
 
 ```sh
-az extension add --source https://github.com/microsoft/TeamCloud/releases/latest/download/tc-0.4.1-py2.py3-none-any.whl -y
+az extension add --source https://github.com/microsoft/TeamCloud/releases/latest/download/tc-0.5.3-py2.py3-none-any.whl -y
 ```
 
 ### Update TeamCloud CLI
@@ -77,6 +77,7 @@ A Provider is responsible for managing one or more resources for a Project.  For
 Providers are registered with a TeamCloud instance and invoked by the Orchestrator when a Project is created or changed.  Any service that implements required REST endpoints can be registered as a Provider using the [CLI](docs/CLI.md).
 
 # About
+
 
 **This project is in active development and will change.**  As the tool becomes ready for use, it will be [versioned](https://semver.org/) and released.
 
