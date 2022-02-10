@@ -2,22 +2,27 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Text, Breadcrumb, IBreadcrumbItem } from '@fluentui/react';
 import { endsWithLowerCase, includesLowerCase, matchesLowerCase, matchesRouteParam } from '../Utils';
-import { useOrgs, useProject, useProjectComponent } from '../hooks';
+import { useOrgs, useProject, useProjectComponent, useUrl } from '../hooks';
 
 export const HeaderBreadcrumb: React.FC = () => {
 
     const location = useLocation();
     const navigate = useNavigate();
-    const { orgId, projectId, navId, itemId, settingId } = useParams() as { orgId: string, projectId: string, navId: string, itemId: string, settingId: string };
+
+    const foo = useUrl();
+    const { orgId, projectId, navId, itemId, settingId } = useUrl() as { orgId: string, projectId: string, navId: string, itemId: string, settingId: string };
 
     const { data: orgs } = useOrgs();
     const { data: project } = useProject();
     const { data: component } = useProjectComponent();
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
+
+        console.debug(foo);
+
         const crumbs: IBreadcrumbItem[] = [];
 
         if (orgId === undefined)

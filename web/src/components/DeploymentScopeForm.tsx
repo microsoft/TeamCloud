@@ -3,11 +3,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { ComboBox, DefaultButton, IComboBoxOption, PrimaryButton, Stack, TextField } from '@fluentui/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FuiForm } from '@rjsf/fluent-ui'
 import { IChangeEvent, ISubmitEvent } from '@rjsf/core';
 import { DeploymentScopeDefinition } from 'teamcloud';
-import { useAdapters, useCreateDeploymentScope } from '../hooks';
+import { useAdapters, useCreateDeploymentScope, useUrl } from '../hooks';
 import { ContentSeparator, TCFieldTemplate } from '.';
 
 export interface IDeploymentScopeFormProps {
@@ -20,7 +20,7 @@ export const DeploymentScopeForm: React.FC<IDeploymentScopeFormProps> = (props) 
 
     const { onScopeChange } = props;
     const navigate = useNavigate();
-    const { orgId } = useParams() as { orgId: string };
+    const { orgId } = useUrl() as { orgId: string };
 
     const { data: adapterInformation } = useAdapters();
 

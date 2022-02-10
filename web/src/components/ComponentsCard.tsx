@@ -2,17 +2,17 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Stack, DefaultButton, Text, ICommandBarItemProps, Dialog, DialogType, DialogFooter, PrimaryButton, IColumn, DetailsList, DetailsListLayoutMode, CheckboxVisibility, IDetailsRowProps, IRenderFunction, SelectionMode } from '@fluentui/react';
 import { Component, ComponentTemplate } from 'teamcloud';
-import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates, useDeleteProjectComponent } from '../hooks';
+import { useOrg, useDeploymentScopes, useProject, useProjectComponents, useProjectComponentTemplates, useDeleteProjectComponent, useUrl } from '../hooks';
 import { DetailCard, ComponentLink, ComponentIcon } from '.';
 
 export const ComponentsCard: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const { orgId, projectId } = useUrl() as { orgId: string, projectId: string };
 
     const { data: org } = useOrg();
     const { data: scopes } = useDeploymentScopes();

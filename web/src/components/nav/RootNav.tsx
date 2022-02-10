@@ -2,15 +2,15 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Nav, INavLinkGroup, INavLink, Stack, ActionButton, Persona, PersonaSize, getTheme, Text } from '@fluentui/react';
-import { useOrgs } from '../../hooks';
+import { useOrgs, useUrl } from '../../hooks';
 
 export const RootNav: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const { orgId } = useParams() as { orgId: string };
+    const { orgId } = useUrl() as { orgId: string };
 
     const { data: orgs } = useOrgs();
 

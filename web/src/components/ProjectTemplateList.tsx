@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Checkbox, IColumn, IconButton, Label, Modal, Stack, Text } from '@fluentui/react';
 import ReactMarkdown from 'react-markdown';
 import { ProjectTemplate } from 'teamcloud';
 import { ContentList, ContentSeparator } from '.';
-import { useProjectTemplates } from '../hooks';
+import { useProjectTemplates, useUrl } from '../hooks';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
 
@@ -15,7 +15,7 @@ export const ProjectTemplateList: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const { orgId } = useParams() as { orgId: string };
+    const { orgId } = useUrl() as { orgId: string };
 
     const { data: templates } = useProjectTemplates();
 

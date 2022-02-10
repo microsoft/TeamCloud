@@ -2,14 +2,13 @@
 // Licensed under the MIT License.
 
 import { useQuery } from 'react-query'
-import { useParams } from 'react-router-dom';
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api, onResponse } from '../API';
-import { useProject } from '.';
+import { useProject, useUrl } from '.';
 
 export const useProjectSchedule = () => {
 
-    const { settingId, itemId } = useParams() as { settingId: string, itemId: string };
+    const { settingId, itemId } = useUrl() as { settingId: string, itemId: string };
 
     const isAuthenticated = useIsAuthenticated();
 
@@ -23,6 +22,6 @@ export const useProjectSchedule = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!project?.id && !!settingId && settingId.toLowerCase() === 'schedules' && !!itemId && itemId.toLowerCase() !== 'new'
+        enabled: isAuthenticated && !!project?.id && !!settingId && settingId.toLowerCase() === 'schedules' && !!itemId
     });
 }

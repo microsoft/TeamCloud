@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query'
 import { useIsAuthenticated } from '@azure/msal-react';
 import { api, onResponse } from '../API';
-import { useOrg } from '.';
+import { useOrg, useUrl } from '.';
 
 export const useProject = () => {
 
-    const { projectId } = useParams() as { projectId: string };
+    const { projectId } = useUrl() as { projectId: string };
 
     const isAuthenticated = useIsAuthenticated();
 
@@ -23,6 +22,6 @@ export const useProject = () => {
 
         return data;
     }, {
-        enabled: isAuthenticated && !!org?.id && !!projectId && projectId.toLowerCase() !== 'new'
+        enabled: isAuthenticated && !!org?.id && !!projectId
     });
 }
