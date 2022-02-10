@@ -93,6 +93,34 @@ public sealed class AzureContainerGroupResource : AzureTypedResource
             .ConfigureAwait(false);
     }
 
+    public async Task<string> GetStateAsync()
+    {
+        var group = await containerGroup
+            .ConfigureAwait(false);
+
+        return group.State;
+    }
+
+    public async Task StopAsync()
+    {
+        var group = await containerGroup
+            .ConfigureAwait(false);
+
+        await group
+            .StopAsync()
+            .ConfigureAwait(false);
+    }
+
+    public async Task RestartAsync()
+    {
+        var group = await containerGroup
+            .ConfigureAwait(false);
+
+        await group
+            .RestartAsync()
+            .ConfigureAwait(false);
+    }
+
     public async Task<string> GetLogContentAsync(string containerName)
     {
         if (string.IsNullOrWhiteSpace(containerName))

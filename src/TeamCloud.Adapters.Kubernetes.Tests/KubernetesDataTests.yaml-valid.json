@@ -1,6 +1,5 @@
 {
   "namespace": "teamcloud",
-  "configurationSource": {
-    "yaml": "yaml"
-  }
+  "source": "yaml",
+  "yaml" :  ""
 }

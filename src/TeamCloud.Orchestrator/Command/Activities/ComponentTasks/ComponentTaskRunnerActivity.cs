@@ -27,6 +27,7 @@ using TeamCloud.Http;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Options;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks;
@@ -42,6 +43,7 @@ public sealed class ComponentTaskRunnerActivity
     private readonly IAzureSessionService azureSessionService;
     private readonly IAzureResourceService azureResourceService;
     private readonly IAdapterProvider adapterProvider;
+    private readonly IRunnerOptions runnerOptions;
 
     public ComponentTaskRunnerActivity(IOrganizationRepository organizationRepository,
                                        IDeploymentScopeRepository deploymentScopeRepository,
@@ -51,7 +53,8 @@ public sealed class ComponentTaskRunnerActivity
                                        IComponentTaskRepository componentTaskRepository,
                                        IAzureSessionService azureSessionService,
                                        IAzureResourceService azureResourceService,
-                                       IAdapterProvider adapterProvider)
+                                       IAdapterProvider adapterProvider,
+                                       IRunnerOptions runnerOptions)
     {
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
@@ -62,6 +65,7 @@ public sealed class ComponentTaskRunnerActivity
         this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
+        this.runnerOptions = runnerOptions ?? throw new ArgumentNullException(nameof(runnerOptions));
     }
 
     [FunctionName(nameof(ComponentTaskRunnerActivity))]
@@ -95,8 +99,7 @@ public sealed class ComponentTaskRunnerActivity
         }
         else
         {
-            var pairedRegionFallback = false;
-        pairedRegionFallback:
+            var pairedRegionFallback = false; pairedRegionFallback:
 
             try
             {
@@ -108,10 +111,6 @@ public sealed class ComponentTaskRunnerActivity
                     .GetAsync(tenantId.ToString(), componentTask.Organization)
                     .ConfigureAwait(false);
 
-                var organizationRegistry = AzureResourceIdentifier.TryParse(organization.RegistryId, out var organizationRegistryId)
-                    ? await azureResourceService.GetResourceAsync<AzureContainerRegistryResource>(organizationRegistryId.ToString()).ConfigureAwait(false)
-                    : null;
-
                 var project = await projectRepository
                     .GetAsync(componentTask.Organization, componentTask.ProjectId)
                     .ConfigureAwait(false);
@@ -119,161 +118,35 @@ public sealed class ComponentTaskRunnerActivity
                 var projectResourceId = AzureResourceIdentifier
                     .Parse(project.ResourceId);
 
-                var (componentShareAccount, componentShareName, componentShareKey) = await GetComponentShareInfoAsync(project, component)
-                    .ConfigureAwait(false);
-
-                var runnerCPUCount = 2;
-                var runnerMemoryCount = 4;
-                var runnerLocation = await GetComponentRunnerLocationAsync(component, projectResourceId.SubscriptionId, runnerCPUCount, runnerMemoryCount, pairedRegionFallback).ConfigureAwait(false);
-
-                if (pairedRegionFallback)
-                    log.LogInformation($"Falling back to region '{runnerLocation}' for component task {componentTask}");
-                else
-                    log.LogInformation($"Executin component task {componentTask} in region {runnerLocation}");
-
                 // we must not use the component task's id as runner label as this
                 // will violate the maximum length of a SSL certificats CN name.
 
-                var componentRunnerRoot = $".{runnerLocation}.azurecontainer.io";
-                var componentRunnerLabelName = GetComponentRunnerLabel(componentTask, 64 - componentRunnerRoot.Length);
-                var componentRunnerHostName = string.Concat(componentRunnerLabelName, componentRunnerRoot);
-                var componentRunnerContainer = await ResolveContainerImage(componentTemplate, organizationRegistry, log).ConfigureAwait(false);
-
+                var componentRunnerCpu = 1;
+                var componentRunnerMemory = 2;
+                var componentRunnerLocation = await GetLocationAsync(component, projectResourceId.SubscriptionId, componentRunnerCpu, componentRunnerMemory, pairedRegionFallback).ConfigureAwait(false);
+                var componentRunnerRoot = $".{componentRunnerLocation}.azurecontainer.io";
+                var componentRunnerLabel = CreateUniqueString(64 - componentRunnerRoot.Length, componentTask.Id);
+                var componentRunnerHost = string.Concat(componentRunnerLabel, componentRunnerRoot);
 
                 var componentRunnerDefinition = new
                 {
-                    location = runnerLocation,
+                    location = componentRunnerLocation,
                     identity = new
                     {
                         type = "UserAssigned",
                         userAssignedIdentities = new Dictionary<string, object>()
-                            {
-                                { component.IdentityId, new { } }
-                            }
+                        {
+                            { component.IdentityId, new { } }
+                        }
                     },
                     properties = new
                     {
-                        imageRegistryCredentials = await GetRegistryCredentialsAsync(componentRunnerContainer).ConfigureAwait(false),
-                        containers = new[]
-                        {
-                                new
-                                {
-                                    name = "runner",
-                                    properties = new
-                                    {
-                                        image = componentRunnerContainer,
-                                        ports = new []
-                                        {
-                                            new {
-                                                protocol = "tcp",
-                                                port = 80
-                                            },
-                                            new {
-                                                protocol = "tcp",
-                                                port = 443
-                                            }
-                                        },
-                                        resources = new
-                                        {
-                                            requests = new
-                                            {
-                                                cpu = runnerCPUCount,
-                                                memoryInGB = runnerMemoryCount
-                                            }
-                                        },
-                                        environmentVariables = GetEnvironmentVariables(),
-                                        volumeMounts = new []
-                                        {
-                                            new
-                                            {
-                                                name = "templates",
-                                                mountPath = "/mnt/templates",
-                                                readOnly = false
-                                            },
-                                            new
-                                            {
-                                                name = "storage",
-                                                mountPath = "/mnt/storage",
-                                                readOnly = false
-                                            },
-                                            new
-                                            {
-                                                name = "secrets",
-                                                mountPath = "/mnt/secrets",
-                                                readOnly = false
-                                            },
-                                            new
-                                            {
-                                                name = "credentials",
-                                                mountPath = "/mnt/credentials",
-                                                readOnly = false
-                                            },
-                                            new
-                                            {
-                                                name = "temporary",
-                                                mountPath = "/mnt/temporary",
-                                                readOnly = false
-                                            }
-                                        }
-                                    }
-                                }
-                            },
+                        imageRegistryCredentials = await GetRegistryCredentialsAsync(organization).ConfigureAwait(false),
+                        containers = await GetContainersAsync(organization, component, componentTemplate, componentTask, componentRunnerHost, componentRunnerCpu, componentRunnerMemory).ConfigureAwait(false),
                         osType = "Linux",
                         restartPolicy = "Never",
-                        ipAddress = new
-                        {
-                            type = "Public",
-                            dnsNameLabel = componentRunnerLabelName,
-                            ports = new[]
-                            {
-                                    new {
-                                        protocol = "tcp",
-                                        port = 80
-                                    },
-                                    new {
-                                        protocol = "tcp",
-                                        port = 443
-                                    }
-                                }
-                        },
-                        volumes = new object[]
-                        {
-                                new
-                                {
-                                    name = "templates",
-                                    gitRepo = new
-                                    {
-                                        directory = ".",
-                                        repository = componentTemplate.Repository.Url,
-                                        revision = componentTemplate.Repository.Ref
-                                    }
-                                },
-                                new
-                                {
-                                    name = "storage",
-                                    azureFile = new
-                                    {
-                                          shareName = componentShareName,
-                                          storageAccountName = componentShareAccount,
-                                          storageAccountKey = componentShareKey
-                                    }
-                                },
-                                new
-                                {
-                                    name = "secrets",
-                                    secret = await GetVaultSecretsAsync(project).ConfigureAwait(false)
-                                },
-                                new
-                                {
-                                    name = "credentials",
-                                    secret = await GetServiceCredentialsAsync(component).ConfigureAwait(false)
-                                },
-                                new
-                                {
-                                    name = "temporary",
-                                    emptyDir = new { }
-                                }
-                        }
+                        ipAddress = GetIpAddress(componentTemplate, componentRunnerLabel),
+                        volumes = await GetVolumesAsync(project, component, componentTemplate).ConfigureAwait(false)
                     }
                 };
 
@@ -284,8 +157,8 @@ public sealed class ComponentTaskRunnerActivity
                 try
                 {
                     var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
-                        .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
-                        .SetQueryParam("api-version", "2019-12-01")
+                        .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{component.Id}")
+                        .SetQueryParam("api-version", "2021-09-01")
                         .WithOAuthBearerToken(token)
                         .PutJsonAsync(componentRunnerDefinition)
                         .ConfigureAwait(false);
@@ -300,7 +173,8 @@ public sealed class ComponentTaskRunnerActivity
                 {
                     if (pairedRegionFallback)
                     {
-                        // give azure time to do its work
+                        // give azure some time to do its work
+                        // and remove any naming conflicts
 
                         await Task
                             .Delay(TimeSpan.FromMinutes(1))
@@ -343,54 +217,7 @@ public sealed class ComponentTaskRunnerActivity
                     .SetAsync(componentTask)
                     .ConfigureAwait(false);
 
-                object[] GetEnvironmentVariables()
-                {
-                    var envVariables = componentTemplate.TaskRunner?.With ?? new Dictionary<string, string>();
 
-                    envVariables["TaskId"] = componentTask.Id;
-                    envVariables["TaskHost"] = componentRunnerHostName;
-                    envVariables["TaskType"] = componentTask.TypeName ?? componentTask.Type.ToString();
-                    envVariables["ComponentLocation"] = organization.Location;
-                    envVariables["ComponentTemplateBaseUrl"] = $"http://{componentRunnerHostName}/{componentTemplate.Folder.Trim().TrimStart('/')}";
-                    envVariables["ComponentTemplateFolder"] = $"file:///mnt/templates/{componentTemplate.Folder.Trim().TrimStart('/')}";
-                    envVariables["ComponentTemplateParameters"] = string.IsNullOrWhiteSpace(component.InputJson) ? "{}" : component.InputJson;
-                    envVariables["ComponentResourceId"] = component.ResourceId;
-
-                    if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
-                    {
-                        envVariables["ComponentResourceGroup"] = componentResourceId.ResourceGroup;
-                        envVariables["ComponentSubscription"] = componentResourceId.SubscriptionId.ToString();
-                    }
-
-                    return envVariables
-                        .Where(kvp => kvp.Value is not null)
-                        .Select(kvp => new { name = kvp.Key, value = kvp.Value })
-                        .ToArray();
-                }
-
-                async Task<object[]> GetRegistryCredentialsAsync(string containerImageName)
-                {
-                    var credentials = new List<object>();
-
-                    if (organizationRegistry is not null)
-                    {
-                        var registryCredentials = await organizationRegistry
-                            .GetCredentialsAsync(containerImageName)
-                            .ConfigureAwait(false);
-
-                        if (AzureContainerRegistryResource.GetContainerHost(containerImageName).Equals(registryCredentials?.Domain, StringComparison.OrdinalIgnoreCase))
-                        {
-                            credentials.Add(new
-                            {
-                                server = registryCredentials.Domain,
-                                username = registryCredentials.UserName,
-                                password = registryCredentials.Password
-                            });
-                        }
-                    }
-
-                    return credentials.ToArray();
-                }
             }
             catch (Exception exc)
             {
@@ -414,27 +241,52 @@ public sealed class ComponentTaskRunnerActivity
         return componentTask;
     }
 
-    private static async Task<string> ResolveContainerImage(ComponentTemplate componentTemplate, AzureContainerRegistryResource organizationRegistry, ILogger log)
+    public object GetIpAddress(ComponentTemplate componentTemplate, string runnerLabel)
     {
-        if (componentTemplate is null)
-            throw new ArgumentNullException(nameof(componentTemplate));
+        if (componentTemplate.TaskRunner?.WebServer ?? false)
+        {
+            return new
+            {
+                type = "Public",
+                dnsNameLabel = runnerLabel,
+                ports = new[]
+                {
+                    new {
+                        protocol = "tcp",
+                        port = 80
+                    },
+                    new {
+                        protocol = "tcp",
+                        port = 443
+                    }
+                }
+            };
+        }
 
-        if (string.IsNullOrWhiteSpace(componentTemplate.TaskRunner?.Id))
-            throw new ArgumentException($"'{nameof(componentTemplate)}' must contain a TaskRunner container image reference.", nameof(componentTemplate));
+        return null;
+    }
 
-        if (organizationRegistry is null)
-            throw new ArgumentNullException(nameof(organizationRegistry));
-
-        if (log is null)
-            throw new ArgumentNullException(nameof(log));
-
-        if (AzureContainerRegistryResource.TryResolveFullyQualifiedContainerImageName(componentTemplate.TaskRunner.Id, out var sourceContainerImage)
+    private async Task<string> GetContainerImageAsync(Organization organization, ComponentTemplate componentTemplate)
+    {
+        if (runnerOptions.ImportDockerHub
+            && AzureContainerRegistryResource.TryResolveFullyQualifiedContainerImageName(componentTemplate.TaskRunner.Id, out var sourceContainerImage)
             && AzureContainerRegistryResource.IsDockerHubContainerImage(sourceContainerImage)
             && sourceContainerImage.Contains("/teamcloud/", StringComparison.OrdinalIgnoreCase))
         {
-            try
+            var organizationRegistry = AzureResourceIdentifier.TryParse(organization.RegistryId, out var organizationRegistryId)
+                ? await azureResourceService.GetResourceAsync<AzureContainerRegistryResource>(organizationRegistryId.ToString()).ConfigureAwait(false)
+                : null;
+
+            if (organizationRegistry is null)
             {
-                var sourceContainerImport = false;
+                // the current organization has now container registry
+                // assigned so we use the orginal container image origion
+
+                return sourceContainerImage;
+            }
+            else
+            {
+                var sourceContainerImport = false; // by default we are not going to import the docker hub container image into the organization container registry
                 var targetContainerImage = $"{organizationRegistry.Hostname}{sourceContainerImage.Substring(sourceContainerImage.IndexOf('/', StringComparison.OrdinalIgnoreCase))}";
 
                 if (AzureContainerRegistryResource.IsContainerImageNameTagBased(sourceContainerImage))
@@ -493,10 +345,6 @@ public sealed class ComponentTaskRunnerActivity
                 }
 
                 return sourceContainerImage;
-            }
-            catch (Exception exc)
-            {
-                log.LogWarning(exc, $"Failed to resolve local container image for of '{sourceContainerImage}'");
             }
         }
 
@@ -565,67 +413,290 @@ public sealed class ComponentTaskRunnerActivity
         }
     }
 
-    private async Task<(string, string, string)> GetComponentShareInfoAsync(Project project, Component component)
+    private async Task<object[]> GetRegistryCredentialsAsync(Organization organization)
     {
-        if (!AzureResourceIdentifier.TryParse(project.StorageId, out var _))
-            throw new NullReferenceException($"Missing storage id for project {project.Id}");
+        var credentials = new List<object>();
 
-        var componentStorage = await azureResourceService
-            .GetResourceAsync<AzureStorageAccountResource>(project.StorageId, true)
-            .ConfigureAwait(false);
+        var organizationRegistry = AzureResourceIdentifier.TryParse(organization.RegistryId, out var organizationRegistryId)
+            ? await azureResourceService.GetResourceAsync<AzureContainerRegistryResource>(organizationRegistryId.ToString()).ConfigureAwait(false)
+            : null;
 
-        var componentShare = await componentStorage
-            .CreateShareClientAsync(component.Id)
-            .ConfigureAwait(false);
-
-        await componentShare
-            .CreateIfNotExistsAsync()
-            .ConfigureAwait(false);
-
-        var componentStorageKeys = await componentStorage
-            .GetKeysAsync()
-            .ConfigureAwait(false);
-
-        return (componentShare.AccountName, componentShare.Name, componentStorageKeys.First());
-    }
-
-    private async Task<dynamic> GetVaultSecretsAsync(Project project)
-    {
-        if (!AzureResourceIdentifier.TryParse(project.SharedVaultId, out var _))
-            throw new NullReferenceException($"Missing vault id for project {project.Id}");
-
-        var componentVault = await azureResourceService
-            .GetResourceAsync<AzureKeyVaultResource>(project.SharedVaultId, true)
-            .ConfigureAwait(false);
-
-        var identity = await azureResourceService.AzureSessionService
-            .GetIdentityAsync()
-            .ConfigureAwait(false);
-
-        await componentVault
-            .SetAllSecretPermissionsAsync(identity.ObjectId)
-            .ConfigureAwait(false);
-
-        dynamic secretsObject = new ExpandoObject(); // the secrets container
-        var secretsProperties = secretsObject as IDictionary<string, object>;
-
-        await foreach (var secret in componentVault.GetSecretsAsync())
+        if (organizationRegistry is not null)
         {
-            if (secret.Value is null) continue;
+            var registryCredentials = await organizationRegistry
+                .GetCredentialsAsync()
+                .ConfigureAwait(false);
 
-            var secretNameSafe = Regex.Replace(secret.Key, "[^A-Za-z0-9_]", string.Empty);
-            var secretValueSafe = Convert.ToBase64String(Encoding.UTF8.GetBytes(secret.Value));
-
-            secretsProperties.Add(new KeyValuePair<string, object>(secretNameSafe, secretValueSafe));
+            if (registryCredentials is not null)
+            {
+                credentials.Add(new
+                {
+                    server = registryCredentials.Domain,
+                    username = registryCredentials.UserName,
+                    password = registryCredentials.Password
+                });
+            }
         }
 
-        var count = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{secretsProperties.Count}"));
-        secretsProperties.Add(new KeyValuePair<string, object>($"_{nameof(count)}", count));
-
-        return secretsObject;
+        return credentials.ToArray();
     }
 
-    private async Task<dynamic> GetServiceCredentialsAsync(Component component)
+    private async Task<object[]> GetContainersAsync(Organization organization, Component component, ComponentTemplate componentTemplate, ComponentTask componentTask, string runnerHost, int runnerCpu, int runnerMemory)
+    {
+        var taskToken = CreateUniqueString(30);
+
+        var containers = new List<object>()
+        {
+            new
+            {
+                name = componentTask.Id,
+                properties = new
+                {
+                    image = await GetContainerImageAsync(organization, componentTemplate).ConfigureAwait(false),
+                    resources = new
+                    {
+                        requests = new
+                        {
+                            cpu = runnerCpu,
+                            memoryInGB = runnerMemory
+                        }
+                    },
+                    environmentVariables = GetRunnerEnvironmentVariables(),
+                    volumeMounts = new []
+                    {
+                        new
+                        {
+                            name = "templates",
+                            mountPath = "/mnt/templates",
+                            readOnly = false
+                        },
+                        new
+                        {
+                            name = "storage",
+                            mountPath = "/mnt/storage",
+                            readOnly = false
+                        },
+                        new
+                        {
+                            name = "secrets",
+                            mountPath = "/mnt/secrets",
+                            readOnly = false
+                        },
+                        new
+                        {
+                            name = "credentials",
+                            mountPath = "/mnt/credentials",
+                            readOnly = false
+                        },
+                        new
+                        {
+                            name = "temporary",
+                            mountPath = "/mnt/temporary",
+                            readOnly = false
+                        }
+                    }
+                }
+            }
+        };
+
+        if (componentTemplate.TaskRunner?.WebServer ?? false)
+        {
+            containers.Add(new
+            {
+                name = "webserver",
+                properties = new
+                {
+                    image = runnerOptions.WebServerImage,
+                    ports = new[]
+                    {
+                        new {
+                            protocol = "tcp",
+                            port = 80
+                        },
+                        new {
+                            protocol = "tcp",
+                            port = 443
+                        }
+                    },
+                    resources = new
+                    {
+                        requests = new
+                        {
+                            cpu = 1,
+                            memoryInGB = 1
+                        }
+                    },
+                    //readinessProbe = new
+                    //{
+                    //    httpGet = new
+                    //    {
+                    //        scheme = "http",
+                    //        port = 80,
+                    //        path = "/"
+
+                    //    },
+                    //    initialDelaySeconds = 2,
+                    //    periodSeconds = 2,
+                    //    timeoutSeconds = 300
+                    //},
+                    environmentVariables = new object[]
+                    {
+                        new
+                        {
+                            name = "TaskHost",
+                            value = runnerHost
+                        },
+                        new 
+                        {
+                            name = "TaskToken",
+                            value = taskToken
+                        }
+                    },
+                    volumeMounts = new[]
+                    {
+                        new
+                        {
+                            name = "templates",
+                            mountPath = "/mnt/templates",
+                            readOnly = true
+                        }
+                    }
+                }
+            });
+        }
+
+        return containers.ToArray();
+
+        object[] GetRunnerEnvironmentVariables()
+        {
+            var envVariables = componentTemplate.TaskRunner?.With ?? new Dictionary<string, string>();
+
+            envVariables["TaskId"] = componentTask.Id;
+            envVariables["TaskHost"] = runnerHost;
+            envVariables["TaskToken"] = taskToken;
+            envVariables["TaskType"] = componentTask.TypeName ?? componentTask.Type.ToString();
+            envVariables["WebServerEnabled"] = ((componentTemplate.TaskRunner?.WebServer ?? false) ? 1 : 0).ToString();
+            envVariables["ComponentLocation"] = organization.Location;
+            envVariables["ComponentTemplateBaseUrl"] = $"http://{runnerHost}/{componentTemplate.Folder.Trim().TrimStart('/')}";
+            envVariables["ComponentTemplateFolder"] = $"file:///mnt/templates/{componentTemplate.Folder.Trim().TrimStart('/')}";
+            envVariables["ComponentTemplateParameters"] = string.IsNullOrWhiteSpace(component.InputJson) ? "{}" : component.InputJson;
+            envVariables["ComponentResourceId"] = component.ResourceId;
+
+            if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+            {
+                envVariables["ComponentResourceGroup"] = componentResourceId.ResourceGroup;
+                envVariables["ComponentSubscription"] = componentResourceId.SubscriptionId.ToString();
+            }
+
+            return envVariables
+                .Where(kvp => kvp.Value is not null)
+                .Select(kvp => new { name = kvp.Key, value = kvp.Value })
+                .ToArray();
+        }
+    }
+
+    private async Task<object[]> GetVolumesAsync(Project project, Component component, ComponentTemplate componentTemplate)
+    {
+        return new object[]
+        {
+            new
+            {
+                name = "templates",
+                gitRepo = new
+                {
+                    directory = ".",
+                    repository = componentTemplate.Repository.Url,
+                    revision = componentTemplate.Repository.Ref
+                }
+            },
+            new
+            {
+                name = "storage",
+                azureFile = await GetShareAsync().ConfigureAwait(false)
+            },
+            new
+            {
+                name = "secrets",
+                secret = await GetSecretsAsync().ConfigureAwait(false)
+            },
+            new
+            {
+                name = "credentials",
+                secret = await GetCredentialsAsync().ConfigureAwait(false)
+            },
+            new
+            {
+                name = "temporary",
+                emptyDir = new { }
+            }
+        };
+
+        async Task<object> GetShareAsync()
+        {
+            if (!AzureResourceIdentifier.TryParse(project.StorageId, out var _))
+                throw new NullReferenceException($"Missing storage id for project {project.Id}");
+
+            var componentStorage = await azureResourceService
+                .GetResourceAsync<AzureStorageAccountResource>(project.StorageId, true)
+                .ConfigureAwait(false);
+
+            var componentShare = await componentStorage
+                .CreateShareClientAsync(component.Id)
+                .ConfigureAwait(false);
+
+            await componentShare
+                .CreateIfNotExistsAsync()
+                .ConfigureAwait(false);
+
+            var componentStorageKeys = await componentStorage
+                .GetKeysAsync()
+                .ConfigureAwait(false);
+
+            return new
+            {
+                shareName = componentShare.Name,
+                storageAccountName = componentShare.AccountName,
+                storageAccountKey = componentStorageKeys.First()
+            };
+        }
+
+        async Task<object> GetSecretsAsync()
+        {
+            if (!AzureResourceIdentifier.TryParse(project.SharedVaultId, out var _))
+                throw new NullReferenceException($"Missing vault id for project {project.Id}");
+
+            var componentVault = await azureResourceService
+                .GetResourceAsync<AzureKeyVaultResource>(project.SharedVaultId, true)
+                .ConfigureAwait(false);
+
+            var identity = await azureResourceService.AzureSessionService
+                .GetIdentityAsync()
+                .ConfigureAwait(false);
+
+            await componentVault
+                .SetAllSecretPermissionsAsync(identity.ObjectId)
+                .ConfigureAwait(false);
+
+            dynamic secretsObject = new ExpandoObject(); // the secrets container
+            var secretsProperties = secretsObject as IDictionary<string, object>;
+
+            await foreach (var secret in componentVault.GetSecretsAsync())
+            {
+                if (secret.Value is null) continue;
+
+                var secretNameSafe = Regex.Replace(secret.Key, "[^A-Za-z0-9_]", string.Empty);
+                var secretValueSafe = Convert.ToBase64String(Encoding.UTF8.GetBytes(secret.Value));
+
+                secretsProperties.Add(new KeyValuePair<string, object>(secretNameSafe, secretValueSafe));
+            }
+
+            var count = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{secretsProperties.Count}"));
+            secretsProperties.Add(new KeyValuePair<string, object>($"_{nameof(count)}", count));
+
+            return secretsObject;
+        }
+
+        async Task<object> GetCredentialsAsync()
     {
         dynamic credentialObject = new ExpandoObject(); // the credentials container
         var credentialProperties = credentialObject as IDictionary<string, object>;
@@ -657,8 +728,9 @@ public sealed class ComponentTaskRunnerActivity
 
         return credentialObject;
     }
+    }
 
-    private async Task<string> GetComponentRunnerLocationAsync(Component component, Guid subscriptionId, int runnerCPU, int runnerMemory, bool usePairedRegion = false)
+    private async Task<string> GetLocationAsync(Component component, Guid subscriptionId, int runnerCPU, int runnerMemory, bool usePairedRegion = false)
     {
         var tenantId = await azureSessionService
             .GetTenantIdAsync()
@@ -712,9 +784,11 @@ public sealed class ComponentTaskRunnerActivity
         }
     }
 
-    private static string GetComponentRunnerLabel(ComponentTask componentTask, int length)
+    private static string CreateUniqueString(int length, params string[] source)
     {
-        var hash = System.Security.Cryptography.SHA512.HashData(Encoding.UTF8.GetBytes(componentTask.Id));
+        if (source.Length == 0) source = new string[] { Guid.NewGuid().ToString() };
+
+        var hash = System.Security.Cryptography.SHA512.HashData(Encoding.UTF8.GetBytes(String.Join('|', source)));
 
         return string.Concat(hash.Skip(1).Take(length).Select(b => Convert.ToChar((b % 26) + (byte)'a')));
     }
