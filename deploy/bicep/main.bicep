@@ -158,7 +158,6 @@ module web 'website.bicep' = {
     reactAppMsalClientId: reactAppMsalClientId
     reactAppMsalScope: reactAppMsalScope
     reactAppTcApiUrl: api.outputs.url
-    reactAppVersion: version
     webAppName: name
     teamcloudImageRepo: teamcloudImageRepo
   }
