@@ -130,6 +130,8 @@ import {
   GetProjectUserMeResponse,
   UpdateProjectUserMeOptionalParams,
   UpdateProjectUserMeResponse,
+  GetInfoOptionalParams,
+  GetInfoResponse,
   GetSchedulesOptionalParams,
   GetSchedulesResponse,
   CreateScheduleOptionalParams,
@@ -1161,6 +1163,14 @@ export class TeamCloud extends TeamCloudContext {
       { organizationId, projectId, options },
       updateProjectUserMeOperationSpec
     );
+  }
+
+  /**
+   * Gets information about this TeamCloud deployment.
+   * @param options The options parameters.
+   */
+  getInfo(options?: GetInfoOptionalParams): Promise<GetInfoResponse> {
+    return this.sendOperationRequest({ options }, getInfoOperationSpec);
   }
 
   /**
@@ -2755,6 +2765,18 @@ const updateProjectUserMeOperationSpec: coreClient.OperationSpec = {
   ],
   headerParameters: [Parameters.accept, Parameters.contentType],
   mediaType: "json",
+  serializer
+};
+const getInfoOperationSpec: coreClient.OperationSpec = {
+  path: "/",
+  httpMethod: "GET",
+  responses: {
+    200: {
+      bodyMapper: Mappers.TeamCloudInformationDataResult
+    }
+  },
+  urlParameters: [Parameters.$host],
+  headerParameters: [Parameters.accept],
   serializer
 };
 const getSchedulesOperationSpec: coreClient.OperationSpec = {

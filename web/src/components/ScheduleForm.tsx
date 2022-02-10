@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { DefaultButton, Dropdown, DropdownMenuItemType, IDropdownOption, PrimaryButton, Stack, Checkbox, Toggle, IComboBoxOption, ComboBox, IComboBox, Text, Label } from '@fluentui/react';
 import { Component, ComponentTaskTemplate, ComponentTemplate, ScheduleDefinition } from 'teamcloud';
-import { useOrg, useProject, useProjectComponentTemplates, useProjectComponents, useProjectMembers, useUser, useCreateProjectSchedule, useProjectSchedule, useUpdateProjectSchedule } from '../hooks';
+import { useOrg, useProject, useProjectComponentTemplates, useProjectComponents, useProjectMembers, useUser, useCreateProjectSchedule, useProjectSchedule, useUpdateProjectSchedule, useUrl } from '../hooks';
 import { DaysOfWeek, DaysOfWeekNames, ProjectMember, shiftToLocal, shiftToUtc } from '../model';
 import { ContentSeparator } from '.';
 import { ErrorBar } from './common';
@@ -14,7 +14,7 @@ export const ScheduleForm: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
+    const { orgId, projectId, itemId } = useUrl() as { orgId: string, projectId: string, itemId: string };
 
     const now = new Date();
 

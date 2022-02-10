@@ -639,6 +639,13 @@ export declare interface GetDeploymentScopesOptionalParams extends coreClient.Op
 export declare type GetDeploymentScopesResponse = DeploymentScopeListDataResult;
 
 /** Optional parameters. */
+export declare interface GetInfoOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the getInfo operation. */
+export declare type GetInfoResponse = TeamCloudInformationDataResult;
+
+/** Optional parameters. */
 export declare interface GetOrganizationOptionalParams extends coreClient.OperationOptions {
 }
 
@@ -1802,6 +1809,11 @@ export declare class TeamCloud extends TeamCloudContext {
      */
     updateProjectUserMe(organizationId: string, projectId: string, options?: UpdateProjectUserMeOptionalParams): Promise<UpdateProjectUserMeResponse>;
     /**
+     * Gets information about this TeamCloud deployment.
+     * @param options The options parameters.
+     */
+    getInfo(options?: GetInfoOptionalParams): Promise<GetInfoResponse>;
+    /**
      * Gets all Schedule.
      * @param organizationId
      * @param projectId
@@ -1878,6 +1890,17 @@ export declare class TeamCloudContext extends coreClient.ServiceClient {
      * @param options The parameter options
      */
     constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
+}
+
+export declare interface TeamCloudInformation {
+    version?: string;
+}
+
+export declare interface TeamCloudInformationDataResult {
+    code?: number;
+    status?: string;
+    data?: TeamCloudInformation;
+    location?: string;
 }
 
 /** Optional parameters. */

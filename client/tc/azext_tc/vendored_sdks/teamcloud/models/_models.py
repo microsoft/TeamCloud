@@ -3027,6 +3027,70 @@ class StringListDataResult(msrest.serialization.Model):
         self.location = kwargs.get('location', None)
 
 
+class TeamCloudInformation(msrest.serialization.Model):
+    """TeamCloudInformation.
+
+    :ivar version:
+    :vartype version: str
+    """
+
+    _attribute_map = {
+        'version': {'key': 'version', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        """
+        :keyword version:
+        :paramtype version: str
+        """
+        super(TeamCloudInformation, self).__init__(**kwargs)
+        self.version = kwargs.get('version', None)
+
+
+class TeamCloudInformationDataResult(msrest.serialization.Model):
+    """TeamCloudInformationDataResult.
+
+    :ivar code:
+    :vartype code: int
+    :ivar status:
+    :vartype status: str
+    :ivar data:
+    :vartype data: ~teamcloud.models.TeamCloudInformation
+    :ivar location:
+    :vartype location: str
+    """
+
+    _attribute_map = {
+        'code': {'key': 'code', 'type': 'int'},
+        'status': {'key': 'status', 'type': 'str'},
+        'data': {'key': 'data', 'type': 'TeamCloudInformation'},
+        'location': {'key': 'location', 'type': 'str'},
+    }
+
+    def __init__(
+        self,
+        **kwargs
+    ):
+        """
+        :keyword code:
+        :paramtype code: int
+        :keyword status:
+        :paramtype status: str
+        :keyword data:
+        :paramtype data: ~teamcloud.models.TeamCloudInformation
+        :keyword location:
+        :paramtype location: str
+        """
+        super(TeamCloudInformationDataResult, self).__init__(**kwargs)
+        self.code = kwargs.get('code', None)
+        self.status = kwargs.get('status', None)
+        self.data = kwargs.get('data', None)
+        self.location = kwargs.get('location', None)
+
+
 class User(msrest.serialization.Model):
     """User.
 

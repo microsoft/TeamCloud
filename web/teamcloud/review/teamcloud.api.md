@@ -702,6 +702,13 @@ export interface GetDeploymentScopesOptionalParams extends coreClient.OperationO
 export type GetDeploymentScopesResponse = DeploymentScopeListDataResult;
 
 // @public
+export interface GetInfoOptionalParams extends coreClient.OperationOptions {
+}
+
+// @public
+export type GetInfoResponse = TeamCloudInformationDataResult;
+
+// @public
 export interface GetOrganizationOptionalParams extends coreClient.OperationOptions {
 }
 
@@ -1650,6 +1657,7 @@ export class TeamCloud extends TeamCloudContext {
     getComponentTemplates(organizationId: string, projectId: string, options?: GetComponentTemplatesOptionalParams): Promise<GetComponentTemplatesResponse>;
     getDeploymentScope(organizationId: string, deploymentScopeId: string, options?: GetDeploymentScopeOptionalParams): Promise<GetDeploymentScopeResponse>;
     getDeploymentScopes(organizationId: string, options?: GetDeploymentScopesOptionalParams): Promise<GetDeploymentScopesResponse>;
+    getInfo(options?: GetInfoOptionalParams): Promise<GetInfoResponse>;
     getOrganization(organizationId: string, options?: GetOrganizationOptionalParams): Promise<GetOrganizationResponse>;
     getOrganizations(options?: GetOrganizationsOptionalParams): Promise<GetOrganizationsResponse>;
     getOrganizationUser(userId: string, organizationId: string, options?: GetOrganizationUserOptionalParams): Promise<GetOrganizationUserResponse>;
@@ -1692,6 +1700,24 @@ export class TeamCloudContext extends coreClient.ServiceClient {
     // (undocumented)
     $host: string;
     constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
+}
+
+// @public (undocumented)
+export interface TeamCloudInformation {
+    // (undocumented)
+    version?: string;
+}
+
+// @public (undocumented)
+export interface TeamCloudInformationDataResult {
+    // (undocumented)
+    code?: number;
+    // (undocumented)
+    data?: TeamCloudInformation;
+    // (undocumented)
+    location?: string;
+    // (undocumented)
+    status?: string;
 }
 
 // @public

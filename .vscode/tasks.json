@@ -198,8 +198,11 @@
             "dockerBuild": {
                 "context": "${workspaceFolder}/src/TeamCloud.API",
                 "dockerfile": "${workspaceFolder}/src/TeamCloud.API/Dockerfile",
-                "tag": "teamcloud.azurecr.io/teamcloud/api:${input:imageTagVersion}",
-                "customOptions": "-t \"teamcloud.azurecr.io/teamcloud/api:latest\"",
+                "tag": "teamcloud.azurecr.io/${input:imageRepository}/api:${input:imageTagVersion}",
+                "customOptions": "-t \"teamcloud.azurecr.io/${input:imageRepository}/api:latest\"",
+                "buildArgs": {
+                    "image_version": "${input:imageTagVersion}"
+                },
                 "labels": {
                     "includeDefaults": false
                 }
@@ -211,8 +214,11 @@
             "dockerBuild": {
                 "context": "${workspaceFolder}/src/TeamCloud.Orchestrator",
                 "dockerfile": "${workspaceFolder}/src/TeamCloud.Orchestrator/Dockerfile",
-                "tag": "teamcloud.azurecr.io/teamcloud/orchestrator:${input:imageTagVersion}",
-                "customOptions": "-t \"teamcloud.azurecr.io/teamcloud/orchestrator:latest\"",
+                "tag": "teamcloud.azurecr.io/${input:imageRepository}/orchestrator:${input:imageTagVersion}",
+                "customOptions": "-t \"teamcloud.azurecr.io/${input:imageRepository}/orchestrator:latest\"",
+                "buildArgs": {
+                    "image_version": "${input:imageTagVersion}"
+                },
                 "labels": {
                     "includeDefaults": false
                 }
@@ -224,8 +230,11 @@
             "dockerBuild": {
                 "context": "${workspaceFolder}/web",
                 "dockerfile": "${workspaceFolder}/web/Dockerfile",
-                "tag": "teamcloud.azurecr.io/teamcloud/website:${input:imageTagVersion}",
-                "customOptions": "-t \"teamcloud.azurecr.io/teamcloud/website:latest\"",
+                "tag": "teamcloud.azurecr.io/${input:imageRepository}/website:${input:imageTagVersion}",
+                "customOptions": "-t \"teamcloud.azurecr.io/${input:imageRepository}/website:latest\"",
+                "buildArgs": {
+                    "image_version": "${input:imageTagVersion}"
+                },
                 "labels": {
                     "includeDefaults": false
                 }
@@ -236,7 +245,7 @@
             "command": "docker",
             "args": [
                 "push",
-                "teamcloud.azurecr.io/teamcloud/website:${input:imageTagVersion}"
+                "teamcloud.azurecr.io/${input:imageRepository}/website:${input:imageTagVersion}"
             ],
             "dependsOn": []
         },
@@ -245,11 +254,54 @@
             "command": "docker",
             "args": [
                 "push",
-                "teamcloud.azurecr.io/teamcloud/website:latest"
+                "teamcloud.azurecr.io/${input:imageRepository}/website:latest"
             ],
             "dependsOn": [
-                "acr: login"
-            ]
+                "docker: push web"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "docker: push api",
+            "command": "docker",
+            "args": [
+                "push",
+                "teamcloud.azurecr.io/${input:imageRepository}/api:${input:imageTagVersion}"
+            ],
+            "dependsOn": []
+        },
+        {
+            "label": "docker: push api (latest)",
+            "command": "docker",
+            "args": [
+                "push",
+                "teamcloud.azurecr.io/${input:imageRepository}/api:latest"
+            ],
+            "dependsOn": [
+                "docker: push api"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "docker: push orchestrator",
+            "command": "docker",
+            "args": [
+                "push",
+                "teamcloud.azurecr.io/${input:imageRepository}/orchestrator:${input:imageTagVersion}"
+            ],
+            "dependsOn": []
+        },
+        {
+            "label": "docker: push orchestrator (latest)",
+            "command": "docker",
+            "args": [
+                "push",
+                "teamcloud.azurecr.io/${input:imageRepository}/orchestrator:latest"
+            ],
+            "dependsOn": [
+                "docker: push orchestrator"
+            ],
+            "problemMatcher": []
         },
         {
             "label": "acr: login",
@@ -259,7 +311,8 @@
                 "login",
                 "-n",
                 "teamcloud"
-            ]
+            ],
+            "problemMatcher": []
         },
         {
             "label": "cli: setup azdev",
@@ -269,7 +322,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "presentation": {
-                "showReuseMessage": false,
+                "showReuseMessage": false
             },
             "dependsOrder": "sequence",
             "dependsOn": [
@@ -286,7 +339,7 @@
                 "cwd": "${workspaceFolder}"
             },
             "presentation": {
-                "showReuseMessage": false,
+                "showReuseMessage": false
             }
         },
         {
@@ -302,7 +355,7 @@
                 "cwd": "${workspaceFolder}/client"
             },
             "presentation": {
-                "showReuseMessage": false,
+                "showReuseMessage": false
             }
         },
         {
@@ -317,7 +370,7 @@
                 "cwd": "${workspaceFolder}/client"
             },
             "presentation": {
-                "showReuseMessage": false,
+                "showReuseMessage": false
             },
             "problemMatcher": []
         },
@@ -334,12 +387,22 @@
                 "cwd": "${workspaceFolder}/src/TeamCloud.Orchestrator"
             },
             "presentation": {
-                "showReuseMessage": false,
+                "showReuseMessage": false
             },
             "problemMatcher": []
         }
     ],
     "inputs": [
+        {
+            "id": "imageRepository",
+            "type": "pickString",
+            "description": "Repository name to push the image.",
+            "default": "teamcloud-dev",
+            "options": [
+                "teamcloud-dev",
+                "teamcloud"
+            ]
+        },
         {
             "id": "imageTagVersion",
             "type": "promptString",

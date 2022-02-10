@@ -2,15 +2,16 @@
 // Licensed under the MIT License.
 
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Nav, INavLinkGroup, Stack, getTheme } from '@fluentui/react';
+import { useUrl } from '../../hooks';
 
 export interface IProjectSettingsNavProps { }
 
 export const ProjectSettingsNav: React.FC<IProjectSettingsNavProps> = (props) => {
 
     const navigate = useNavigate();
-    const { orgId, projectId, settingId } = useParams() as { orgId: string, projectId: string, settingId: string };
+    const { orgId, projectId, settingId } = useUrl() as { orgId: string, projectId: string, settingId: string };
 
     const _navLinkGroups = (): INavLinkGroup[] => [{
         links: (orgId && projectId) ? [

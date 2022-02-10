@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { DefaultButton, PrimaryButton, Stack, TextField } from '@fluentui/react';
 import { ProjectTemplateDefinition } from 'teamcloud';
+import { useUrl } from '../hooks';
 
 export interface IProjectTemplateFormProps {
     embedded?: boolean;
@@ -15,7 +16,7 @@ export interface IProjectTemplateFormProps {
 export const ProjectTemplateForm: React.FC<IProjectTemplateFormProps> = (props) => {
 
     const navigate = useNavigate();
-    const { orgId } = useParams() as { orgId: string };
+    const { orgId } = useUrl() as { orgId: string };
 
     // Project Template
     const [templateName, setTemplateName] = useState<string | undefined>(props.embedded ? 'Sample Project Template' : undefined);

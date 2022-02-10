@@ -2495,6 +2495,19 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+  /:
+    get:
+      tags:
+        - Root
+      summary: Gets information about this TeamCloud deployment.
+      operationId: GetInfo
+      responses:
+        '200':
+          description: Returns information about this TeamCloud deployment.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamCloudInformationDataResult'
   '/orgs/{organizationId}/projects/{projectId}/schedules':
     get:
       tags:
@@ -4268,6 +4281,28 @@ components:
           type: string
           nullable: true
       additionalProperties: false
+    TeamCloudInformation:
+      type: object
+      properties:
+        version:
+          type: string
+          nullable: true
+      additionalProperties: false
+    TeamCloudInformationDataResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        status:
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/TeamCloudInformation'
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
     User:
       required:
         - id
@@ -4397,8 +4432,8 @@ components:
           tokenUrl: https://login.microsoftonline.com//oauth2/v2.0/token
           scopes:
             openid: Sign you in
-            http://TeamCloud.aztcclitestsix/user_impersonation: Access the TeamCloud API
+            http://TeamCloud.DEMO.Web/user_impersonation: Access the TeamCloud API
 security:
   - oauth2:
       - openid
-      - http://TeamCloud.aztcclitestsix/user_impersonation
+      - http://TeamCloud.DEMO.Web/user_impersonation

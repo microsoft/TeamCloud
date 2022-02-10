@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CheckboxVisibility, DetailsList, DetailsListLayoutMode, FontIcon, getTheme, IColumn, IconButton, IContextualMenuProps, IDetailsRowProps, IIconProps, IRenderFunction, Link, SelectionMode, Stack, Text } from '@fluentui/react';
 import { ComponentTask, KnownComponentTaskState } from 'teamcloud';
-import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask } from '../hooks';
+import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useProjectComponentTemplates, useProjectComponentTask, useCancelProjectComponentTask, useRerunProjectComponentTask, useUrl } from '../hooks';
 import { ComponentTaskConsole } from '.';
 import { isActiveComponentTaskState, isFinalComponentTaskState } from '../Utils';
-import { useCancelProjectComponentTask } from '../hooks/useCancelProjectComponentTask';
-import { useRerunProjectComponentTask } from '../hooks/useRerunProjectComponentTask';
 
 export interface IComponentTaskListProps { }
 
@@ -18,7 +16,7 @@ export const ComponentTaskList: React.FunctionComponent<IComponentTaskListProps>
     const theme = getTheme();
     const navigate = useNavigate();
 
-    const { orgId, projectId, itemId, subitemId } = useParams() as { orgId: string, projectId: string, itemId: string, subitemId: string };
+    const { orgId, projectId, itemId, subitemId } = useUrl() as { orgId: string, projectId: string, itemId: string, subitemId: string };
 
     const { data: org } = useOrg();
     const { data: project } = useProject();

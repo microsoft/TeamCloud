@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Orchestrator.Command.Activities;
 
@@ -23,6 +23,7 @@ public sealed class CommandOrchestration
         this.commandHandlers = commandHandlers;
     }
 
+    // [Deterministic]
     [FunctionName(nameof(CommandOrchestration))]
     public async Task Execute(
         [OrchestrationTrigger] IDurableOrchestrationContext orchestratorContext,

@@ -7,13 +7,15 @@ param resourceManagerIdentityClientId string
 @description('The ClientSecret of the service principals used to authenticate users and create new Resource Groups for Projecs.')
 param resourceManagerIdentityClientSecret string
 
+param teamcloudImageRepo string = 'teamcloud'
+
 @description('The ClientId of the Managed Application used to authenticate users. See https://aka.ms/tcwebclientid for details.')
 param reactAppMsalClientId string
 
 @description('Scope.')
 param reactAppMsalScope string = 'http://TeamCloud.Web/user_impersonation'
 
-param reactAppVersion string = ''
+param version string = ''
 
 param doSleepHack bool = false
 
@@ -90,6 +92,7 @@ module api 'apiApp.bicep' = {
     webAppName: name
     appConfigName: config.outputs.name
     appInsightsName: ai.outputs.name
+    teamcloudImageRepo: teamcloudImageRepo
   }
   dependsOn: [
     orchestratorKey
@@ -104,6 +107,7 @@ module orchestrator 'functionApp.bicep' = {
     appInsightsName: ai.outputs.name
     taskhubStorageName: storage_th.outputs.name
     webjobStorageName: storage_wj.outputs.name
+    teamcloudImageRepo: teamcloudImageRepo
   }
   dependsOn: [
     cosmos
@@ -154,8 +158,8 @@ module web 'website.bicep' = {
     reactAppMsalClientId: reactAppMsalClientId
     reactAppMsalScope: reactAppMsalScope
     reactAppTcApiUrl: api.outputs.url
-    reactAppVersion: reactAppVersion
     webAppName: name
+    teamcloudImageRepo: teamcloudImageRepo
   }
 }
 
@@ -185,6 +189,7 @@ module commonConfigs 'appConfigKeys.bicep' = {
   params: {
     configName: config.outputs.name
     keyValues: {
+      'TeamCloud:Version': version
       'Azure:TenantId': subscription().tenantId
       'Azure:SubscriptionId': subscription().subscriptionId
       'Azure:ResourceManager:ClientId': resourceManagerIdentityClientId

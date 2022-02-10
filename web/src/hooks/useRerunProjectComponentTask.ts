@@ -1,7 +1,7 @@
 import { useQueryClient, useMutation } from "react-query";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { ComponentTask } from "teamcloud";
-import { useOrg, useProject, useProjectComponent, useProjectComponentTasks } from ".";
+import { useOrg, useProject, useProjectComponent, useProjectComponentTasks, useUrl } from ".";
 import { api, onResponse } from "../API";
 
 
@@ -9,7 +9,7 @@ export const useRerunProjectComponentTask = () => {
 
     const navigate = useNavigate();
 
-    const { orgId, projectId, itemId } = useParams() as { orgId: string, projectId: string, itemId: string };
+    const { orgId, projectId, itemId } = useUrl() as { orgId: string, projectId: string, itemId: string };
 
     const { data: org } = useOrg();
     const { data: project } = useProject();

@@ -3,13 +3,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { Checkbox, IColumn, PersonaSize, Stack, Text } from '@fluentui/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Component, ComponentTaskTemplate, ComponentTemplate, Schedule } from 'teamcloud';
 import { ContentList, UserPersona } from '.';
-import { useProjectMembers, useProjectComponentTemplates, useProjectComponents, useProjectSchedules } from '../hooks';
+import { useProjectMembers, useProjectComponentTemplates, useProjectComponents, useProjectSchedules, useUrl } from '../hooks';
+import { shiftToLocal } from '../model';
 
 import collaboration from '../img/MSC17_collaboration_010_noBG.png'
-import { shiftToLocal } from '../model';
 
 export interface IScheduleListProps {
     onItemInvoked?: (schedule: Schedule, component: Component) => void;
@@ -18,7 +18,7 @@ export interface IScheduleListProps {
 export const ScheduleList: React.FC<IScheduleListProps> = (props) => {
 
     const navigate = useNavigate();
-    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const { orgId, projectId } = useUrl() as { orgId: string, projectId: string };
 
     const [items, setItems] = useState<{ schedule: Schedule, tasks?: { component?: Component, template?: ComponentTemplate, taskTemplate?: ComponentTaskTemplate }[] }[]>()
 

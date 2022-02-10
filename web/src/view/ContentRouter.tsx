@@ -10,7 +10,6 @@ export const ContentRouter: React.FC = () => (
     <div style={{ height: "100%", overflow: "scroll", overflowX: "hidden", overflowY: "auto" }}>
         <ErrorHandler>
             <Routes>
-                <Route path='' element={<></>} />
                 <Route path='orgs/new' element={<NewOrgView {...{}} />} />
                 <Route path='orgs/:orgId' element={<ProjectsView {...{}} />} />
                 <Route path='orgs/:orgId/projects/new' element={<NewProjectView {...{}} />} />

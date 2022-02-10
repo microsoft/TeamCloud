@@ -3,12 +3,12 @@
  *  Licensed under the MIT License.
  */
 
+using System;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using System;
 
 namespace TeamCloud.API.Auth.Schemes;
 

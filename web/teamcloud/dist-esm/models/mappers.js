@@ -2737,6 +2737,56 @@ export const ProjectTemplateDataResult = {
         }
     }
 };
+export const TeamCloudInformationDataResult = {
+    type: {
+        name: "Composite",
+        className: "TeamCloudInformationDataResult",
+        modelProperties: {
+            code: {
+                serializedName: "code",
+                type: {
+                    name: "Number"
+                }
+            },
+            status: {
+                serializedName: "status",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            data: {
+                serializedName: "data",
+                type: {
+                    name: "Composite",
+                    className: "TeamCloudInformation"
+                }
+            },
+            location: {
+                serializedName: "location",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
+export const TeamCloudInformation = {
+    type: {
+        name: "Composite",
+        className: "TeamCloudInformation",
+        modelProperties: {
+            version: {
+                serializedName: "version",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            }
+        }
+    }
+};
 export const ScheduleListDataResult = {
     type: {
         name: "Composite",

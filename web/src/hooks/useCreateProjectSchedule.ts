@@ -2,16 +2,16 @@
 // Licensed under the MIT License.
 
 import { useMutation, useQueryClient } from 'react-query'
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ScheduleDefinition } from 'teamcloud';
 import { api, onResponse } from '../API';
-import { useOrg, useProject, useProjectSchedules } from '.';
+import { useOrg, useProject, useProjectSchedules, useUrl } from '.';
 
 export const useCreateProjectSchedule = () => {
 
     const navigate = useNavigate();
 
-    const { orgId, projectId } = useParams() as { orgId: string, projectId: string };
+    const { orgId, projectId } = useUrl() as { orgId: string, projectId: string };
 
     const { data: org } = useOrg();
     const { data: project } = useProject();

@@ -84,11 +84,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
     parameters.append(f"resourceManagerIdentityClientId={resource_manager_sp['appId']}")
     parameters.append(f"resourceManagerIdentityClientSecret={resource_manager_sp['password']}")
     parameters.append(f'reactAppMsalClientId={client_id}')
-
-    if version:
-        parameters.append(f'reactAppVersion={version}')
-    elif index_file:
-        parameters.append('reactAppVersion=local')
+    parameters.append(f'version={version}')
 
     if scope:
         parameters.append(f'reactAppMsalScope={scope}')
@@ -113,8 +109,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
             'IMPORTANT: --skip-app-deployment prevented source code for the TeamCloud instance deployment. '
             'To deploy the applications use `az tc upgrade`.')
     else:
-        version_string = version or 'the latest version'
-        hook.add(message=f'Successfully created TeamCloud instance ({version_string})')
+        hook.add(message=f'Successfully created TeamCloud instance ({version})')
 
     hook.end(message=' ')
     logger.warning(' ')
@@ -124,7 +119,7 @@ def teamcloud_deploy(cmd, name, client_id, location=None, resource_group_name='T
 
     result = {
         'deployed': not skip_app_deployment,
-        'version': version or 'latest',
+        'version': version,
         'name': name,
         'base_url': api_url,
         'location': rg.location,

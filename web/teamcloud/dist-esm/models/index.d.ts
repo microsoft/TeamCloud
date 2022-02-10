@@ -464,6 +464,15 @@ export interface ProjectTemplateDataResult {
     data?: ProjectTemplate;
     location?: string;
 }
+export interface TeamCloudInformationDataResult {
+    code?: number;
+    status?: string;
+    data?: TeamCloudInformation;
+    location?: string;
+}
+export interface TeamCloudInformation {
+    version?: string;
+}
 export interface ScheduleListDataResult {
     code?: number;
     status?: string;
@@ -1248,6 +1257,11 @@ export interface UpdateProjectUserMeOptionalParams extends coreClient.OperationO
 }
 /** Contains response data for the updateProjectUserMe operation. */
 export declare type UpdateProjectUserMeResponse = UserDataResult;
+/** Optional parameters. */
+export interface GetInfoOptionalParams extends coreClient.OperationOptions {
+}
+/** Contains response data for the getInfo operation. */
+export declare type GetInfoResponse = TeamCloudInformationDataResult;
 /** Optional parameters. */
 export interface GetSchedulesOptionalParams extends coreClient.OperationOptions {
 }
