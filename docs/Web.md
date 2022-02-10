@@ -1,8 +1,8 @@
 # TeamCloud Web Client
 
-Although the [TeamCloud CLI](CLI.md) exposes all functionality provided by TeamCloud, you can also deploy a client website to interact with your instance.
+The web portal exposes all functionality provided by TeamCloud.
 
-![TeamCloud website](img/tc_web_app_0.png)
+<!-- ![TeamCloud website](img/tc_web_app_0.png) -->
 
 ## App registration
 
@@ -47,10 +47,9 @@ Next, configure the app registration with a Redirect URI (and scope) to specify 
 
 1. Under **Manage**, select **Authentication**, and then select **Add a platform**.
 2. Under **Web applications**, select **Single-page application** tile.
-3. Under **Redirect URIs**, enter a [redirect URI][reply-url].  
-   **:bangbang: IMPORTANT :bangbang:**  
-   **Your redirect URI is the name (subdomain) of your TeamCloud instance with `-web` appended to the end.**  
-   **For example, if your TeamCloud instance is at `https://myteamcloud.azurewebsites.net`, your redirect URI will be `https://myteamcloud-web.azurewebsites.net`**
+3. Under **Redirect URIs**, enter a [redirect URI][reply-url].
+   **:bangbang: IMPORTANT :bangbang:**
+   **Your redirect URI is the name (subdomain) of your TeamCloud instance.**
 4. Leave **Logout URL** empty.
 5. Under **Implicit grant**, make sure both **Access tokens** and **ID tokens** are **selected**.
 6. Select **Configure** to finish adding the redirect URI.
