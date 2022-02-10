@@ -41,12 +41,12 @@ public sealed class ComponentDeploymentMonitorActivity
         if (context is null)
             throw new ArgumentNullException(nameof(context));
 
-        var componentDeployment = context.GetInput<Input>().ComponentTask;
+        var componentTask = context.GetInput<Input>().ComponentTask;
 
         try
         {
 
-            if (AzureResourceIdentifier.TryParse(componentDeployment.ResourceId, out var resourceId)
+            if (AzureResourceIdentifier.TryParse(componentTask.ResourceId, out var resourceId)
                 && await azureResourceService.ExistsResourceAsync(resourceId.ToString()).ConfigureAwait(false))
             {
                 var session = await azureResourceService.AzureSessionService
@@ -58,33 +58,33 @@ public sealed class ComponentDeploymentMonitorActivity
                     .ConfigureAwait(false);
 
                 var runner = group.Containers
-                    .SingleOrDefault(c => c.Key.Equals("runner", StringComparison.OrdinalIgnoreCase))
+                    .SingleOrDefault(c => c.Key.Equals(componentTask.Id, StringComparison.OrdinalIgnoreCase))
                     .Value;
 
                 if (runner?.InstanceView is null)
                 {
-                    componentDeployment.TaskState = TaskState.Initializing;
+                    componentTask.TaskState = TaskState.Initializing;
                 }
                 else if (runner.InstanceView.CurrentState is not null)
                 {
-                    componentDeployment.TaskState = TaskState.Processing;
-                    componentDeployment.ExitCode = runner.InstanceView.CurrentState.ExitCode;
-                    componentDeployment.Started = runner.InstanceView.CurrentState.StartTime;
-                    componentDeployment.Finished = runner.InstanceView.CurrentState.FinishTime;
+                    componentTask.TaskState = TaskState.Processing;
+                    componentTask.ExitCode = runner.InstanceView.CurrentState.ExitCode;
+                    componentTask.Started = runner.InstanceView.CurrentState.StartTime;
+                    componentTask.Finished = runner.InstanceView.CurrentState.FinishTime;
 
-                    if (componentDeployment.ExitCode.HasValue)
+                    if (componentTask.ExitCode.HasValue)
                     {
-                        componentDeployment.TaskState = componentDeployment.ExitCode == 0
+                        componentTask.TaskState = componentTask.ExitCode == 0
                             ? TaskState.Succeeded   // ExitCode indicates successful provisioning
                             : TaskState.Failed;     // ExitCode indicates failed provisioning
                     }
                     else if (runner.InstanceView.CurrentState.State?.Equals("Terminated", StringComparison.OrdinalIgnoreCase) ?? false)
                     {
                         // container instance was terminated without exit code
-                        componentDeployment.TaskState = TaskState.Failed;
+                        componentTask.TaskState = TaskState.Failed;
                     }
 
-                    if (componentDeployment.TaskState == TaskState.Failed && !componentDeployment.ExitCode.HasValue)
+                    if (componentTask.TaskState == TaskState.Failed && !componentTask.ExitCode.HasValue)
                     {
                         var output = new StringBuilder();
 
@@ -92,7 +92,7 @@ public sealed class ComponentDeploymentMonitorActivity
                         output.AppendLine(await group.GetLogContentAsync(runner.Name).ConfigureAwait(false));
 
                         var project = await projectRepository
-                            .GetAsync(componentDeployment.Organization, componentDeployment.ProjectId)
+                            .GetAsync(componentTask.Organization, componentTask.ProjectId)
                             .ConfigureAwait(false);
 
                         if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
@@ -106,13 +106,13 @@ public sealed class ComponentDeploymentMonitorActivity
                                 var outputDirectory = ".output";
 
                                 var fileClient = await storage
-                                    .CreateShareFileClientAsync(componentDeployment.ComponentId, $"{outputDirectory}/{componentDeployment.Id}")
+                                    .CreateShareFileClientAsync(componentTask.ComponentId, $"{outputDirectory}/{componentTask.Id}")
                                     .ConfigureAwait(false);
 
                                 if (!await fileClient.ExistsAsync().ConfigureAwait(false))
                                 {
                                     await storage
-                                        .EnsureDirectoryPathAsync(componentDeployment.ComponentId, outputDirectory)
+                                        .EnsureDirectoryPathAsync(componentTask.ComponentId, outputDirectory)
                                         .ConfigureAwait(false);
 
                                     var logBuffer = Encoding.Default.GetBytes(output.ToString());
@@ -130,8 +130,8 @@ public sealed class ComponentDeploymentMonitorActivity
                     }
                 }
 
-                componentDeployment = await componentTaskRepository
-                    .SetAsync(componentDeployment)
+                componentTask = await componentTaskRepository
+                    .SetAsync(componentTask)
                     .ConfigureAwait(false);
             }
         }
@@ -140,7 +140,7 @@ public sealed class ComponentDeploymentMonitorActivity
             throw exc.AsSerializable();
         }
 
-        return componentDeployment;
+        return componentTask;
     }
 
     internal struct Input

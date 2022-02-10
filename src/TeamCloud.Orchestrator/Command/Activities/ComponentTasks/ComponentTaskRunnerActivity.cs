@@ -157,7 +157,7 @@ public sealed class ComponentTaskRunnerActivity
                 try
                 {
                     var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
-                        .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
+                        .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{component.Id}")
                         .SetQueryParam("api-version", "2021-09-01")
                         .WithOAuthBearerToken(token)
                         .PutJsonAsync(componentRunnerDefinition)
@@ -449,7 +449,7 @@ public sealed class ComponentTaskRunnerActivity
         {
             new
             {
-                name = "runner",
+                name = componentTask.Id,
                 properties = new
                 {
                     image = await GetContainerImageAsync(organization, componentTemplate).ConfigureAwait(false),
