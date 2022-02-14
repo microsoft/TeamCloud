@@ -268,7 +268,7 @@ public class CommandTrigger
                 else
                 {
                     commandResult = await commandHandler
-                        .HandleAsync(command, commandCollector, durableClient, null, log ?? NullLogger.Instance)
+                        .HandleAsync(command, commandCollector, null, log ?? NullLogger.Instance)
                         .ConfigureAwait(false);
 
                     if (!commandResult.RuntimeStatus.IsFinal())

@@ -39,7 +39,7 @@ public sealed class OrganizationUserCommandHandler : CommandHandler,
 
     public override bool Orchestration => false;
 
-    public async Task<ICommandResult> HandleAsync(OrganizationUserCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(OrganizationUserCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));
@@ -77,7 +77,7 @@ public sealed class OrganizationUserCommandHandler : CommandHandler,
         return commandResult;
     }
 
-    public async Task<ICommandResult> HandleAsync(OrganizationUserUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(OrganizationUserUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));
@@ -119,7 +119,7 @@ public sealed class OrganizationUserCommandHandler : CommandHandler,
         return commandResult;
     }
 
-    public async Task<ICommandResult> HandleAsync(OrganizationUserDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(OrganizationUserDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));

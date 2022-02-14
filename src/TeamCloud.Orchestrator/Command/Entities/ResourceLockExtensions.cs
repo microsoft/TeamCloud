@@ -14,6 +14,9 @@ namespace TeamCloud.Orchestrator.Command.Entities;
 
 public static class ResourceLockExtensions
 {
+    internal static Task CleanupResourceLocksAsync(this IDurableOrchestrationContext orchestrationContext)
+        => orchestrationContext.CallActivityAsync(nameof(ResourceLockCleanupActivity), null);
+
     private static EntityId GetEntityId(this IDurableOrchestrationContext orchestrationContext, Type entityType, string identifier, params string[] qualifiers)
     {
         if (entityType is null)
