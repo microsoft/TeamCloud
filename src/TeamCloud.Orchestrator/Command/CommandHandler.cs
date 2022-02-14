@@ -27,7 +27,7 @@ public abstract class CommandHandler : ICommandHandler
     private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, MethodInfo>> HandleMethodCache = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, MethodInfo>>();
 
     private MethodInfo GetHandleMethod(ICommand command) => HandleMethodCache
-        .GetOrAdd(GetType(), handlerType => new ConcurrentDictionary<Type, MethodInfo>())
+        .GetOrAdd(GetType(), _ => new ConcurrentDictionary<Type, MethodInfo>())
         .GetOrAdd(command.GetType(), commandType =>
     {
         var handlerInterface = typeof(ICommandHandler<>)
@@ -58,10 +58,7 @@ public abstract class CommandHandler : ICommandHandler
             throw new ArgumentNullException(nameof(command));
 
         if (CanHandle(command))
-        {
-            return (Task<ICommandResult>)GetHandleMethod(command)
-                .Invoke(this, new object[] { command, commandQueue, orchestrationContext, log });
-        }
+            return (Task<ICommandResult>)GetHandleMethod(command).Invoke(this, new object[] { command, commandQueue, orchestrationContext, log });
 
         throw new NotImplementedException($"Missing orchestrator command handler implementation ICommandHandler<{command.GetTypeName(prettyPrint: true)}> at {GetType()}");
     }
