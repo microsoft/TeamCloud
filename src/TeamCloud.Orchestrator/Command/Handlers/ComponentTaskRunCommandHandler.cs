@@ -27,7 +27,7 @@ public sealed class ComponentTaskRunCommandHandler : CommandHandler<ComponentTas
 {
     public override bool Orchestration => true;
 
-    public override async Task<ICommandResult> HandleAsync(ComponentTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public override async Task<ICommandResult> HandleAsync(ComponentTaskRunCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
 
     {
         if (command is null)

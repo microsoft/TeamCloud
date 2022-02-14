@@ -19,11 +19,15 @@ public sealed class CommandCollector : IAsyncCollector<ICommand>
     private readonly ICommand commandContext;
     private readonly IDurableOrchestrationContext orchestrationContext;
 
-    public CommandCollector(IAsyncCollector<ICommand> collector, ICommand commandContext = null, IDurableOrchestrationContext orchestrationContext = null)
+    public CommandCollector(IAsyncCollector<ICommand> collector, ICommand commandContext = null)
     {
         this.collector = collector ?? throw new ArgumentNullException(nameof(collector));
         this.commandContext = commandContext;
-        this.orchestrationContext = orchestrationContext;
+    }
+    public CommandCollector(IDurableOrchestrationContext orchestrationContext, ICommand commandContext = null)
+    {
+        this.orchestrationContext = orchestrationContext ?? throw new ArgumentNullException(nameof(orchestrationContext));
+        this.commandContext = commandContext;
     }
 
     public async Task AddAsync(ICommand item, CancellationToken cancellationToken = default)
@@ -33,17 +37,21 @@ public sealed class CommandCollector : IAsyncCollector<ICommand>
 
         item.ParentId = commandContext?.CommandId ?? Guid.Empty;
 
-        if (orchestrationContext is null)
+        if (collector is not null)
         {
             await collector
                 .AddAsync(item, cancellationToken)
                 .ConfigureAwait(false);
         }
-        else
+        else if (orchestrationContext is not null)
         {
             await orchestrationContext
-                .CallActivityAsync(nameof(CommandCollectActivity), new CommandCollectActivity.Input() { Command = item })
+                .CallActivityAsync(nameof(CommandEnqueueActivity), new CommandEnqueueActivity.Input() { Command = item })
                 .ConfigureAwait(true);
+        }
+        else
+        {
+            throw new NotSupportedException();
         }
     }
 

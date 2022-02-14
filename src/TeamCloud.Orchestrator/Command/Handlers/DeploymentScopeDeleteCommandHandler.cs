@@ -26,7 +26,7 @@ public sealed class DeploymentScopeDeleteCommandHandler : CommandHandler,
 
     public override bool Orchestration => false;
 
-    public async Task<ICommandResult> HandleAsync(DeploymentScopeDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(DeploymentScopeDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));

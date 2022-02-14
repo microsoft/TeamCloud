@@ -13,9 +13,9 @@ using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Activities;
 
-public sealed class CommandCollectActivity
+public sealed class CommandEnqueueActivity
 {
-    [FunctionName(nameof(CommandCollectActivity))]
+    [FunctionName(nameof(CommandEnqueueActivity))]
     public async Task RunActivity(
         [ActivityTrigger] IDurableActivityContext activityContext,
         [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandCollector,
@@ -40,7 +40,7 @@ public sealed class CommandCollectActivity
         }
         catch (Exception exc)
         {
-            log.LogError(exc, $"Failed to collect command: {exc.Message}");
+            log.LogError(exc, $"Failed to enqeueu command: {exc.Message}");
 
             throw exc.AsSerializable();
         }

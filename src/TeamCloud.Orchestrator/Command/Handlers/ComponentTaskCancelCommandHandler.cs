@@ -17,6 +17,7 @@ using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
+using TeamCloud.Orchestrator.Command.Entities;
 
 namespace TeamCloud.Orchestrator.Command.Handlers;
 
@@ -33,7 +34,7 @@ public sealed class ComponentTaskCancelCommandHandler : CommandHandler<Component
 
     public override bool Orchestration => false;
 
-    public override async Task<ICommandResult> HandleAsync(ComponentTaskCancelCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public override async Task<ICommandResult> HandleAsync(ComponentTaskCancelCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));
@@ -59,14 +60,14 @@ public sealed class ComponentTaskCancelCommandHandler : CommandHandler<Component
             }
             else
             {
-                var status = await orchestrationClient
-                    .GetStatusAsync(commandResult.Result.Id, showInput: false)
+                var status = await orchestrationContext
+                    .GetCommandStatusAsync(commandResult.Result, showInput: false)
                     .ConfigureAwait(Orchestration);
 
                 if (status is not null && status.RuntimeStatus.IsActive())
                 {
-                    await orchestrationClient
-                        .TerminateAsync(commandResult.Result.Id, $"Canceled by user {command.User.DisplayName}")
+                    await orchestrationContext
+                        .TerminateCommandAsync(commandResult.Result, $"Canceled by user {command.User.DisplayName}")
                         .ConfigureAwait(Orchestration);
                 }
 
@@ -102,11 +103,9 @@ public sealed class ComponentTaskCancelCommandHandler : CommandHandler<Component
         }
         finally
         {
-            // Get rid of orphan locks to unblock waiting orchestrations
-
-            await orchestrationClient
-                .CleanEntityStorageAsync(true, true, CancellationToken.None)
-                .ConfigureAwait(false);
+            await orchestrationContext
+                .CleanupResourceLocksAsync()
+                .ConfigureAwait(Orchestration);
         }
 
         return commandResult;

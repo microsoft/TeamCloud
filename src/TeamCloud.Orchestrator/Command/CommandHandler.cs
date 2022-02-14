@@ -15,7 +15,7 @@ namespace TeamCloud.Orchestrator.Command;
 public abstract class CommandHandler<TCommand> : CommandHandler, ICommandHandler<TCommand>
     where TCommand : class, ICommand
 {
-    public abstract Task<ICommandResult> HandleAsync(TCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
+    public abstract Task<ICommandResult> HandleAsync(TCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log);
 }
 
 public abstract class CommandHandler : ICommandHandler
@@ -35,7 +35,7 @@ public abstract class CommandHandler : ICommandHandler
             .IsAssignableFrom(GetType());
     }
 
-    public virtual Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public virtual Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));
@@ -44,10 +44,10 @@ public abstract class CommandHandler : ICommandHandler
         {
             var handleMethod = typeof(ICommandHandler<>)
                 .MakeGenericType(command.GetType())
-                .GetMethod(nameof(HandleAsync), new Type[] { command.GetType(), typeof(IAsyncCollector<ICommand>), typeof(IDurableClient), typeof(IDurableOrchestrationContext), typeof(ILogger) });
+                .GetMethod(nameof(HandleAsync), new Type[] { command.GetType(), typeof(IAsyncCollector<ICommand>), typeof(IDurableOrchestrationContext), typeof(ILogger) });
 
             return (Task<ICommandResult>)handleMethod
-                .Invoke(this, new object[] { command, commandQueue, orchestrationClient, orchestrationContext, log });
+                .Invoke(this, new object[] { command, commandQueue, orchestrationContext, log });
         }
 
         throw new NotImplementedException($"Missing orchestrator command handler implementation ICommandHandler<{command.GetTypeName(prettyPrint: true)}> at {GetType()}");

@@ -17,11 +17,11 @@ public interface ICommandHandler
 
     bool CanHandle(ICommand command);
 
-    Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
+    Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log);
 }
 
 public interface ICommandHandler<T> : ICommandHandler
     where T : class, ICommand
 {
-    Task<ICommandResult> HandleAsync(T command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log);
+    Task<ICommandResult> HandleAsync(T command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log);
 }

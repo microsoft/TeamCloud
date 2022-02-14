@@ -25,7 +25,7 @@ public sealed class OrganizationDeployCommandHandler : CommandHandler<Organizati
 {
     public override bool Orchestration => true;
 
-    public override async Task<ICommandResult> HandleAsync(OrganizationDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public override async Task<ICommandResult> HandleAsync(OrganizationDeployCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));
