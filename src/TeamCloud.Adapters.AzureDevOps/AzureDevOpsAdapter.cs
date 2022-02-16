@@ -53,6 +53,7 @@ using ProjectReference = Microsoft.VisualStudio.Services.ServiceEndpoints.WebApi
 using ServiceEndpoint = Microsoft.VisualStudio.Services.ServiceEndpoints.WebApi.ServiceEndpoint;
 using User = TeamCloud.Model.Data.User;
 using UserType = TeamCloud.Model.Data.UserType;
+using VisualStudio = Microsoft.VisualStudio;
 
 namespace TeamCloud.Adapters.AzureDevOps;
 
@@ -576,14 +577,14 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
 
                 properties.Add(new JsonPatchOperation()
                 {
-                    Operation = Microsoft.VisualStudio.Services.WebApi.Patch.Operation.Add,
+                    Operation = VisualStudio.Services.WebApi.Patch.Operation.Add,
                     Path = $"/TeamCloud.Organization",
                     Value = $"{componentProject.Organization}"
                 });
 
                 properties.Add(new JsonPatchOperation()
                 {
-                    Operation = Microsoft.VisualStudio.Services.WebApi.Patch.Operation.Add,
+                    Operation = VisualStudio.Services.WebApi.Patch.Operation.Add,
                     Path = $"/TeamCloud.Project",
                     Value = $"{componentProject.Id}"
                 });

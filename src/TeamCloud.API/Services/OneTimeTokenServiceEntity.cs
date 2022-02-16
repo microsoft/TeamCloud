@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Microsoft.Azure.Cosmos.Table;
+using TTableEntity = Microsoft.Azure.Cosmos.Table.TableEntity;
 
 namespace TeamCloud.API.Services;
 
@@ -60,8 +61,8 @@ public class OneTimeTokenServiceEntity : ITableEntity
     string ITableEntity.ETag { get; set; }
 
     void ITableEntity.ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
-        => Microsoft.Azure.Cosmos.Table.TableEntity.ReadUserObject(this, properties, operationContext);
+        => TTableEntity.ReadUserObject(this, properties, operationContext);
 
     IDictionary<string, EntityProperty> ITableEntity.WriteEntity(OperationContext operationContext)
-        => Microsoft.Azure.Cosmos.Table.TableEntity.WriteUserObject(this, operationContext);
+        => TTableEntity.WriteUserObject(this, operationContext);
 }

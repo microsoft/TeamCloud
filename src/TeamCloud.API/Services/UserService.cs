@@ -58,7 +58,8 @@ public class UserService
                 user = new User
                 {
                     Id = CurrentUserId,
-                    Organization = organizationId,
+                    Organization = organizationId ?? Guid.Empty.ToString(),
+                    OrganizationName = organizationName ?? "none",
                     Role = OrganizationUserRole.None,
                     UserType = UserType.User
                 };
