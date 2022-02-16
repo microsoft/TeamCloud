@@ -73,6 +73,8 @@ public sealed class ComponentTaskExpander : DocumentExpander,
 
     private async Task<string> GetEventsAsync(ComponentTask document)
     {
+        var output = default(string);
+
         if (document.TaskState.IsActive() && AzureResourceIdentifier.TryParse(document.ResourceId, out var resourceId))
         {
             try
@@ -83,8 +85,8 @@ public sealed class ComponentTaskExpander : DocumentExpander,
 
                 if (containerGroup is not null)
                 {
-                    return await containerGroup
-                        .GetEventContentAsync("runner")
+                    output = await containerGroup
+                        .GetEventContentAsync(document.Id)
                         .ConfigureAwait(false);
                 }
             }
@@ -94,7 +96,7 @@ public sealed class ComponentTaskExpander : DocumentExpander,
             }
         }
 
-        return default;
+        return output;
     }
 
     private async Task<string> GetOutputAsync(ComponentTask document)

@@ -31,7 +31,7 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
 
     public override bool Orchestration => false;
 
-    public async Task<ICommandResult> HandleAsync(ProjectIdentityCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(ProjectIdentityCreateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));
@@ -78,7 +78,7 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
         return commandResult;
     }
 
-    public async Task<ICommandResult> HandleAsync(ProjectIdentityUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(ProjectIdentityUpdateCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));
@@ -112,7 +112,7 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
         return commandResult;
     }
 
-    public async Task<ICommandResult> HandleAsync(ProjectIdentityDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public async Task<ICommandResult> HandleAsync(ProjectIdentityDeleteCommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));

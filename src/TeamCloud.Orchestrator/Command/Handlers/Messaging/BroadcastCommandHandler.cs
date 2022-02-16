@@ -57,7 +57,7 @@ public sealed class BroadcastCommandHandler : CommandHandler
             && broadcastCommandTypes.Contains(command.GetType().GetGenericTypeDefinition());
     }
 
-    public override async Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableClient orchestrationClient, IDurableOrchestrationContext orchestrationContext, ILogger log)
+    public override async Task<ICommandResult> HandleAsync(ICommand command, IAsyncCollector<ICommand> commandQueue, IDurableOrchestrationContext orchestrationContext, ILogger log)
     {
         if (command is null)
             throw new ArgumentNullException(nameof(command));

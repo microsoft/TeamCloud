@@ -27,13 +27,8 @@ public sealed class CommandOrchestration
     [FunctionName(nameof(CommandOrchestration))]
     public async Task Execute(
         [OrchestrationTrigger] IDurableOrchestrationContext orchestratorContext,
-        [DurableClient] IDurableClient orchestratorClient,
-        [Queue(CommandHandler.ProcessorQueue)] IAsyncCollector<ICommand> commandQueue,
         ILogger log)
     {
-        if (orchestratorClient is null)
-            throw new ArgumentNullException(nameof(orchestratorClient));
-
         if (orchestratorContext is null)
             throw new ArgumentNullException(nameof(orchestratorContext));
 
@@ -60,7 +55,7 @@ public sealed class CommandOrchestration
                 .ConfigureAwait(true);
 
             commandResult = await commandHandler
-                .HandleAsync(command, new CommandCollector(commandQueue, command, orchestratorContext), orchestratorClient, orchestratorContext, log)
+                .HandleAsync(command, new CommandCollector(orchestratorContext, command), orchestratorContext, log)
                 .ConfigureAwait(true);
 
             if (commandResult is null)
