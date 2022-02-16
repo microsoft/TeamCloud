@@ -3,6 +3,7 @@
  *  Licensed under the MIT License.
  */
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
 using TeamCloud.Serialization;
@@ -24,4 +25,5 @@ public class OrganizationDefinition : ISlug, IValidatable
     [JsonProperty(Required = Required.Always)]
     public string Location { get; set; }
 
+    public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 }

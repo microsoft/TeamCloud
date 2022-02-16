@@ -26,8 +26,8 @@ namespace TeamCloud.Adapters;
 
 public abstract class Adapter : IAdapter
 {
-    private static readonly JSchema dataSchemaEmpty = new JSchema() { Type = JSchemaType.Object };
-    private static readonly JObject formSchemaEmpty = new JObject();
+    private static readonly JSchema dataSchemaEmpty = new() { Type = JSchemaType.Object };
+    private static readonly JObject formSchemaEmpty = new();
 
 #pragma warning disable CS0618 // Type or member is obsolete
 

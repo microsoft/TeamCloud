@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Reflection;
 using Flurl.Http.Configuration;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -35,7 +34,7 @@ public static class Extensions
         return services;
     }
 
-    public static string GetEndpointUrl(this AzureEnvironment azureEnvironment, AzureEndpoint azureEndpoint)
+    public static string GetEndpointUrl(this Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment azureEnvironment, AzureEndpoint azureEndpoint)
     {
         if (azureEnvironment is null)
             throw new ArgumentNullException(nameof(azureEnvironment));

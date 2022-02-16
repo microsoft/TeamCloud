@@ -90,7 +90,7 @@ public class AzureSessionService : IAzureSessionService
         }
     }
 
-    public AzureEnvironment Environment { get => AzureEnvironment.AzureGlobalCloud; }
+    public RMFluent.AzureEnvironment Environment { get => RMFluent.AzureEnvironment.AzureGlobalCloud; }
 
     public IAzureSessionOptions Options { get => azureSessionOptions; }
 
@@ -274,7 +274,7 @@ public class AzureSessionService : IAzureSessionService
                 if (CanCreateWith(typeof(RestClient)))
                 {
                     var credentials = await GetCredentialsAsync().ConfigureAwait(false);
-                    var endpointUrl = AzureEnvironment.AzureGlobalCloud.GetEndpointUrl(azureEndpoint);
+                    var endpointUrl = RMFluent.AzureEnvironment.AzureGlobalCloud.GetEndpointUrl(azureEndpoint);
 
                     var restClient = RestClient.Configure()
                         .WithBaseUri(endpointUrl)

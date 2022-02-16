@@ -18,7 +18,7 @@ public class OneTimeTokenServiceEntity : ITableEntity
     public static string DefaultPartitionKeyFilter => TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, DefaultPartitionKeyValue);
 
     // expression to sanitize a token so it can be used as a rowkey in Azure table storage
-    private static readonly Regex DisallowedCharsInRowKeyExpression = new Regex(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]");
+    private static readonly Regex DisallowedCharsInRowKeyExpression = new(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]");
 
     public static string CreateToken()
     {

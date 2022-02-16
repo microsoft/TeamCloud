@@ -21,7 +21,7 @@ public class AzureDeploymentServiceTests : HttpTestContext
     public async Task WaitForDeployment()
     {
         var azureSessionService = Substitute.For<IAzureSessionService>();
-        azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+        azureSessionService.Environment.Returns(Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment.AzureGlobalCloud);
         azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
         var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
@@ -54,7 +54,7 @@ public class AzureDeploymentServiceTests : HttpTestContext
     public async Task WaitForDeploymentWithThrowOnError()
     {
         var azureSessionService = Substitute.For<IAzureSessionService>();
-        azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+        azureSessionService.Environment.Returns(Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment.AzureGlobalCloud);
         azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
         var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
@@ -89,7 +89,7 @@ public class AzureDeploymentServiceTests : HttpTestContext
     public async Task WaitForDeploymentWithCleanUp()
     {
         var azureSessionService = Substitute.For<IAzureSessionService>();
-        azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+        azureSessionService.Environment.Returns(Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment.AzureGlobalCloud);
         azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
         var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
@@ -125,7 +125,7 @@ public class AzureDeploymentServiceTests : HttpTestContext
     public async Task GetDeploymentOutput()
     {
         var azureSessionService = Substitute.For<IAzureSessionService>();
-        azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+        azureSessionService.Environment.Returns(Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment.AzureGlobalCloud);
         azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
         var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
@@ -165,7 +165,7 @@ public class AzureDeploymentServiceTests : HttpTestContext
     public async Task GetDeploymentOutputWhileRunning()
     {
         var azureSessionService = Substitute.For<IAzureSessionService>();
-        azureSessionService.Environment.Returns(AzureEnvironment.AzureGlobalCloud);
+        azureSessionService.Environment.Returns(Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment.AzureGlobalCloud);
         azureSessionService.AcquireTokenAsync().Returns(Guid.NewGuid().ToString());
 
         var azureDeploymentArtifactContainer = Substitute.For<IAzureDeploymentArtifactsContainer>();
