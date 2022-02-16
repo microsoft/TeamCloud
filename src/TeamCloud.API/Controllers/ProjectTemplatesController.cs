@@ -99,6 +99,7 @@ public class ProjectTemplatesController : TeamCloudController
         {
             Id = Guid.NewGuid().ToString(),
             Organization = organization.Id,
+            OrganizationName = organization.Slug,
             DisplayName = projectTemplateDefinition.DisplayName,
             Repository = new RepositoryReference
             {

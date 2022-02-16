@@ -37,6 +37,9 @@ public class ComponentTemplate : ContainerDocument, IOrganizationContext, IRepos
     [JsonProperty(Required = Required.Always)]
     public string Organization { get; set; }
 
+    [JsonProperty(Required = Required.Always)]
+    public string OrganizationName { get; set; }
+
     /// <summary>
     /// Gets or sets the parent identifier.
     /// </summary>

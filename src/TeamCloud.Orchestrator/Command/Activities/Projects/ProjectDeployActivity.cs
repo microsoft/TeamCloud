@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Data;
+using TeamCloud.Model;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
@@ -60,10 +61,14 @@ public sealed class ProjectDeployActivity
 
         var template = new SharedResourcesTemplate();
 
-        //template.Parameters["organizationId"] = organization.Id;
-        //template.Parameters["organizationName"] = organization.Slug;
+        template.Parameters["organizationId"] = organization.Id;
+        template.Parameters["organizationName"] = organization.Slug;
+        template.Parameters["organizationTags"] = organization.GetWellKnownTags();
+
         template.Parameters["projectId"] = project.Id;
         template.Parameters["projectName"] = project.Slug;
+        template.Parameters["projectTags"] = project.GetWellKnownTags();
+
         template.Parameters["deploymentScopes"] = deploymentScopes;
 
         var deployment = await azureDeploymentService

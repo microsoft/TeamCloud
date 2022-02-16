@@ -108,6 +108,7 @@ public class DeploymentScopesController : TeamCloudController
        {
            Id = Guid.NewGuid().ToString(),
            Organization = organization.Id,
+           OrganizationName = organization.Slug,
            Type = deploymentScopeDefinition.Type,
            DisplayName = deploymentScopeDefinition.DisplayName,
            InputData = deploymentScopeDefinition.InputData,

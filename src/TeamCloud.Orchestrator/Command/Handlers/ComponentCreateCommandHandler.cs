@@ -73,7 +73,8 @@ public sealed class ComponentCreateCommandHandler : CommandHandler<ComponentCrea
                         Id = servicePrincipal.ObjectId.ToString(),
                         Role = OrganizationUserRole.Adapter,
                         UserType = Model.Data.UserType.Service,
-                        Organization = commandResult.Result.Organization
+                        Organization = commandResult.Result.Organization,
+                        OrganizationName = commandResult.Result.OrganizationName
                     };
 
                     servicePrincipalUser.EnsureProjectMembership(commandResult.Result.ProjectId, ProjectUserRole.Adapter);
@@ -87,8 +88,11 @@ public sealed class ComponentCreateCommandHandler : CommandHandler<ComponentCrea
             var componentTask = new ComponentTask
             {
                 Organization = commandResult.Result.Organization,
+                OrganizationName = commandResult.Result.OrganizationName,
                 ComponentId = commandResult.Result.Id,
+                ComponentName = commandResult.Result.Slug,
                 ProjectId = commandResult.Result.ProjectId,
+                ProjectName = commandResult.Result.ProjectName,
                 Type = ComponentTaskType.Create,
                 RequestedBy = commandResult.Result.Creator,
                 InputJson = commandResult.Result.InputJson

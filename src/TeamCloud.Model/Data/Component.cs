@@ -29,6 +29,12 @@ public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext,
     public string Organization { get; set; }
 
     /// <summary>
+    /// Gets or sets the organization name this component belongs to.
+    /// </summary>
+    [JsonProperty(Required = Required.Always)]
+    public string OrganizationName { get; set; }
+
+    /// <summary>
     /// Gets or sets the template identifier this component is based on.
     /// </summary>
     [JsonProperty(Required = Required.Always)]
@@ -40,6 +46,12 @@ public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext,
     [PartitionKey]
     [JsonProperty(Required = Required.Always)]
     public string ProjectId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the project name this component belongs to.
+    /// </summary>
+    [JsonProperty(Required = Required.Always)]
+    public string ProjectName { get; set; }
 
     /// <summary>
     /// Gets or sets the identity of the user that created the component.
@@ -93,6 +105,11 @@ public sealed class Component : ContainerDocument, ISoftDelete, IProjectContext,
     /// Gets or sets the deployment scope identifier for this component
     /// </summary>
     public string DeploymentScopeId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the deployment scope identifier for this component
+    /// </summary>
+    public string DeploymentScopeName { get; set; }
 
     /// <summary>
     /// Gets or sets the managed identity used by this component

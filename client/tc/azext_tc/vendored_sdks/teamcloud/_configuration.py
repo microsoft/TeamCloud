@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 VERSION = "unknown"
 
-class TeamCloudClientConfiguration(Configuration):
+class TeamCloudClientConfiguration(Configuration):  # pylint: disable=too-many-instance-attributes
     """Configuration for TeamCloudClient.
 
     Note that all parameters used to create this instance are saved as instance

@@ -172,7 +172,9 @@ public class ScheduleController : TeamCloudController
         var schedule = new Schedule
         {
             Organization = project.Organization,
+            OrganizationName = project.OrganizationName,
             ProjectId = project.Id,
+            ProjectName = project.Slug,
             Enabled = scheduleDefinition.Enabled,
             Recurring = scheduleDefinition.Recurring,
             DaysOfWeek = scheduleDefinition.DaysOfWeek,

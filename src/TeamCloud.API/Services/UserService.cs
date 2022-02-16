@@ -40,7 +40,7 @@ public class UserService
     /// </summary>
     /// <param name="allowUnsafe">This should only be set to true in ApiController actions with the attribute Authorize(Policy = AuthPolicies.Default)</param>
     /// <returns></returns>
-    public async Task<User> CurrentUserAsync(string organizationId, bool allowUnsafe = false)
+    public async Task<User> CurrentUserAsync(string organizationId, string organizationName, bool allowUnsafe = false)
     {
         User user = null;
 
@@ -90,7 +90,7 @@ public class UserService
         return val;
     }
 
-    public async Task<User> ResolveUserAsync(string organizationId, UserDefinition userDefinition, UserType userType = UserType.User)
+    public async Task<User> ResolveUserAsync(string organizationId, string organizationName, UserDefinition userDefinition, UserType userType = UserType.User)
     {
         if (userDefinition is null)
             throw new ArgumentNullException(nameof(userDefinition));
@@ -109,7 +109,8 @@ public class UserService
         {
             Id = userId,
             UserType = userType,
-            Organization = organizationId
+            Organization = organizationId,
+            OrganizationName = organizationName
         };
 
         return user;

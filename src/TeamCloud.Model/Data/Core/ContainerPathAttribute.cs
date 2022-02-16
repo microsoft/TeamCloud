@@ -14,11 +14,11 @@ namespace TeamCloud.Model.Data.Core;
 [AttributeUsage(AttributeTargets.Class)]
 internal class ContainerPathAttribute : Attribute
 {
-    private static readonly ConcurrentDictionary<string, PropertyInfo> PropertyCache = new ConcurrentDictionary<string, PropertyInfo>();
-    private static readonly ConcurrentDictionary<string, FieldInfo> FieldCache = new ConcurrentDictionary<string, FieldInfo>();
+    private static readonly ConcurrentDictionary<string, PropertyInfo> PropertyCache = new();
+    private static readonly ConcurrentDictionary<string, FieldInfo> FieldCache = new();
 
-    private static readonly Regex TokenExpression = new Regex("[^{}]+(?=})");
-    private static readonly Regex SanitizeGuidExpression = new Regex(@"\{[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}\}");
+    private static readonly Regex TokenExpression = new("[^{}]+(?=})");
+    private static readonly Regex SanitizeGuidExpression = new(@"\{[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}\}");
 
     public ContainerPathAttribute(string pathTemplate)
     {

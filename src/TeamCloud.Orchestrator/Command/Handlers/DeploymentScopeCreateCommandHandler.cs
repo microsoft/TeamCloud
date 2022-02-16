@@ -68,7 +68,8 @@ public sealed class DeploymentScopeCreateCommandHandler : CommandHandler,
                         Id = servicePrincipal.ObjectId.ToString(),
                         Role = OrganizationUserRole.Adapter,
                         UserType = Model.Data.UserType.Service,
-                        Organization = commandResult.Result.Organization
+                        Organization = commandResult.Result.Organization,
+                        OrganizationName = commandResult.Result.OrganizationName
                     };
 
                     await commandQueue

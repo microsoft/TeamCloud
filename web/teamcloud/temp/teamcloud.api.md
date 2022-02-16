@@ -107,6 +107,8 @@ export interface Component {
     // (undocumented)
     deploymentScopeId?: string;
     // (undocumented)
+    deploymentScopeName?: string;
+    // (undocumented)
     description?: string;
     // (undocumented)
     displayName?: string;
@@ -121,7 +123,11 @@ export interface Component {
     // (undocumented)
     organization: string;
     // (undocumented)
+    organizationName: string;
+    // (undocumented)
     projectId: string;
+    // (undocumented)
+    projectName: string;
     // (undocumented)
     resourceId?: string;
     // (undocumented)
@@ -183,6 +189,8 @@ export interface ComponentTask {
     // (undocumented)
     componentId: string;
     // (undocumented)
+    componentName: string;
+    // (undocumented)
     created?: Date;
     // (undocumented)
     exitCode?: number;
@@ -195,9 +203,13 @@ export interface ComponentTask {
     // (undocumented)
     organization: string;
     // (undocumented)
+    organizationName: string;
+    // (undocumented)
     output?: string;
     // (undocumented)
     projectId: string;
+    // (undocumented)
+    projectName: string;
     // (undocumented)
     requestedBy?: string;
     // (undocumented)
@@ -249,6 +261,8 @@ export interface ComponentTaskListDataResult {
 export interface ComponentTaskReference {
     // (undocumented)
     componentId?: string;
+    // (undocumented)
+    componentName?: string;
     // (undocumented)
     componentTaskTemplateId?: string;
     // (undocumented)
@@ -303,6 +317,8 @@ export interface ComponentTemplate {
     inputJsonSchema?: string;
     // (undocumented)
     organization: string;
+    // (undocumented)
+    organizationName: string;
     // (undocumented)
     parentId: string;
     // (undocumented)
@@ -547,6 +563,8 @@ export interface DeploymentScope {
     managementGroupId?: string;
     // (undocumented)
     organization: string;
+    // (undocumented)
+    organizationName: string;
     // (undocumented)
     slug: string;
     // (undocumented)
@@ -1219,6 +1237,9 @@ export interface OrganizationDefinition {
     readonly slug?: string;
     // (undocumented)
     subscriptionId: string;
+    tags?: {
+        [propertyName: string]: string;
+    };
 }
 
 // @public (undocumented)
@@ -1245,6 +1266,8 @@ export interface Project {
     id: string;
     // (undocumented)
     organization: string;
+    // (undocumented)
+    organizationName: string;
     // (undocumented)
     resourceId?: string;
     // (undocumented)
@@ -1313,7 +1336,11 @@ export interface ProjectIdentity {
     // (undocumented)
     organization: string;
     // (undocumented)
+    organizationName: string;
+    // (undocumented)
     projectId: string;
+    // (undocumented)
+    projectName: string;
     // (undocumented)
     redirectUrls?: string[];
     // (undocumented)
@@ -1397,6 +1424,8 @@ export interface ProjectTemplate {
     name?: string;
     // (undocumented)
     organization: string;
+    // (undocumented)
+    organizationName: string;
     // (undocumented)
     repository: RepositoryReference;
     // (undocumented)
@@ -1526,7 +1555,11 @@ export interface Schedule {
     // (undocumented)
     organization: string;
     // (undocumented)
+    organizationName: string;
+    // (undocumented)
     projectId: string;
+    // (undocumented)
+    projectName: string;
     // (undocumented)
     recurring?: boolean;
     // (undocumented)
@@ -1705,7 +1738,9 @@ export class TeamCloudContext extends coreClient.ServiceClient {
 // @public (undocumented)
 export interface TeamCloudInformation {
     // (undocumented)
-    version?: string;
+    imageVersion?: string;
+    // (undocumented)
+    templateVersion?: string;
 }
 
 // @public (undocumented)
@@ -1821,6 +1856,8 @@ export interface User {
     mailAddress?: string;
     // (undocumented)
     organization: string;
+    // (undocumented)
+    organizationName: string;
     // (undocumented)
     projectMemberships?: ProjectMembership[];
     properties?: {

@@ -233,6 +233,13 @@ export const Component = {
                     name: "String"
                 }
             },
+            organizationName: {
+                serializedName: "organizationName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             templateId: {
                 serializedName: "templateId",
                 required: true,
@@ -242,6 +249,13 @@ export const Component = {
             },
             projectId: {
                 serializedName: "projectId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            projectName: {
+                serializedName: "projectName",
                 required: true,
                 type: {
                     name: "String"
@@ -311,6 +325,13 @@ export const Component = {
             },
             deploymentScopeId: {
                 serializedName: "deploymentScopeId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            deploymentScopeName: {
+                serializedName: "deploymentScopeName",
                 nullable: true,
                 type: {
                     name: "String"
@@ -542,6 +563,13 @@ export const ComponentTask = {
                     name: "String"
                 }
             },
+            organizationName: {
+                serializedName: "organizationName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             componentId: {
                 serializedName: "componentId",
                 required: true,
@@ -549,8 +577,22 @@ export const ComponentTask = {
                     name: "String"
                 }
             },
+            componentName: {
+                serializedName: "componentName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             projectId: {
                 serializedName: "projectId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            projectName: {
+                serializedName: "projectName",
                 required: true,
                 type: {
                     name: "String"
@@ -753,6 +795,13 @@ export const ComponentTemplate = {
         modelProperties: {
             organization: {
                 serializedName: "organization",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            organizationName: {
+                serializedName: "organizationName",
                 required: true,
                 type: {
                     name: "String"
@@ -1156,6 +1205,13 @@ export const DeploymentScope = {
         modelProperties: {
             organization: {
                 serializedName: "organization",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            organizationName: {
+                serializedName: "organizationName",
                 required: true,
                 type: {
                     name: "String"
@@ -1744,6 +1800,14 @@ export const OrganizationDefinition = {
                 type: {
                     name: "String"
                 }
+            },
+            tags: {
+                serializedName: "tags",
+                nullable: true,
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "String" } }
+                }
             }
         }
     }
@@ -1832,6 +1896,13 @@ export const User = {
         modelProperties: {
             organization: {
                 serializedName: "organization",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            organizationName: {
+                serializedName: "organizationName",
                 required: true,
                 type: {
                     name: "String"
@@ -2110,6 +2181,13 @@ export const Project = {
                     name: "String"
                 }
             },
+            organizationName: {
+                serializedName: "organizationName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             slug: {
                 serializedName: "slug",
                 required: true,
@@ -2364,8 +2442,22 @@ export const ProjectIdentity = {
                     name: "String"
                 }
             },
+            projectName: {
+                serializedName: "projectName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             organization: {
                 serializedName: "organization",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            organizationName: {
+                serializedName: "organizationName",
                 required: true,
                 type: {
                     name: "String"
@@ -2580,6 +2672,13 @@ export const ProjectTemplate = {
                     name: "String"
                 }
             },
+            organizationName: {
+                serializedName: "organizationName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             slug: {
                 serializedName: "slug",
                 required: true,
@@ -2777,8 +2876,15 @@ export const TeamCloudInformation = {
         name: "Composite",
         className: "TeamCloudInformation",
         modelProperties: {
-            version: {
-                serializedName: "version",
+            imageVersion: {
+                serializedName: "imageVersion",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            templateVersion: {
+                serializedName: "templateVersion",
                 nullable: true,
                 type: {
                     name: "String"
@@ -2841,8 +2947,22 @@ export const Schedule = {
                     name: "String"
                 }
             },
+            organizationName: {
+                serializedName: "organizationName",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
             projectId: {
                 serializedName: "projectId",
+                required: true,
+                type: {
+                    name: "String"
+                }
+            },
+            projectName: {
+                serializedName: "projectName",
                 required: true,
                 type: {
                     name: "String"
@@ -2947,6 +3067,13 @@ export const ComponentTaskReference = {
         modelProperties: {
             componentId: {
                 serializedName: "componentId",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            componentName: {
+                serializedName: "componentName",
                 nullable: true,
                 type: {
                     name: "String"

@@ -242,6 +242,13 @@ export const Component: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      organizationName: {
+        serializedName: "organizationName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       templateId: {
         serializedName: "templateId",
         required: true,
@@ -251,6 +258,13 @@ export const Component: coreClient.CompositeMapper = {
       },
       projectId: {
         serializedName: "projectId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectName: {
+        serializedName: "projectName",
         required: true,
         type: {
           name: "String"
@@ -320,6 +334,13 @@ export const Component: coreClient.CompositeMapper = {
       },
       deploymentScopeId: {
         serializedName: "deploymentScopeId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      deploymentScopeName: {
+        serializedName: "deploymentScopeName",
         nullable: true,
         type: {
           name: "String"
@@ -556,6 +577,13 @@ export const ComponentTask: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      organizationName: {
+        serializedName: "organizationName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       componentId: {
         serializedName: "componentId",
         required: true,
@@ -563,8 +591,22 @@ export const ComponentTask: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      componentName: {
+        serializedName: "componentName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       projectId: {
         serializedName: "projectId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectName: {
+        serializedName: "projectName",
         required: true,
         type: {
           name: "String"
@@ -771,6 +813,13 @@ export const ComponentTemplate: coreClient.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      organizationName: {
+        serializedName: "organizationName",
         required: true,
         type: {
           name: "String"
@@ -1181,6 +1230,13 @@ export const DeploymentScope: coreClient.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      organizationName: {
+        serializedName: "organizationName",
         required: true,
         type: {
           name: "String"
@@ -1778,6 +1834,14 @@ export const OrganizationDefinition: coreClient.CompositeMapper = {
         type: {
           name: "String"
         }
+      },
+      tags: {
+        serializedName: "tags",
+        nullable: true,
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
+        }
       }
     }
   }
@@ -1869,6 +1933,13 @@ export const User: coreClient.CompositeMapper = {
     modelProperties: {
       organization: {
         serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      organizationName: {
+        serializedName: "organizationName",
         required: true,
         type: {
           name: "String"
@@ -2154,6 +2225,13 @@ export const Project: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      organizationName: {
+        serializedName: "organizationName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       slug: {
         serializedName: "slug",
         required: true,
@@ -2412,8 +2490,22 @@ export const ProjectIdentity: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      projectName: {
+        serializedName: "projectName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       organization: {
         serializedName: "organization",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      organizationName: {
+        serializedName: "organizationName",
         required: true,
         type: {
           name: "String"
@@ -2633,6 +2725,13 @@ export const ProjectTemplate: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      organizationName: {
+        serializedName: "organizationName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       slug: {
         serializedName: "slug",
         required: true,
@@ -2835,8 +2934,15 @@ export const TeamCloudInformation: coreClient.CompositeMapper = {
     name: "Composite",
     className: "TeamCloudInformation",
     modelProperties: {
-      version: {
-        serializedName: "version",
+      imageVersion: {
+        serializedName: "imageVersion",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      templateVersion: {
+        serializedName: "templateVersion",
         nullable: true,
         type: {
           name: "String"
@@ -2901,8 +3007,22 @@ export const Schedule: coreClient.CompositeMapper = {
           name: "String"
         }
       },
+      organizationName: {
+        serializedName: "organizationName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
       projectId: {
         serializedName: "projectId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      projectName: {
+        serializedName: "projectName",
         required: true,
         type: {
           name: "String"
@@ -3008,6 +3128,13 @@ export const ComponentTaskReference: coreClient.CompositeMapper = {
     modelProperties: {
       componentId: {
         serializedName: "componentId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      componentName: {
+        serializedName: "componentName",
         nullable: true,
         type: {
           name: "String"

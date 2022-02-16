@@ -51,8 +51,10 @@ export interface ComponentListDataResult {
 export interface Component {
   href?: string;
   organization: string;
+  organizationName: string;
   templateId: string;
   projectId: string;
+  projectName: string;
   creator: string;
   displayName?: string;
   description?: string;
@@ -63,6 +65,7 @@ export interface Component {
   resourceUrl?: string;
   resourceState?: ComponentResourceState;
   deploymentScopeId?: string;
+  deploymentScopeName?: string;
   identityId?: string;
   deleted?: Date;
   ttl?: number;
@@ -105,8 +108,11 @@ export interface ComponentTaskListDataResult {
 
 export interface ComponentTask {
   organization: string;
+  organizationName: string;
   componentId: string;
+  componentName: string;
   projectId: string;
+  projectName: string;
   requestedBy?: string;
   scheduleId?: string;
   type?: ComponentTaskType;
@@ -144,6 +150,7 @@ export interface ComponentTemplateListDataResult {
 
 export interface ComponentTemplate {
   organization: string;
+  organizationName: string;
   parentId: string;
   displayName?: string;
   description?: string;
@@ -214,6 +221,7 @@ export interface DeploymentScopeListDataResult {
 
 export interface DeploymentScope {
   organization: string;
+  organizationName: string;
   displayName: string;
   slug: string;
   isDefault: boolean;
@@ -322,6 +330,8 @@ export interface OrganizationDefinition {
   displayName: string;
   subscriptionId: string;
   location: string;
+  /** Dictionary of <string> */
+  tags?: { [propertyName: string]: string };
 }
 
 export interface OrganizationDataResult {
@@ -341,6 +351,7 @@ export interface UserListDataResult {
 
 export interface User {
   organization: string;
+  organizationName: string;
   displayName?: string;
   loginName?: string;
   mailAddress?: string;
@@ -395,6 +406,7 @@ export interface ProjectListDataResult {
 
 export interface Project {
   organization: string;
+  organizationName: string;
   slug: string;
   displayName: string;
   template: string;
@@ -440,7 +452,9 @@ export interface ProjectIdentityListDataResult {
 
 export interface ProjectIdentity {
   projectId: string;
+  projectName: string;
   organization: string;
+  organizationName: string;
   displayName: string;
   deploymentScopeId: string;
   tenantId?: string;
@@ -484,6 +498,7 @@ export interface ProjectTemplateListDataResult {
 
 export interface ProjectTemplate {
   organization: string;
+  organizationName: string;
   slug: string;
   name?: string;
   displayName: string;
@@ -521,7 +536,8 @@ export interface TeamCloudInformationDataResult {
 }
 
 export interface TeamCloudInformation {
-  version?: string;
+  imageVersion?: string;
+  templateVersion?: string;
 }
 
 export interface ScheduleListDataResult {
@@ -534,7 +550,9 @@ export interface ScheduleListDataResult {
 
 export interface Schedule {
   organization: string;
+  organizationName: string;
   projectId: string;
+  projectName: string;
   enabled?: boolean;
   recurring?: boolean;
   daysOfWeek?: ScheduleDaysOfWeekItem[];
@@ -551,6 +569,7 @@ export interface Schedule {
 
 export interface ComponentTaskReference {
   componentId?: string;
+  componentName?: string;
   componentTaskTemplateId?: string;
   inputJson?: string;
 }
