@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TeamCloud.Adapters.Authorization;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters;

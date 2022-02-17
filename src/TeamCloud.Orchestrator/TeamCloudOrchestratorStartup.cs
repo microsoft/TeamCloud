@@ -25,7 +25,7 @@ using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
@@ -67,11 +67,11 @@ public class TeamCloudOrchestratorStartup : FunctionsStartup
             .AddSingleton(configuration)
             .AddTeamCloudOptions(Assembly.GetExecutingAssembly())
             .AddTeamCloudOptionsShared()
+            .AddTeamCloudGraph()
             .AddTeamCloudAzure(configuration =>
             {
                 configuration
                     .AddResources()
-                    .AddDirectory()
                     .AddDeployment()
                     .SetDeploymentArtifactsProvider<AzureStorageArtifactsProvider>();
             })

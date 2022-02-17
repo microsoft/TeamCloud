@@ -51,7 +51,7 @@
     <ProjectReference Include="..\TeamCloud.Adapters\TeamCloud.Adapters.csproj" />
     <ProjectReference Include="..\TeamCloud.Audit\TeamCloud.Audit.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Deployment\TeamCloud.Azure.Deployment.csproj" />
-    <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />
+    <ProjectReference Include="..\TeamCloud.Microsoft.Graph\TeamCloud.Microsoft.Graph.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure\TeamCloud.Azure.csproj" />
     <ProjectReference Include="..\TeamCloud.Configuration.Options\TeamCloud.Configuration.Options.csproj" />
     <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj" />

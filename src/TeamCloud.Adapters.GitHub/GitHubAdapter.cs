@@ -24,7 +24,7 @@ using Octokit;
 using Octokit.Internal;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Http;
@@ -57,7 +57,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     private readonly IComponentTemplateRepository componentTemplateRepository;
     private readonly IAzureSessionService azureSessionService;
     private readonly IAzureResourceService azureResourceService;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
     private readonly IFunctionsHost functionsHost;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -79,9 +79,9 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         IComponentTemplateRepository componentTemplateRepository,
         IAzureSessionService azureSessionService,
         IAzureResourceService azureResourceService,
-        IAzureDirectoryService azureDirectoryService,
+        IGraphService graphService,
         IFunctionsHost functionsHost = null)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
@@ -92,7 +92,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.functionsHost = functionsHost ?? FunctionsHost.Default;
     }
 
@@ -627,7 +627,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
     private async Task SynchronizeTeamMembersAsync(GitHubClient client, Team team, IEnumerable<User> users, Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
     {
-        var userIds = new HashSet<Guid>(await users
+        var userIds = new HashSet<string>(await users
             .ToAsyncEnumerable()
             .SelectMany(user => ResolveUserIdsAsync(user))
             .ToArrayAsync()
@@ -636,7 +636,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         var teamUsers = await userIds
             .Select(userId =>
             {
-                var user = users.SingleOrDefault(u => userId.Equals(Guid.Parse(u.Id)));
+                var user = users.SingleOrDefault(u => userId.Equals(u.Id));
                 return user is null ? EnsureUserAsync(userId) : InitializeUserAsync(user);
             })
             .WhenAll()
@@ -666,17 +666,17 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             .WhenAll()
             .ConfigureAwait(false);
 
-        async Task<User> EnsureUserAsync(Guid userId)
+        async Task<User> EnsureUserAsync(string userId)
         {
             var user = await userRepository
-                .GetAsync(component.Organization, userId.ToString(), true)
+                .GetAsync(component.Organization, userId, true)
                 .ConfigureAwait(false);
 
             if (user is null)
             {
                 user = new User()
                 {
-                    Id = userId.ToString(),
+                    Id = userId,
                     Role = OrganizationUserRole.None
                 };
 
@@ -707,16 +707,16 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             return user;
         }
 
-        IAsyncEnumerable<Guid> ResolveUserIdsAsync(User user) => user.UserType switch
+        IAsyncEnumerable<string> ResolveUserIdsAsync(User user) => user.UserType switch
         {
             // return the given user id as async enumeration
-            UserType.User => AsyncEnumerable.Repeat(new Guid(user.Id), 1),
+            UserType.User => AsyncEnumerable.Repeat(user.Id, 1),
 
             // return user ids based on the given user that represents a group
-            UserType.Group => azureDirectoryService.GetGroupMembersAsync(user.Id, true),
+            UserType.Group => graphService.GetGroupMembersAsync(user.Id, true),
 
             // not supported user type
-            _ => AsyncEnumerable.Empty<Guid>()
+            _ => AsyncEnumerable.Empty<string>()
         };
     }
 

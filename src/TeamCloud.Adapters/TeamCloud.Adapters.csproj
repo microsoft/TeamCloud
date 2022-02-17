@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TeamCloud.Azure.Directory\TeamCloud.Azure.Directory.csproj" />
+    <ProjectReference Include="..\TeamCloud.Microsoft.Graph\TeamCloud.Microsoft.Graph.csproj" />
     <ProjectReference Include="..\TeamCloud.Azure.Resources\TeamCloud.Azure.Resources.csproj" />
     <ProjectReference Include="..\TeamCloud.Configuration.Options\TeamCloud.Configuration.Options.csproj" />
     <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj" />

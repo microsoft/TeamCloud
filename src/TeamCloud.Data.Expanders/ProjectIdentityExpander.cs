@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders;
@@ -15,11 +15,11 @@ namespace TeamCloud.Data.Expanders;
 public sealed class ProjectIdentityExpander : DocumentExpander,
     IDocumentExpander<ProjectIdentity>
 {
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
 
-    public ProjectIdentityExpander(IAzureDirectoryService azureDirectoryService, TelemetryClient telemetryClient) : base(true, telemetryClient)
+    public ProjectIdentityExpander(IGraphService graphService, TelemetryClient telemetryClient) : base(true, telemetryClient)
     {
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
     }
 
     public async Task ExpandAsync(ProjectIdentity document)
@@ -29,7 +29,7 @@ public sealed class ProjectIdentityExpander : DocumentExpander,
 
         if (!(document.RedirectUrls?.Any() ?? false))
         {
-            document.RedirectUrls = await azureDirectoryService
+            document.RedirectUrls = await graphService
                 .GetServicePrincipalRedirectUrlsAsync(document.ObjectId.ToString())
                 .ConfigureAwait(false);
         }

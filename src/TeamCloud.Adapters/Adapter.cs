@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
@@ -39,7 +39,7 @@ public abstract class Adapter : IAdapter
     private readonly IDistributedLockManager distributedLockManager;
     private readonly ISecretsStoreProvider secretsStoreProvider;
     private readonly IAzureSessionService azureSessionService;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
     private readonly IOrganizationRepository organizationRepository;
     private readonly IDeploymentScopeRepository deploymentScopeRepository;
     private readonly IProjectRepository projectRepository;
@@ -50,7 +50,7 @@ public abstract class Adapter : IAdapter
                       IDistributedLockManager distributedLockManager,
                       ISecretsStoreProvider secretsStoreProvider,
                       IAzureSessionService azureSessionService,
-                      IAzureDirectoryService azureDirectoryService,
+                      IGraphService graphService,
                       IOrganizationRepository organizationRepository,
                       IDeploymentScopeRepository deploymentScopeRepository,
                       IProjectRepository projectRepository,
@@ -61,7 +61,7 @@ public abstract class Adapter : IAdapter
         this.distributedLockManager = distributedLockManager ?? throw new ArgumentNullException(nameof(distributedLockManager));
         this.secretsStoreProvider = secretsStoreProvider ?? throw new ArgumentNullException(nameof(secretsStoreProvider));
         this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));

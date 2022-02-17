@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 
@@ -17,14 +17,14 @@ namespace TeamCloud.API.Services;
 public class UserService
 {
     private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
     private readonly IMemoryCache cache;
     readonly IUserRepository userRepository;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUserRepository userRepository)
+    public UserService(IHttpContextAccessor httpContextAccessor, IGraphService graphService, IMemoryCache cache, IUserRepository userRepository)
     {
         this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
     }
@@ -78,7 +78,7 @@ public class UserService
 
         if (!cache.TryGetValue(key, out string val))
         {
-            var guid = await azureDirectoryService
+            var guid = await graphService
                 .GetUserIdAsync(identifier)
                 .ConfigureAwait(false);
 

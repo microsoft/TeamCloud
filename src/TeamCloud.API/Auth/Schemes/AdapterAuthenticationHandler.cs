@@ -176,7 +176,7 @@ public sealed class AdapterAuthenticationHandler : CookieAuthenticationHandler
                     var claimsIdentity = servicePrincial.ToClaimsIdentity(AdapterAuthenticationDefaults.AuthenticationType);
 
                     claimsIdentity.AddClaims(await Context
-                        .ResolveClaimsAsync(servicePrincial.TenantId.ToString(), servicePrincial.ObjectId.ToString())
+                        .ResolveClaimsAsync(servicePrincial.TenantId.ToString(), servicePrincial.Id.ToString())
                         .ConfigureAwait(false));
 
                     var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);

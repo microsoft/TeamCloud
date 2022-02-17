@@ -36,7 +36,7 @@ using Microsoft.VisualStudio.Services.WebApi;
 using Microsoft.VisualStudio.Services.WebApi.Patch.Json;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Http;
@@ -90,10 +90,10 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
         IComponentTemplateRepository componentTemplateRepository,
         IAzureSessionService azureSessionService,
         IAzureResourceService azureResourceService,
-        IAzureDirectoryService azureDirectoryService,
+        IGraphService graphService,
         IFunctionsHost functionsHost = null,
         ILoggerFactory loggerFactory = null)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -961,7 +961,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
                             // endpoint won't be able to authenticate to Azure at all.
 
                             await projectResourceGroup
-                            .AddRoleAssignmentAsync(servicePrincipal.ObjectId.ToString(), AzureRoleDefinition.Reader)
+                            .AddRoleAssignmentAsync(servicePrincipal.Id.ToString(), AzureRoleDefinition.Reader)
                             .ConfigureAwait(false);
                         }
 
@@ -985,7 +985,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
                                     Parameters = new Dictionary<string, string>()
                                     {
                                             { "tenantid", servicePrincipal.TenantId.ToString() },
-                                            { "serviceprincipalid", servicePrincipal.ApplicationId.ToString() },
+                                            { "serviceprincipalid", servicePrincipal.AppId.ToString() },
                                             { "authenticationType", "spnKey" },
                                             { "serviceprincipalkey", servicePrincipal.Password }
                                     }
@@ -1024,7 +1024,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
                                 Parameters = new Dictionary<string, string>()
                                 {
                                         { "tenantid", servicePrincipal.TenantId.ToString() },
-                                        { "serviceprincipalid", servicePrincipal.ApplicationId.ToString() },
+                                        { "serviceprincipalid", servicePrincipal.AppId.ToString() },
                                         { "authenticationType", "spnKey" },
                                         { "serviceprincipalkey", servicePrincipal.Password }
                                 }
