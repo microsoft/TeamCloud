@@ -174,7 +174,24 @@
             },
             "dependsOn": [
                 "ngrok: set url"
-            ]
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "npm: run build",
+            "command": "npm",
+            "args": [
+                "run",
+                "build"
+            ],
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/web"
+            }
         },
         {
             "label": "bicep: local",
@@ -388,6 +405,17 @@
             },
             "presentation": {
                 "showReuseMessage": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "create clients",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/create-clients.sh",
+            "options": {
+                "shell": {
+                    "executable": "/bin/sh"
+                }
             },
             "problemMatcher": []
         }

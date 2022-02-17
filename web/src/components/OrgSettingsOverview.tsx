@@ -21,11 +21,9 @@ export const OrgSettingsOverview: React.FC = () => {
         if (org && members) {
             if (owner === undefined || owner.user.organization !== org.id) {
                 const find = members.find(m => m.user.role.toLowerCase() === 'owner');
-                // console.log(`+ setOwner (${org.slug})`)
                 setOwner(find);
             }
         } else if (owner) {
-            // console.log(`+ setOwner (undefined})`)
             setOwner(undefined);
         }
     }, [org, members, owner])
@@ -100,19 +98,31 @@ export const OrgSettingsOverview: React.FC = () => {
                             description='Organization subscription'
                             defaultValue={org.subscriptionId ?? undefined} />
                     </Stack.Item>
-                    <Stack.Item>
-                        <TextField
-                            readOnly
-                            label='Resource Group'
-                            description='Organization resouce group ID'
-                            defaultValue={org.resourceId ?? '(creating)'} />
-                    </Stack.Item>
-                    {org.resourceId && (
+                    {!org.resourceId && (
                         <Stack.Item>
-                            <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${org.resourceId}`}>
-                                View in Azure Portal
-                            </Link>
+                            <TextField
+                                readOnly
+                                disabled
+                                label='Resource Group'
+                                description='Organization resouce group ID'
+                                defaultValue={'creating...'} />
                         </Stack.Item>
+                    )}
+                    {org.resourceId && (
+                        <>
+                            <Stack.Item>
+                                <TextField
+                                    readOnly
+                                    label='Resource Group'
+                                    description='Organization resouce group ID'
+                                    defaultValue={org.resourceId} />
+                            </Stack.Item>
+                            <Stack.Item>
+                                <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${org.resourceId}`}>
+                                    View in Azure Portal
+                                </Link>
+                            </Stack.Item>
+                        </>
                     )}
                 </Stack>
             </Stack.Item>

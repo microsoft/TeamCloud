@@ -4,11 +4,10 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using Microsoft.Azure.Cosmos.Table;
-using TTableEntity = Microsoft.Azure.Cosmos.Table.TableEntity;
+using Azure;
+using Azure.Data.Tables;
 
 namespace TeamCloud.API.Services;
 
@@ -16,7 +15,7 @@ public class OneTimeTokenServiceEntity : ITableEntity
 {
     public static string DefaultPartitionKeyValue => nameof(OneTimeTokenServiceEntity);
 
-    public static string DefaultPartitionKeyFilter => TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, DefaultPartitionKeyValue);
+    public static string DefaultPartitionKeyFilter => $"PartitionKey eq '{DefaultPartitionKeyValue}'";
 
     // expression to sanitize a token so it can be used as a rowkey in Azure table storage
     private static readonly Regex DisallowedCharsInRowKeyExpression = new(@"[\\\\#%+/?\u0000-\u001F\u007F-\u009F]");
@@ -42,7 +41,7 @@ public class OneTimeTokenServiceEntity : ITableEntity
         }
     }
 
-    public string Token => TableEntity.RowKey;
+    public string Token => RowKey;
 
     public Guid OrganizationId { get; set; }
 
@@ -50,19 +49,11 @@ public class OneTimeTokenServiceEntity : ITableEntity
 
     public DateTimeOffset Expires { get; set; } = DateTimeOffset.UtcNow.AddMinutes(1);
 
-    public ITableEntity TableEntity => this;
+    public string PartitionKey { get; set; } = DefaultPartitionKeyValue;
 
-    string ITableEntity.PartitionKey { get; set; } = DefaultPartitionKeyValue;
+    public string RowKey { get; set; } = CreateToken();
 
-    string ITableEntity.RowKey { get; set; } = CreateToken();
+    public DateTimeOffset? Timestamp { get; set; }
 
-    DateTimeOffset ITableEntity.Timestamp { get; set; }
-
-    string ITableEntity.ETag { get; set; }
-
-    void ITableEntity.ReadEntity(IDictionary<string, EntityProperty> properties, OperationContext operationContext)
-        => TTableEntity.ReadUserObject(this, properties, operationContext);
-
-    IDictionary<string, EntityProperty> ITableEntity.WriteEntity(OperationContext operationContext)
-        => TTableEntity.WriteUserObject(this, operationContext);
+    public ETag ETag { get; set; }
 }

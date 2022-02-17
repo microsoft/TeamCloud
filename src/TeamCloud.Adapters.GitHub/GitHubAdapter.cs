@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json.Linq;
 using Octokit;
 using Octokit.Internal;
 using TeamCloud.Adapters.Authorization;
@@ -242,6 +243,13 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
             TeamCloudSerialize.PopulateObject(json, token);
 
+            if (string.IsNullOrEmpty(token.OwnerLogin))
+            {
+                token.OwnerLogin = JToken.Parse(json)
+                    .SelectToken("owner.login")
+                    .ToString();
+            }
+
             token = await TokenClient
                 .SetAsync(token, true)
                 .ConfigureAwait(false);
@@ -430,7 +438,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     private static string GetRepositoryName(Project project, Component component, int count = 0)
         => $"{project.Slug}-{component.Slug}{(count <= 0 ? string.Empty : $"-{count:D5}")}";
 
-    private Task<Component> ExecuteAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue, Func<GitHubClient, Octokit.User, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
+    private Task<Component> ExecuteAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue, Func<GitHubClient, string, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
     {
         if (component is null)
             throw new ArgumentNullException(nameof(component));
@@ -454,7 +462,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 .ConfigureAwait(false);
 
             var teams = await client.Organization.Team
-                .GetAll(token.Owner.Login)
+                .GetAll(token.OwnerLogin)
                 .ConfigureAwait(false);
 
             var tasks = new List<Task>();
@@ -522,7 +530,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
                 ).ConfigureAwait(false);
 
-            return await callback(client, token.Owner, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
+            return await callback(client, token.OwnerLogin, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
 
             async Task<Team> EnsureTeamAsync(string teamName, Team parentTeam, NewTeam teamDefinition)
             {
@@ -535,13 +543,13 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     try
                     {
                         team = await client.Organization.Team
-                            .Create(token.Owner.Login, teamDefinition)
+                            .Create(token.OwnerLogin, teamDefinition)
                             .ConfigureAwait(false);
                     }
                     catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity) // yes, thats the status code if the team already exists
                     {
                         var teams = await client.Organization.Team
-                            .GetAll(token.Owner.Login)
+                            .GetAll(token.OwnerLogin)
                             .ConfigureAwait(false);
 
                         team = teams
@@ -570,7 +578,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             async Task<Octokit.Project> EnsureProjectAsync(string projectName, NewProject projectDefinition)
             {
                 var projects = await client.Repository.Project
-                    .GetAllForOrganization(token.Owner.Login)
+                    .GetAllForOrganization(token.OwnerLogin)
                     .ConfigureAwait(false);
 
                 var project = projects
@@ -579,7 +587,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 try
                 {
                     project ??= await client.Repository.Project
-                        .CreateForOrganization(token.Owner.Login, projectDefinition)
+                        .CreateForOrganization(token.OwnerLogin, projectDefinition)
                         .ConfigureAwait(false);
                 }
                 catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity)
@@ -587,7 +595,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     // the project already exists - try to re-fetch project information
 
                     projects = await client.Repository.Project
-                    .GetAllForOrganization(token.Owner.Login)
+                    .GetAllForOrganization(token.OwnerLogin)
                     .ConfigureAwait(false);
 
                     project = projects
@@ -608,7 +616,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             {
                 var inertiaClient = await CreateClientAsync(component, "inertia-preview").ConfigureAwait(false);
 
-                var url = new Uri($"/orgs/{token.Owner.Login}/teams/{team.Slug}/projects/{project.Id}", UriKind.Relative);
+                var url = new Uri($"/orgs/{token.OwnerLogin}/teams/{team.Slug}/projects/{project.Id}", UriKind.Relative);
 
                 _ = await inertiaClient.Connection
                     .Put<string>(url, new { Permission = permission })
@@ -713,7 +721,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     }
 
     protected override Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
-        => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
+        => ExecuteAsync(component, contextUser, commandQueue, async (client, ownerLogin, project, memberTeam, adminTeam) =>
     {
         Repository repository = null;
 
@@ -751,7 +759,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 try
                 {
                     repository = await client.Repository
-                        .Create(owner.Login, repoSettings)
+                        .Create(ownerLogin, repoSettings)
                         .ConfigureAwait(false);
                 }
                 catch (RepositoryExistsException)
@@ -767,7 +775,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
                 var payload = new
                 {
-                    owner = owner.Login,
+                    owner = ownerLogin,
                     name = repositoryName,
                     description = repositoryDescription
                 };
@@ -881,7 +889,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     });
 
     protected override Task<Component> UpdateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
-        => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
+        => ExecuteAsync(component, contextUser, commandQueue, async (client, ownerLogin, project, memberTeam, adminTeam) =>
     {
         var users = await userRepository
             .ListAsync(component.Organization, component.ProjectId)
@@ -947,7 +955,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     });
 
     protected override Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
-        => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
+        => ExecuteAsync(component, contextUser, commandQueue, async (client, ownerLogin, project, memberTeam, adminTeam) =>
     {
         if (GitHubIdentifier.TryParse(component.ResourceId, out var gitHubIdentifier))
         {

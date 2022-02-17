@@ -19,15 +19,15 @@ public abstract class AuthorizationSession : AuthorizationEntity
 
     protected AuthorizationSession(string entityId = null, TimeSpan? sessionTTL = null)
     {
-        Entity.RowKey = string.IsNullOrWhiteSpace(entityId) ? Guid.Empty.ToString() : entityId;
-        Entity.PartitionKey = string.Join(',', this.GetType().AssemblyQualifiedName.Split(',').Take(2));
+        RowKey = string.IsNullOrWhiteSpace(entityId) ? Guid.Empty.ToString() : entityId;
+        PartitionKey = string.Join(',', this.GetType().AssemblyQualifiedName.Split(',').Take(2));
 
         this.sessionTTL = sessionTTL.GetValueOrDefault(DefaultTTL);
         this.sessionId = Guid.NewGuid();
     }
 
     public string SessionId
-        => Entity.RowKey;
+        => RowKey;
 
     public string SessionTTL
     {
@@ -42,5 +42,5 @@ public abstract class AuthorizationSession : AuthorizationEntity
     }
 
     public bool Active
-        => (Entity.Timestamp.Add(sessionTTL) > DateTimeOffset.Now);
+        => Timestamp?.Add(sessionTTL) > DateTimeOffset.Now;
 }

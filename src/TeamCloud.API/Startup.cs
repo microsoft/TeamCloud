@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using Azure.Storage.Blobs;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -17,8 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Cosmos.Fluent;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -159,14 +158,13 @@ public class Startup
                 .AddSingleton<IRepositoryCache, RepositoryCache>();
         }
 
-        if (Configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
+        if (Configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && !string.IsNullOrEmpty(encryptionOptions.KeyStorage))
         {
             const string EncryptionContainerName = "encryption";
 
-            keyStorageAccount
-                .CreateCloudBlobClient()
-                .GetContainerReference(EncryptionContainerName)
-                .CreateIfNotExistsAsync().Wait();
+            new BlobContainerClient(encryptionOptions.KeyStorage, EncryptionContainerName)
+                .CreateIfNotExistsAsync()
+                .Wait();
 
             var dataProtectionBuilder = services
                 .AddDataProtection()

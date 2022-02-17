@@ -5,7 +5,7 @@
 
 namespace TeamCloud.Adapters.Threading;
 
-public interface IBlobStorageDistributeLockOptions
+public interface IBlobStorageDistributedLockOptions
 {
     public string ConnectionString { get; }
 }

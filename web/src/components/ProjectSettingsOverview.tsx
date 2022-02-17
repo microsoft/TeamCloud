@@ -97,19 +97,31 @@ export const ProjectSettingsOverview: React.FC = () => {
             </Stack.Item>
             <Stack.Item>
                 <Stack tokens={{ childrenGap: '14px' }}>
-                    <Stack.Item>
-                        <TextField
-                            readOnly
-                            label='Resource Group'
-                            description='Project resouce group ID'
-                            defaultValue={project.resourceId ?? undefined} />
-                    </Stack.Item>
-                    {project.resourceId && (
+                    {!project.resourceId && (
                         <Stack.Item>
-                            <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${project.resourceId}`}>
-                                View in Azure Portal
-                        </Link>
+                            <TextField
+                                readOnly
+                                disabled
+                                label='Resource Group'
+                                description='Project resouce group ID'
+                                defaultValue={'creating...'} />
                         </Stack.Item>
+                    )}
+                    {project.resourceId && (
+                        <>
+                            <Stack.Item>
+                                <TextField
+                                    readOnly
+                                    label='Resource Group'
+                                    description='Project resouce group ID'
+                                    defaultValue={project.resourceId} />
+                            </Stack.Item>
+                            <Stack.Item>
+                                <Link target='_blank' href={`https://portal.azure.com/#@${org.tenant}/resource${project.resourceId}`}>
+                                    View in Azure Portal
+                                </Link>
+                            </Stack.Item>
+                        </>
                     )}
                 </Stack>
             </Stack.Item>
@@ -133,11 +145,11 @@ export const ProjectSettingsOverview: React.FC = () => {
                                 rootHovered: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
                                 rootPressed: { backgroundColor: theme.palette.redDark, border: '1px solid transparent' },
                                 label: { fontWeight: 700 }
-                            }} 
-                            confirmationTitle='Delete project' 
+                            }}
+                            confirmationTitle='Delete project'
                             confirmationBody={`Are you sure you want to delete the "${project.displayName}" project?\nYou will loose all provisioned component instances (incl. contained data).`}
-                            confirmationValue={project.displayName} 
-                            onClick={(evt) => deleteProject(project)}/>
+                            confirmationValue={project.displayName}
+                            onClick={(evt) => deleteProject(project)} />
                     </Stack.Item>
                 </Stack>
             </Stack.Item>

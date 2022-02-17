@@ -7,12 +7,11 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Azure.Identity;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
@@ -120,14 +119,13 @@ public class TeamCloudOrchestratorStartup : FunctionsStartup
             })
             .AddSingleton<IRepositoryCache, RepositoryCache>();
 
-        if (configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && CloudStorageAccount.TryParse(encryptionOptions.KeyStorage, out var keyStorageAccount))
+        if (configuration.TryBind<EncryptionOptions>("Encryption", out var encryptionOptions) && !string.IsNullOrEmpty(encryptionOptions.KeyStorage))
         {
             const string EncryptionContainerName = "encryption";
 
-            keyStorageAccount
-                .CreateCloudBlobClient()
-                .GetContainerReference(EncryptionContainerName)
-                .CreateIfNotExistsAsync().Wait();
+            new BlobContainerClient(encryptionOptions.KeyStorage, EncryptionContainerName)
+                .CreateIfNotExistsAsync()
+                .Wait();
 
             var dataProtectionBuilder = builder.Services
                 .AddDataProtection()

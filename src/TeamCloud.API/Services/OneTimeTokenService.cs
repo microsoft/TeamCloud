@@ -1,7 +1,14 @@
-﻿using System;
+﻿/**
+ *  Copyright (c) Microsoft Corporation.
+ *  Licensed under the MIT License.
+ */
+
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
+using Azure;
+using Azure.Data.Tables;
 using Nito.AsyncEx;
 using TeamCloud.Model.Data;
 
@@ -10,34 +17,31 @@ namespace TeamCloud.API.Services;
 public class OneTimeTokenService
 {
     private readonly IOneTimeTokenServiceOptions options;
-    private readonly AsyncLazy<CloudTable> tableInstance;
+
+    private readonly AsyncLazy<TableClient> tableClient;
 
     public OneTimeTokenService(IOneTimeTokenServiceOptions options)
     {
         this.options = options ?? throw new ArgumentNullException(nameof(options));
 
-        tableInstance = new AsyncLazy<CloudTable>(async () =>
+        tableClient = new AsyncLazy<TableClient>(async () =>
         {
-            var table = CloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudTableClient()
-                .GetTableReference(nameof(OneTimeTokenService));
+            var client = new TableClient(this.options.ConnectionString, nameof(OneTimeTokenService));
 
-            await table
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
+            await client.CreateIfNotExistsAsync().ConfigureAwait(false);
 
-            return table;
+            return client;
         });
     }
 
     public async Task<string> AcquireTokenAsync(User user, TimeSpan? ttl = null)
     {
-        var table = await tableInstance.ConfigureAwait(false);
+        var client = await tableClient.ConfigureAwait(false);
+
         var entity = new OneTimeTokenServiceEntity(Guid.Parse(user.Organization), Guid.Parse(user.Id), ttl);
 
-        _ = await table
-            .ExecuteAsync(TableOperation.Insert(entity))
+        _ = await client
+            .UpsertEntityAsync(entity)
             .ConfigureAwait(false);
 
         return entity.Token;
@@ -50,50 +54,30 @@ public class OneTimeTokenService
 
         var timestamp = DateTimeOffset.UtcNow;
 
-        var table = await tableInstance.ConfigureAwait(false);
+        var client = await tableClient.ConfigureAwait(false);
 
-        var filter = TableQuery.CombineFilters(
-            OneTimeTokenServiceEntity.DefaultPartitionKeyFilter,
-            TableOperators.And,
-            TableQuery.CombineFilters(
-                TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, token),
-                TableOperators.Or,
-                TableQuery.GenerateFilterConditionForDate("Expires", QueryComparisons.LessThanOrEqual, timestamp)));
+        var filters = OneTimeTokenServiceEntity.DefaultPartitionKeyFilter;
 
-        var response = await table
-            .ExecuteQuerySegmentedAsync(new TableQuery<OneTimeTokenServiceEntity>().Where(filter), default)
+        filters += $" and (RowKey eq {token} or Expires le {timestamp})";
+
+        var entities = await client
+            .QueryAsync<OneTimeTokenServiceEntity>(e =>
+                e.PartitionKey == OneTimeTokenServiceEntity.DefaultPartitionKeyValue && (e.RowKey == token || e.Expires <= timestamp)
+            ).ToListAsync()
             .ConfigureAwait(false);
 
-        OneTimeTokenServiceEntity entity = null;
+        var entity = entities.SingleOrDefault(r => r.Token.Equals(token) && r.Expires > timestamp);
 
-        while (true)
+        var batch = new List<TableTransactionAction>();
+
+        entities
+            .ForEach(r => { r.ETag = ETag.All; batch.Add(new TableTransactionAction(TableTransactionActionType.Delete, r)); });
+
+        if (batch.Any())
         {
-            entity ??= response.Results
-                .SingleOrDefault(r => r.Token.Equals(token) && r.Expires > timestamp);
-
-            var batch = new TableBatchOperation();
-
-            response.Results
-                .ToList()
-                .ForEach(r => { r.TableEntity.ETag = "*"; batch.Add(TableOperation.Delete(r)); });
-
-            if (batch.Any())
-            {
-                await table
-                    .ExecuteBatchAsync(batch)
-                    .ConfigureAwait(false);
-            }
-
-            if (response.ContinuationToken is not null)
-            {
-                response = await table
-                    .ExecuteQuerySegmentedAsync(new TableQuery<OneTimeTokenServiceEntity>().Where(filter), response.ContinuationToken)
-                    .ConfigureAwait(false);
-            }
-            else
-            {
-                break;
-            }
+            await client
+                .SubmitTransactionAsync(batch)
+                .ConfigureAwait(false);
         }
 
         return entity;

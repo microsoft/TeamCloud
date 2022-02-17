@@ -6,7 +6,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
+using Azure;
+using Azure.Data.Tables;
 using Nito.AsyncEx;
 using TeamCloud.Model.Data;
 
@@ -18,64 +19,67 @@ public sealed class AuthorizationTokenClient : IAuthorizationTokenClient
 
     private readonly IAuthorizationTokenOptions options;
 
-    private readonly AsyncLazy<CloudTable> tableInstance;
+    private readonly AsyncLazy<TableClient> tableClient;
 
     public AuthorizationTokenClient(IAuthorizationTokenOptions options)
     {
         this.options = options ?? throw new ArgumentNullException(nameof(options));
 
-        tableInstance = new AsyncLazy<CloudTable>(async () =>
+        tableClient = new AsyncLazy<TableClient>(async () =>
         {
-            var table = CloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudTableClient()
-                .GetTableReference(TableName);
+            var client = new TableClient(this.options.ConnectionString, TableName);
 
-            await table
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
+            await client.CreateIfNotExistsAsync().ConfigureAwait(false);
 
-            return table;
+            return client;
         });
     }
 
     public async Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
-        where TAuthorizationToken : AuthorizationToken
+        where TAuthorizationToken : AuthorizationToken, new()
     {
         if (deploymentScope is null)
             throw new ArgumentNullException(nameof(deploymentScope));
 
-        var table = await tableInstance.ConfigureAwait(false);
+        var client = await tableClient.ConfigureAwait(false);
 
         var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
         var partitionKey = string.Join(",", typeof(TAuthorizationToken).AssemblyQualifiedName.Split(',').Take(2));
 
-        var response = await table
-            .ExecuteAsync(TableOperation.Retrieve<TAuthorizationToken>(partitionKey, rowKey))
-            .ConfigureAwait(false);
+        try
+        {
+            var response = await client
+                .GetEntityAsync<TAuthorizationToken>(partitionKey, rowKey)
+                .ConfigureAwait(false);
 
-        return response.Result as TAuthorizationToken;
+            return response.Value;
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            // doesn't exist
+            return null;
+        }
     }
 
     public async Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken, bool force = false)
-        where TAuthorizationToken : AuthorizationToken
+        where TAuthorizationToken : AuthorizationToken, new()
     {
         if (authorizationToken is null)
             throw new ArgumentNullException(nameof(authorizationToken));
 
-        var table = await tableInstance.ConfigureAwait(false);
+        var client = await tableClient.ConfigureAwait(false);
 
-        if (authorizationToken.Entity.ETag is not null && force)
-            authorizationToken.Entity.ETag = "*";
+        if (authorizationToken.ETag != default && force)
+            authorizationToken.ETag = ETag.All;
 
-        var tableOperation = authorizationToken.Entity.ETag is null || force
-            ? TableOperation.InsertOrReplace(authorizationToken)
-            : TableOperation.Replace(authorizationToken);
+        var updateMode = authorizationToken.ETag == default || force
+            ? TableUpdateMode.Replace
+            : TableUpdateMode.Merge;
 
-        var response = await table
-            .ExecuteAsync(tableOperation)
+        await client
+            .UpsertEntityAsync(authorizationToken, updateMode)
             .ConfigureAwait(false);
 
-        return response.Result as TAuthorizationToken;
+        return authorizationToken;
     }
 }
