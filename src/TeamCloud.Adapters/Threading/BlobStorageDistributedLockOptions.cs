@@ -7,12 +7,12 @@ using System;
 
 namespace TeamCloud.Adapters.Threading;
 
-public sealed class BlobStorageDistributeeLockOptions : IBlobStorageDistributeLockOptions
+public sealed class BlobStorageDistributedLockOptions : IBlobStorageDistributedLockOptions
 {
-    public static IBlobStorageDistributeLockOptions Default
-        => new BlobStorageDistributeeLockOptions();
+    public static IBlobStorageDistributedLockOptions Default
+        => new BlobStorageDistributedLockOptions();
 
-    private BlobStorageDistributeeLockOptions()
+    private BlobStorageDistributedLockOptions()
     { }
 
     public string ConnectionString

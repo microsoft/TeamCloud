@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Secrets;
@@ -19,7 +19,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 {
     private readonly ISecretsStoreProvider secretsStoreProvider;
     private readonly IAzureSessionService azureSessionService;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
     private readonly IOrganizationRepository organizationRepository;
     private readonly IProjectRepository projectRepository;
 
@@ -30,15 +30,15 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                                   IDistributedLockManager distributedLockManager,
                                   ISecretsStoreProvider secretsStoreProvider,
                                   IAzureSessionService azureSessionService,
-                                  IAzureDirectoryService azureDirectoryService,
+                                  IGraphService graphService,
                                   IOrganizationRepository organizationRepository,
                                   IDeploymentScopeRepository deploymentScopeRepository,
                                   IProjectRepository projectRepository,
-                                  IUserRepository userRepository) : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+                                  IUserRepository userRepository) : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.secretsStoreProvider = secretsStoreProvider ?? throw new ArgumentNullException(nameof(secretsStoreProvider));
         this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
     }
@@ -54,7 +54,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 
             var servicePrincipalName = $"{this.GetType().Name}/{servicePrincipalKey}";
 
-            var servicePrincipal = await azureDirectoryService
+            var servicePrincipal = await graphService
                 .GetServicePrincipalAsync(servicePrincipalName)
                 .ConfigureAwait(false);
 
@@ -64,7 +64,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                 // create a new one that we can use to create/update the corresponding
                 // service endpoint in the current team project
 
-                servicePrincipal = await azureDirectoryService
+                servicePrincipal = await graphService
                     .CreateServicePrincipalAsync(servicePrincipalName)
                     .ConfigureAwait(false);
             }
@@ -74,7 +74,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                 // the service principal (create a new secret) so we can move on
                 // creating/updating the corresponding service endpoint.
 
-                servicePrincipal = await azureDirectoryService
+                servicePrincipal = await graphService
                     .RefreshServicePrincipalAsync(servicePrincipalName)
                     .ConfigureAwait(false);
             }
@@ -90,7 +90,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .ConfigureAwait(false);
 
                 servicePrincipal = await secretsStore
-                    .SetSecretAsync(servicePrincipal.ObjectId.ToString(), servicePrincipal)
+                    .SetSecretAsync(servicePrincipal.Id.ToString(), servicePrincipal)
                     .ConfigureAwait(false);
             }
             else if (withPassword)
@@ -104,7 +104,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .ConfigureAwait(false);
 
                 servicePrincipal = (await secretsStore
-                    .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.ObjectId.ToString())
+                    .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.Id.ToString())
                     .ConfigureAwait(false)) ?? servicePrincipal;
             }
 
@@ -123,7 +123,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 
             var servicePrincipalName = $"{this.GetType().Name}/{servicePrincipalKey}";
 
-            var servicePrincipal = await azureDirectoryService
+            var servicePrincipal = await graphService
                 .GetServicePrincipalAsync(servicePrincipalName)
                 .ConfigureAwait(false);
 
@@ -133,7 +133,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                 // create a new one that we can use to create/update the corresponding
                 // service endpoint in the current team project
 
-                servicePrincipal = await azureDirectoryService
+                servicePrincipal = await graphService
                     .CreateServicePrincipalAsync(servicePrincipalName)
                     .ConfigureAwait(false);
             }
@@ -143,7 +143,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                 // the service principal (create a new secret) so we can move on
                 // creating/updating the corresponding service endpoint.
 
-                servicePrincipal = await azureDirectoryService
+                servicePrincipal = await graphService
                     .RefreshServicePrincipalAsync(servicePrincipalName)
                     .ConfigureAwait(false);
             }
@@ -163,7 +163,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .ConfigureAwait(false);
 
                 servicePrincipal = await secretsStore
-                    .SetSecretAsync(servicePrincipal.ObjectId.ToString(), servicePrincipal)
+                    .SetSecretAsync(servicePrincipal.Id.ToString(), servicePrincipal)
                     .ConfigureAwait(false);
             }
             else if (withPassword)
@@ -181,7 +181,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .ConfigureAwait(false);
 
                 servicePrincipal = (await secretsStore
-                    .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.ObjectId.ToString())
+                    .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.Id.ToString())
                     .ConfigureAwait(false)) ?? servicePrincipal;
             }
 

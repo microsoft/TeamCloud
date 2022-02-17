@@ -83,6 +83,53 @@ public static class Extensions
         return $"hub_{hubIdentifier}";
     }
 
+    public static IDictionary<string, string> GetWellKnownTags<T>(this T item, IDictionary<string, string> tags = default)
+        where T : ContainerDocument, ISlug
+    {
+        tags ??= new Dictionary<string, string>();
+
+        var newTags = new Dictionary<string, string>{
+            {"teamcloud.id", item.Id},
+            {"teamcloud.name", item.Slug}
+        };
+
+        var organizationId = (item as IOrganizationContext)?.Organization ?? (item as Organization)?.Id;
+        if (organizationId is not null)
+            newTags["teamcloud.organizationId"] = organizationId;
+
+        var organizationName = (item as IOrganizationContext)?.OrganizationName ?? (item as Organization)?.Slug;
+        if (organizationName is not null)
+            newTags["teamcloud.organizationName"] = organizationName;
+
+        var projectId = (item as IProjectContext)?.ProjectId ?? (item as Project)?.Id;
+        if (projectId is not null)
+            newTags["teamcloud.projectId"] = projectId;
+
+        var projectName = (item as IProjectContext)?.ProjectName ?? (item as Project)?.Slug;
+        if (projectName is not null)
+            newTags["teamcloud.projectName"] = projectName;
+
+        var componentId = (item as IComponentContext)?.ComponentId ?? (item as Component)?.Id;
+        if (componentId is not null)
+            newTags["teamcloud.componentId"] = componentId;
+
+        var componentName = (item as IComponentContext)?.ComponentName ?? (item as Component)?.Slug;
+        if (componentName is not null)
+            newTags["teamcloud.componentName"] = componentName;
+
+        var deploymentScopeId = (item as IDeploymentScopeContext)?.DeploymentScopeId;
+        if (deploymentScopeId is not null)
+            newTags["teamcloud.deploymentScopeId"] = deploymentScopeId;
+
+        var deploymentScopeName = (item as IDeploymentScopeContext)?.DeploymentScopeName;
+        if (deploymentScopeName is not null)
+            newTags["teamcloud.deploymentScopeName"] = deploymentScopeName;
+
+        newTags.ToList().ForEach(t => tags[t.Key] = t.Value);
+
+        return tags;
+    }
+
     public static void MergeTags(this ITags resource, IDictionary<string, string> tags, bool overwriteExistingValues = true)
     {
         if (resource is null)

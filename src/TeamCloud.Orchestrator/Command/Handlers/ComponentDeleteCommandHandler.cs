@@ -62,8 +62,11 @@ public sealed class ComponentDeleteCommandHandler : CommandHandler<ComponentDele
             var componentTask = new ComponentTask
             {
                 Organization = commandResult.Result.Organization,
+                OrganizationName = commandResult.Result.OrganizationName,
                 ComponentId = commandResult.Result.Id,
+                ComponentName = commandResult.Result.Slug,
                 ProjectId = commandResult.Result.ProjectId,
+                ProjectName = commandResult.Result.ProjectName,
                 Type = ComponentTaskType.Delete,
                 RequestedBy = command.User.Id,
                 InputJson = commandResult.Result.InputJson

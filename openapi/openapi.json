@@ -4950,7 +4950,9 @@
           "creator",
           "id",
           "organization",
+          "organizationName",
           "projectId",
+          "projectName",
           "slug",
           "templateId",
           "type"
@@ -4964,10 +4966,16 @@
           "organization": {
             "type": "string"
           },
+          "organizationName": {
+            "type": "string"
+          },
           "templateId": {
             "type": "string"
           },
           "projectId": {
+            "type": "string"
+          },
+          "projectName": {
             "type": "string"
           },
           "creator": {
@@ -5018,6 +5026,10 @@
             "type": "string"
           },
           "deploymentScopeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "deploymentScopeName": {
             "type": "string",
             "nullable": true
           },
@@ -5118,19 +5130,31 @@
       "ComponentTask": {
         "required": [
           "componentId",
+          "componentName",
           "id",
           "organization",
-          "projectId"
+          "organizationName",
+          "projectId",
+          "projectName"
         ],
         "type": "object",
         "properties": {
           "organization": {
             "type": "string"
           },
+          "organizationName": {
+            "type": "string"
+          },
           "componentId": {
             "type": "string"
           },
+          "componentName": {
+            "type": "string"
+          },
           "projectId": {
+            "type": "string"
+          },
+          "projectName": {
             "type": "string"
           },
           "requestedBy": {
@@ -5271,6 +5295,10 @@
             "type": "string",
             "nullable": true
           },
+          "componentName": {
+            "type": "string",
+            "nullable": true
+          },
           "componentTaskTemplateId": {
             "type": "string",
             "nullable": true
@@ -5338,6 +5366,7 @@
         "required": [
           "id",
           "organization",
+          "organizationName",
           "parentId",
           "repository",
           "type"
@@ -5345,6 +5374,9 @@
         "type": "object",
         "properties": {
           "organization": {
+            "type": "string"
+          },
+          "organizationName": {
             "type": "string"
           },
           "parentId": {
@@ -5486,12 +5518,16 @@
           "id",
           "isDefault",
           "organization",
+          "organizationName",
           "slug",
           "type"
         ],
         "type": "object",
         "properties": {
           "organization": {
+            "type": "string"
+          },
+          "organizationName": {
             "type": "string"
           },
           "displayName": {
@@ -5775,6 +5811,13 @@
           },
           "location": {
             "type": "string"
+          },
+          "tags": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5810,12 +5853,16 @@
           "displayName",
           "id",
           "organization",
+          "organizationName",
           "slug",
           "template"
         ],
         "type": "object",
         "properties": {
           "organization": {
+            "type": "string"
+          },
+          "organizationName": {
             "type": "string"
           },
           "slug": {
@@ -5954,14 +6001,22 @@
           "displayName",
           "id",
           "organization",
-          "projectId"
+          "organizationName",
+          "projectId",
+          "projectName"
         ],
         "type": "object",
         "properties": {
           "projectId": {
             "type": "string"
           },
+          "projectName": {
+            "type": "string"
+          },
           "organization": {
+            "type": "string"
+          },
+          "organizationName": {
             "type": "string"
           },
           "displayName": {
@@ -6124,12 +6179,16 @@
           "id",
           "isDefault",
           "organization",
+          "organizationName",
           "repository",
           "slug"
         ],
         "type": "object",
         "properties": {
           "organization": {
+            "type": "string"
+          },
+          "organizationName": {
             "type": "string"
           },
           "slug": {
@@ -6349,14 +6408,22 @@
         "required": [
           "id",
           "organization",
-          "projectId"
+          "organizationName",
+          "projectId",
+          "projectName"
         ],
         "type": "object",
         "properties": {
           "organization": {
             "type": "string"
           },
+          "organizationName": {
+            "type": "string"
+          },
           "projectId": {
+            "type": "string"
+          },
+          "projectName": {
             "type": "string"
           },
           "enabled": {
@@ -6606,7 +6673,11 @@
       "TeamCloudInformation": {
         "type": "object",
         "properties": {
-          "version": {
+          "imageVersion": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateVersion": {
             "type": "string",
             "nullable": true
           }
@@ -6638,12 +6709,16 @@
         "required": [
           "id",
           "organization",
+          "organizationName",
           "role",
           "userType"
         ],
         "type": "object",
         "properties": {
           "organization": {
+            "type": "string"
+          },
+          "organizationName": {
             "type": "string"
           },
           "displayName": {

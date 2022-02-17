@@ -136,8 +136,11 @@ public class ComponentTasksController : TeamCloudController
         var componentTask = new ComponentTask
         {
             Organization = component.Organization,
+            OrganizationName = project.OrganizationName,
             ComponentId = component.Id,
+            ComponentName = component.Slug,
             ProjectId = component.ProjectId,
+            ProjectName = component.ProjectName,
             RequestedBy = contextUser.Id,
             Type = ComponentTaskType.Custom,
             TypeName = componentTaskDefinition.TaskId,

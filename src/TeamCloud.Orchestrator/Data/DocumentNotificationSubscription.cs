@@ -25,7 +25,7 @@ public sealed class DocumentNotificationSubscription : CommandFactorySubscriptio
         this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
     }
 
-    private async Task<User> GetCommandUserAsync(Guid organizationId)
+    private async Task<User> GetCommandUserAsync(Guid organizationId, string organizationName)
     {
         var identity = await azureSessionService
             .GetIdentityAsync()
@@ -34,7 +34,8 @@ public sealed class DocumentNotificationSubscription : CommandFactorySubscriptio
         return new User()
         {
             Id = identity.ObjectId.ToString(),
-            Organization = organizationId.ToString()
+            Organization = organizationId.ToString(),
+            OrganizationName = organizationName
         };
     }
 
@@ -59,9 +60,24 @@ public sealed class DocumentNotificationSubscription : CommandFactorySubscriptio
 
         if (broadcastCommandType is not null)
         {
-            var commandUser = Guid.TryParse((containerDocument as IOrganizationContext)?.Organization, out var organizationId)
-                ? await GetCommandUserAsync(organizationId).ConfigureAwait(false)
-                : await GetCommandUserAsync(Guid.Empty).ConfigureAwait(false);
+            var organizationId = Guid.Empty;
+            var organizationName = "none";
+
+            var organizationContext = containerDocument as IOrganizationContext;
+            if (organizationContext is not null && Guid.TryParse(organizationContext.Organization, out organizationId))
+            {
+                organizationName = organizationContext.OrganizationName;
+            }
+            else
+            {
+                var organization = containerDocument as Organization;
+                if (organization is not null && Guid.TryParse(organization.Id, out organizationId))
+                {
+                    organizationName = organization.Slug;
+                }
+            }
+
+            var commandUser = await GetCommandUserAsync(organizationId, organizationName);
 
             var command = (ICommand)Activator
                 .CreateInstance(broadcastCommandType, new object[] { commandUser, containerDocument });

@@ -11,8 +11,8 @@ namespace TeamCloud.Adapters.Authorization;
 public interface IAuthorizationSessionClient
 {
     Task<TAuthorizationSession> GetAsync<TAuthorizationSession>(DeploymentScope deploymentScope)
-        where TAuthorizationSession : AuthorizationSession;
+        where TAuthorizationSession : AuthorizationSession, new();
 
     Task<TAuthorizationSession> SetAsync<TAuthorizationSession>(TAuthorizationSession authorizationSession)
-        where TAuthorizationSession : AuthorizationSession;
+        where TAuthorizationSession : AuthorizationSession, new();
 }

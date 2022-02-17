@@ -317,10 +317,14 @@ class Component(msrest.serialization.Model):
     :vartype href: str
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar template_id: Required.
     :vartype template_id: str
     :ivar project_id: Required.
     :vartype project_id: str
+    :ivar project_name: Required.
+    :vartype project_name: str
     :ivar creator: Required.
     :vartype creator: str
     :ivar display_name:
@@ -342,6 +346,8 @@ class Component(msrest.serialization.Model):
     :vartype resource_state: str or ~teamcloud.models.ComponentResourceState
     :ivar deployment_scope_id:
     :vartype deployment_scope_id: str
+    :ivar deployment_scope_name:
+    :vartype deployment_scope_name: str
     :ivar identity_id:
     :vartype identity_id: str
     :ivar deleted:
@@ -356,8 +362,10 @@ class Component(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'template_id': {'required': True},
         'project_id': {'required': True},
+        'project_name': {'required': True},
         'creator': {'required': True},
         'type': {'required': True},
         'slug': {'required': True},
@@ -367,8 +375,10 @@ class Component(msrest.serialization.Model):
     _attribute_map = {
         'href': {'key': 'href', 'type': 'str'},
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'template_id': {'key': 'templateId', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
+        'project_name': {'key': 'projectName', 'type': 'str'},
         'creator': {'key': 'creator', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
@@ -379,6 +389,7 @@ class Component(msrest.serialization.Model):
         'resource_url': {'key': 'resourceUrl', 'type': 'str'},
         'resource_state': {'key': 'resourceState', 'type': 'str'},
         'deployment_scope_id': {'key': 'deploymentScopeId', 'type': 'str'},
+        'deployment_scope_name': {'key': 'deploymentScopeName', 'type': 'str'},
         'identity_id': {'key': 'identityId', 'type': 'str'},
         'deleted': {'key': 'deleted', 'type': 'iso-8601'},
         'ttl': {'key': 'ttl', 'type': 'int'},
@@ -395,10 +406,14 @@ class Component(msrest.serialization.Model):
         :paramtype href: str
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword template_id: Required.
         :paramtype template_id: str
         :keyword project_id: Required.
         :paramtype project_id: str
+        :keyword project_name: Required.
+        :paramtype project_name: str
         :keyword creator: Required.
         :paramtype creator: str
         :keyword display_name:
@@ -420,6 +435,8 @@ class Component(msrest.serialization.Model):
         :paramtype resource_state: str or ~teamcloud.models.ComponentResourceState
         :keyword deployment_scope_id:
         :paramtype deployment_scope_id: str
+        :keyword deployment_scope_name:
+        :paramtype deployment_scope_name: str
         :keyword identity_id:
         :paramtype identity_id: str
         :keyword deleted:
@@ -434,8 +451,10 @@ class Component(msrest.serialization.Model):
         super(Component, self).__init__(**kwargs)
         self.href = kwargs.get('href', None)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.template_id = kwargs['template_id']
         self.project_id = kwargs['project_id']
+        self.project_name = kwargs['project_name']
         self.creator = kwargs['creator']
         self.display_name = kwargs.get('display_name', None)
         self.description = kwargs.get('description', None)
@@ -446,6 +465,7 @@ class Component(msrest.serialization.Model):
         self.resource_url = kwargs.get('resource_url', None)
         self.resource_state = kwargs.get('resource_state', None)
         self.deployment_scope_id = kwargs.get('deployment_scope_id', None)
+        self.deployment_scope_name = kwargs.get('deployment_scope_name', None)
         self.identity_id = kwargs.get('identity_id', None)
         self.deleted = kwargs.get('deleted', None)
         self.ttl = kwargs.get('ttl', None)
@@ -594,10 +614,16 @@ class ComponentTask(msrest.serialization.Model):
 
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar component_id: Required.
     :vartype component_id: str
+    :ivar component_name: Required.
+    :vartype component_name: str
     :ivar project_id: Required.
     :vartype project_id: str
+    :ivar project_name: Required.
+    :vartype project_name: str
     :ivar requested_by:
     :vartype requested_by: str
     :ivar schedule_id:
@@ -629,15 +655,21 @@ class ComponentTask(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'component_id': {'required': True},
+        'component_name': {'required': True},
         'project_id': {'required': True},
+        'project_name': {'required': True},
         'id': {'required': True},
     }
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'component_id': {'key': 'componentId', 'type': 'str'},
+        'component_name': {'key': 'componentName', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
+        'project_name': {'key': 'projectName', 'type': 'str'},
         'requested_by': {'key': 'requestedBy', 'type': 'str'},
         'schedule_id': {'key': 'scheduleId', 'type': 'str'},
         'type': {'key': 'type', 'type': 'str'},
@@ -660,10 +692,16 @@ class ComponentTask(msrest.serialization.Model):
         """
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword component_id: Required.
         :paramtype component_id: str
+        :keyword component_name: Required.
+        :paramtype component_name: str
         :keyword project_id: Required.
         :paramtype project_id: str
+        :keyword project_name: Required.
+        :paramtype project_name: str
         :keyword requested_by:
         :paramtype requested_by: str
         :keyword schedule_id:
@@ -694,8 +732,11 @@ class ComponentTask(msrest.serialization.Model):
         """
         super(ComponentTask, self).__init__(**kwargs)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.component_id = kwargs['component_id']
+        self.component_name = kwargs['component_name']
         self.project_id = kwargs['project_id']
+        self.project_name = kwargs['project_name']
         self.requested_by = kwargs.get('requested_by', None)
         self.schedule_id = kwargs.get('schedule_id', None)
         self.type = kwargs.get('type', None)
@@ -837,6 +878,8 @@ class ComponentTaskReference(msrest.serialization.Model):
 
     :ivar component_id:
     :vartype component_id: str
+    :ivar component_name:
+    :vartype component_name: str
     :ivar component_task_template_id:
     :vartype component_task_template_id: str
     :ivar input_json:
@@ -845,6 +888,7 @@ class ComponentTaskReference(msrest.serialization.Model):
 
     _attribute_map = {
         'component_id': {'key': 'componentId', 'type': 'str'},
+        'component_name': {'key': 'componentName', 'type': 'str'},
         'component_task_template_id': {'key': 'componentTaskTemplateId', 'type': 'str'},
         'input_json': {'key': 'inputJson', 'type': 'str'},
     }
@@ -856,6 +900,8 @@ class ComponentTaskReference(msrest.serialization.Model):
         """
         :keyword component_id:
         :paramtype component_id: str
+        :keyword component_name:
+        :paramtype component_name: str
         :keyword component_task_template_id:
         :paramtype component_task_template_id: str
         :keyword input_json:
@@ -863,6 +909,7 @@ class ComponentTaskReference(msrest.serialization.Model):
         """
         super(ComponentTaskReference, self).__init__(**kwargs)
         self.component_id = kwargs.get('component_id', None)
+        self.component_name = kwargs.get('component_name', None)
         self.component_task_template_id = kwargs.get('component_task_template_id', None)
         self.input_json = kwargs.get('input_json', None)
 
@@ -960,6 +1007,8 @@ class ComponentTemplate(msrest.serialization.Model):
 
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar parent_id: Required.
     :vartype parent_id: str
     :ivar display_name:
@@ -988,6 +1037,7 @@ class ComponentTemplate(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'parent_id': {'required': True},
         'repository': {'required': True},
         'type': {'required': True},
@@ -996,6 +1046,7 @@ class ComponentTemplate(msrest.serialization.Model):
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'parent_id': {'key': 'parentId', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'description': {'key': 'description', 'type': 'str'},
@@ -1017,6 +1068,8 @@ class ComponentTemplate(msrest.serialization.Model):
         """
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword parent_id: Required.
         :paramtype parent_id: str
         :keyword display_name:
@@ -1044,6 +1097,7 @@ class ComponentTemplate(msrest.serialization.Model):
         """
         super(ComponentTemplate, self).__init__(**kwargs)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.parent_id = kwargs['parent_id']
         self.display_name = kwargs.get('display_name', None)
         self.description = kwargs.get('description', None)
@@ -1198,6 +1252,8 @@ class DeploymentScope(msrest.serialization.Model):
 
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar display_name: Required.
     :vartype display_name: str
     :ivar slug: Required.
@@ -1229,6 +1285,7 @@ class DeploymentScope(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'display_name': {'required': True},
         'slug': {'required': True},
         'is_default': {'required': True},
@@ -1238,6 +1295,7 @@ class DeploymentScope(msrest.serialization.Model):
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'slug': {'key': 'slug', 'type': 'str'},
         'is_default': {'key': 'isDefault', 'type': 'bool'},
@@ -1260,6 +1318,8 @@ class DeploymentScope(msrest.serialization.Model):
         """
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword display_name: Required.
         :paramtype display_name: str
         :keyword slug: Required.
@@ -1290,6 +1350,7 @@ class DeploymentScope(msrest.serialization.Model):
         """
         super(DeploymentScope, self).__init__(**kwargs)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.display_name = kwargs['display_name']
         self.slug = kwargs['slug']
         self.is_default = kwargs['is_default']
@@ -1647,6 +1708,8 @@ class OrganizationDefinition(msrest.serialization.Model):
     :vartype subscription_id: str
     :ivar location: Required.
     :vartype location: str
+    :ivar tags: A set of tags. Dictionary of :code:`<string>`.
+    :vartype tags: dict[str, str]
     """
 
     _validation = {
@@ -1661,6 +1724,7 @@ class OrganizationDefinition(msrest.serialization.Model):
         'display_name': {'key': 'displayName', 'type': 'str'},
         'subscription_id': {'key': 'subscriptionId', 'type': 'str'},
         'location': {'key': 'location', 'type': 'str'},
+        'tags': {'key': 'tags', 'type': '{str}'},
     }
 
     def __init__(
@@ -1674,12 +1738,15 @@ class OrganizationDefinition(msrest.serialization.Model):
         :paramtype subscription_id: str
         :keyword location: Required.
         :paramtype location: str
+        :keyword tags: A set of tags. Dictionary of :code:`<string>`.
+        :paramtype tags: dict[str, str]
         """
         super(OrganizationDefinition, self).__init__(**kwargs)
         self.slug = None
         self.display_name = kwargs['display_name']
         self.subscription_id = kwargs['subscription_id']
         self.location = kwargs['location']
+        self.tags = kwargs.get('tags', None)
 
 
 class OrganizationListDataResult(msrest.serialization.Model):
@@ -1736,6 +1803,8 @@ class Project(msrest.serialization.Model):
 
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar slug: Required.
     :vartype slug: str
     :ivar display_name: Required.
@@ -1771,6 +1840,7 @@ class Project(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'slug': {'required': True},
         'display_name': {'required': True},
         'template': {'required': True},
@@ -1780,6 +1850,7 @@ class Project(msrest.serialization.Model):
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'slug': {'key': 'slug', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'template': {'key': 'template', 'type': 'str'},
@@ -1804,6 +1875,8 @@ class Project(msrest.serialization.Model):
         """
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword slug: Required.
         :paramtype slug: str
         :keyword display_name: Required.
@@ -1836,6 +1909,7 @@ class Project(msrest.serialization.Model):
         """
         super(Project, self).__init__(**kwargs)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.slug = kwargs['slug']
         self.display_name = kwargs['display_name']
         self.template = kwargs['template']
@@ -1957,8 +2031,12 @@ class ProjectIdentity(msrest.serialization.Model):
 
     :ivar project_id: Required.
     :vartype project_id: str
+    :ivar project_name: Required.
+    :vartype project_name: str
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar display_name: Required.
     :vartype display_name: str
     :ivar deployment_scope_id: Required.
@@ -1979,7 +2057,9 @@ class ProjectIdentity(msrest.serialization.Model):
 
     _validation = {
         'project_id': {'required': True},
+        'project_name': {'required': True},
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'display_name': {'required': True},
         'deployment_scope_id': {'required': True},
         'id': {'required': True},
@@ -1987,7 +2067,9 @@ class ProjectIdentity(msrest.serialization.Model):
 
     _attribute_map = {
         'project_id': {'key': 'projectId', 'type': 'str'},
+        'project_name': {'key': 'projectName', 'type': 'str'},
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'deployment_scope_id': {'key': 'deploymentScopeId', 'type': 'str'},
         'tenant_id': {'key': 'tenantId', 'type': 'str'},
@@ -2005,8 +2087,12 @@ class ProjectIdentity(msrest.serialization.Model):
         """
         :keyword project_id: Required.
         :paramtype project_id: str
+        :keyword project_name: Required.
+        :paramtype project_name: str
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword display_name: Required.
         :paramtype display_name: str
         :keyword deployment_scope_id: Required.
@@ -2026,7 +2112,9 @@ class ProjectIdentity(msrest.serialization.Model):
         """
         super(ProjectIdentity, self).__init__(**kwargs)
         self.project_id = kwargs['project_id']
+        self.project_name = kwargs['project_name']
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.display_name = kwargs['display_name']
         self.deployment_scope_id = kwargs['deployment_scope_id']
         self.tenant_id = kwargs.get('tenant_id', None)
@@ -2254,6 +2342,8 @@ class ProjectTemplate(msrest.serialization.Model):
 
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar slug: Required.
     :vartype slug: str
     :ivar name:
@@ -2276,6 +2366,7 @@ class ProjectTemplate(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'slug': {'required': True},
         'display_name': {'required': True},
         'repository': {'required': True},
@@ -2285,6 +2376,7 @@ class ProjectTemplate(msrest.serialization.Model):
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'slug': {'key': 'slug', 'type': 'str'},
         'name': {'key': 'name', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
@@ -2303,6 +2395,8 @@ class ProjectTemplate(msrest.serialization.Model):
         """
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword slug: Required.
         :paramtype slug: str
         :keyword name:
@@ -2324,6 +2418,7 @@ class ProjectTemplate(msrest.serialization.Model):
         """
         super(ProjectTemplate, self).__init__(**kwargs)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.slug = kwargs['slug']
         self.name = kwargs.get('name', None)
         self.display_name = kwargs['display_name']
@@ -2633,8 +2728,12 @@ class Schedule(msrest.serialization.Model):
 
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar project_id: Required.
     :vartype project_id: str
+    :ivar project_name: Required.
+    :vartype project_name: str
     :ivar enabled:
     :vartype enabled: bool
     :ivar recurring:
@@ -2663,13 +2762,17 @@ class Schedule(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'project_id': {'required': True},
+        'project_name': {'required': True},
         'id': {'required': True},
     }
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'project_id': {'key': 'projectId', 'type': 'str'},
+        'project_name': {'key': 'projectName', 'type': 'str'},
         'enabled': {'key': 'enabled', 'type': 'bool'},
         'recurring': {'key': 'recurring', 'type': 'bool'},
         'days_of_week': {'key': 'daysOfWeek', 'type': '[str]'},
@@ -2691,8 +2794,12 @@ class Schedule(msrest.serialization.Model):
         """
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword project_id: Required.
         :paramtype project_id: str
+        :keyword project_name: Required.
+        :paramtype project_name: str
         :keyword enabled:
         :paramtype enabled: bool
         :keyword recurring:
@@ -2720,7 +2827,9 @@ class Schedule(msrest.serialization.Model):
         """
         super(Schedule, self).__init__(**kwargs)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.project_id = kwargs['project_id']
+        self.project_name = kwargs['project_name']
         self.enabled = kwargs.get('enabled', None)
         self.recurring = kwargs.get('recurring', None)
         self.days_of_week = kwargs.get('days_of_week', None)
@@ -3030,12 +3139,15 @@ class StringListDataResult(msrest.serialization.Model):
 class TeamCloudInformation(msrest.serialization.Model):
     """TeamCloudInformation.
 
-    :ivar version:
-    :vartype version: str
+    :ivar image_version:
+    :vartype image_version: str
+    :ivar template_version:
+    :vartype template_version: str
     """
 
     _attribute_map = {
-        'version': {'key': 'version', 'type': 'str'},
+        'image_version': {'key': 'imageVersion', 'type': 'str'},
+        'template_version': {'key': 'templateVersion', 'type': 'str'},
     }
 
     def __init__(
@@ -3043,11 +3155,14 @@ class TeamCloudInformation(msrest.serialization.Model):
         **kwargs
     ):
         """
-        :keyword version:
-        :paramtype version: str
+        :keyword image_version:
+        :paramtype image_version: str
+        :keyword template_version:
+        :paramtype template_version: str
         """
         super(TeamCloudInformation, self).__init__(**kwargs)
-        self.version = kwargs.get('version', None)
+        self.image_version = kwargs.get('image_version', None)
+        self.template_version = kwargs.get('template_version', None)
 
 
 class TeamCloudInformationDataResult(msrest.serialization.Model):
@@ -3098,6 +3213,8 @@ class User(msrest.serialization.Model):
 
     :ivar organization: Required.
     :vartype organization: str
+    :ivar organization_name: Required.
+    :vartype organization_name: str
     :ivar display_name:
     :vartype display_name: str
     :ivar login_name:
@@ -3120,6 +3237,7 @@ class User(msrest.serialization.Model):
 
     _validation = {
         'organization': {'required': True},
+        'organization_name': {'required': True},
         'user_type': {'required': True},
         'role': {'required': True},
         'id': {'required': True},
@@ -3127,6 +3245,7 @@ class User(msrest.serialization.Model):
 
     _attribute_map = {
         'organization': {'key': 'organization', 'type': 'str'},
+        'organization_name': {'key': 'organizationName', 'type': 'str'},
         'display_name': {'key': 'displayName', 'type': 'str'},
         'login_name': {'key': 'loginName', 'type': 'str'},
         'mail_address': {'key': 'mailAddress', 'type': 'str'},
@@ -3145,6 +3264,8 @@ class User(msrest.serialization.Model):
         """
         :keyword organization: Required.
         :paramtype organization: str
+        :keyword organization_name: Required.
+        :paramtype organization_name: str
         :keyword display_name:
         :paramtype display_name: str
         :keyword login_name:
@@ -3167,6 +3288,7 @@ class User(msrest.serialization.Model):
         """
         super(User, self).__init__(**kwargs)
         self.organization = kwargs['organization']
+        self.organization_name = kwargs['organization_name']
         self.display_name = kwargs.get('display_name', None)
         self.login_name = kwargs.get('login_name', None)
         self.mail_address = kwargs.get('mail_address', None)

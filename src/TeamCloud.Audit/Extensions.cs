@@ -5,8 +5,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Azure.Storage.Blob;
+using Azure.Storage.Blobs;
+using Azure.Data.Tables;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TeamCloud.Audit.Model;
@@ -65,27 +65,27 @@ public static class Extensions
         return $"{ToPathSegmentSafe(commandAuditEntity.OrganizationId)}/{ToPathSegmentSafe(commandAuditEntity.ProjectId)}/{commandAuditEntity.CommandId}.{RESULT_QUALIFIER}.json";
     }
 
-    internal static async Task<CloudBlobContainer> EnsureContainerAsync(this Lazy<CloudBlobContainer> cloudBlobContainer)
+    internal static async Task<BlobContainerClient> EnsureContainerAsync(this Lazy<BlobContainerClient> blobContainerClient)
     {
-        if (!cloudBlobContainer.IsValueCreated)
+        if (!blobContainerClient.IsValueCreated)
         {
-            _ = await cloudBlobContainer.Value
+            _ = await blobContainerClient.Value
                 .CreateIfNotExistsAsync()
                 .ConfigureAwait(false);
         }
 
-        return cloudBlobContainer.Value;
+        return blobContainerClient.Value;
     }
 
-    internal static async Task<CloudTable> EnsureTableAsync(this Lazy<CloudTable> cloudTable)
+    internal static async Task<TableClient> EnsureTableAsync(this Lazy<TableClient> tableClient)
     {
-        if (!cloudTable.IsValueCreated)
+        if (!tableClient.IsValueCreated)
         {
-            _ = await cloudTable.Value
+            _ = await tableClient.Value
                 .CreateIfNotExistsAsync()
                 .ConfigureAwait(false);
         }
 
-        return cloudTable.Value;
+        return tableClient.Value;
     }
 }

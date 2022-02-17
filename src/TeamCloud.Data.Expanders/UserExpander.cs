@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders;
@@ -15,35 +15,35 @@ namespace TeamCloud.Data.Expanders;
 public sealed class UserExpander : DocumentExpander,
     IDocumentExpander<User>
 {
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
 
-    public UserExpander(IAzureDirectoryService azureDirectoryService, TelemetryClient telemetryClient) : base(true, telemetryClient)
+    public UserExpander(IGraphService graphService, TelemetryClient telemetryClient) : base(true, telemetryClient)
     {
-        this.azureDirectoryService = azureDirectoryService ?? throw new System.ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
     }
 
     public Task ExpandAsync(User document)
     {
         if (document is null)
-            throw new System.ArgumentNullException(nameof(document));
+            throw new ArgumentNullException(nameof(document));
 
         var tasks = new List<Task>()
             {
                 FetchAsync(async () =>
                 {
-                    document.DisplayName ??= await azureDirectoryService
+                    document.DisplayName ??= await graphService
                         .GetDisplayNameAsync(document.Id)
                         .ConfigureAwait(false);
                 }),
                 FetchAsync(async () =>
                 {
-                    document.LoginName ??= await azureDirectoryService
+                    document.LoginName ??= await graphService
                         .GetLoginNameAsync(document.Id)
                         .ConfigureAwait(false);
                 }),
                 FetchAsync(async () =>
                 {
-                    document.MailAddress ??= await azureDirectoryService
+                    document.MailAddress ??= await graphService
                         .GetMailAddressAsync(document.Id)
                         .ConfigureAwait(false);
                 }),
@@ -51,6 +51,6 @@ public sealed class UserExpander : DocumentExpander,
 
         return tasks.WhenAll();
 
-        Task FetchAsync(Func<Task> callback) => callback();
+        static Task FetchAsync(Func<Task> callback) => callback();
     }
 }

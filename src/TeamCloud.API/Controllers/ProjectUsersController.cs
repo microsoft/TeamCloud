@@ -110,7 +110,7 @@ public class ProjectUsersController : TeamCloudController
                 .ToActionResult();
 
         var user = await UserService
-            .ResolveUserAsync(project.Organization, userDefinition)
+            .ResolveUserAsync(project.Organization, project.OrganizationName, userDefinition)
             .ConfigureAwait(false);
 
         if (user is null)

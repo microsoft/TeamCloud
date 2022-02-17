@@ -7,13 +7,16 @@ import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot
 import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
 import { AzureRegions, Tags } from '../model';
 import { CalloutLabel, ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, ProjectTemplateForm } from '../components';
-import { useCreateOrg, useAzureSubscriptions } from '../hooks';
+import { useCreateOrg, useAzureSubscriptions, useAdapters } from '../hooks';
 
 export const NewOrgView: React.FC = () => {
 
     const navigate = useNavigate();
 
     const { data: subscriptions } = useAzureSubscriptions();
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = useAdapters();
 
     const createOrg = useCreateOrg();
 

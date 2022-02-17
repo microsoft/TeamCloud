@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Data;
+using TeamCloud.Model;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
@@ -43,6 +44,7 @@ public sealed class OrganizationDeployActivity
 
         template.Parameters["organizationId"] = organization.Id;
         template.Parameters["organizationName"] = organization.Slug;
+        template.Parameters["organizationTags"] = organization.GetWellKnownTags();
 
         var deployment = await azureDeploymentService
             .DeploySubscriptionTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organization.Location)

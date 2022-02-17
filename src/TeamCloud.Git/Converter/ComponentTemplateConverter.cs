@@ -40,6 +40,7 @@ public sealed class ComponentTemplateConverter : YamlTemplateConverter<Component
         componentJson.SetProperty(nameof(ComponentTemplate.Id), repositoryLocation.ToGuid().ToString());
         componentJson.SetProperty(nameof(ComponentTemplate.ParentId), projectTemplate.Id);
         componentJson.SetProperty(nameof(ComponentTemplate.Organization), projectTemplate.Organization);
+        componentJson.SetProperty(nameof(ComponentTemplate.OrganizationName), projectTemplate.OrganizationName);
         componentJson.SetProperty(nameof(ComponentTemplate.Repository), repositoryReference);
 
         var inputJsonSchemaToken = GenerateInputJsonSchema(componentJson, serializer);

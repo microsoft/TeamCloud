@@ -56,7 +56,7 @@ public abstract class EmbeddedDeploymentTemplate : AzureDeploymentTemplate
 
         var content = JObject.Load(jsonReader);
 
-        if (!(content.SelectToken("$.contentVersion") is JValue contentVersion))
+        if (content.SelectToken("$.contentVersion") is not JValue contentVersion)
         {
             content.Children().First().AddAfterSelf(new JProperty("contentVersion", "0.0.0.0"));
 

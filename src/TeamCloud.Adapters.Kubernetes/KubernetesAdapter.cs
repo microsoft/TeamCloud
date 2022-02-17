@@ -12,7 +12,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
@@ -45,12 +45,12 @@ public sealed class KubernetesAdapter : Adapter
                              ISecretsStoreProvider secretsStoreProvider,
                              IAzureSessionService azureSessionService,
                              IAzureResourceService azureResourceService,
-                             IAzureDirectoryService azureDirectoryService,
+                             IGraphService graphService,
                              IOrganizationRepository organizationRepository,
                              IDeploymentScopeRepository deploymentScopeRepository,
                              IProjectRepository projectRepository,
                              IUserRepository userRepository)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
     }

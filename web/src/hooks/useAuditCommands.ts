@@ -17,7 +17,6 @@ export const useAuditCommands = () => {
         const { data } = await api.getAuditCommands(org!.id, {
             onResponse: onResponse
         });
-
         return data;
     }, {
         enabled: isAuthenticated && !!org?.id

@@ -6,7 +6,7 @@ import JSONPretty from 'react-json-pretty';
 import { Dropdown, getTheme, IColumn, Icon, IconButton, IDropdownOption, Pivot, PivotItem, ScrollablePane, ScrollbarVisibility, Stack, Text } from '@fluentui/react';
 import { useQuery, useQueryClient } from 'react-query'
 import { CommandAuditEntity } from 'teamcloud';
-import { api } from '../API';
+import { api, onResponse } from '../API';
 import { ContentSearch, Lightbox } from './common';
 import { useOrg, useAuditCommands } from '../hooks';
 import { ContentList, ContentProgress } from '.';
@@ -37,14 +37,12 @@ export const AuditList: React.FC = () => {
     const { data: org } = useOrg();
 
     const { data: auditCommands, isLoading: auditCommandsLoading } = useAuditCommands();
+
     const { data: auditEntries, isLoading: auditEntriesLoading } = useQuery(['org', org?.id, 'audit', 'entries', selectedTimeRange, ...selectedCommands], async () => {
         const { data } = await api.getAuditEntries(org!.id, {
             timeRange: selectedTimeRange,
             commands: selectedCommands,
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
         return data;
     }, {
@@ -55,10 +53,7 @@ export const AuditList: React.FC = () => {
     const { data: auditEntry, isLoading: auditEntryLoading } = useQuery(['org', org?.id, 'audit', 'entries', selectedEntryId], async () => {
         const { data } = await api.getAuditEntry(selectedEntryId!, org!.id, {
             expand: true,
-            onResponse: (raw, flat) => {
-                if (raw.status >= 400)
-                    throw new Error(raw.parsedBody || raw.bodyAsText || `Error: ${raw.status}`)
-            }
+            onResponse: onResponse
         });
         return data;
     }, {

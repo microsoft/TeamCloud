@@ -24,7 +24,7 @@ public abstract class CommandHandler<TCommand> : CommandHandler, ICommandHandler
 
 public abstract class CommandHandler : ICommandHandler
 {
-    private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, MethodInfo>> HandleMethodCache = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, MethodInfo>>();
+    private static readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, MethodInfo>> HandleMethodCache = new();
 
     private MethodInfo GetHandleMethod(ICommand command) => HandleMethodCache
         .GetOrAdd(GetType(), _ => new ConcurrentDictionary<Type, MethodInfo>())

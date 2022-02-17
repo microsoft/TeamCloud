@@ -22,6 +22,9 @@ public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<U
     [JsonProperty(Required = Required.Always)]
     public string Organization { get; set; }
 
+    [JsonProperty(Required = Required.Always)]
+    public string OrganizationName { get; set; }
+
     [DatabaseIgnore]
     public string DisplayName { get; set; }
 

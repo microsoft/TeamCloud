@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using TeamCloud.API.Data;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 
@@ -17,14 +17,14 @@ namespace TeamCloud.API.Services;
 public class UserService
 {
     private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
     private readonly IMemoryCache cache;
     readonly IUserRepository userRepository;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, IAzureDirectoryService azureDirectoryService, IMemoryCache cache, IUserRepository userRepository)
+    public UserService(IHttpContextAccessor httpContextAccessor, IGraphService graphService, IMemoryCache cache, IUserRepository userRepository)
     {
         this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
     }
@@ -40,7 +40,7 @@ public class UserService
     /// </summary>
     /// <param name="allowUnsafe">This should only be set to true in ApiController actions with the attribute Authorize(Policy = AuthPolicies.Default)</param>
     /// <returns></returns>
-    public async Task<User> CurrentUserAsync(string organizationId, bool allowUnsafe = false)
+    public async Task<User> CurrentUserAsync(string organizationId, string organizationName, bool allowUnsafe = false)
     {
         User user = null;
 
@@ -58,7 +58,8 @@ public class UserService
                 user = new User
                 {
                     Id = CurrentUserId,
-                    Organization = organizationId,
+                    Organization = organizationId ?? Guid.Empty.ToString(),
+                    OrganizationName = organizationName ?? "none",
                     Role = OrganizationUserRole.None,
                     UserType = UserType.User
                 };
@@ -77,7 +78,7 @@ public class UserService
 
         if (!cache.TryGetValue(key, out string val))
         {
-            var guid = await azureDirectoryService
+            var guid = await graphService
                 .GetUserIdAsync(identifier)
                 .ConfigureAwait(false);
 
@@ -90,7 +91,7 @@ public class UserService
         return val;
     }
 
-    public async Task<User> ResolveUserAsync(string organizationId, UserDefinition userDefinition, UserType userType = UserType.User)
+    public async Task<User> ResolveUserAsync(string organizationId, string organizationName, UserDefinition userDefinition, UserType userType = UserType.User)
     {
         if (userDefinition is null)
             throw new ArgumentNullException(nameof(userDefinition));
@@ -109,7 +110,8 @@ public class UserService
         {
             Id = userId,
             UserType = userType,
-            Organization = organizationId
+            Organization = organizationId,
+            OrganizationName = organizationName
         };
 
         return user;

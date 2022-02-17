@@ -1,9 +1,13 @@
+param location string = resourceGroup().location
 param name string
 param appConfigName string
 param appInsightsName string
 param webjobStorageName string
 param taskhubStorageName string
 param teamcloudImageRepo string = 'teamcloud'
+param clientId string
+@secure()
+param clientSecret string
 
 resource config 'Microsoft.AppConfiguration/configurationStores@2021-03-01-preview' existing = {
   name: appConfigName
@@ -24,7 +28,7 @@ resource wj_storage 'Microsoft.Storage/storageAccounts@2021-06-01' existing = {
 resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
   kind: 'functionapp,linux'
   name: name
-  location: resourceGroup().location
+  location: location
   properties: {
     reserved: true
   }
@@ -37,10 +41,7 @@ resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
 resource func 'Microsoft.Web/sites@2021-02-01' = {
   kind: 'functionapp,linux,container'
   name: name
-  location: resourceGroup().location
-  identity: {
-    type: 'SystemAssigned'
-  }
+  location: location
   properties: {
     reserved: true
     serverFarmId: farm.id
@@ -49,9 +50,19 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
       phpVersion: 'off'
       linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/${teamcloudImageRepo}/orchestrator'
       use32BitWorkerProcess: false
-      // detailedErrorLoggingEnabled: true
-      // httpLoggingEnabled: true
       appSettings: [
+        {
+          name: 'AZURE_CLIENT_ID'
+          value: clientId
+        }
+        {
+          name: 'AZURE_TENANT_ID'
+          value: subscription().tenantId
+        }
+        {
+          name: 'AZURE_CLIENT_SECRET'
+          value: clientSecret
+        }
         {
           name: 'AppConfiguration__ConnectionString'
           value: listKeys(config.id, '2019-10-01').value[0].connectionString
@@ -120,30 +131,5 @@ resource func 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
-// resource orchestratorLogging 'Microsoft.Web/sites/config@2021-02-01' = {
-//   name: 'logs'
-//   parent: func
-//   properties: {
-//     applicationLogs: {
-//       fileSystem: {
-//         level: 'Warning'
-//       }
-//     }
-//     detailedErrorMessages: {
-//       enabled: true
-//     }
-//     httpLogs: {
-//       fileSystem: {
-//         enabled: true
-//       }
-//     }
-//     failedRequestsTracing: {
-//       enabled: true
-//     }
-//   }
-// }
-
 output name string = name
 output url string = 'https://${name}.azurewebsites.net'
-output principalId string = func.identity.principalId
-output tenantId string = func.identity.tenantId

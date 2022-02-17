@@ -9,16 +9,15 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Flurl;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
 
 namespace TeamCloud.Azure.Resources;
 
 public sealed class AzureResourceIdentifier
 {
-    private static readonly Regex SubscriptionExpression = new Regex(@"^\/subscriptions\/(.*?)\/.*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex ResourceGroupExpression = new Regex(@"^\/subscriptions\/(.*)\/resourcegroups\/(.*?)\/.*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex ResourceExpression = new Regex(@"^\/subscriptions\/(.*)\/resourceGroups\/(.*)\/providers\/(.*?)\/(.*)\/$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex ManagementExpression = new Regex(@"^\/providers\/(.*?)\/(.*)\/$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex SubscriptionExpression = new(@"^\/subscriptions\/(.*?)\/.*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex ResourceGroupExpression = new(@"^\/subscriptions\/(.*)\/resourcegroups\/(.*?)\/.*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex ResourceExpression = new(@"^\/subscriptions\/(.*)\/resourceGroups\/(.*)\/providers\/(.*?)\/(.*)\/$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex ManagementExpression = new(@"^\/providers\/(.*?)\/(.*)\/$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static string SanitizeResourceId(string resourceId, out bool addedTrailingSlash)
     {
@@ -180,7 +179,7 @@ public sealed class AzureResourceIdentifier
         return resourceId.ToString();
     }
 
-    public string GetApiUrl(AzureEnvironment environment)
+    public string GetApiUrl(Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment environment)
         => (environment ?? throw new ArgumentNullException(nameof(environment)))
         .ResourceManagerEndpoint.AppendPathSegment(this.ToString()).ToString();
 

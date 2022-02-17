@@ -17,7 +17,7 @@ using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.OpenSsl;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Serialization;
 
 namespace TeamCloud.Adapters.GitHub;
@@ -242,7 +242,7 @@ internal static class GitHubExtensions
     {
         var data = new Dictionary<string, string>()
             {
-                { "clientId" , servicePrincipal.ApplicationId.ToString() },
+                { "clientId" , servicePrincipal.AppId.ToString() },
                 { "clientSecret" , servicePrincipal.Password },
                 { "tenantId", servicePrincipal.TenantId.ToString() }
             };

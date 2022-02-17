@@ -5,7 +5,7 @@
 
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Model.Data;
 
@@ -49,7 +49,7 @@ public sealed class AzureDevOpsToken : AuthorizationToken
 
     private string organization;
 
-    [JsonProperty("organization")]
+    [DataMember(Name = "organization")]
     public string Organization
     {
         get => FormatOrganizationUrl(organization);
@@ -58,34 +58,34 @@ public sealed class AzureDevOpsToken : AuthorizationToken
 
     public string PersonalAccessToken { get; set; }
 
-    [JsonProperty("client_id")]
+    [DataMember(Name = "client_id")]
     public string ClientId { get; set; }
 
-    [JsonProperty("client_secret")]
+    [DataMember(Name = "client_secret")]
     public string ClientSecret { get; set; }
 
-    [JsonProperty("access_token")]
+    [DataMember(Name = "access_token")]
     public string AccessToken { get; set; }
 
-    [JsonIgnore]
+    [IgnoreDataMember]
     public DateTime? AccessTokenExpires
         => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(AccessToken);
 
-    [JsonIgnore]
+    [IgnoreDataMember]
     public bool AccessTokenExpired
-        => AccessTokenExpires.HasValue ? AccessTokenExpires < DateTime.UtcNow : true;
+        => !AccessTokenExpires.HasValue || AccessTokenExpires < DateTime.UtcNow;
 
-    [JsonProperty("refresh_token")]
+    [DataMember(Name = "refresh_token")]
     public string RefreshToken { get; set; }
 
-    [JsonIgnore]
+    [IgnoreDataMember]
     public DateTime? RefreshTokenExpires
         => string.IsNullOrEmpty(PersonalAccessToken) ? null : GetTokenExpirationDate(RefreshToken);
 
-    [JsonIgnore]
+    [IgnoreDataMember]
     public bool RefreshTokenExpired
-        => RefreshTokenExpires.HasValue ? RefreshTokenExpires < DateTime.UtcNow : true;
+        => !RefreshTokenExpires.HasValue || RefreshTokenExpires < DateTime.UtcNow;
 
-    [JsonIgnore]
+    [IgnoreDataMember]
     public string RefreshCallback { get; set; }
 }

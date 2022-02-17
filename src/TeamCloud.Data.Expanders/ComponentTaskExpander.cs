@@ -18,7 +18,7 @@ using TeamCloud.Model.Common;
 using TeamCloud.Audit;
 using System.Text;
 using TeamCloud.Model.Commands.Core;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using Microsoft.ApplicationInsights;
 
 namespace TeamCloud.Data.Expanders;
@@ -30,15 +30,15 @@ public sealed class ComponentTaskExpander : DocumentExpander,
 
     private readonly IProjectRepository projectRepository;
     private readonly IAzureResourceService azureResourceService;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
     private readonly ICommandAuditReader commandAuditReader;
     private readonly IMemoryCache cache;
 
-    public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IAzureDirectoryService azureDirectoryService, ICommandAuditReader commandAuditReader, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
+    public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IGraphService graphService, ICommandAuditReader commandAuditReader, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
     {
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.commandAuditReader = commandAuditReader ?? throw new ArgumentNullException(nameof(commandAuditReader));
         this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
     }
@@ -214,7 +214,7 @@ public sealed class ComponentTaskExpander : DocumentExpander,
 
         if (audit is not null)
         {
-            var username = await azureDirectoryService
+            var username = await graphService
                 .GetDisplayNameAsync(audit.UserId)
                 .ConfigureAwait(false);
 

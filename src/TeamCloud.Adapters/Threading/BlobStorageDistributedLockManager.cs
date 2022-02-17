@@ -8,9 +8,13 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Nito.AsyncEx;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
+using Azure;
+using System.IO;
+using System.Text;
+using System.Diagnostics;
 
 namespace TeamCloud.Adapters.Threading;
 
@@ -27,201 +31,350 @@ public sealed class BlobStorageDistributedLockManager : IDistributedLockManager
     private const string OWNERID_METADATA = "OwnerId";
     private const string CONTAINER_NAME = "distributed-locks";
 
-    private readonly ConcurrentDictionary<string, CloudBlobDirectory> lockDirectoryMap = new ConcurrentDictionary<string, CloudBlobDirectory>(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, BlobContainerClient> lockBlobContainerClientMap = new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly IBlobStorageDistributeLockOptions options;
-    private readonly AsyncLazy<CloudBlobContainer> containerInstance;
+    private readonly IBlobStorageDistributedLockOptions options;
 
-    public BlobStorageDistributedLockManager(IBlobStorageDistributeLockOptions options = null)
+    public BlobStorageDistributedLockManager(IBlobStorageDistributedLockOptions options = null)
     {
-        this.options = options ?? BlobStorageDistributeeLockOptions.Default;
-
-        containerInstance = new AsyncLazy<CloudBlobContainer>(async () =>
-        {
-            var container = CloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudBlobClient()
-                .GetContainerReference(CONTAINER_NAME);
-
-            await container
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
-
-            return container;
-        });
-    }
-
-    private async Task<CloudBlockBlob> GetLockBlobAsync(string account, string lockId)
-    {
-        if (string.IsNullOrWhiteSpace(lockId))
-            throw new ArgumentException($"'{nameof(lockId)}' cannot be null or whitespace.", nameof(lockId));
-
-        account ??= string.Empty;
-
-        if (!lockDirectoryMap.TryGetValue(account, out var directory))
-        {
-            var container = await containerInstance.ConfigureAwait(false);
-
-            lockDirectoryMap[account] = directory = container.GetDirectoryReference(account);
-        }
-
-        return directory.GetBlockBlobReference(lockId);
-    }
-
-    public async Task<string> GetLockOwnerAsync(string account, string lockId, CancellationToken cancellationToken)
-    {
-        var lockBlob = await GetLockBlobAsync(account, lockId)
-            .ConfigureAwait(false);
-
-        try
-        {
-            await lockBlob
-                .FetchAttributesAsync(accessCondition: null, options: null, operationContext: null, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (StorageException exc) when ((exc.RequestInformation?.HttpStatusCode).GetValueOrDefault() == 404)
-        {
-            // swallow - blob no longer exists
-        }
-
-        if ((lockBlob.Properties.LeaseState != LeaseState.Available || lockBlob.Properties.LeaseStatus != LeaseStatus.Unlocked) && lockBlob.Metadata.TryGetValue(OWNERID_METADATA, out var owner))
-        {
-            return owner;
-        }
-
-        return null;
-    }
-
-    public Task ReleaseLockAsync(IDistributedLock lockHandle, CancellationToken cancellationToken)
-    {
-        if (lockHandle is null)
-            throw new ArgumentNullException(nameof(lockHandle));
-
-        var lockHandleTyped = (LockHandle)lockHandle;
-
-        return lockHandleTyped.ReleaseAsync(cancellationToken);
+        this.options = options ?? BlobStorageDistributedLockOptions.Default;
     }
 
     public Task<bool> RenewAsync(IDistributedLock lockHandle, CancellationToken cancellationToken)
     {
-        if (lockHandle is null)
-            throw new ArgumentNullException(nameof(lockHandle));
-
-        var lockHandleTyped = (LockHandle)lockHandle;
-
+        LockHandle lockHandleTyped = (LockHandle)lockHandle;
         return lockHandleTyped.RenewAsync(cancellationToken);
     }
 
-    public async Task<IDistributedLock> TryLockAsync(string account, string lockId, string lockOwnerId, string proposedLeaseId, TimeSpan leasePeriod, CancellationToken cancellationToken)
+    public async Task ReleaseLockAsync(IDistributedLock lockHandle, CancellationToken cancellationToken)
     {
-        var lockBlob = await GetLockBlobAsync(account, lockId)
+        LockHandle lockHandleTyped = (LockHandle)lockHandle;
+        await ReleaseLeaseAsync(lockHandleTyped.BlobLeaseClient, lockHandleTyped.LeaseId, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<string> GetLockOwnerAsync(string account, string lockId, CancellationToken cancellationToken)
+    {
+        var containerClient = await GetContainerClientAsync(account, cancellationToken)
             .ConfigureAwait(false);
 
-        var leaseId = await TryAcquireLeaseAsync(lockBlob, leasePeriod, proposedLeaseId, cancellationToken)
+        var lockBlob = containerClient
+            .GetBlobClient(GetLockPath(lockId));
+
+        var blobProperties = await ReadLeaseBlobMetadataAsync(lockBlob, cancellationToken)
+            .ConfigureAwait(false);
+
+        // if the lease is Available, then there is no current owner
+        // (any existing owner value is the last owner that held the lease)
+        if (blobProperties != null &&
+            blobProperties.LeaseState == LeaseState.Available &&
+            blobProperties.LeaseStatus == LeaseStatus.Unlocked)
+        {
+            return null;
+        }
+
+        string owner = default;
+        blobProperties?.Metadata.TryGetValue(OWNERID_METADATA, out owner);
+        return owner;
+    }
+
+    public async Task<IDistributedLock> TryLockAsync(string account, string lockId, string lockOwnerId, string proposedLeaseId, TimeSpan lockPeriod, CancellationToken cancellationToken)
+    {
+        var containerClient = await GetContainerClientAsync(account, cancellationToken)
+            .ConfigureAwait(false);
+
+        var lockBlob = containerClient
+            .GetBlobClient(GetLockPath(lockId));
+
+        string leaseId = await TryAcquireLeaseAsync(lockBlob, lockPeriod, proposedLeaseId, cancellationToken)
             .ConfigureAwait(false);
 
         if (string.IsNullOrEmpty(leaseId))
             return null;
 
         if (!string.IsNullOrEmpty(lockOwnerId))
-        {
-            lockBlob.Metadata.Add(OWNERID_METADATA, lockOwnerId);
-
-            await lockBlob
-                .SetMetadataAsync(accessCondition: new AccessCondition { LeaseId = leaseId }, options: null, operationContext: null, cancellationToken: cancellationToken)
+            await WriteLeaseBlobMetadataAsync(lockBlob, leaseId, lockOwnerId, cancellationToken)
                 .ConfigureAwait(false);
-        }
 
-        return new LockHandle(account, lockId, lockBlob, leaseId, leasePeriod);
+        var lockHandle = new LockHandle(leaseId, lockId, lockBlob.GetBlobLeaseClient(leaseId), lockPeriod);
+
+        return lockHandle;
     }
 
-    private static async Task<string> TryAcquireLeaseAsync(CloudBlockBlob lockBlob, TimeSpan lockPeriod, string proposedLeaseId, CancellationToken cancellationToken)
+    private async Task<BlobContainerClient> GetContainerClientAsync(string account, CancellationToken cancellationToken)
+    {
+        account ??= string.Empty;
+
+        if (!lockBlobContainerClientMap.TryGetValue(account, out var containerClient))
+        {
+            containerClient = new BlobContainerClient(options.ConnectionString, CONTAINER_NAME);
+
+            await containerClient
+                .CreateIfNotExistsAsync(PublicAccessType.None, null, cancellationToken)
+                .ConfigureAwait(false);
+
+            lockBlobContainerClientMap[account] = containerClient;
+        }
+
+        return containerClient;
+    }
+
+    private static string GetLockPath(string lockId) => $"locks/{lockId}";
+
+    private static async Task<string> TryAcquireLeaseAsync(BlobClient blobClient, TimeSpan leasePeriod, string proposedLeaseId, CancellationToken cancellationToken)
+    {
+        bool blobDoesNotExist;
+
+        try
+        {
+            // Check if a lease is available before trying to acquire. The blob may not
+            // yet exist; if it doesn't we handle the 404, create it, and retry below.
+            // The reason we're checking to see if the lease is available before trying
+            // to acquire is to avoid the flood of 409 errors that Application Insights
+            // picks up when a lease cannot be acquired due to conflict; see issue #2318.
+            var blobProperties = await ReadLeaseBlobMetadataAsync(blobClient, cancellationToken)
+                .ConfigureAwait(false);
+
+            switch (blobProperties?.LeaseState)
+            {
+                case null:
+                case LeaseState.Available:
+                case LeaseState.Expired:
+                case LeaseState.Broken:
+                    var leaseResponse = await blobClient.GetBlobLeaseClient(proposedLeaseId)
+                        .AcquireAsync(leasePeriod, cancellationToken: cancellationToken)
+                        .ConfigureAwait(false);
+                    return leaseResponse.Value.LeaseId;
+                default:
+                    return null;
+            }
+        }
+        catch (RequestFailedException exception)
+        {
+            if (exception.Status == 409)
+            {
+                return null;
+            }
+            else if (exception.Status == 404)
+            {
+                blobDoesNotExist = true;
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        if (blobDoesNotExist)
+        {
+            await TryCreateAsync(blobClient, cancellationToken)
+                .ConfigureAwait(false);
+
+            try
+            {
+                var leaseResponse = await blobClient.GetBlobLeaseClient(proposedLeaseId)
+                    .AcquireAsync(leasePeriod, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+
+                return leaseResponse.Value.LeaseId;
+            }
+            catch (RequestFailedException exception)
+            {
+                if (exception.Status == 409)
+                {
+                    return null;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private static async Task ReleaseLeaseAsync(BlobLeaseClient blobLeaseClient, string leaseId, CancellationToken cancellationToken)
     {
         try
         {
-            return await lockBlob
-                .AcquireLeaseAsync(lockPeriod, proposedLeaseId, accessCondition: null, options: null, operationContext: null, cancellationToken: cancellationToken)
+            // Note that this call returns without throwing if the lease is expired. See the table at:
+            // http://msdn.microsoft.com/en-us/library/azure/ee691972.aspx
+            await blobLeaseClient
+                .ReleaseAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
-        catch (StorageException exc) when ((exc.RequestInformation?.HttpStatusCode).GetValueOrDefault() == 409)
+        catch (RequestFailedException exception)
         {
-            return null;
+            if (exception.Status == 404 || exception.Status == 409)
+            {
+                // if the blob no longer exists, or there is another lease
+                // now active, there is nothing for us to release so we can
+                // ignore
+            }
+            else
+            {
+                throw;
+            }
         }
-        catch (StorageException exc) when ((exc.RequestInformation?.HttpStatusCode).GetValueOrDefault() == 404)
+    }
+
+    private static async Task<bool> TryCreateAsync(BlobClient blobClient, CancellationToken cancellationToken)
+    {
+        bool isContainerNotFoundException;
+
+        try
         {
-            // swallow and resume - file to acquire lease for doesn't exist
+            using (Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(string.Empty)))
+            {
+                await blobClient.UploadAsync(stream, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            return true;
+        }
+        catch (RequestFailedException exception)
+        {
+            if (exception.Status == 404)
+            {
+                isContainerNotFoundException = true;
+            }
+            else if (exception.Status == 409 || exception.Status == 412)
+            {
+                // The blob already exists, or is leased by someone else
+                return false;
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        Debug.Assert(isContainerNotFoundException);
+
+        var container = blobClient.GetParentBlobContainerClient();
+
+        try
+        {
+            await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (RequestFailedException exception)
+        when (exception.Status == 409 && string.Compare("ContainerBeingDeleted", exception.ErrorCode) == 0)
+        {
+            throw new RequestFailedException("The host container is pending deletion and currently inaccessible.");
         }
 
         try
         {
-            await lockBlob.UploadTextAsync(string.Empty).ConfigureAwait(false);
-        }
-        catch
-        {
-            // swallow - there is a chance the file was create in the meantime
-        }
+            using (Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(string.Empty)))
+            {
+                await blobClient.UploadAsync(stream, cancellationToken: cancellationToken)
+                    .ConfigureAwait(false);
+            }
 
-        try
+            return true;
+        }
+        catch (RequestFailedException exception)
         {
-            return await lockBlob
-                .AcquireLeaseAsync(lockPeriod, proposedLeaseId, accessCondition: null, options: null, operationContext: null, cancellationToken: cancellationToken)
+            if (exception.Status == 409 || exception.Status == 412)
+            {
+                // The blob already exists, or is leased by someone else
+                return false;
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+    private static async Task WriteLeaseBlobMetadataAsync(BlobClient blobClient, string leaseId, string lockOwnerId, CancellationToken cancellationToken)
+    {
+        var blobProperties = await ReadLeaseBlobMetadataAsync(blobClient, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (blobProperties != null)
+        {
+            blobProperties.Metadata[OWNERID_METADATA] = lockOwnerId;
+            await blobClient.SetMetadataAsync(blobProperties.Metadata, new BlobRequestConditions
+            {
+                LeaseId = leaseId
+            }, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
-        catch (StorageException exc) when ((exc.RequestInformation?.HttpStatusCode).GetValueOrDefault() == 409)
+    }
+
+    private static async Task<BlobProperties> ReadLeaseBlobMetadataAsync(BlobClient blobClient, CancellationToken cancellationToken)
+    {
+        try
         {
-            return null;
+            var propertiesResponse = await blobClient
+                .GetPropertiesAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            return propertiesResponse.Value;
+        }
+        catch (RequestFailedException exception)
+        {
+            if (exception.Status == 404)
+            {
+                // the blob no longer exists
+                return null;
+            }
+            else
+            {
+                throw;
+            }
         }
     }
 
     internal class LockHandle : IDistributedLock
     {
-        private readonly CloudBlockBlob lockBlob;
-        private readonly string leaseId;
         private readonly TimeSpan leasePeriod;
 
-        public LockHandle(string account, string lockId, CloudBlockBlob lockBlob, string leaseId, TimeSpan leasePeriod)
-        {
-            Account = account;
-            LockId = lockId;
 
-            this.lockBlob = lockBlob;
-            this.leaseId = leaseId;
-            this.leasePeriod = leasePeriod;
+        public LockHandle()
+        {
         }
 
-        public string LockId { get; }
+        public LockHandle(string leaseId, string lockId, BlobLeaseClient blobLeaseClient, TimeSpan leasePeriod)
+        {
+            this.LeaseId = leaseId;
+            this.LockId = lockId;
+            this.leasePeriod = leasePeriod;
+            this.BlobLeaseClient = blobLeaseClient;
+        }
 
-        public string Account { get; }
+        public string LeaseId { get; internal set; }
+
+        public string LockId { get; internal set; }
+
+        public BlobLeaseClient BlobLeaseClient { get; internal set; }
 
         public async Task<bool> RenewAsync(CancellationToken cancellationToken)
         {
             try
             {
-                await lockBlob
-                    .RenewLeaseAsync(new AccessCondition { LeaseId = leaseId }, null, null, cancellationToken)
+                await BlobLeaseClient
+                    .RenewAsync(cancellationToken: cancellationToken)
                     .ConfigureAwait(false);
 
+                // The next execution should occur after a normal delay.
                 return true;
             }
-            catch
+            catch (RequestFailedException exception)
             {
-                return false;
-            }
-        }
-
-        public async Task<bool> ReleaseAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                await lockBlob
-                    .ReleaseLeaseAsync(new AccessCondition { LeaseId = leaseId }, null, null, cancellationToken)
-                    .ConfigureAwait(false);
-
-                return true;
-            }
-            catch
-            {
-                return false;
+                // indicates server-side error
+                if (exception.Status >= 500 && exception.Status < 600)
+                {
+                    return false; // The next execution should occur more quickly (try to renew the lease before it expires).
+                }
+                else
+                {
+                    // If we've lost the lease or cannot re-establish it, we want to fail any
+                    // in progress function execution
+                    throw;
+                }
             }
         }
     }

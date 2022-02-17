@@ -3072,7 +3072,9 @@ components:
         - creator
         - id
         - organization
+        - organizationName
         - projectId
+        - projectName
         - slug
         - templateId
         - type
@@ -3083,9 +3085,13 @@ components:
           nullable: true
         organization:
           type: string
+        organizationName:
+          type: string
         templateId:
           type: string
         projectId:
+          type: string
+        projectName:
           type: string
         creator:
           type: string
@@ -3124,6 +3130,9 @@ components:
             - Failed
           type: string
         deploymentScopeId:
+          type: string
+          nullable: true
+        deploymentScopeName:
           type: string
           nullable: true
         identityId:
@@ -3196,16 +3205,25 @@ components:
     ComponentTask:
       required:
         - componentId
+        - componentName
         - id
         - organization
+        - organizationName
         - projectId
+        - projectName
       type: object
       properties:
         organization:
           type: string
+        organizationName:
+          type: string
         componentId:
           type: string
+        componentName:
+          type: string
         projectId:
+          type: string
+        projectName:
           type: string
         requestedBy:
           type: string
@@ -3309,6 +3327,9 @@ components:
         componentId:
           type: string
           nullable: true
+        componentName:
+          type: string
+          nullable: true
         componentTaskTemplateId:
           type: string
           nullable: true
@@ -3358,12 +3379,15 @@ components:
       required:
         - id
         - organization
+        - organizationName
         - parentId
         - repository
         - type
       type: object
       properties:
         organization:
+          type: string
+        organizationName:
           type: string
         parentId:
           type: string
@@ -3464,11 +3488,14 @@ components:
         - id
         - isDefault
         - organization
+        - organizationName
         - slug
         - type
       type: object
       properties:
         organization:
+          type: string
+        organizationName:
           type: string
         displayName:
           type: string
@@ -3676,6 +3703,11 @@ components:
           type: string
         location:
           type: string
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
       additionalProperties: false
     OrganizationListDataResult:
       type: object
@@ -3701,11 +3733,14 @@ components:
         - displayName
         - id
         - organization
+        - organizationName
         - slug
         - template
       type: object
       properties:
         organization:
+          type: string
+        organizationName:
           type: string
         slug:
           type: string
@@ -3808,12 +3843,18 @@ components:
         - displayName
         - id
         - organization
+        - organizationName
         - projectId
+        - projectName
       type: object
       properties:
         projectId:
           type: string
+        projectName:
+          type: string
         organization:
+          type: string
+        organizationName:
           type: string
         displayName:
           type: string
@@ -3931,11 +3972,14 @@ components:
         - id
         - isDefault
         - organization
+        - organizationName
         - repository
         - slug
       type: object
       properties:
         organization:
+          type: string
+        organizationName:
           type: string
         slug:
           type: string
@@ -4095,12 +4139,18 @@ components:
       required:
         - id
         - organization
+        - organizationName
         - projectId
+        - projectName
       type: object
       properties:
         organization:
           type: string
+        organizationName:
+          type: string
         projectId:
+          type: string
+        projectName:
           type: string
         enabled:
           type: boolean
@@ -4284,7 +4334,10 @@ components:
     TeamCloudInformation:
       type: object
       properties:
-        version:
+        imageVersion:
+          type: string
+          nullable: true
+        templateVersion:
           type: string
           nullable: true
       additionalProperties: false
@@ -4307,11 +4360,14 @@ components:
       required:
         - id
         - organization
+        - organizationName
         - role
         - userType
       type: object
       properties:
         organization:
+          type: string
+        organizationName:
           type: string
         displayName:
           type: string

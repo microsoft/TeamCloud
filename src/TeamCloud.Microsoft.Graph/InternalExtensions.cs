@@ -6,7 +6,7 @@
 using System;
 using System.Text;
 
-namespace TeamCloud.Azure.Directory;
+namespace TeamCloud.Microsoft.Graph;
 
 internal static class InternalExtensions
 {
