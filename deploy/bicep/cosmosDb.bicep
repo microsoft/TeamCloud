@@ -1,9 +1,10 @@
+param location string = resourceGroup().location
 param name string
 param appConfigName string
 
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2021-01-15' = {
   name: name
-  location: resourceGroup().location
+  location: location
   kind: 'GlobalDocumentDB'
   tags: {
     defaultExperience: 'DocumentDB'
@@ -12,7 +13,7 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2021-01-15' = {
     databaseAccountOfferType: 'Standard'
     locations: [
       {
-        locationName: resourceGroup().location
+        locationName: location
         failoverPriority: 0
       }
     ]

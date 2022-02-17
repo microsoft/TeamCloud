@@ -1,9 +1,10 @@
+param location string = resourceGroup().location
 param name string
 param appConfigName string
 
 resource signalr 'Microsoft.SignalRService/signalR@2020-07-01-preview' = {
   name: name
-  location: resourceGroup().location
+  location: location
   sku: {
     name: 'Standard_S1'
     tier: 'Standard'
