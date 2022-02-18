@@ -74,6 +74,7 @@ module storage_wj 'storage.bicep' = {
     appConfigConnectionStringKeys: [
       'Encryption:KeyStorage'
       'Audit:ConnectionString'
+      'Azure:Storage:ConnectionString'
     ]
   }
 }
