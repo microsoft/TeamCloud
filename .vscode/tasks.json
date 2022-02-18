@@ -183,7 +183,7 @@
             "label": "ngrok: set url",
             "command": "python3",
             "args": [
-                "scripts/get-url.py"
+                "tools/get-url.py"
             ],
             "problemMatcher": [],
             "presentation": {
@@ -469,7 +469,7 @@
         {
             "label": "create clients",
             "type": "shell",
-            "command": "${workspaceFolder}/scripts/create-clients.sh",
+            "command": "${workspaceFolder}/tools/create-clients.sh",
             "options": {
                 "shell": {
                     "executable": "/bin/sh"
