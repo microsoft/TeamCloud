@@ -14,7 +14,7 @@ namespace TeamCloud.Model.Data;
 public sealed class ReferenceLink
 {
     private static readonly Regex TokenExpression
-        = new Regex(@"\{(.+?)\}", RegexOptions.Compiled);
+        = new(@"\{(.+?)\}", RegexOptions.Compiled);
 
     private readonly Func<string> hrefFactory;
 
@@ -36,7 +36,7 @@ public sealed class ReferenceLink
 
     [JsonIgnore]
     public bool Materialized
-        => !(href is null);
+        => href is not null;
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool Templated

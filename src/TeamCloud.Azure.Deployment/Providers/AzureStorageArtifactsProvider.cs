@@ -9,8 +9,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Flurl;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
+using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
 
 namespace TeamCloud.Azure.Deployment.Providers;
 
@@ -20,16 +20,11 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
 
     private readonly IAzureStorageArtifactsOptions azureStorageArtifactsOptions;
     private readonly IAzureDeploymentTokenProvider azureDeploymentTokenProvider;
-    private readonly Lazy<CloudBlobContainer> deploymentContainer;
 
     public AzureStorageArtifactsProvider(IAzureStorageArtifactsOptions azureStorageArtifactsOptions, IAzureDeploymentTokenProvider azureDeploymentTokenProvider = null)
     {
         this.azureStorageArtifactsOptions = azureStorageArtifactsOptions ?? throw new ArgumentNullException(nameof(AzureStorageArtifactsProvider.azureStorageArtifactsOptions));
         this.azureDeploymentTokenProvider = azureDeploymentTokenProvider;
-
-        deploymentContainer = new Lazy<CloudBlobContainer>(() => CloudStorageAccount
-            .Parse(azureStorageArtifactsOptions.ConnectionString)
-            .CreateCloudBlobClient().GetContainerReference(DEPLOYMENT_CONTAINER_NAME));
     }
 
     public override async Task<IAzureDeploymentArtifactsContainer> UploadArtifactsAsync(Guid deploymentId, AzureDeploymentTemplate azureDeploymentTemplate)
@@ -49,7 +44,7 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
             {
                 location = azureStorageArtifactsOptions.BaseUrlOverride.AppendPathSegment(deploymentId).ToString();
             }
-            else if (azureStorageArtifactsOptions.ConnectionString.IsDevelopmentStorageConnectionString())
+            else if (azureStorageArtifactsOptions.ConnectionString.Contains("UseDevelopmentStorage"))
             {
                 // if the artifact storage connection string points to a development storage (Azure Storage Emulator)
                 // a BaseUrlOverride must be given as the storage is not publicly accessable in this case.
@@ -62,7 +57,7 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
             container.Location = $"{location.TrimEnd('/')}/";
 
             container.Token = azureDeploymentTokenProvider is null
-                ? await CreateSasTokenAsync().ConfigureAwait(false)
+                ? CreateSasToken()
                 : await azureDeploymentTokenProvider.AcquireToken(deploymentId, this).ConfigureAwait(false);
         }
 
@@ -71,48 +66,37 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
 
     private async Task<string> UploadTemplatesAsync(Guid deploymentId, IDictionary<string, string> templates)
     {
-        if (!deploymentContainer.IsValueCreated)
-            await deploymentContainer.Value.CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
-
-        var uploadTasks = templates.Select(template => deploymentContainer.Value
-            .GetBlockBlobReference($"{deploymentId}/{template.Key}")
-            .UploadTextAsync(template.Value));
+        var uploadTasks = templates.Select(template =>
+            new BlobClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME, $"{deploymentId}/{template.Key}")
+            .UploadAsync(BinaryData.FromString(template.Value), overwrite: true)
+        );
 
         await uploadTasks
             .WhenAll()
             .ConfigureAwait(false);
 
-        return deploymentContainer.Value.Uri.AbsoluteUri
-            .AppendPathSegment(deploymentId.ToString())
-            .ToString();
+        return new BlobClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME, $"{deploymentId}").Uri.AbsoluteUri;
     }
 
     [SuppressMessage("Security", "CA5377:Use Container Level Access Policy", Justification = "SasToken authentication is required.")]
-    private async Task<string> CreateSasTokenAsync()
+    private string CreateSasToken()
     {
-        if (!deploymentContainer.IsValueCreated)
-            await deploymentContainer.Value.CreateIfNotExistsAsync().ConfigureAwait(false);
+        var containerClient = new BlobContainerClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME);
+        var sasUri = containerClient.GenerateSasUri(BlobContainerSasPermissions.Read, DateTimeOffset.UtcNow.AddDays(1));
 
-        var adHocPolicy = new SharedAccessBlobPolicy()
-        {
-            SharedAccessExpiryTime = DateTime.UtcNow.AddDays(1),
-            Permissions = SharedAccessBlobPermissions.Read
-        };
-
-        return deploymentContainer.Value.GetSharedAccessSignature(adHocPolicy, null);
+        return sasUri.PathAndQuery;
     }
 
     public override async Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName)
     {
-        if (!deploymentContainer.IsValueCreated)
-            await deploymentContainer.Value.CreateIfNotExistsAsync().ConfigureAwait(false);
-
-        var artifactBlob = deploymentContainer.Value.GetBlockBlobReference($"{deploymentId}/{artifactName}");
-        var artifactExists = await artifactBlob.ExistsAsync().ConfigureAwait(false);
+        var blobClient = new BlobClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME, $"{deploymentId}/{artifactName}");
+        var artifactExists = await blobClient.ExistsAsync().ConfigureAwait(false);
 
         if (artifactExists)
-            return await artifactBlob.DownloadTextAsync().ConfigureAwait(false);
+        {
+            var blob = await blobClient.DownloadContentAsync().ConfigureAwait(false);
+            return blob.Value.Content.ToString();
+        }
 
         return null;
     }

@@ -11,8 +11,8 @@ namespace TeamCloud.Adapters.Authorization;
 public interface IAuthorizationTokenClient
 {
     Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
-        where TAuthorizationToken : AuthorizationToken;
+        where TAuthorizationToken : AuthorizationToken, new();
 
     Task<TAuthorizationToken> SetAsync<TAuthorizationToken>(TAuthorizationToken authorizationToken, bool force = false)
-        where TAuthorizationToken : AuthorizationToken;
+        where TAuthorizationToken : AuthorizationToken, new();
 }

@@ -1,3 +1,5 @@
+param location string = resourceGroup().location
+
 @description('The name of the web app that you wish to create. This will also be used as the subdomain of your app endpoint (i.e. myapp.azurewebsites.net).')
 param webAppName string
 
@@ -17,7 +19,7 @@ var name = toLower(webAppName)
 resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: name
   kind: 'app,linux'
-  location: resourceGroup().location
+  location: location
   properties: {
     reserved: true
   }
@@ -30,7 +32,7 @@ resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
 resource web 'Microsoft.Web/sites@2021-02-01' = {
   name: name
   kind: 'app,linux,container'
-  location: resourceGroup().location
+  location: location
   properties: {
     reserved: true
     serverFarmId: farm.id
@@ -39,8 +41,6 @@ resource web 'Microsoft.Web/sites@2021-02-01' = {
       alwaysOn: true
       phpVersion: 'off'
       linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/${teamcloudImageRepo}/website'
-      // detailedErrorLoggingEnabled: true
-      // httpLoggingEnabled: true
       appSettings: [
         {
           name: 'REACT_APP_MSAL_CLIENT_ID'
@@ -82,29 +82,6 @@ resource web 'Microsoft.Web/sites@2021-02-01' = {
     }
   }
 }
-
-// resource webLogging 'Microsoft.Web/sites/config@2021-02-01' = {
-//   name: 'logs'
-//   parent: web
-//   properties: {
-//     applicationLogs: {
-//       fileSystem: {
-//         level: 'Warning'
-//       }
-//     }
-//     detailedErrorMessages: {
-//       enabled: true
-//     }
-//     httpLogs: {
-//       fileSystem: {
-//         enabled: true
-//       }
-//     }
-//     failedRequestsTracing: {
-//       enabled: true
-//     }
-//   }
-// }
 
 output name string = name
 output url string = 'https://${name}.azurewebsites.net'

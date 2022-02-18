@@ -88,7 +88,9 @@ public class ProjectIdentitiesController : TeamCloudController
         {
             Id = Guid.NewGuid().ToString(),
             Organization = project.Organization,
+            OrganizationName = project.OrganizationName,
             ProjectId = project.Id,
+            ProjectName = project.Slug,
             DisplayName = projectIdentityDefinition.DisplayName,
             DeploymentScopeId = projectIdentityDefinition.DeploymentScopeId
         };

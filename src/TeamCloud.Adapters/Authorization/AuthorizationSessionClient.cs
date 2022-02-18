@@ -6,7 +6,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
+using Azure;
+using Azure.Data.Tables;
 using Nito.AsyncEx;
 using TeamCloud.Model.Data;
 
@@ -17,70 +18,73 @@ public sealed class AuthorizationSessionClient : IAuthorizationSessionClient
     public const string TableName = "Adapters";
 
     private readonly IAuthorizationSessionOptions options;
-    private readonly AsyncLazy<CloudTable> tableInstance;
+    private readonly AsyncLazy<TableClient> tableClient;
 
     public AuthorizationSessionClient(IAuthorizationSessionOptions options)
     {
         this.options = options ?? throw new ArgumentNullException(nameof(options));
 
-        tableInstance = new AsyncLazy<CloudTable>(async () =>
+        tableClient = new AsyncLazy<TableClient>(async () =>
         {
-            var table = CloudStorageAccount
-                .Parse(this.options.ConnectionString)
-                .CreateCloudTableClient()
-                .GetTableReference(TableName);
+            var client = new TableClient(this.options.ConnectionString, TableName);
 
-            await table
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
+            await client.CreateIfNotExistsAsync().ConfigureAwait(false);
 
-            return table;
+            return client;
         });
     }
 
     public async Task<TAuthorizationSession> GetAsync<TAuthorizationSession>(DeploymentScope deploymentScope)
-        where TAuthorizationSession : AuthorizationSession
+        where TAuthorizationSession : AuthorizationSession, new()
     {
         if (deploymentScope is null)
             throw new ArgumentNullException(nameof(deploymentScope));
 
-        var table = await tableInstance.ConfigureAwait(false);
+        var client = await tableClient.ConfigureAwait(false);
 
         var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
         var partitionKey = string.Join(",", typeof(TAuthorizationSession).AssemblyQualifiedName.Split(',').Take(2));
 
-        var response = await table
-            .ExecuteAsync(TableOperation.Retrieve<TAuthorizationSession>(partitionKey, rowKey))
-            .ConfigureAwait(false);
-
-        var session = response.Result as TAuthorizationSession;
-
-        if (session?.Active ?? false)
+        try
         {
-            return session;
-        }
-        else if (session is not null)
-        {
-            await table
-                .ExecuteAsync(TableOperation.Delete(session))
+            var response = await client
+                .GetEntityAsync<TAuthorizationSession>(partitionKey, rowKey)
                 .ConfigureAwait(false);
+
+            var session = response.Value;
+
+            if (session?.Active ?? false)
+            {
+                return session;
+            }
+            else if (session is not null)
+            {
+                await client
+                    .DeleteEntityAsync(session.PartitionKey, session.RowKey)
+                    .ConfigureAwait(false);
+            }
+        }
+        catch (RequestFailedException ex) when (ex.Status == 404)
+        {
+            // doesn't exist
+            return null;
         }
 
         return null;
     }
 
     public async Task<TAuthorizationSession> SetAsync<TAuthorizationSession>(TAuthorizationSession authorizationSession)
-        where TAuthorizationSession : AuthorizationSession
+        where TAuthorizationSession : AuthorizationSession, new()
     {
         if (authorizationSession is null)
             throw new ArgumentNullException(nameof(authorizationSession));
 
-        var table = await tableInstance.ConfigureAwait(false);
+        var client = await tableClient.ConfigureAwait(false);
 
-        var response = await table
-            .ExecuteAsync(TableOperation.InsertOrReplace(authorizationSession))
+        await client
+            .UpsertEntityAsync(authorizationSession, TableUpdateMode.Replace)
             .ConfigureAwait(false);
 
-        return response.Result as TAuthorizationSession;
+        return authorizationSession;
     }
 }

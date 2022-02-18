@@ -13,7 +13,7 @@ using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands.Core;
@@ -45,7 +45,7 @@ public sealed class AzureResourceManagerAdapter : Adapter
         IDistributedLockManager distributedLockManager,
         ISecretsStoreProvider secretsStoreProvider,
         IAzureSessionService azureSessionService,
-        IAzureDirectoryService azureDirectoryService,
+        IGraphService graphService,
         IAzureResourceService azureResourceService,
         IOrganizationRepository organizationRepository,
         IUserRepository userRepository,
@@ -53,7 +53,7 @@ public sealed class AzureResourceManagerAdapter : Adapter
         IProjectRepository projectRepository,
         IComponentRepository componentRepository,
         IComponentTemplateRepository componentTemplateRepository)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));

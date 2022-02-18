@@ -1,8 +1,12 @@
+param location string = resourceGroup().location
 param name string
 param webAppName string
 param appConfigName string
 param appInsightsName string
 param teamcloudImageRepo string = 'teamcloud'
+param clientId string
+@secure()
+param clientSecret string
 
 resource config 'Microsoft.AppConfiguration/configurationStores@2021-03-01-preview' existing = {
   name: appConfigName
@@ -15,7 +19,7 @@ resource ai 'Microsoft.Insights/components@2020-02-02' existing = {
 resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
   kind: 'api,linux'
   name: name
-  location: resourceGroup().location
+  location: location
   properties: {
     reserved: true
   }
@@ -28,10 +32,7 @@ resource farm 'Microsoft.Web/serverfarms@2021-02-01' = {
 resource api 'Microsoft.Web/sites@2021-02-01' = {
   kind: 'api,linux,container'
   name: name
-  location: resourceGroup().location
-  identity: {
-    type: 'SystemAssigned'
-  }
+  location: location
   properties: {
     reserved: true
     serverFarmId: farm.id
@@ -40,8 +41,6 @@ resource api 'Microsoft.Web/sites@2021-02-01' = {
       alwaysOn: true
       phpVersion: 'off'
       linuxFxVersion: 'DOCKER|teamcloud.azurecr.io/${teamcloudImageRepo}/api'
-      // detailedErrorLoggingEnabled: true
-      // httpLoggingEnabled: true
       cors: {
         allowedOrigins: [
           'http://localhost:3000'
@@ -50,6 +49,18 @@ resource api 'Microsoft.Web/sites@2021-02-01' = {
         supportCredentials: true
       }
       appSettings: [
+        {
+          name: 'AZURE_CLIENT_ID'
+          value: clientId
+        }
+        {
+          name: 'AZURE_TENANT_ID'
+          value: subscription().tenantId
+        }
+        {
+          name: 'AZURE_CLIENT_SECRET'
+          value: clientSecret
+        }
         {
           name: 'AppConfiguration__ConnectionString'
           value: listKeys(config.id, '2019-10-01').value[0].connectionString
@@ -118,30 +129,5 @@ resource api 'Microsoft.Web/sites@2021-02-01' = {
   }
 }
 
-// resource apiLogging 'Microsoft.Web/sites/config@2021-02-01' = {
-//   name: 'logs'
-//   parent: api
-//   properties: {
-//     applicationLogs: {
-//       fileSystem: {
-//         level: 'Warning'
-//       }
-//     }
-//     detailedErrorMessages: {
-//       enabled: true
-//     }
-//     httpLogs: {
-//       fileSystem: {
-//         enabled: true
-//       }
-//     }
-//     failedRequestsTracing: {
-//       enabled: true
-//     }
-//   }
-// }
-
 output name string = name
 output url string = 'https://${name}.azurewebsites.net'
-output principalId string = api.identity.principalId
-output tenantId string = api.identity.tenantId

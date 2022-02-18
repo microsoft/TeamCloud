@@ -4,7 +4,9 @@
  */
 
 using System;
-using Microsoft.Azure.Cosmos.Table;
+using System.Runtime.Serialization;
+using Azure;
+using Azure.Data.Tables;
 using Newtonsoft.Json;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -13,10 +15,15 @@ using TeamCloud.Serialization;
 namespace TeamCloud.Audit.Model;
 
 [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
-public sealed class CommandAuditEntity : AuditEntity
+public sealed class CommandAuditEntity : ITableEntity
 {
     internal const string AUDIT_TABLE_NAME = "AuditCommands";
     internal const string AUDIT_CONTAINER_NAME = "audit-commands";
+
+    public string PartitionKey { get; set; }
+    public string RowKey { get; set; }
+    public DateTimeOffset? Timestamp { get; set; }
+    public ETag ETag { get; set; }
 
     public CommandAuditEntity()
     { }
@@ -26,9 +33,9 @@ public sealed class CommandAuditEntity : AuditEntity
         if (command is null)
             throw new ArgumentNullException(nameof(command));
 
-        Entity.RowKey = command.CommandId.ToString();
+        RowKey = command.CommandId.ToString();
 
-        Entity.PartitionKey = Guid.TryParse(command.OrganizationId, out var organizationId)
+        PartitionKey = Guid.TryParse(command.OrganizationId, out var organizationId)
             ? organizationId.ToString()
             : Guid.Empty.ToString();
 
@@ -45,24 +52,20 @@ public sealed class CommandAuditEntity : AuditEntity
         Command = command.GetTypeName(prettyPrint: true);
     }
 
-    [IgnoreProperty]
-    public string CommandId => Entity.RowKey;
+    public string CommandId => RowKey;
 
-    [IgnoreProperty]
-    public string OrganizationId => Entity.PartitionKey;
+    public string OrganizationId => PartitionKey;
 
-    [IgnoreProperty]
     public string CommandJson { get; set; }
 
-    [IgnoreProperty]
     public string ResultJson { get; set; }
 
-    public string ProjectId { get; private set; }
-    public string UserId { get; private set; }
-    public string ParentId { get; private set; }
+    public string ProjectId { get; set; }
+    public string UserId { get; set; }
+    public string ParentId { get; set; }
 
-    public string Command { get; private set; }
-    public string ComponentTask { get; private set; }
+    public string Command { get; set; }
+    public string ComponentTask { get; set; }
 
     public CommandRuntimeStatus RuntimeStatus { get; set; } = CommandRuntimeStatus.Unknown;
     public string CustomStatus { get; set; }

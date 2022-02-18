@@ -130,7 +130,8 @@ public class OrganizationUsersController : TeamCloudController
             Role = Enum.Parse<OrganizationUserRole>(userDefinition.Role, true),
             Properties = userDefinition.Properties,
             UserType = UserType.User,
-            Organization = organization.Id
+            Organization = organization.Id,
+            OrganizationName = organization.Slug
         };
 
         var command = new OrganizationUserCreateCommand(contextUser, user);

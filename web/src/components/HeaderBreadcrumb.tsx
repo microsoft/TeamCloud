@@ -12,7 +12,6 @@ export const HeaderBreadcrumb: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const foo = useUrl();
     const { orgId, projectId, navId, itemId, settingId } = useUrl() as { orgId: string, projectId: string, navId: string, itemId: string, settingId: string };
 
     const { data: orgs } = useOrgs();
@@ -20,8 +19,6 @@ export const HeaderBreadcrumb: React.FC = () => {
     const { data: component } = useProjectComponent();
 
     const _breadcrumbs = (): IBreadcrumbItem[] => {
-
-        console.debug(foo);
 
         const crumbs: IBreadcrumbItem[] = [];
 

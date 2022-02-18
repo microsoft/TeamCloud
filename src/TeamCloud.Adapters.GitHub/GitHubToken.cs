@@ -4,7 +4,7 @@
  */
 
 using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Model.Data;
 using User = Octokit.User;
@@ -39,30 +39,30 @@ public sealed class GitHubToken : AuthorizationToken
     public bool Enabled
         => !Suspended && long.TryParse(ApplicationId, out _) && long.TryParse(InstallationId, out _);
 
-    [JsonProperty("id")]
+    [DataMember(Name = "id")]
     public string ApplicationId { get; set; }
 
     public string InstallationId { get; set; }
 
-    [JsonProperty("client_id")]
+    [DataMember(Name = "client_id")]
     public string ClientId { get; set; }
 
-    [JsonProperty("client_secret")]
+    [DataMember(Name = "client_secret")]
     public string ClientSecret { get; set; }
 
     public string AccessToken { get; set; }
 
-    [JsonIgnore]
+    // [IgnoreDataMember]
     public DateTime? AccessTokenExpires { get; set; }
 
-    [JsonIgnore]
+    [IgnoreDataMember]
     public bool AccessTokenExpired
-        => AccessTokenExpires.HasValue ? AccessTokenExpires < DateTime.UtcNow : true;
+        => !AccessTokenExpires.HasValue || AccessTokenExpires < DateTime.UtcNow;
 
-    [JsonProperty("webhook_secret")]
+    [DataMember(Name = "webhook_secret")]
     public string WebhookSecret { get; set; }
 
     public string Pem { get; set; }
 
-    public User Owner { get; set; }
+    public string OwnerLogin { get; set; }
 }

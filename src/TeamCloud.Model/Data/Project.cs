@@ -21,6 +21,9 @@ public sealed class Project : ContainerDocument, ISoftDelete, IOrganizationConte
     [JsonProperty(Required = Required.Always)]
     public string Organization { get; set; }
 
+    [JsonProperty(Required = Required.Always)]
+    public string OrganizationName { get; set; }
+
     private string slug;
 
     [UniqueKey]

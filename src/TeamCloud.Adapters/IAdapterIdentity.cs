@@ -4,7 +4,7 @@
  */
 
 using System.Threading.Tasks;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters;

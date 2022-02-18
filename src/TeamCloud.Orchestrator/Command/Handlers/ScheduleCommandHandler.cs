@@ -125,8 +125,11 @@ public sealed class ScheduleCommandHandler : CommandHandler,
             var commands = command.Payload.ComponentTasks.Select(t => new ComponentTaskCreateCommand(command.User, new ComponentTask
             {
                 Organization = command.Payload.Organization,
+                OrganizationName = command.Payload.OrganizationName,
                 ProjectId = command.Payload.ProjectId,
+                ProjectName = command.Payload.ProjectName,
                 ComponentId = t.ComponentId,
+                ComponentName = t.ComponentName,
                 RequestedBy = command.User.Id,
                 ScheduleId = command.Payload.Id,
                 Type = ComponentTaskType.Custom,

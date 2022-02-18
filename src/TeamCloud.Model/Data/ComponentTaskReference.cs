@@ -13,6 +13,8 @@ public sealed class ComponentTaskReference
 {
     public string ComponentId { get; set; }
 
+    public string ComponentName { get; set; }
+
     public string ComponentTaskTemplateId { get; set; }
 
     public string InputJson { get; set; }

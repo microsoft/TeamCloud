@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -21,12 +21,12 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
     ICommandHandler<ProjectIdentityDeleteCommand>
 {
     private readonly IProjectIdentityRepository projectIdentityRepository;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
 
-    public ProjectIdentityCommandHandler(IProjectIdentityRepository projectIdentityRepository, IAzureDirectoryService azureDirectoryService)
+    public ProjectIdentityCommandHandler(IProjectIdentityRepository projectIdentityRepository, IGraphService graphService)
     {
         this.projectIdentityRepository = projectIdentityRepository ?? throw new ArgumentNullException(nameof(projectIdentityRepository));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
     }
 
     public override bool Orchestration => false;
@@ -44,18 +44,18 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
 
         try
         {
-            var servicePrincipal = await azureDirectoryService
+            var servicePrincipal = await graphService
                 .CreateServicePrincipalAsync(projectIdentity.Id)
                 .ConfigureAwait(false);
 
-            projectIdentity.ObjectId = servicePrincipal.ObjectId;
+            projectIdentity.ObjectId = servicePrincipal.Id;
             projectIdentity.TenantId = servicePrincipal.TenantId;
-            projectIdentity.ClientId = servicePrincipal.ApplicationId;
+            projectIdentity.ClientId = servicePrincipal.AppId;
             projectIdentity.ClientSecret = servicePrincipal.Password;
 
             if (projectIdentity.RedirectUrls is not null)
             {
-                projectIdentity.RedirectUrls = await azureDirectoryService
+                projectIdentity.RedirectUrls = await graphService
                     .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls)
                     .ConfigureAwait(false);
             }
@@ -93,7 +93,7 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
         {
             if (projectIdentity.RedirectUrls is not null)
             {
-                projectIdentity.RedirectUrls = await azureDirectoryService
+                projectIdentity.RedirectUrls = await graphService
                     .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls)
                     .ConfigureAwait(false);
             }
@@ -125,7 +125,7 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
 
         try
         {
-            await azureDirectoryService
+            await graphService
                 .DeleteServicePrincipalAsync(projectIdentity.Id)
                 .ConfigureAwait(false);
         }

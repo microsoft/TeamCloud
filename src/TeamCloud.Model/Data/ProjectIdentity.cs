@@ -21,7 +21,13 @@ public sealed class ProjectIdentity : ContainerDocument, IIdentifiable, IProject
     public string ProjectId { get; set; }
 
     [JsonProperty(Required = Required.Always)]
+    public string ProjectName { get; set; }
+
+    [JsonProperty(Required = Required.Always)]
     public string Organization { get; set; }
+
+    [JsonProperty(Required = Required.Always)]
+    public string OrganizationName { get; set; }
 
     [JsonProperty(Required = Required.Always)]
     public string DisplayName { get; set; }

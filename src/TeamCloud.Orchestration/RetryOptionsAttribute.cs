@@ -13,7 +13,7 @@ namespace TeamCloud.Orchestration;
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class RetryOptionsAttribute : Attribute
 {
-    private static readonly ConcurrentDictionary<string, RetryOptionsAttribute> Cache = new ConcurrentDictionary<string, RetryOptionsAttribute>();
+    private static readonly ConcurrentDictionary<string, RetryOptionsAttribute> Cache = new();
 
     internal static RetryOptionsAttribute GetByFunctionName(string functionName)
     {

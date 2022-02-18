@@ -2,6 +2,28 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "docker: build push all (latest)",
+            "type": "shell",
+            "command": "echo done.",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "publish all",
+                "docker: build all (latest)",
+                "acr: login",
+                "docker: push all (latest)"
+            ]
+        },
+        {
+            "label": "publish all",
+            "type": "shell",
+            "command": "echo done.",
+            "dependsOn": [
+                "npm: run build",
+                "dotnet: build publish API and Orchestrator",
+                "bicep: local"
+            ]
+        },
+        {
             "type": "func",
             "options": {
                 "cwd": "${workspaceFolder}/src/TeamCloud.Orchestrator/bin/Debug/net6.0"
@@ -56,6 +78,17 @@
                 "group": "build",
                 "showReuseMessage": false
             }
+        },
+        {
+            "label": "dotnet: build publish API and Orchestrator",
+            "type": "shell",
+            "command": "echo done.",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "dotnet: build sln (release)",
+                "dotnet: publish API",
+                "dotnet: publish Orchestrator"
+            ]
         },
         {
             "label": "dotnet: publish API",
@@ -174,7 +207,24 @@
             },
             "dependsOn": [
                 "ngrok: set url"
-            ]
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "npm: run build",
+            "command": "npm",
+            "args": [
+                "run",
+                "build"
+            ],
+            "isBackground": true,
+            "presentation": {
+                "panel": "dedicated",
+                "showReuseMessage": false
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/web"
+            }
         },
         {
             "label": "bicep: local",
@@ -190,6 +240,18 @@
             "presentation": {
                 "showReuseMessage": false
             },
+            "problemMatcher": []
+        },
+        {
+            "label": "docker: build all (latest)",
+            "type": "shell",
+            "command": "echo done.",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "docker: build api",
+                "docker: build orchestrator",
+                "docker: build web"
+            ],
             "problemMatcher": []
         },
         {
@@ -239,6 +301,19 @@
                     "includeDefaults": false
                 }
             }
+        },
+        {
+            "label": "docker: push all (latest)",
+            "type": "shell",
+            "command": "echo done.",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "acr: login",
+                "docker: push web (latest)",
+                "docker: push api (latest)",
+                "docker: push orchestrator (latest)"
+            ],
+            "problemMatcher": []
         },
         {
             "label": "docker: push web",
@@ -390,6 +465,17 @@
                 "showReuseMessage": false
             },
             "problemMatcher": []
+        },
+        {
+            "label": "create clients",
+            "type": "shell",
+            "command": "${workspaceFolder}/scripts/create-clients.sh",
+            "options": {
+                "shell": {
+                    "executable": "/bin/sh"
+                }
+            },
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -412,7 +498,7 @@
         {
             "id": "dotnetReleaseVersion",
             "type": "promptString",
-            "description": "Version for this release.",
+            "description": "Version for this dotnet release.",
             "default": "1.0.0"
         },
         {

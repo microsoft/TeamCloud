@@ -42,7 +42,7 @@ public class ProjectController : TeamCloudController
         this.projectTemplateRepository = projectTemplateRepository ?? throw new ArgumentNullException(nameof(projectTemplateRepository));
     }
 
-    private async Task<List<User>> ResolveUsersAsync(string organizationId, ProjectDefinition projectDefinition, string projectId)
+    private async Task<List<User>> ResolveUsersAsync(Organization organization, ProjectDefinition projectDefinition, string projectId)
     {
         var users = new List<User>();
 
@@ -55,7 +55,7 @@ public class ProjectController : TeamCloudController
         if (!users.Any(u => u.Id == UserService.CurrentUserId))
         {
             var currentUser = await UserService
-                .CurrentUserAsync(organizationId)
+                .CurrentUserAsync(organization.Id, organization.Slug)
                 .ConfigureAwait(false);
 
             currentUser.EnsureProjectMembership(projectId, ProjectUserRole.Owner);
@@ -68,7 +68,7 @@ public class ProjectController : TeamCloudController
         async Task<User> ResolveUserAndEnsureMembershipAsync(UserDefinition userDefinition, string projectId)
         {
             var user = await UserService
-                .ResolveUserAsync(organizationId, userDefinition)
+                .ResolveUserAsync(organization.Id, organization.Slug, userDefinition)
                 .ConfigureAwait(false);
 
             var role = user.Id == UserService.CurrentUserId ? ProjectUserRole.Owner : Enum.Parse<ProjectUserRole>(userDefinition.Role, true);
@@ -141,13 +141,14 @@ public class ProjectController : TeamCloudController
 
         var projectId = Guid.NewGuid().ToString();
 
-        var users = await ResolveUsersAsync(organization.Id, projectDefinition, projectId)
+        var users = await ResolveUsersAsync(organization, projectDefinition, projectId)
             .ConfigureAwait(false);
 
         var project = new Project
         {
             Id = projectId,
             Organization = organization.Id,
+            OrganizationName = organization.Slug,
             Users = users,
             DisplayName = projectDefinition.DisplayName
         };

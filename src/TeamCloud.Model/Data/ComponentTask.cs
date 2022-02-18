@@ -20,12 +20,21 @@ public sealed class ComponentTask : ContainerDocument, IEquatable<ComponentTask>
     [JsonProperty(Required = Required.Always)]
     public string Organization { get; set; }
 
+    [JsonProperty(Required = Required.Always)]
+    public string OrganizationName { get; set; }
+
     [PartitionKey]
     [JsonProperty(Required = Required.Always)]
     public string ComponentId { get; set; }
 
     [JsonProperty(Required = Required.Always)]
+    public string ComponentName { get; set; }
+
+    [JsonProperty(Required = Required.Always)]
     public string ProjectId { get; set; }
+
+    [JsonProperty(Required = Required.Always)]
+    public string ProjectName { get; set; }
 
     public string RequestedBy { get; set; }
 

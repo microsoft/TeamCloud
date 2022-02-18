@@ -96,8 +96,10 @@ export declare type CommandAuditEntityRuntimeStatus = string;
 export declare interface Component {
     href?: string;
     organization: string;
+    organizationName: string;
     templateId: string;
     projectId: string;
+    projectName: string;
     creator: string;
     displayName?: string;
     description?: string;
@@ -108,6 +110,7 @@ export declare interface Component {
     resourceUrl?: string;
     resourceState?: ComponentResourceState;
     deploymentScopeId?: string;
+    deploymentScopeName?: string;
     identityId?: string;
     deleted?: Date;
     ttl?: number;
@@ -154,8 +157,11 @@ export declare type ComponentResourceState = string;
 
 export declare interface ComponentTask {
     organization: string;
+    organizationName: string;
     componentId: string;
+    componentName: string;
     projectId: string;
+    projectName: string;
     requestedBy?: string;
     scheduleId?: string;
     type?: ComponentTaskType;
@@ -193,6 +199,7 @@ export declare interface ComponentTaskListDataResult {
 
 export declare interface ComponentTaskReference {
     componentId?: string;
+    componentName?: string;
     componentTaskTemplateId?: string;
     inputJson?: string;
 }
@@ -253,6 +260,7 @@ export declare type ComponentTaskType = string;
 
 export declare interface ComponentTemplate {
     organization: string;
+    organizationName: string;
     parentId: string;
     displayName?: string;
     description?: string;
@@ -469,6 +477,7 @@ export declare type DeleteProjectUserResponse = StatusResult;
 
 export declare interface DeploymentScope {
     organization: string;
+    organizationName: string;
     displayName: string;
     slug: string;
     isDefault: boolean;
@@ -1031,6 +1040,10 @@ export declare interface OrganizationDefinition {
     displayName: string;
     subscriptionId: string;
     location: string;
+    /** Dictionary of <string> */
+    tags?: {
+        [propertyName: string]: string;
+    };
 }
 
 export declare interface OrganizationListDataResult {
@@ -1058,6 +1071,7 @@ export declare type OrganizationResourceState = string;
 
 export declare interface Project {
     organization: string;
+    organizationName: string;
     slug: string;
     displayName: string;
     template: string;
@@ -1097,7 +1111,9 @@ export declare interface ProjectDefinition {
 
 export declare interface ProjectIdentity {
     projectId: string;
+    projectName: string;
     organization: string;
+    organizationName: string;
     displayName: string;
     deploymentScopeId: string;
     tenantId?: string;
@@ -1175,6 +1191,7 @@ export declare type ProjectResourceState = string;
 
 export declare interface ProjectTemplate {
     organization: string;
+    organizationName: string;
     slug: string;
     name?: string;
     displayName: string;
@@ -1287,7 +1304,9 @@ export declare type RunScheduleResponse = ScheduleDataResult;
 
 export declare interface Schedule {
     organization: string;
+    organizationName: string;
     projectId: string;
+    projectName: string;
     enabled?: boolean;
     recurring?: boolean;
     daysOfWeek?: ScheduleDaysOfWeekItem[];
@@ -1893,7 +1912,8 @@ export declare class TeamCloudContext extends coreClient.ServiceClient {
 }
 
 export declare interface TeamCloudInformation {
-    version?: string;
+    imageVersion?: string;
+    templateVersion?: string;
 }
 
 export declare interface TeamCloudInformationDataResult {
@@ -1986,6 +2006,7 @@ export declare type UpdateScheduleResponse = ScheduleDataResult;
 
 export declare interface User {
     organization: string;
+    organizationName: string;
     displayName?: string;
     loginName?: string;
     mailAddress?: string;

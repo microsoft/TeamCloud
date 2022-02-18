@@ -13,7 +13,7 @@ namespace TeamCloud.Azure;
 
 public interface IAzureSessionService
 {
-    AzureEnvironment Environment { get; }
+    Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment Environment { get; }
 
     IAzureSessionOptions Options { get; }
 

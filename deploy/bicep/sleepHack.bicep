@@ -1,6 +1,6 @@
+param location string = resourceGroup().location
 param functionAppName string
 param utcValue string = utcNow()
-param location string = resourceGroup().location
 
 var identityName = 'sleepHackIdentity${utcValue}'
 

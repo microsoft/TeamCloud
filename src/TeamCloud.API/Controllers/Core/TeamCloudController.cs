@@ -68,7 +68,7 @@ public abstract class TeamCloudController : ControllerBase
         try
         {
             var contextUser = await UserService
-                .CurrentUserAsync(OrganizationId)
+                .CurrentUserAsync(OrganizationId, null)
                 .ConfigureAwait(false);
 
             return await callback(contextUser)
@@ -90,7 +90,7 @@ public abstract class TeamCloudController : ControllerBase
         {
             var tasks = new List<Task>()
                 {
-                    UserService.CurrentUserAsync(OrganizationId),
+                    UserService.CurrentUserAsync(OrganizationId, null),
                     GetContextDocumentAsync<T1>()
                 };
 
@@ -119,7 +119,7 @@ public abstract class TeamCloudController : ControllerBase
         {
             var tasks = new List<Task>()
                 {
-                    UserService.CurrentUserAsync(OrganizationId),
+                    UserService.CurrentUserAsync(OrganizationId, null),
                     GetContextDocumentAsync<T1>(),
                     GetContextDocumentAsync<T2>()
                 };
@@ -150,7 +150,7 @@ public abstract class TeamCloudController : ControllerBase
         {
             var tasks = new List<Task>()
                 {
-                    UserService.CurrentUserAsync(OrganizationId),
+                    UserService.CurrentUserAsync(OrganizationId, null),
                     GetContextDocumentAsync<T1>(),
                     GetContextDocumentAsync<T2>(),
                     GetContextDocumentAsync<T3>()

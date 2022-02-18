@@ -9,8 +9,9 @@
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
-from azure.core import PipelineClient
 from msrest import Deserializer, Serializer
+
+from azure.core import PipelineClient
 
 from . import models
 from ._configuration import TeamCloudClientConfiguration
@@ -18,7 +19,7 @@ from .operations import TeamCloudClientOperationsMixin
 
 if TYPE_CHECKING:
     # pylint: disable=unused-import,ungrouped-imports
-    from typing import Any, Optional
+    from typing import Any
 
     from azure.core.credentials import TokenCredential
     from azure.core.rest import HttpRequest, HttpResponse

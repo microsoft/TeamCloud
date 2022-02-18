@@ -157,15 +157,18 @@ public partial class ComponentsController : TeamCloudController
                 .ToActionResult();
 
         var currentUser = await UserService
-            .CurrentUserAsync(project.Organization)
+            .CurrentUserAsync(project.Organization, project.OrganizationName)
             .ConfigureAwait(false);
 
         var component = new Component
         {
             TemplateId = componentTemplate.Id,
-            DeploymentScopeId = componentDefinition.DeploymentScopeId,
+            DeploymentScopeId = deploymentScope.Id,
+            DeploymentScopeName = deploymentScope.Slug,
             Organization = project.Organization,
+            OrganizationName = project.OrganizationName,
             ProjectId = project.Id,
+            ProjectName = project.Slug,
             Creator = currentUser.Id,
             DisplayName = componentDefinition.DisplayName,
             InputJson = componentDefinition.InputJson,

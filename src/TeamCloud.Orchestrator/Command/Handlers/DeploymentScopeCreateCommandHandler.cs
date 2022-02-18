@@ -58,17 +58,18 @@ public sealed class DeploymentScopeCreateCommandHandler : CommandHandler,
                     .ConfigureAwait(false);
 
                 var servicePrincipalUser = await userRepository
-                    .GetAsync(commandResult.Result.Organization, servicePrincipal.ObjectId.ToString())
+                    .GetAsync(commandResult.Result.Organization, servicePrincipal.Id.ToString())
                     .ConfigureAwait(false);
 
                 if (servicePrincipalUser is null)
                 {
                     servicePrincipalUser ??= new User
                     {
-                        Id = servicePrincipal.ObjectId.ToString(),
+                        Id = servicePrincipal.Id.ToString(),
                         Role = OrganizationUserRole.Adapter,
                         UserType = Model.Data.UserType.Service,
-                        Organization = commandResult.Result.Organization
+                        Organization = commandResult.Result.Organization,
+                        OrganizationName = commandResult.Result.OrganizationName
                     };
 
                     await commandQueue

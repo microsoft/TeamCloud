@@ -19,11 +19,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Newtonsoft.Json.Linq;
 using Octokit;
 using Octokit.Internal;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Http;
@@ -56,7 +57,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     private readonly IComponentTemplateRepository componentTemplateRepository;
     private readonly IAzureSessionService azureSessionService;
     private readonly IAzureResourceService azureResourceService;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
     private readonly IFunctionsHost functionsHost;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -78,9 +79,9 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         IComponentTemplateRepository componentTemplateRepository,
         IAzureSessionService azureSessionService,
         IAzureResourceService azureResourceService,
-        IAzureDirectoryService azureDirectoryService,
+        IGraphService graphService,
         IFunctionsHost functionsHost = null)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, azureDirectoryService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
@@ -91,7 +92,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.functionsHost = functionsHost ?? FunctionsHost.Default;
     }
 
@@ -241,6 +242,13 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 .ConfigureAwait(false);
 
             TeamCloudSerialize.PopulateObject(json, token);
+
+            if (string.IsNullOrEmpty(token.OwnerLogin))
+            {
+                token.OwnerLogin = JToken.Parse(json)
+                    .SelectToken("owner.login")
+                    .ToString();
+            }
 
             token = await TokenClient
                 .SetAsync(token, true)
@@ -430,7 +438,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     private static string GetRepositoryName(Project project, Component component, int count = 0)
         => $"{project.Slug}-{component.Slug}{(count <= 0 ? string.Empty : $"-{count:D5}")}";
 
-    private Task<Component> ExecuteAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue, Func<GitHubClient, Octokit.User, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
+    private Task<Component> ExecuteAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue, Func<GitHubClient, string, Octokit.Project, Octokit.Team, Octokit.Team, Task<Component>> callback)
     {
         if (component is null)
             throw new ArgumentNullException(nameof(component));
@@ -454,7 +462,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 .ConfigureAwait(false);
 
             var teams = await client.Organization.Team
-                .GetAll(token.Owner.Login)
+                .GetAll(token.OwnerLogin)
                 .ConfigureAwait(false);
 
             var tasks = new List<Task>();
@@ -522,7 +530,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
                 ).ConfigureAwait(false);
 
-            return await callback(client, token.Owner, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
+            return await callback(client, token.OwnerLogin, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
 
             async Task<Team> EnsureTeamAsync(string teamName, Team parentTeam, NewTeam teamDefinition)
             {
@@ -535,13 +543,13 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     try
                     {
                         team = await client.Organization.Team
-                            .Create(token.Owner.Login, teamDefinition)
+                            .Create(token.OwnerLogin, teamDefinition)
                             .ConfigureAwait(false);
                     }
                     catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity) // yes, thats the status code if the team already exists
                     {
                         var teams = await client.Organization.Team
-                            .GetAll(token.Owner.Login)
+                            .GetAll(token.OwnerLogin)
                             .ConfigureAwait(false);
 
                         team = teams
@@ -570,7 +578,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             async Task<Octokit.Project> EnsureProjectAsync(string projectName, NewProject projectDefinition)
             {
                 var projects = await client.Repository.Project
-                    .GetAllForOrganization(token.Owner.Login)
+                    .GetAllForOrganization(token.OwnerLogin)
                     .ConfigureAwait(false);
 
                 var project = projects
@@ -579,7 +587,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 try
                 {
                     project ??= await client.Repository.Project
-                        .CreateForOrganization(token.Owner.Login, projectDefinition)
+                        .CreateForOrganization(token.OwnerLogin, projectDefinition)
                         .ConfigureAwait(false);
                 }
                 catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity)
@@ -587,7 +595,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     // the project already exists - try to re-fetch project information
 
                     projects = await client.Repository.Project
-                    .GetAllForOrganization(token.Owner.Login)
+                    .GetAllForOrganization(token.OwnerLogin)
                     .ConfigureAwait(false);
 
                     project = projects
@@ -608,7 +616,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             {
                 var inertiaClient = await CreateClientAsync(component, "inertia-preview").ConfigureAwait(false);
 
-                var url = new Uri($"/orgs/{token.Owner.Login}/teams/{team.Slug}/projects/{project.Id}", UriKind.Relative);
+                var url = new Uri($"/orgs/{token.OwnerLogin}/teams/{team.Slug}/projects/{project.Id}", UriKind.Relative);
 
                 _ = await inertiaClient.Connection
                     .Put<string>(url, new { Permission = permission })
@@ -619,7 +627,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
     private async Task SynchronizeTeamMembersAsync(GitHubClient client, Team team, IEnumerable<User> users, Component component, User contextUser, IAsyncCollector<ICommand> commandQueue)
     {
-        var userIds = new HashSet<Guid>(await users
+        var userIds = new HashSet<string>(await users
             .ToAsyncEnumerable()
             .SelectMany(user => ResolveUserIdsAsync(user))
             .ToArrayAsync()
@@ -628,7 +636,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         var teamUsers = await userIds
             .Select(userId =>
             {
-                var user = users.SingleOrDefault(u => userId.Equals(Guid.Parse(u.Id)));
+                var user = users.SingleOrDefault(u => userId.Equals(u.Id));
                 return user is null ? EnsureUserAsync(userId) : InitializeUserAsync(user);
             })
             .WhenAll()
@@ -658,17 +666,17 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             .WhenAll()
             .ConfigureAwait(false);
 
-        async Task<User> EnsureUserAsync(Guid userId)
+        async Task<User> EnsureUserAsync(string userId)
         {
             var user = await userRepository
-                .GetAsync(component.Organization, userId.ToString(), true)
+                .GetAsync(component.Organization, userId, true)
                 .ConfigureAwait(false);
 
             if (user is null)
             {
                 user = new User()
                 {
-                    Id = userId.ToString(),
+                    Id = userId,
                     Role = OrganizationUserRole.None
                 };
 
@@ -699,21 +707,21 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             return user;
         }
 
-        IAsyncEnumerable<Guid> ResolveUserIdsAsync(User user) => user.UserType switch
+        IAsyncEnumerable<string> ResolveUserIdsAsync(User user) => user.UserType switch
         {
             // return the given user id as async enumeration
-            UserType.User => AsyncEnumerable.Repeat(new Guid(user.Id), 1),
+            UserType.User => AsyncEnumerable.Repeat(user.Id, 1),
 
             // return user ids based on the given user that represents a group
-            UserType.Group => azureDirectoryService.GetGroupMembersAsync(user.Id, true),
+            UserType.Group => graphService.GetGroupMembersAsync(user.Id, true),
 
             // not supported user type
-            _ => AsyncEnumerable.Empty<Guid>()
+            _ => AsyncEnumerable.Empty<string>()
         };
     }
 
     protected override Task<Component> CreateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
-        => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
+        => ExecuteAsync(component, contextUser, commandQueue, async (client, ownerLogin, project, memberTeam, adminTeam) =>
     {
         Repository repository = null;
 
@@ -751,7 +759,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 try
                 {
                     repository = await client.Repository
-                        .Create(owner.Login, repoSettings)
+                        .Create(ownerLogin, repoSettings)
                         .ConfigureAwait(false);
                 }
                 catch (RepositoryExistsException)
@@ -767,7 +775,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
                 var payload = new
                 {
-                    owner = owner.Login,
+                    owner = ownerLogin,
                     name = repositoryName,
                     description = repositoryDescription
                 };
@@ -881,7 +889,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     });
 
     protected override Task<Component> UpdateComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
-        => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
+        => ExecuteAsync(component, contextUser, commandQueue, async (client, ownerLogin, project, memberTeam, adminTeam) =>
     {
         var users = await userRepository
             .ListAsync(component.Organization, component.ProjectId)
@@ -947,7 +955,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     });
 
     protected override Task<Component> DeleteComponentAsync(Component component, Organization componentOrganization, DeploymentScope componentDeploymentScope, Project componentProject, User contextUser, IAsyncCollector<ICommand> commandQueue)
-        => ExecuteAsync(component, contextUser, commandQueue, async (client, owner, project, memberTeam, adminTeam) =>
+        => ExecuteAsync(component, contextUser, commandQueue, async (client, ownerLogin, project, memberTeam, adminTeam) =>
     {
         if (GitHubIdentifier.TryParse(component.ResourceId, out var gitHubIdentifier))
         {

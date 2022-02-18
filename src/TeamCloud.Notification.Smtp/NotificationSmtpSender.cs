@@ -9,19 +9,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentEmail.Core;
 using HtmlAgilityPack;
-using TeamCloud.Azure.Directory;
+using TeamCloud.Microsoft.Graph;
 
 namespace TeamCloud.Notification.Smtp;
 
 public class NotificationSmtpSender : INotificationSmtpSender
 {
     private readonly IFluentEmailFactory emailFactory;
-    private readonly IAzureDirectoryService azureDirectoryService;
+    private readonly IGraphService graphService;
 
-    public NotificationSmtpSender(IFluentEmailFactory emailFactory, IAzureDirectoryService azureDirectoryService)
+    public NotificationSmtpSender(IFluentEmailFactory emailFactory, IGraphService graphService)
     {
         this.emailFactory = emailFactory ?? throw new ArgumentNullException(nameof(emailFactory));
-        this.azureDirectoryService = azureDirectoryService ?? throw new ArgumentNullException(nameof(azureDirectoryService));
+        this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
     }
 
     public Task SendMessageAsync(INotificationMessage notificationMessage)
@@ -99,19 +99,19 @@ public class NotificationSmtpSender : INotificationSmtpSender
         }
         else if (recipient.Address?.IsGuid() ?? false)
         {
-            var address = await azureDirectoryService
+            var address = await graphService
                 .GetMailAddressAsync(recipient.Address)
                 .ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(address))
             {
-                var memberIds = azureDirectoryService
+                var memberIds = graphService
                     .GetGroupMembersAsync(recipient.Address, true)
                     .ConfigureAwait(false);
 
                 await foreach (var memberId in memberIds)
                 {
-                    address = await azureDirectoryService
+                    address = await graphService
                         .GetMailAddressAsync(recipient.Address)
                         .ConfigureAwait(false);
 

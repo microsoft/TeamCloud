@@ -19,6 +19,9 @@ public sealed class ProjectTemplate : ContainerDocument, ISlug, IOrganizationCon
     [JsonProperty(Required = Required.Always)]
     public string Organization { get; set; }
 
+    [JsonProperty(Required = Required.Always)]
+    public string OrganizationName { get; set; }
+
     private string slug;
 
     [UniqueKey]

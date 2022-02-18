@@ -121,11 +121,12 @@ public class OrganizationsController : TeamCloudController
         };
 
         var currentUser = await UserService
-            .CurrentUserAsync(null, allowUnsafe: true)
+            .CurrentUserAsync(null, null, allowUnsafe: true)
             .ConfigureAwait(false);
 
         currentUser.Role = OrganizationUserRole.Owner;
         currentUser.Organization = organization.Id;
+        currentUser.OrganizationName = organization.Slug;
 
         var command = new OrganizationCreateCommand(currentUser, organization);
 
