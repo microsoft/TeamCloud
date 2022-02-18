@@ -19,6 +19,5 @@ public sealed class AuthorizationTokenOptions : IAuthorizationTokenOptions
         this.azureStorageOptions = azureStorageOptions ?? throw new ArgumentNullException(nameof(azureStorageOptions));
     }
 
-    public string ConnectionString
-        => azureStorageOptions.ConnectionString ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+    public string ConnectionString => azureStorageOptions.ConnectionString;
 }
