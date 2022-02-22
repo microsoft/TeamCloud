@@ -124,8 +124,7 @@ public class TeamCloudOrchestratorStartup : FunctionsStartup
             const string EncryptionContainerName = "encryption";
 
             new BlobContainerClient(encryptionOptions.KeyStorage, EncryptionContainerName)
-                .CreateIfNotExistsAsync()
-                .Wait();
+                .CreateIfNotExists();
 
             var dataProtectionBuilder = builder.Services
                 .AddDataProtection()
