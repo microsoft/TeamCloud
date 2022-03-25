@@ -3,11 +3,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption } from '@fluentui/react';
-import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
+import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption, IChoiceGroupOption } from '@fluentui/react';
+import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition, KnownOrganizationPortal } from 'teamcloud'
 import { AzureRegions, Tags } from '../model';
 import { CalloutLabel, ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, ProjectTemplateForm } from '../components';
 import { useCreateOrg, useAzureSubscriptions, useAdapters } from '../hooks';
+import { prettyPrintCamlCaseString } from '../Utils';
 
 export const NewOrgView: React.FC = () => {
 
@@ -25,8 +26,8 @@ export const NewOrgView: React.FC = () => {
     const [orgSubscription, setOrgSubscription] = useState<string>();
     const [orgSubscriptionOptions, setOrgSubscriptionOptions] = useState<IComboBoxOption[]>();
     const [orgRegion, setOrgRegion] = useState<string>();
+    const [orgPortal, setOrgPortal] = useState(KnownOrganizationPortal.TeamCloud);
 
-    const [webPortalEnabled, setWebPortalEnabled] = useState(true);
     const [scope, setScope] = useState<DeploymentScopeDefinition>();
     const [template, setTemplate] = useState<ProjectTemplateDefinition>();
     const [tags, setTags] = useState<Tags>();
@@ -79,7 +80,8 @@ export const NewOrgView: React.FC = () => {
             const orgDef = {
                 displayName: orgName,
                 subscriptionId: orgSubscription,
-                location: orgRegion
+                location: orgRegion,
+                portal: orgPortal
             } as OrganizationDefinition;
 
             const def = {
@@ -129,11 +131,14 @@ export const NewOrgView: React.FC = () => {
 
     const _onReview = (): boolean => pivotKeys.indexOf(pivotKey) === pivotKeys.length - 1;
 
-
     const _getPrimaryButtonText = (): string => {
         const currentIndex = pivotKeys.indexOf(pivotKey);
         return currentIndex === pivotKeys.length - 1 ? 'Create organization' : `Next: ${pivotKeys[currentIndex + 1]}`;
     };
+
+    const _getPortalOptions = (): IChoiceGroupOption[] => {
+        return Object.keys(KnownOrganizationPortal).map(k => ({ key: k, text: prettyPrintCamlCaseString(k)}));
+    }
 
     const onScopeChange = useCallback((scope?: DeploymentScopeDefinition) => {
         // console.log(`+ onScopeChange: ${scope}`)
@@ -195,9 +200,9 @@ export const NewOrgView: React.FC = () => {
                                     required
                                     label='Web portal'
                                     disabled={!formEnabled}
-                                    selectedKey={webPortalEnabled ? 'enabled' : 'disabled'}
-                                    onChange={(ev, opt) => setWebPortalEnabled(opt?.key === 'enabled' ?? false)}
-                                    options={[{ key: 'enabled', text: 'Enabled' }, { key: 'disabled', text: 'Disabled' }]} />
+                                    selectedKey={orgPortal}
+                                    onChange={(ev, opt) => setOrgPortal(KnownOrganizationPortal[opt?.key as keyof typeof KnownOrganizationPortal])}
+                                    options={_getPortalOptions()} />
                             </Stack.Item>
                         </Stack>
                     </PivotItem>
@@ -226,7 +231,7 @@ export const NewOrgView: React.FC = () => {
                             </Stack.Item>
                             <Stack.Item>
                                 <NewOrgReviewSection title='Configuration' details={[
-                                    { label: 'Web Portal', value: webPortalEnabled ? 'Enabled' : 'Disabled', required: true }
+                                    { label: 'Web Portal', value: orgPortal, required: true }
                                 ]} />
                             </Stack.Item>
                             <Stack.Item>

@@ -1,11 +1,28 @@
-param tags object = {}
+param organizationName string
+param organizationSlug string
+param organizationTags object = {}
+param location string = resourceGroup().location
+
+param portal string = 'teamcloud'
+param portalClientId string = ''
+param portalTenantId string = subscription().tenantId
+
+@secure()
+param portalClientSecret string = ''
 
 var resourcePrefix = 'tc'
-var uniqueName = '${resourcePrefix}${uniqueString(resourceGroup().id)}'
+var resourceName = '${resourcePrefix}${uniqueString(resourceGroup().id)}'
+
+var backstageEnabled = (portal =~ 'backstage')
+var clutchEnabled = (portal =~ 'clutch')
+
+var portalEnabled = (backstageEnabled || clutchEnabled)
+var portalDeployment = take(deployment().name, lastIndexOf(deployment().name, '-'))
 
 resource organizationSecretsVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
-  name: '${uniqueName}-secrets'
-  location: resourceGroup().location
+  name: '${resourceName}-secrets'
+  location: location
+  tags: organizationTags
   properties: {
     sku: {
       name: 'standard'
@@ -18,36 +35,95 @@ resource organizationSecretsVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
     tenantId: subscription().tenantId
     accessPolicies: []
   }
-  tags: tags
 }
 
 resource organizationSharedImageGallery 'Microsoft.Compute/galleries@2020-09-30' = {
-  name: uniqueName
-  location: resourceGroup().location
+  name: resourceName
+  location: location
+  tags: organizationTags
   properties: {}
-  tags: tags
 }
 
 resource organizationContainerRegistry 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' = {
-  name: uniqueName
-  location: resourceGroup().location
+  name: resourceName
+  location: location
+  tags: organizationTags
   sku: {
     name: 'Standard'
   }
   properties: {
     adminUserEnabled: false
   }
-  tags: tags
 }
 
 resource organizationStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: uniqueName
-  location: resourceGroup().location
+  name: resourceName
+  location: location
+  tags: organizationTags
   kind: 'StorageV2'
   sku: {
     name: 'Premium_LRS'
   }
-  tags: tags
+}
+
+module backstageDeployment './organizationPortalBackstage.bicep' = if (backstageEnabled) {
+  name: '${portalDeployment}-backstage'
+  params: {
+    resourceName: resourceName
+    organizationName: organizationName
+    organizationSlug: organizationSlug
+    organizationTags: organizationTags
+    location: location
+    portalClientId: portalClientId
+    portalClientSecret: portalClientSecret
+    portalTenantId: portalTenantId
+    storageAccountName: organizationStorageAccount.name
+    storageAcountKey: organizationStorageAccount.listKeys().keys[0].value 
+  }
+}
+
+module clutchDeployment './organizationPortalClutch.bicep' = if (clutchEnabled) {
+  name: '${portalDeployment}-clutch'
+  params: {
+    resourceName: resourceName
+    organizationName: organizationName
+    organizationSlug: organizationSlug
+    organizationTags: organizationTags
+    location: location
+    portalClientId: portalClientId
+    portalClientSecret: portalClientSecret
+    portalTenantId: portalTenantId
+    storageAccountName: organizationStorageAccount.name
+    storageAcountKey: organizationStorageAccount.listKeys().keys[0].value 
+  }
+}
+
+resource portalLogs 'microsoft.web/sites/config@2021-03-01' = if (portalEnabled) {
+  name: '${resourceName}/logs'
+  dependsOn: [
+    backstageDeployment
+    clutchDeployment
+  ]
+  properties: {
+    applicationLogs: {
+      fileSystem: {
+        level: 'Warning'
+      }
+    }
+    detailedErrorMessages: {
+      enabled: true
+    }
+    failedRequestsTracing: {
+      enabled: true
+    }
+    httpLogs: {
+      fileSystem: {
+        enabled: true
+        retentionInDays: 1
+        retentionInMb: 35
+      }
+    }
+  }
 }
 
 output organizationData object = {
@@ -56,4 +132,8 @@ output organizationData object = {
   galleryId: organizationSharedImageGallery.id
   registryId: organizationContainerRegistry.id
   storageId: organizationStorageAccount.id
+  portalUrl: backstageEnabled ? backstageDeployment.outputs.portalUrl : clutchEnabled ? clutchDeployment.outputs.portalUrl : ''
+  portalReplyUrl: backstageEnabled ? backstageDeployment.outputs.portalReplyUrl : clutchEnabled ? clutchDeployment.outputs.portalReplyUrl : ''
+  portalUpdateUrl: backstageEnabled ? backstageDeployment.outputs.portalUpdateUrl : clutchEnabled ? clutchDeployment.outputs.portalUpdateUrl : ''
+  portalIdentity: portalEnabled ? portalClientId : ''
 }

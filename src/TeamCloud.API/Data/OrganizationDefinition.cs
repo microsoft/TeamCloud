@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using TeamCloud.Model.Common;
+using TeamCloud.Model.Data;
 using TeamCloud.Serialization;
 using TeamCloud.Validation;
 
@@ -24,6 +25,8 @@ public class OrganizationDefinition : ISlug, IValidatable
 
     [JsonProperty(Required = Required.Always)]
     public string Location { get; set; }
+
+    public PortalType Portal { get; set; } = PortalType.TeamCloud;
 
     public IDictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 }

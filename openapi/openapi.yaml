@@ -2974,6 +2974,18 @@ components:
     CommandAuditEntity:
       type: object
       properties:
+        partitionKey:
+          type: string
+          nullable: true
+        rowKey:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        eTag:
+          $ref: '#/components/schemas/ETag'
         commandId:
           type: string
           nullable: true
@@ -2991,22 +3003,18 @@ components:
         projectId:
           type: string
           nullable: true
-          readOnly: true
         userId:
           type: string
           nullable: true
-          readOnly: true
         parentId:
           type: string
           nullable: true
-          readOnly: true
         command:
           type: string
           nullable: true
         componentTask:
           type: string
           nullable: true
-          readOnly: true
         runtimeStatus:
           enum:
             - Running
@@ -3343,6 +3351,8 @@ components:
         id:
           type: string
           nullable: true
+        webServer:
+          type: boolean
         with:
           type: object
           additionalProperties:
@@ -3618,6 +3628,9 @@ components:
             $ref: '#/components/schemas/ResultError'
           nullable: true
       additionalProperties: false
+    ETag:
+      type: object
+      additionalProperties: false
     Organization:
       required:
         - displayName
@@ -3668,6 +3681,24 @@ components:
         storageId:
           type: string
           nullable: true
+        portal:
+          enum:
+            - TeamCloud
+            - Backstage
+            - Clutch
+          type: string
+        portalUrl:
+          type: string
+          nullable: true
+        portalReplyUrl:
+          type: string
+          nullable: true
+        portalUpdateUrl:
+          type: string
+          nullable: true
+        portalIdentity:
+          type: string
+          nullable: true
         id:
           type: string
       additionalProperties: false
@@ -3702,6 +3733,12 @@ components:
         subscriptionId:
           type: string
         location:
+          type: string
+        portal:
+          enum:
+            - TeamCloud
+            - Backstage
+            - Clutch
           type: string
         tags:
           type: object

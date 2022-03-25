@@ -40,21 +40,22 @@ export declare interface CancelComponentTaskOptionalParams extends coreClient.Op
 export declare type CancelComponentTaskResponse = ComponentTaskDataResult;
 
 export declare interface CommandAuditEntity {
+    partitionKey?: string;
+    rowKey?: string;
+    timestamp?: Date;
+    /** Any object */
+    eTag?: Record<string, unknown>;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly commandId?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly organizationId?: string;
     commandJson?: string;
     resultJson?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly projectId?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly userId?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly parentId?: string;
+    projectId?: string;
+    userId?: string;
+    parentId?: string;
     command?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly componentTask?: string;
+    componentTask?: string;
     runtimeStatus?: CommandAuditEntityRuntimeStatus;
     customStatus?: string;
     errors?: string;
@@ -206,6 +207,7 @@ export declare interface ComponentTaskReference {
 
 export declare interface ComponentTaskRunner {
     id?: string;
+    webServer?: boolean;
     /** Dictionary of <string> */
     with?: {
         [propertyName: string]: string;
@@ -907,6 +909,20 @@ export declare enum KnownDeploymentScopeType {
     Kubernetes = "Kubernetes"
 }
 
+/** Known values of {@link OrganizationDefinitionPortal} that the service accepts. */
+export declare enum KnownOrganizationDefinitionPortal {
+    TeamCloud = "TeamCloud",
+    Backstage = "Backstage",
+    Clutch = "Clutch"
+}
+
+/** Known values of {@link OrganizationPortal} that the service accepts. */
+export declare enum KnownOrganizationPortal {
+    TeamCloud = "TeamCloud",
+    Backstage = "Backstage",
+    Clutch = "Clutch"
+}
+
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export declare enum KnownOrganizationResourceState {
     Pending = "Pending",
@@ -1024,6 +1040,11 @@ export declare interface Organization {
     galleryId?: string;
     registryId?: string;
     storageId?: string;
+    portal?: OrganizationPortal;
+    portalUrl?: string;
+    portalReplyUrl?: string;
+    portalUpdateUrl?: string;
+    portalIdentity?: string;
     id: string;
 }
 
@@ -1040,11 +1061,23 @@ export declare interface OrganizationDefinition {
     displayName: string;
     subscriptionId: string;
     location: string;
+    portal?: OrganizationDefinitionPortal;
     /** Dictionary of <string> */
     tags?: {
         [propertyName: string]: string;
     };
 }
+
+/**
+ * Defines values for OrganizationDefinitionPortal. \
+ * {@link KnownOrganizationDefinitionPortal} can be used interchangeably with OrganizationDefinitionPortal,
+ *  this enum contains the known values that the service supports.
+ * ### Known values supported by the service
+ * **TeamCloud** \
+ * **Backstage** \
+ * **Clutch**
+ */
+export declare type OrganizationDefinitionPortal = string;
 
 export declare interface OrganizationListDataResult {
     code?: number;
@@ -1053,6 +1086,17 @@ export declare interface OrganizationListDataResult {
     readonly data?: Organization[];
     location?: string;
 }
+
+/**
+ * Defines values for OrganizationPortal. \
+ * {@link KnownOrganizationPortal} can be used interchangeably with OrganizationPortal,
+ *  this enum contains the known values that the service supports.
+ * ### Known values supported by the service
+ * **TeamCloud** \
+ * **Backstage** \
+ * **Clutch**
+ */
+export declare type OrganizationPortal = string;
 
 /**
  * Defines values for OrganizationResourceState. \
@@ -1407,7 +1451,8 @@ export declare interface StringListDataResult {
     location?: string;
 }
 
-export declare class TeamCloud extends TeamCloudContext {
+export declare class TeamCloud extends coreClient.ServiceClient {
+    $host: string;
     /**
      * Initializes a new instance of the TeamCloud class.
      * @param credentials Subscription credentials which uniquely identify client subscription.
@@ -1898,17 +1943,6 @@ export declare class TeamCloud extends TeamCloudContext {
      * @param options The options parameters.
      */
     getUserProjectsMe(organizationId: string, options?: GetUserProjectsMeOptionalParams): Promise<GetUserProjectsMeResponse>;
-}
-
-export declare class TeamCloudContext extends coreClient.ServiceClient {
-    $host: string;
-    /**
-     * Initializes a new instance of the TeamCloudContext class.
-     * @param credentials Subscription credentials which uniquely identify client subscription.
-     * @param $host server parameter
-     * @param options The parameter options
-     */
-    constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
 }
 
 export declare interface TeamCloudInformation {

@@ -84,6 +84,11 @@
     </None>
   </ItemGroup>
 
+  <Target Name="TranspileBicepToARM" BeforeTargets="Build">
+    <Message Text="Transpiling .\Templates\SharedResourcesTemplate.bicep into .\Templates\SharedResourcesTemplate.json" />
+    <Exec Command="az bicep build --file .\SharedResourcesTemplate.bicep" WorkingDirectory=".\Templates" />
+  </Target>
+  
   <Target Name="UserSecretIdInfo" BeforeTargets="PreBuildEvent" Condition="'$(UserSecretsId)' != ''">
     <Warning Text="==============================================================================" />
     <Warning Text="= UserSecretsId ISSUE !!!                                                    =" />

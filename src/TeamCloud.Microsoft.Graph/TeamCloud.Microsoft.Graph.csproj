@@ -14,4 +14,8 @@
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TeamCloud.Azure.Identity\TeamCloud.Azure.Identity.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -16,7 +16,7 @@ namespace TeamCloud.Model.Data;
 [JsonObject(NamingStrategyType = typeof(TeamCloudNamingStrategy))]
 [ContainerPath("/orgs/{Organization}/users/{Id}")]
 
-public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<User>, IProperties, INotificationRecipient
+public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<User>, IProperties, INotificationAddress
 {
     [PartitionKey]
     [JsonProperty(Required = Required.Always)]
@@ -64,7 +64,9 @@ public sealed class User : ContainerDocument, IOrganizationContext, IEquatable<U
         set => properties = value;
     }
 
-    string INotificationRecipient.Address { get => MailAddress ?? Id; }
+    string INotificationAddress.Address { get => MailAddress ?? Id; }
+
+    string INotificationAddress.DisplayName { get => DisplayName; }
 
     public bool Equals(User other)
         => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);

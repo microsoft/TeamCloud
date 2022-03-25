@@ -5,7 +5,9 @@
 
 namespace TeamCloud.Notification;
 
-public interface INotificationRecipient
+public interface INotificationAddress
 {
     string Address { get; }
+
+    string DisplayName { get; }
 }
