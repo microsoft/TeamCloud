@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1124.51302",
-      "templateHash": "1638699186682122981"
+      "version": "0.4.1318.3566",
+      "templateHash": "8059566137204279865"
     }
   },
   "parameters": {
@@ -23,10 +23,6 @@
       "type": "object",
       "defaultValue": {}
     },
-    "deploymentScopes": {
-      "type": "array",
-      "defaultValue": []
-    },
     "organizationId": {
       "type": "string",
       "maxLength": 36,
@@ -35,18 +31,41 @@
     "organizationName": {
       "type": "string"
     },
+    "organizationSlug": {
+      "type": "string"
+    },
     "organizationTags": {
       "type": "object",
       "defaultValue": {}
+    },
+    "portal": {
+      "type": "string",
+      "defaultValue": "teamcloud"
+    },
+    "portalClientId": {
+      "type": "secureString",
+      "defaultValue": ""
+    },
+    "portalClientSecret": {
+      "type": "secureString",
+      "defaultValue": ""
+    },
+    "deploymentScopes": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[deployment().location]"
     }
   },
   "variables": {
     "deployProject": "[and(not(empty(parameters('projectName'))), not(equals(parameters('projectId'), '00000000-0000-0000-0000-000000000000')))]",
     "projectResourceGroupName": "[format('TCP-{0}-{1}', parameters('projectName'), uniqueString(parameters('projectId')))]",
-    "projectDeploymentName": "[take(format('{0}-{1}', deployment().name, uniqueString(parameters('projectId'), 'resources')), 64)]",
+    "projectDeploymentName": "[take(format('{0}-project', deployment().name), 64)]",
     "deployOrganization": "[not(variables('deployProject'))]",
-    "organizationResourceGroupName": "[format('TCO-{0}-{1}', parameters('organizationName'), uniqueString(parameters('organizationId')))]",
-    "organizationDeploymentName": "[take(format('{0}-{1}', deployment().name, uniqueString(parameters('organizationId'), 'resources')), 64)]"
+    "organizationResourceGroupName": "[format('TCO-{0}-{1}', parameters('organizationSlug'), uniqueString(parameters('organizationId')))]",
+    "organizationDeploymentName": "[take(format('{0}-organization', deployment().name), 64)]"
   },
   "resources": [
     {
@@ -54,7 +73,7 @@
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-10-01",
       "name": "[variables('organizationResourceGroupName')]",
-      "location": "[deployment().location]",
+      "location": "[parameters('location')]",
       "tags": "[parameters('organizationTags')]"
     },
     {
@@ -62,7 +81,7 @@
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-10-01",
       "name": "[variables('projectResourceGroupName')]",
-      "location": "[deployment().location]",
+      "location": "[parameters('location')]",
       "tags": "[parameters('projectTags')]"
     },
     {
@@ -77,8 +96,26 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "tags": {
+          "organizationName": {
+            "value": "[parameters('organizationName')]"
+          },
+          "organizationSlug": {
+            "value": "[parameters('organizationSlug')]"
+          },
+          "organizationTags": {
             "value": "[parameters('organizationTags')]"
+          },
+          "portal": {
+            "value": "[parameters('portal')]"
+          },
+          "portalClientId": {
+            "value": "[parameters('portalClientId')]"
+          },
+          "portalClientSecret": {
+            "value": "[parameters('portalClientSecret')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
           }
         },
         "template": {
@@ -87,26 +124,57 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1124.51302",
-              "templateHash": "2056363907895207247"
+              "version": "0.4.1318.3566",
+              "templateHash": "16978214520608331092"
             }
           },
           "parameters": {
-            "tags": {
+            "organizationName": {
+              "type": "string"
+            },
+            "organizationSlug": {
+              "type": "string"
+            },
+            "organizationTags": {
               "type": "object",
               "defaultValue": {}
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "portal": {
+              "type": "string",
+              "defaultValue": "teamcloud"
+            },
+            "portalClientId": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "portalTenantId": {
+              "type": "string",
+              "defaultValue": "[subscription().tenantId]"
+            },
+            "portalClientSecret": {
+              "type": "secureString",
+              "defaultValue": ""
             }
           },
           "variables": {
             "resourcePrefix": "tc",
-            "uniqueName": "[format('{0}{1}', variables('resourcePrefix'), uniqueString(resourceGroup().id))]"
+            "resourceName": "[format('{0}{1}', variables('resourcePrefix'), uniqueString(resourceGroup().id))]",
+            "backstageEnabled": "[equals(toLower(parameters('portal')), toLower('backstage'))]",
+            "clutchEnabled": "[equals(toLower(parameters('portal')), toLower('clutch'))]",
+            "portalEnabled": "[or(variables('backstageEnabled'), variables('clutchEnabled'))]",
+            "portalDeployment": "[take(deployment().name, lastIndexOf(deployment().name, '-'))]"
           },
           "resources": [
             {
               "type": "Microsoft.KeyVault/vaults",
               "apiVersion": "2019-09-01",
-              "name": "[format('{0}-secrets', variables('uniqueName'))]",
-              "location": "[resourceGroup().location]",
+              "name": "[format('{0}-secrets', variables('resourceName'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
               "properties": {
                 "sku": {
                   "name": "standard",
@@ -118,40 +186,545 @@
                 "enableSoftDelete": true,
                 "tenantId": "[subscription().tenantId]",
                 "accessPolicies": []
-              },
-              "tags": "[parameters('tags')]"
+              }
             },
             {
               "type": "Microsoft.Compute/galleries",
               "apiVersion": "2020-09-30",
-              "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
-              "properties": {},
-              "tags": "[parameters('tags')]"
+              "name": "[variables('resourceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
+              "properties": {}
             },
             {
               "type": "Microsoft.ContainerRegistry/registries",
               "apiVersion": "2019-12-01-preview",
-              "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
+              "name": "[variables('resourceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
               "sku": {
                 "name": "Standard"
               },
               "properties": {
                 "adminUserEnabled": false
-              },
-              "tags": "[parameters('tags')]"
+              }
             },
             {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2019-06-01",
-              "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
+              "name": "[variables('resourceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
               "kind": "StorageV2",
               "sku": {
                 "name": "Premium_LRS"
+              }
+            },
+            {
+              "condition": "[variables('portalEnabled')]",
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2021-03-01",
+              "name": "[format('{0}/logs', variables('resourceName'))]",
+              "properties": {
+                "applicationLogs": {
+                  "fileSystem": {
+                    "level": "Warning"
+                  }
+                },
+                "detailedErrorMessages": {
+                  "enabled": true
+                },
+                "failedRequestsTracing": {
+                  "enabled": true
+                },
+                "httpLogs": {
+                  "fileSystem": {
+                    "enabled": true,
+                    "retentionInDays": 1,
+                    "retentionInMb": 35
+                  }
+                }
               },
-              "tags": "[parameters('tags')]"
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment')))]",
+                "[resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment')))]"
+              ]
+            },
+            {
+              "condition": "[variables('backstageEnabled')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('{0}-backstage', variables('portalDeployment'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "resourceName": {
+                    "value": "[variables('resourceName')]"
+                  },
+                  "organizationName": {
+                    "value": "[parameters('organizationName')]"
+                  },
+                  "organizationSlug": {
+                    "value": "[parameters('organizationSlug')]"
+                  },
+                  "organizationTags": {
+                    "value": "[parameters('organizationTags')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "portalClientId": {
+                    "value": "[parameters('portalClientId')]"
+                  },
+                  "portalClientSecret": {
+                    "value": "[parameters('portalClientSecret')]"
+                  },
+                  "portalTenantId": {
+                    "value": "[parameters('portalTenantId')]"
+                  },
+                  "storageAccountName": {
+                    "value": "[variables('resourceName')]"
+                  },
+                  "storageAcountKey": {
+                    "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('resourceName')), '2019-06-01').keys[0].value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1318.3566",
+                      "templateHash": "14221165678811297896"
+                    }
+                  },
+                  "parameters": {
+                    "resourceName": {
+                      "type": "string"
+                    },
+                    "organizationName": {
+                      "type": "string"
+                    },
+                    "organizationSlug": {
+                      "type": "string"
+                    },
+                    "organizationTags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]"
+                    },
+                    "portalClientId": {
+                      "type": "string"
+                    },
+                    "portalTenantId": {
+                      "type": "string",
+                      "defaultValue": "[tenant().tenantId]"
+                    },
+                    "portalClientSecret": {
+                      "type": "secureString"
+                    },
+                    "registryServer": {
+                      "type": "string",
+                      "defaultValue": "teamcloud.azurecr.io"
+                    },
+                    "registryUsername": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
+                    "registryPassword": {
+                      "type": "secureString",
+                      "defaultValue": ""
+                    },
+                    "storageAccountName": {
+                      "type": "string"
+                    },
+                    "storageAcountKey": {
+                      "type": "secureString"
+                    }
+                  },
+                  "variables": {
+                    "portalImage": "teamcloud/tcportal-backstage:latest",
+                    "databaseUsername": "portal",
+                    "databasePassword": "[format('{0}', guid(resourceGroup().id))]"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.DBforPostgreSQL/flexibleServers/firewallRules",
+                      "apiVersion": "2021-06-01",
+                      "name": "[format('{0}/{1}', parameters('resourceName'), 'AllowAllWindowsAzureIps')]",
+                      "properties": {
+                        "endIpAddress": "0.0.0.0",
+                        "startIpAddress": "0.0.0.0"
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('resourceName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+                      "apiVersion": "2021-06-01",
+                      "name": "[parameters('resourceName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('organizationTags')]",
+                      "sku": {
+                        "name": "Standard_D4s_v3",
+                        "tier": "GeneralPurpose"
+                      },
+                      "properties": {
+                        "administratorLogin": "[variables('databaseUsername')]",
+                        "administratorLoginPassword": "[variables('databasePassword')]",
+                        "version": "13",
+                        "storage": {
+                          "storageSizeGB": 32
+                        },
+                        "backup": {
+                          "backupRetentionDays": 7,
+                          "geoRedundantBackup": "Disabled"
+                        },
+                        "highAvailability": {
+                          "mode": "Disabled"
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Web/serverfarms",
+                      "apiVersion": "2021-03-01",
+                      "name": "[parameters('resourceName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('organizationTags')]",
+                      "kind": "linux",
+                      "sku": {
+                        "name": "S2",
+                        "tier": "Standard"
+                      },
+                      "properties": {
+                        "targetWorkerSizeId": 0,
+                        "targetWorkerCount": 1,
+                        "reserved": true
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Web/sites",
+                      "apiVersion": "2021-03-01",
+                      "name": "[parameters('resourceName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('organizationTags')]",
+                      "properties": {
+                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('resourceName'))]",
+                        "siteConfig": {
+                          "appCommandLine": "node packages/backend --config app-config.yaml --config app-config.production.yaml",
+                          "linuxFxVersion": "[format('DOCKER|{0}/{1}', parameters('registryServer'), variables('portalImage'))]",
+                          "appSettings": [
+                            {
+                              "name": "DOCKER_ENABLE_CI",
+                              "value": "true"
+                            },
+                            {
+                              "name": "DOCKER_REGISTRY_SERVER_URL",
+                              "value": "[format('https://{0}', parameters('registryServer'))]"
+                            },
+                            {
+                              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                              "value": "[parameters('registryUsername')]"
+                            },
+                            {
+                              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                              "value": "[parameters('registryPassword')]"
+                            },
+                            {
+                              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                              "value": "false"
+                            },
+                            {
+                              "name": "WEBSITES_PORT",
+                              "value": "7007"
+                            },
+                            {
+                              "name": "POSTGRES_HOST",
+                              "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('resourceName'))).fullyQualifiedDomainName]"
+                            },
+                            {
+                              "name": "POSTGRES_PORT",
+                              "value": "5432"
+                            },
+                            {
+                              "name": "POSTGRES_USER",
+                              "value": "[variables('databaseUsername')]"
+                            },
+                            {
+                              "name": "POSTGRES_PASSWORD",
+                              "value": "[variables('databasePassword')]"
+                            },
+                            {
+                              "name": "TEAMCLOUD_ORGANIZATION_NAME",
+                              "value": "[parameters('organizationName')]"
+                            },
+                            {
+                              "name": "STORAGE_ACCOUNT_NAME",
+                              "value": "[parameters('storageAccountName')]"
+                            },
+                            {
+                              "name": "STORAGE_ACCOUNT_KEY",
+                              "value": "[parameters('storageAcountKey')]"
+                            },
+                            {
+                              "name": "AUTH_MICROSOFT_CLIENT_ID",
+                              "value": "[parameters('portalClientId')]"
+                            },
+                            {
+                              "name": "AUTH_MICROSOFT_CLIENT_SECRET",
+                              "value": "[parameters('portalClientSecret')]"
+                            },
+                            {
+                              "name": "AUTH_MICROSOFT_TENANT_ID",
+                              "value": "[parameters('portalTenantId')]"
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Web/serverfarms', parameters('resourceName'))]",
+                        "[resourceId('Microsoft.DBforPostgreSQL/flexibleServers', parameters('resourceName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "portalUrl": {
+                      "type": "string",
+                      "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('resourceName'))).defaultHostName)]"
+                    },
+                    "portalReplyUrl": {
+                      "type": "string",
+                      "value": "[format('https://{0}/api/auth/microsoft/handler/frame', reference(resourceId('Microsoft.Web/sites', parameters('resourceName'))).defaultHostName)]"
+                    },
+                    "portalUpdateUrl": {
+                      "type": "string",
+                      "value": "[format('https://{0}/docker/hook', list(resourceId('Microsoft.Web/sites/config', split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[0], split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[1]), '2021-03-01').properties.scmUri)]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('resourceName'))]"
+              ]
+            },
+            {
+              "condition": "[variables('clutchEnabled')]",
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2020-10-01",
+              "name": "[format('{0}-clutch', variables('portalDeployment'))]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "resourceName": {
+                    "value": "[variables('resourceName')]"
+                  },
+                  "organizationName": {
+                    "value": "[parameters('organizationName')]"
+                  },
+                  "organizationSlug": {
+                    "value": "[parameters('organizationSlug')]"
+                  },
+                  "organizationTags": {
+                    "value": "[parameters('organizationTags')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "portalClientId": {
+                    "value": "[parameters('portalClientId')]"
+                  },
+                  "portalClientSecret": {
+                    "value": "[parameters('portalClientSecret')]"
+                  },
+                  "portalTenantId": {
+                    "value": "[parameters('portalTenantId')]"
+                  },
+                  "storageAccountName": {
+                    "value": "[variables('resourceName')]"
+                  },
+                  "storageAcountKey": {
+                    "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('resourceName')), '2019-06-01').keys[0].value]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.4.1318.3566",
+                      "templateHash": "9572412175388297702"
+                    }
+                  },
+                  "parameters": {
+                    "resourceName": {
+                      "type": "string"
+                    },
+                    "organizationName": {
+                      "type": "string"
+                    },
+                    "organizationSlug": {
+                      "type": "string"
+                    },
+                    "organizationTags": {
+                      "type": "object",
+                      "defaultValue": {}
+                    },
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]"
+                    },
+                    "portalClientId": {
+                      "type": "string"
+                    },
+                    "portalTenantId": {
+                      "type": "string",
+                      "defaultValue": "[tenant().tenantId]"
+                    },
+                    "portalClientSecret": {
+                      "type": "secureString"
+                    },
+                    "registryServer": {
+                      "type": "string",
+                      "defaultValue": "teamcloud.azurecr.io"
+                    },
+                    "registryUsername": {
+                      "type": "string",
+                      "defaultValue": ""
+                    },
+                    "registryPassword": {
+                      "type": "secureString",
+                      "defaultValue": ""
+                    },
+                    "storageAccountName": {
+                      "type": "string"
+                    },
+                    "storageAcountKey": {
+                      "type": "secureString"
+                    }
+                  },
+                  "variables": {
+                    "portalImage": "teamcloud/tcportal-clutch:latest"
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.Web/serverfarms",
+                      "apiVersion": "2021-03-01",
+                      "name": "[parameters('resourceName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('organizationTags')]",
+                      "kind": "linux",
+                      "sku": {
+                        "name": "S2",
+                        "tier": "Standard"
+                      },
+                      "properties": {
+                        "targetWorkerSizeId": 0,
+                        "targetWorkerCount": 1,
+                        "reserved": true
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Web/sites",
+                      "apiVersion": "2021-03-01",
+                      "name": "[parameters('resourceName')]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('organizationTags')]",
+                      "properties": {
+                        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('resourceName'))]",
+                        "siteConfig": {
+                          "linuxFxVersion": "[format('DOCKER|{0}/{1}', parameters('registryServer'), variables('portalImage'))]",
+                          "appSettings": [
+                            {
+                              "name": "DOCKER_ENABLE_CI",
+                              "value": "true"
+                            },
+                            {
+                              "name": "DOCKER_REGISTRY_SERVER_URL",
+                              "value": "[format('https://{0}', parameters('registryServer'))]"
+                            },
+                            {
+                              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                              "value": "[parameters('registryUsername')]"
+                            },
+                            {
+                              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                              "value": "[parameters('registryPassword')]"
+                            },
+                            {
+                              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                              "value": "false"
+                            },
+                            {
+                              "name": "WEBSITES_PORT",
+                              "value": "8080"
+                            },
+                            {
+                              "name": "TEAMCLOUD_ORGANIZATION_NAME",
+                              "value": "[parameters('organizationName')]"
+                            },
+                            {
+                              "name": "STORAGE_ACCOUNT_NAME",
+                              "value": "[parameters('storageAccountName')]"
+                            },
+                            {
+                              "name": "STORAGE_ACCOUNT_KEY",
+                              "value": "[parameters('storageAcountKey')]"
+                            },
+                            {
+                              "name": "CREDENTIALS_OIDC_CLIENT_ID",
+                              "value": "[parameters('portalClientId')]"
+                            },
+                            {
+                              "name": "CREDENTIALS_OIDC_CLIENT_SECRET",
+                              "value": "[parameters('portalClientSecret')]"
+                            },
+                            {
+                              "name": "CREDENTIALS_OIDC_TENANT_ID",
+                              "value": "[parameters('portalTenantId')]"
+                            },
+                            {
+                              "name": "CREDENTIALS_SESSION_SECRET",
+                              "value": "[guid(resourceGroup().id)]"
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.Web/serverfarms', parameters('resourceName'))]"
+                      ]
+                    }
+                  ],
+                  "outputs": {
+                    "portalUrl": {
+                      "type": "string",
+                      "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('resourceName'))).defaultHostName)]"
+                    },
+                    "portalReplyUrl": {
+                      "type": "string",
+                      "value": "[format('https://{0}/v1/authn/callback', reference(resourceId('Microsoft.Web/sites', parameters('resourceName'))).defaultHostName)]"
+                    },
+                    "portalUpdateUrl": {
+                      "type": "string",
+                      "value": "[format('https://{0}/docker/hook', list(resourceId('Microsoft.Web/sites/config', split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[0], split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[1]), '2021-03-01').properties.scmUri)]"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('resourceName'))]"
+              ]
             }
           ],
           "outputs": {
@@ -159,10 +732,14 @@
               "type": "object",
               "value": {
                 "resourceId": "[resourceGroup().id]",
-                "secretsVaultId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}-secrets', variables('uniqueName')))]",
-                "galleryId": "[resourceId('Microsoft.Compute/galleries', variables('uniqueName'))]",
-                "registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('uniqueName'))]",
-                "storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueName'))]"
+                "secretsVaultId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}-secrets', variables('resourceName')))]",
+                "galleryId": "[resourceId('Microsoft.Compute/galleries', variables('resourceName'))]",
+                "registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('resourceName'))]",
+                "storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('resourceName'))]",
+                "portalUrl": "[if(variables('backstageEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment'))), '2020-10-01').outputs.portalUrl.value, if(variables('clutchEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment'))), '2020-10-01').outputs.portalUrl.value, ''))]",
+                "portalReplyUrl": "[if(variables('backstageEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment'))), '2020-10-01').outputs.portalReplyUrl.value, if(variables('clutchEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment'))), '2020-10-01').outputs.portalReplyUrl.value, ''))]",
+                "portalUpdateUrl": "[if(variables('backstageEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment'))), '2020-10-01').outputs.portalUpdateUrl.value, if(variables('clutchEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment'))), '2020-10-01').outputs.portalUpdateUrl.value, ''))]",
+                "portalIdentity": "[if(variables('portalEnabled'), parameters('portalClientId'), '')]"
               }
             }
           }
@@ -189,6 +766,9 @@
           },
           "deploymentScopes": {
             "value": "[parameters('deploymentScopes')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
           }
         },
         "template": {
@@ -197,8 +777,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1124.51302",
-              "templateHash": "978003646548595270"
+              "version": "0.4.1318.3566",
+              "templateHash": "4063573186521174889"
             }
           },
           "parameters": {
@@ -209,6 +789,10 @@
             "deploymentScopes": {
               "type": "array",
               "defaultValue": []
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
             }
           },
           "variables": {
@@ -220,7 +804,7 @@
               "type": "Microsoft.KeyVault/vaults",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}-shared', variables('uniqueName'))]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('location')]",
               "properties": {
                 "sku": {
                   "name": "standard",
@@ -239,7 +823,7 @@
               "type": "Microsoft.KeyVault/vaults",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}-secrets', variables('uniqueName'))]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('location')]",
               "properties": {
                 "sku": {
                   "name": "standard",
@@ -258,7 +842,7 @@
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2019-06-01",
               "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('location')]",
               "sku": {
                 "name": "Standard_LRS"
               },
@@ -275,7 +859,7 @@
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
               "name": "[parameters('deploymentScopes')[copyIndex()]]",
-              "location": "[resourceGroup().location]"
+              "location": "[parameters('location')]"
             }
           ],
           "outputs": {

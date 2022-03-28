@@ -54,6 +54,16 @@ public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organiza
 
     public string StorageId { get; set; }
 
+    public PortalType Portal { get; set; } = PortalType.TeamCloud;
+   
+    public string PortalUrl { get; set; }
+
+    public string PortalReplyUrl { get; set; }
+
+    public string PortalUpdateUrl { get; set; }
+
+    public string PortalIdentity { get; set; }
+
     public bool Equals(Organization other)
         => Id.Equals(other?.Id, StringComparison.OrdinalIgnoreCase);
 

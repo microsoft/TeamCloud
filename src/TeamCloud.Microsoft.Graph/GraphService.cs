@@ -9,41 +9,10 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Azure.Identity;
 using Microsoft.Graph;
+using TeamCloud.Azure.Identity;
 
 namespace TeamCloud.Microsoft.Graph;
-
-public interface IGraphService
-{
-    Task<bool> IsUserAsync(string identifier);
-
-    Task<string> GetUserIdAsync(string identifier);
-
-    Task<bool> IsGroupAsync(string identifier);
-
-    Task<string> GetGroupIdAsync(string identifier);
-
-    IAsyncEnumerable<string> GetGroupMembersAsync(string identifier, bool resolveAllGroups = false);
-
-    Task<string> GetDisplayNameAsync(string identifier);
-
-    Task<string> GetLoginNameAsync(string identifier);
-
-    Task<string> GetMailAddressAsync(string identifier);
-
-    Task<AzureServicePrincipal> CreateServicePrincipalAsync(string name);
-
-    Task<AzureServicePrincipal> RefreshServicePrincipalAsync(string identifier);
-
-    Task<AzureServicePrincipal> GetServicePrincipalAsync(string identifier);
-
-    Task DeleteServicePrincipalAsync(string identifier);
-
-    Task<IEnumerable<string>> GetServicePrincipalRedirectUrlsAsync(string identifier);
-
-    Task<IEnumerable<string>> SetServicePrincipalRedirectUrlsAsync(string identifier, IEnumerable<string> redirectUrls);
-}
 
 public class GraphService : IGraphService
 {
@@ -55,17 +24,16 @@ public class GraphService : IGraphService
     private const string applicationSelect = "id,displayName,appId,deletedDateTime,identifierUris,uniqueName,passwordCredentials";
 
     private const string SECRET_DESCRIPTION = "Managed by TeamCloud";
+    private readonly GraphServiceClient graphClient;
 
-    public GraphService()
+    public GraphService(ITeamCloudCredentialOptions teamCloudCredentialOptions = null)
     {
+        graphClient = new GraphServiceClient(new TeamCloudCredential(teamCloudCredentialOptions));
     }
 
     private static string SanitizeIdentifier(string identifier) => identifier?
         .Replace("%3A", ":", StringComparison.OrdinalIgnoreCase)?
         .Replace("%2F", "/", StringComparison.OrdinalIgnoreCase);
-
-    private static GraphServiceClient GraphClient => new(new DefaultAzureCredential());
-
 
     public async Task<string> GetDisplayNameAsync(string identifier)
     {
@@ -75,14 +43,14 @@ public class GraphService : IGraphService
         identifier = SanitizeIdentifier(identifier);
 
         // assume user first
-        var user = await GetUserInternalAsync(GraphClient, identifier)
+        var user = await GetUserInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(user?.DisplayName))
             return user.DisplayName;
 
         // otherwise try to find a service principal
-        var principal = await GetServicePrincipalInternalAsync(GraphClient, identifier)
+        var principal = await GetServicePrincipalInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(principal?.DisplayName))
@@ -98,14 +66,11 @@ public class GraphService : IGraphService
 
         try
         {
-            var group = await GraphClient
+            var group = await graphClient
                 .Groups[identifier]
                 .Request()
                 .GetAsync()
                 .ConfigureAwait(false);
-
-            // if (!string.IsNullOrEmpty(group?.Id))
-            //     return Guid.Parse(group?.Id);
 
             return group?.Id;
         }
@@ -127,21 +92,32 @@ public class GraphService : IGraphService
         {
             if (resolveAllGroups)
             {
-                var page = await GraphClient
-                    .Groups[groupId]
-                    .TransitiveMembers
-                    .Request()
-                    .Header("ConsistencyLevel", "eventual")
-                    .Select(memberSelect)
-                    .GetAsync()
-                    .ConfigureAwait(false);
+                IGroupTransitiveMembersCollectionWithReferencesPage page = null;
 
-                while (page.NextPageRequest is not null)
+                while (true)
                 {
-                    page = await page
-                        .NextPageRequest
-                        .GetAsync()
-                        .ConfigureAwait(false);
+                    if (page is null)
+                    {
+                        page = await graphClient
+                            .Groups[groupId]
+                            .TransitiveMembers
+                            .Request()
+                            .Header("ConsistencyLevel", "eventual")
+                            .Select(memberSelect)
+                            .GetAsync()
+                            .ConfigureAwait(false);
+                    }
+                    else if (page.NextPageRequest is not null)
+                    {
+                        page = await page
+                            .NextPageRequest
+                            .GetAsync()
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        break;
+                    }
 
                     foreach (var memberId in page.CurrentPage.Where(m => !m.DeletedDateTime.HasValue).Select(m => m.Id))
                         yield return memberId;
@@ -149,21 +125,32 @@ public class GraphService : IGraphService
             }
             else
             {
-                var page = await GraphClient
-                    .Groups[groupId]
-                    .Members
-                    .Request()
-                    .Header("ConsistencyLevel", "eventual")
-                    .Select(memberSelect)
-                    .GetAsync()
-                    .ConfigureAwait(false);
+                IGroupMembersCollectionWithReferencesPage page = null;
 
-                while (page.NextPageRequest is not null)
+                while (true)
                 {
-                    page = await page
-                        .NextPageRequest
-                        .GetAsync()
-                        .ConfigureAwait(false);
+                    if (page is null)
+                    {
+                        page = await graphClient
+                            .Groups[groupId]
+                            .Members
+                            .Request()
+                            .Header("ConsistencyLevel", "eventual")
+                            .Select(memberSelect)
+                            .GetAsync()
+                            .ConfigureAwait(false);
+                    }
+                    else if (page.NextPageRequest is not null)
+                    {
+                        page = await page
+                            .NextPageRequest
+                            .GetAsync()
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        break;
+                    }
 
                     foreach (var memberId in page.CurrentPage.Where(m => !m.DeletedDateTime.HasValue).Select(m => m.Id))
                         yield return memberId;
@@ -179,7 +166,7 @@ public class GraphService : IGraphService
 
         identifier = SanitizeIdentifier(identifier);
 
-        var user = await GetUserInternalAsync(GraphClient, identifier)
+        var user = await GetUserInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         return user?.Mail;
@@ -192,7 +179,7 @@ public class GraphService : IGraphService
 
         identifier = SanitizeIdentifier(identifier);
 
-        var user = await GetUserInternalAsync(GraphClient, identifier)
+        var user = await GetUserInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         return user?.Mail;
@@ -206,14 +193,14 @@ public class GraphService : IGraphService
         identifier = SanitizeIdentifier(identifier);
 
         // assume user first
-        var user = await GetUserInternalAsync(GraphClient, identifier)
+        var user = await GetUserInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(user?.Id))
             return user.Id;
 
         // otherwise try to find a service principal
-        var principal = await GetServicePrincipalInternalAsync(GraphClient, identifier)
+        var principal = await GetServicePrincipalInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         if (!string.IsNullOrEmpty(principal?.Id))
@@ -228,7 +215,6 @@ public class GraphService : IGraphService
 
     public Task<bool> IsUserAsync(string identifier)
         => GetUserIdAsync(identifier).ContinueWith(t => t.Result is not null, TaskContinuationOptions.OnlyOnRanToCompletion);
-
 
     public async Task<AzureServicePrincipal> CreateServicePrincipalAsync(string name)
     {
@@ -248,16 +234,19 @@ public class GraphService : IGraphService
                         ResourceAppId = "00000003-0000-0000-c000-000000000000",
                         ResourceAccess = new List<ResourceAccess> {
                             new ResourceAccess {
-                                Id = Guid.Parse("e1fe6dd8-ba31-4d61-89e7-88639da4683d"),
+                                Id = Guid.Parse("e1fe6dd8-ba31-4d61-89e7-88639da4683d"), // User.Read
                                 Type = "Scope"
                             }
                         }
                     }
+                },
+                IdentifierUris = new List<string>
+                {
+                    $"api://{name}"
                 }
             };
 
-            application = await GraphClient
-                .Applications
+            application = await graphClient.Applications
                 .Request()
                 .AddAsync(application)
                 .ConfigureAwait(false);
@@ -267,12 +256,11 @@ public class GraphService : IGraphService
                 AppId = application.AppId
             };
 
-            servicePrincipal = await GraphClient
-                .ServicePrincipals
+            servicePrincipal = await graphClient.ServicePrincipals
                 .Request()
                 .AddAsync(servicePrincipal)
                 .ConfigureAwait(false);
-
+            
             var expiresOn = DateTimeOffset.UtcNow.AddYears(1);
 
             var passwordCredential = new PasswordCredential
@@ -283,8 +271,8 @@ public class GraphService : IGraphService
                 CustomKeyIdentifier = Encoding.UTF8.GetBytes(SECRET_DESCRIPTION)
             };
 
-            passwordCredential = await GraphClient
-                .Applications[application.AppId]
+            passwordCredential = await graphClient
+                .Applications[application.Id]
                 .AddPassword(passwordCredential)
                 .Request()
                 .PostAsync()
@@ -315,17 +303,17 @@ public class GraphService : IGraphService
 
         identifier = SanitizeServicePrincipalName(identifier);
 
-        var servicePrincipal = await GetServicePrincipalInternalAsync(GraphClient, identifier)
+        var servicePrincipal = await GetServicePrincipalInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         if (servicePrincipal is not null)
         {
-            var application = await GetApplicationInternalAsync(GraphClient, servicePrincipal.AppId)
+            var application = await GetApplicationInternalAsync(graphClient, servicePrincipal.AppId)
                 .ConfigureAwait(false);
 
             if (application is not null)
             {
-                await GraphClient
+                await graphClient
                     .Applications[application.Id]
                     .Request()
                     .DeleteAsync()
@@ -341,13 +329,13 @@ public class GraphService : IGraphService
 
         identifier = SanitizeServicePrincipalName(identifier);
 
-        var servicePrincipal = await GetServicePrincipalInternalAsync(GraphClient, identifier)
+        var servicePrincipal = await GetServicePrincipalInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         if (servicePrincipal is null)
             return null;
 
-        var application = await GetApplicationInternalAsync(GraphClient, servicePrincipal.AppId)
+        var application = await GetApplicationInternalAsync(graphClient, servicePrincipal.AppId)
             .ConfigureAwait(false);
 
         if (application is null)
@@ -368,7 +356,68 @@ public class GraphService : IGraphService
         };
 
         return azureServicePrincipal;
+    }
 
+    public async Task<Dictionary<string, Dictionary<Guid, AccessType>>> GetResourcePermissionsAsync(string identifier)
+    {
+        if (identifier is null)
+            throw new ArgumentNullException(nameof(identifier));
+
+        identifier = SanitizeServicePrincipalName(identifier);
+
+        var application = await GetApplicationInternalAsync(graphClient, identifier)
+            .ConfigureAwait(false);
+
+        if (application is null)
+            throw new ArgumentException($"Could not find application by identifier '{identifier}'", nameof(identifier));
+
+        if (application.RequiredResourceAccess is null)
+            return new Dictionary<string, Dictionary<Guid, AccessType>>();
+
+        return application.RequiredResourceAccess
+            .Where(rra => rra.ResourceAccess?.Any() ?? false)
+            .GroupBy(rra => rra.ResourceAppId)
+            .ToDictionary(grp => grp.Key, grp => grp.SelectMany(item => item.ResourceAccess).Where(ra => ra.Id.HasValue).ToDictionary(ra => ra.Id.Value, ra => Enum.Parse<AccessType>(ra.Type)));
+    }
+
+    public async Task<Dictionary<string, Dictionary<Guid, AccessType>>> SetResourcePermissionsAsync(string identifier, Dictionary<string, Dictionary<Guid, AccessType>> resourcePermissions)
+    {
+        if (identifier is null)
+            throw new ArgumentNullException(nameof(identifier));
+
+        identifier = SanitizeServicePrincipalName(identifier);
+
+        var application = await GetApplicationInternalAsync(graphClient, identifier)
+            .ConfigureAwait(false);
+
+        if (application is null)
+            throw new ArgumentException($"Could not find application by identifier '{identifier}'", nameof(identifier));
+
+        var requiredResourceAccess = Enumerable.Empty<RequiredResourceAccess>();
+
+        if (resourcePermissions?.Any() ?? false)
+        {
+            requiredResourceAccess = resourcePermissions.Select(rp => new RequiredResourceAccess()
+            {
+                ResourceAppId = rp.Key,
+                ResourceAccess = (rp.Value?.Any() ?? false)
+                    ? rp.Value.Select(ra => new ResourceAccess() { Id = ra.Key, Type = ra.Value.ToString() })
+                    : Enumerable.Empty<ResourceAccess>()
+            });
+        }
+
+        var applicationPatch = new Application()
+        {
+            RequiredResourceAccess = requiredResourceAccess
+        };
+
+        await graphClient.Applications[application.Id]
+            .Request()
+            .UpdateAsync(applicationPatch)
+            .ConfigureAwait(false);
+
+        return await GetResourcePermissionsAsync(identifier)
+            .ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<string>> GetServicePrincipalRedirectUrlsAsync(string identifier)
@@ -378,7 +427,7 @@ public class GraphService : IGraphService
 
         identifier = SanitizeServicePrincipalName(identifier);
 
-        var servicePrincipal = await GetServicePrincipalInternalAsync(GraphClient, identifier)
+        var servicePrincipal = await GetServicePrincipalInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         return servicePrincipal?.ReplyUrls;
@@ -391,13 +440,13 @@ public class GraphService : IGraphService
 
         identifier = SanitizeServicePrincipalName(identifier);
 
-        var servicePrincipal = await GetServicePrincipalInternalAsync(GraphClient, identifier)
+        var servicePrincipal = await GetServicePrincipalInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
         if (servicePrincipal is null)
             return null;
 
-        var application = await GetApplicationInternalAsync(GraphClient, servicePrincipal.AppId)
+        var application = await GetApplicationInternalAsync(graphClient, servicePrincipal.AppId)
             .ConfigureAwait(false);
 
         if (application is null)
@@ -411,7 +460,7 @@ public class GraphService : IGraphService
 
         if (passwordCredential is not null && passwordCredential.KeyId.HasValue)
         {
-            await GraphClient
+            await graphClient
                 .Applications[application.Id]
                 .RemovePassword(passwordCredential.KeyId.Value)
                 .Request()
@@ -427,8 +476,8 @@ public class GraphService : IGraphService
             CustomKeyIdentifier = Encoding.UTF8.GetBytes(SECRET_DESCRIPTION)
         };
 
-        passwordCredential = await GraphClient
-            .Applications[application.AppId]
+        passwordCredential = await graphClient
+            .Applications[application.Id]
             .AddPassword(passwordCredential)
             .Request()
             .PostAsync()
@@ -447,28 +496,51 @@ public class GraphService : IGraphService
         return azureServicePrincipal;
     }
 
-    public async Task<IEnumerable<string>> SetServicePrincipalRedirectUrlsAsync(string identifier, IEnumerable<string> redirectUrls)
+    public async Task<IEnumerable<string>> SetServicePrincipalRedirectUrlsAsync(string identifier, params string[] redirectUrls)
     {
         if (identifier is null)
             throw new ArgumentNullException(nameof(identifier));
 
         identifier = SanitizeServicePrincipalName(identifier);
 
-        var servicePrincipal = await GetServicePrincipalInternalAsync(GraphClient, identifier)
+        var application = await GetApplicationInternalAsync(graphClient, identifier)
             .ConfigureAwait(false);
 
-        var patchPrincipal = new ServicePrincipal
+        if (application is null)
+            return null;
+
+        redirectUrls = redirectUrls.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+
+        var applicationPatch = new Application()
         {
-            ReplyUrls = redirectUrls.Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+            Web = new WebApplication()
+            {
+                RedirectUris = redirectUrls
+            }
         };
-
-        servicePrincipal = await GraphClient
-            .ServicePrincipals[servicePrincipal.Id]
+        
+        await graphClient.Applications[application.Id]
             .Request()
-            .UpdateAsync(patchPrincipal)
+            .UpdateAsync(applicationPatch)
             .ConfigureAwait(false);
 
-        return servicePrincipal?.ReplyUrls;
+        var servicePrincipal = await GetServicePrincipalInternalAsync(graphClient, identifier)
+            .ConfigureAwait(false);
+
+        if (servicePrincipal is not null)
+        {
+            var servicePrincipalPath = new ServicePrincipal()
+            {
+                ReplyUrls = redirectUrls
+            };
+
+            await graphClient.ServicePrincipals[servicePrincipal.Id]
+                .Request()
+                .UpdateAsync(servicePrincipalPath)
+                .ConfigureAwait(false);
+        }
+
+        return redirectUrls;
     }
 
     public static async Task<List<Domain>> GetDomainsAsync(GraphServiceClient client)
@@ -544,19 +616,17 @@ public class GraphService : IGraphService
 
     private static async Task<ServicePrincipal> GetServicePrincipalInternalAsync(GraphServiceClient client, string identifier)
     {
-        var query = $"servicePrincipalNames/any(p:p eq '{identifier}')";
+        var filter = $"servicePrincipalNames/any(p:p eq '{identifier}') or servicePrincipalNames/any(p:p eq 'api://{identifier}')";
 
         if (identifier.IsGuid())
-            query += $" or id eq '{identifier}' or appId eq '{identifier}'";
-        else if (!identifier.StartsWith("api://"))
-            query = $"servicePrincipalNames/any(p:p eq '{identifier}' or p eq 'api://{identifier}')";
+            filter += $" or id eq '{identifier}'";
 
         try
         {
             var page = await client
                 .ServicePrincipals
                 .Request()
-                .Filter(query)
+                .Filter(filter)
                 .Select(servicePrincipalSelect)
                 .GetAsync()
                 .ConfigureAwait(false);
@@ -573,6 +643,9 @@ public class GraphService : IGraphService
                 principal = page.CurrentPage.FirstOrDefault();
             }
 
+            if (principal is not null)
+                principal = await client.ServicePrincipals[principal.Id].Request().GetAsync().ConfigureAwait(false);
+
             return principal;
         }
         catch (ServiceException)
@@ -583,19 +656,17 @@ public class GraphService : IGraphService
 
     private static async Task<Application> GetApplicationInternalAsync(GraphServiceClient client, string identifier)
     {
-        var query = $"identifierUris/any(p:p eq '{identifier}')";
+        var filter = $"identifierUris/any(p:p eq 'http://{identifier}') or identifierUris/any(p:p eq 'https://{identifier}') or identifierUris/any(p:p eq 'api://{identifier}')";
 
         if (identifier.IsGuid())
-            query = $"id eq '{identifier}' or appId eq '{identifier}'";
-        else if (!identifier.StartsWithHttp())
-            query = $"identifierUris/any(p:p eq 'http://{identifier}' or p eq 'https://{identifier}')";
+            filter += $" or id eq '{identifier}' or appId eq '{identifier}'";
 
         try
         {
             var page = await client
                 .Applications
                 .Request()
-                .Filter(query)
+                .Filter(filter)
                 .Select(applicationSelect)
                 .GetAsync()
                 .ConfigureAwait(false);
@@ -611,6 +682,9 @@ public class GraphService : IGraphService
 
                 application = page.CurrentPage.FirstOrDefault();
             }
+
+            if (application is not null)
+                application = await client.Applications[application.Id].Request().GetAsync().ConfigureAwait(false);
 
             return application;
         }

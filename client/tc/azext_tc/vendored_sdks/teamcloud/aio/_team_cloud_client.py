@@ -27,7 +27,7 @@ class TeamCloudClient(TeamCloudClientOperationsMixin):
 
     :param credential: Credential needed for the client to connect to Azure.
     :type credential: ~azure.core.credentials_async.AsyncTokenCredential
-    :param base_url: Service URL. Default value is ''.
+    :param base_url: Service URL. Default value is "".
     :type base_url: str
     """
 

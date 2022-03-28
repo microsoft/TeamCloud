@@ -117,7 +117,8 @@ public class OrganizationsController : TeamCloudController
             Tenant = UserService.CurrentUserTenant,
             DisplayName = organizationDefinition.DisplayName,
             SubscriptionId = organizationDefinition.SubscriptionId,
-            Location = organizationDefinition.Location
+            Location = organizationDefinition.Location,
+            Portal = organizationDefinition.Portal
         };
 
         var currentUser = await UserService
@@ -134,59 +135,6 @@ public class OrganizationsController : TeamCloudController
             .InvokeAndReturnActionResultAsync(command, Request)
             .ConfigureAwait(false);
     }
-
-
-    // [HttpPut("orgs/{organizationId:organizationId}")]
-    // [Authorize(Policy = AuthPolicies.Admin)]
-    // [Consumes("application/json")]
-    // [SwaggerOperation(OperationId = "UpdateOrganization", Summary = "Updates an existing Organization.")]
-    // [SwaggerResponse(StatusCodes.Status202Accepted, "Starts updating the Organization. Returns a StatusResult object that can be used to track progress of the long-running operation.", typeof(StatusResult))]
-    // [SwaggerResponse(StatusCodes.Status400BadRequest, "A validation error occured.", typeof(ErrorResult))]
-    // [SwaggerResponse(StatusCodes.Status404NotFound, "An Organization with the ID provided in the request body was not found.", typeof(ErrorResult))]
-    // [SuppressMessage("Usage", "CA1801: Review unused parameters", Justification = "Used by base class and makes signiture unique")]
-    // public Task<IActionResult> Put([FromRoute] string organizationId, [FromBody] User user) => EnsureUserAsync(async userDocument =>
-    // {
-    //     if (user is null)
-    //         throw new ArgumentNullException(nameof(user));
-
-    //     var validation = new UserValidator().Validate(user);
-
-    //     if (!validation.IsValid)
-    //         return ErrorResult
-    //             .BadRequest(validation)
-    //             .ToActionResult();
-
-    //     if (userDocument.IsAdmin() && !user.IsAdmin())
-    //     {
-    //         var otherAdmins = await OrganizationRepository
-    //             .ListAdminsAsync()
-    //             .AnyAsync(a => a.Id != user.Id)
-    //             .ConfigureAwait(false);
-
-    //         if (!otherAdmins)
-    //             return ErrorResult
-    //                 .BadRequest($"The TeamCloud instance must have at least one Admin user. To change this user's role you must first add another Admin user.", ResultErrorCode.ValidationError)
-    //                 .ToActionResult();
-    //     }
-
-    //     if (!userDocument.HasEqualMemberships(user))
-    //         return ErrorResult
-    //             .BadRequest(new ValidationError { Field = "projectMemberships", Message = $"User's project memberships can not be changed using the TeamCloud (system) users API. To update a user's project memberships use the project users API." })
-    //             .ToActionResult();
-
-    //     var currentUser = await UserService
-    //         .CurrentUserAsync()
-    //         .ConfigureAwait(false);
-
-    //     userDocument.PopulateFromExternalModel(user);
-
-    //     var command = new OrganizationUpdateCommand(currentUser, userDocument);
-
-    //     return await Orchestrator
-    //         .InvokeAndReturnActionResultAsync<User, User>(command, Request)
-    //         .ConfigureAwait(false);
-    // });
-
 
     [HttpDelete("orgs/{organizationId:organizationId}")]
     [Authorize(Policy = AuthPolicies.OrganizationOwner)]

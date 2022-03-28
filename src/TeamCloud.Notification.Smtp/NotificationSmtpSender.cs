@@ -6,9 +6,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using FluentEmail.Core;
+using FluentEmail.Smtp;
 using HtmlAgilityPack;
+using Microsoft.IdentityModel.Tokens;
 using TeamCloud.Microsoft.Graph;
 
 namespace TeamCloud.Notification.Smtp;
@@ -32,7 +36,7 @@ public class NotificationSmtpSender : INotificationSmtpSender
         return Task
             .WhenAll(notificationMessage.Recipients.Select(recipient => SendEmailNotificationAsync(recipient, notificationMessage)));
 
-        async Task SendEmailNotificationAsync(INotificationRecipient recipient, INotificationMessage notificationMessage)
+        async Task SendEmailNotificationAsync(INotificationAddress recipient, INotificationMessage notificationMessage)
         {
             var exceptions = new List<Exception>();
             var addresses = ResolveRecipientEmailAddressesAsync(recipient).ConfigureAwait(false);
@@ -91,7 +95,7 @@ public class NotificationSmtpSender : INotificationSmtpSender
         }
     }
 
-    private async IAsyncEnumerable<string> ResolveRecipientEmailAddressesAsync(INotificationRecipient recipient)
+    private async IAsyncEnumerable<string> ResolveRecipientEmailAddressesAsync(INotificationAddress recipient)
     {
         if (recipient.Address?.IsEMail() ?? false)
         {

@@ -12,6 +12,7 @@ using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
+using System.Linq;
 
 namespace TeamCloud.Orchestrator.Command.Handlers;
 
@@ -56,7 +57,7 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
             if (projectIdentity.RedirectUrls is not null)
             {
                 projectIdentity.RedirectUrls = await graphService
-                    .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls)
+                    .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls.ToArray())
                     .ConfigureAwait(false);
             }
 
@@ -94,7 +95,7 @@ public sealed class ProjectIdentityCommandHandler : CommandHandler,
             if (projectIdentity.RedirectUrls is not null)
             {
                 projectIdentity.RedirectUrls = await graphService
-                    .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls)
+                    .SetServicePrincipalRedirectUrlsAsync(projectIdentity.ObjectId.ToString(), projectIdentity.RedirectUrls.ToArray())
                     .ConfigureAwait(false);
             }
 

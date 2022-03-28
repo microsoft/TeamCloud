@@ -135,6 +135,20 @@ export var KnownOrganizationResourceState;
     KnownOrganizationResourceState["Deprovisioned"] = "Deprovisioned";
     KnownOrganizationResourceState["Failed"] = "Failed";
 })(KnownOrganizationResourceState || (KnownOrganizationResourceState = {}));
+/** Known values of {@link OrganizationPortal} that the service accepts. */
+export var KnownOrganizationPortal;
+(function (KnownOrganizationPortal) {
+    KnownOrganizationPortal["TeamCloud"] = "TeamCloud";
+    KnownOrganizationPortal["Backstage"] = "Backstage";
+    KnownOrganizationPortal["Clutch"] = "Clutch";
+})(KnownOrganizationPortal || (KnownOrganizationPortal = {}));
+/** Known values of {@link OrganizationDefinitionPortal} that the service accepts. */
+export var KnownOrganizationDefinitionPortal;
+(function (KnownOrganizationDefinitionPortal) {
+    KnownOrganizationDefinitionPortal["TeamCloud"] = "TeamCloud";
+    KnownOrganizationDefinitionPortal["Backstage"] = "Backstage";
+    KnownOrganizationDefinitionPortal["Clutch"] = "Clutch";
+})(KnownOrganizationDefinitionPortal || (KnownOrganizationDefinitionPortal = {}));
 /** Known values of {@link UserType} that the service accepts. */
 export var KnownUserType;
 (function (KnownUserType) {

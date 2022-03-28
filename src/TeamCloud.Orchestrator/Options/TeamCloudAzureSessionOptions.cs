@@ -4,13 +4,14 @@
  */
 
 using TeamCloud.Azure;
+using TeamCloud.Azure.Identity;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
 
 namespace TeamCloud.Orchestrator.Options;
 
 [Options]
-public sealed class TeamCloudAzureSessionOptions : IAzureSessionOptions
+public sealed class TeamCloudAzureSessionOptions : IAzureSessionOptions, ITeamCloudCredentialOptions
 {
     private readonly AzureResourceManagerOptions azureRMOptions;
 
@@ -24,4 +25,10 @@ public sealed class TeamCloudAzureSessionOptions : IAzureSessionOptions
     string IAzureSessionOptions.ClientId => azureRMOptions.ClientId;
 
     string IAzureSessionOptions.ClientSecret => azureRMOptions.ClientSecret;
+
+    string ITeamCloudCredentialOptions.TenantId => azureRMOptions.TenantId;
+
+    string ITeamCloudCredentialOptions.ClientId => azureRMOptions.ClientId;
+
+    string ITeamCloudCredentialOptions.ClientSecret => azureRMOptions.ClientSecret;
 }

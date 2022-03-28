@@ -141,6 +141,14 @@ class CommandAuditEntity(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
+    :ivar partition_key:
+    :vartype partition_key: str
+    :ivar row_key:
+    :vartype row_key: str
+    :ivar timestamp:
+    :vartype timestamp: ~datetime.datetime
+    :ivar e_tag: Any object.
+    :vartype e_tag: any
     :ivar command_id:
     :vartype command_id: str
     :ivar organization_id:
@@ -175,13 +183,13 @@ class CommandAuditEntity(msrest.serialization.Model):
     _validation = {
         'command_id': {'readonly': True},
         'organization_id': {'readonly': True},
-        'project_id': {'readonly': True},
-        'user_id': {'readonly': True},
-        'parent_id': {'readonly': True},
-        'component_task': {'readonly': True},
     }
 
     _attribute_map = {
+        'partition_key': {'key': 'partitionKey', 'type': 'str'},
+        'row_key': {'key': 'rowKey', 'type': 'str'},
+        'timestamp': {'key': 'timestamp', 'type': 'iso-8601'},
+        'e_tag': {'key': 'eTag', 'type': 'object'},
         'command_id': {'key': 'commandId', 'type': 'str'},
         'organization_id': {'key': 'organizationId', 'type': 'str'},
         'command_json': {'key': 'commandJson', 'type': 'str'},
@@ -201,9 +209,17 @@ class CommandAuditEntity(msrest.serialization.Model):
     def __init__(
         self,
         *,
+        partition_key: Optional[str] = None,
+        row_key: Optional[str] = None,
+        timestamp: Optional[datetime.datetime] = None,
+        e_tag: Optional[Any] = None,
         command_json: Optional[str] = None,
         result_json: Optional[str] = None,
+        project_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
         command: Optional[str] = None,
+        component_task: Optional[str] = None,
         runtime_status: Optional[Union[str, "CommandAuditEntityRuntimeStatus"]] = None,
         custom_status: Optional[str] = None,
         errors: Optional[str] = None,
@@ -212,12 +228,28 @@ class CommandAuditEntity(msrest.serialization.Model):
         **kwargs
     ):
         """
+        :keyword partition_key:
+        :paramtype partition_key: str
+        :keyword row_key:
+        :paramtype row_key: str
+        :keyword timestamp:
+        :paramtype timestamp: ~datetime.datetime
+        :keyword e_tag: Any object.
+        :paramtype e_tag: any
         :keyword command_json:
         :paramtype command_json: str
         :keyword result_json:
         :paramtype result_json: str
+        :keyword project_id:
+        :paramtype project_id: str
+        :keyword user_id:
+        :paramtype user_id: str
+        :keyword parent_id:
+        :paramtype parent_id: str
         :keyword command:
         :paramtype command: str
+        :keyword component_task:
+        :paramtype component_task: str
         :keyword runtime_status: Possible values include: "Running", "Completed", "ContinuedAsNew",
          "Failed", "Canceled", "Terminated", "Pending", "Unknown".
         :paramtype runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
@@ -231,15 +263,19 @@ class CommandAuditEntity(msrest.serialization.Model):
         :paramtype updated: ~datetime.datetime
         """
         super(CommandAuditEntity, self).__init__(**kwargs)
+        self.partition_key = partition_key
+        self.row_key = row_key
+        self.timestamp = timestamp
+        self.e_tag = e_tag
         self.command_id = None
         self.organization_id = None
         self.command_json = command_json
         self.result_json = result_json
-        self.project_id = None
-        self.user_id = None
-        self.parent_id = None
+        self.project_id = project_id
+        self.user_id = user_id
+        self.parent_id = parent_id
         self.command = command
-        self.component_task = None
+        self.component_task = component_task
         self.runtime_status = runtime_status
         self.custom_status = custom_status
         self.errors = errors
@@ -1027,12 +1063,15 @@ class ComponentTaskRunner(msrest.serialization.Model):
 
     :ivar id:
     :vartype id: str
+    :ivar web_server:
+    :vartype web_server: bool
     :ivar with_property: Dictionary of :code:`<string>`.
     :vartype with_property: dict[str, str]
     """
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
+        'web_server': {'key': 'webServer', 'type': 'bool'},
         'with_property': {'key': 'with', 'type': '{str}'},
     }
 
@@ -1040,17 +1079,21 @@ class ComponentTaskRunner(msrest.serialization.Model):
         self,
         *,
         id: Optional[str] = None,
+        web_server: Optional[bool] = None,
         with_property: Optional[Dict[str, str]] = None,
         **kwargs
     ):
         """
         :keyword id:
         :paramtype id: str
+        :keyword web_server:
+        :paramtype web_server: bool
         :keyword with_property: Dictionary of :code:`<string>`.
         :paramtype with_property: dict[str, str]
         """
         super(ComponentTaskRunner, self).__init__(**kwargs)
         self.id = id
+        self.web_server = web_server
         self.with_property = with_property
 
 
@@ -1755,6 +1798,16 @@ class Organization(msrest.serialization.Model):
     :vartype registry_id: str
     :ivar storage_id:
     :vartype storage_id: str
+    :ivar portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+    :vartype portal: str or ~teamcloud.models.OrganizationPortal
+    :ivar portal_url:
+    :vartype portal_url: str
+    :ivar portal_reply_url:
+    :vartype portal_reply_url: str
+    :ivar portal_update_url:
+    :vartype portal_update_url: str
+    :ivar portal_identity:
+    :vartype portal_identity: str
     :ivar id: Required.
     :vartype id: str
     """
@@ -1781,6 +1834,11 @@ class Organization(msrest.serialization.Model):
         'gallery_id': {'key': 'galleryId', 'type': 'str'},
         'registry_id': {'key': 'registryId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
+        'portal': {'key': 'portal', 'type': 'str'},
+        'portal_url': {'key': 'portalUrl', 'type': 'str'},
+        'portal_reply_url': {'key': 'portalReplyUrl', 'type': 'str'},
+        'portal_update_url': {'key': 'portalUpdateUrl', 'type': 'str'},
+        'portal_identity': {'key': 'portalIdentity', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -1800,6 +1858,11 @@ class Organization(msrest.serialization.Model):
         gallery_id: Optional[str] = None,
         registry_id: Optional[str] = None,
         storage_id: Optional[str] = None,
+        portal: Optional[Union[str, "OrganizationPortal"]] = None,
+        portal_url: Optional[str] = None,
+        portal_reply_url: Optional[str] = None,
+        portal_update_url: Optional[str] = None,
+        portal_identity: Optional[str] = None,
         **kwargs
     ):
         """
@@ -1828,6 +1891,16 @@ class Organization(msrest.serialization.Model):
         :paramtype registry_id: str
         :keyword storage_id:
         :paramtype storage_id: str
+        :keyword portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+        :paramtype portal: str or ~teamcloud.models.OrganizationPortal
+        :keyword portal_url:
+        :paramtype portal_url: str
+        :keyword portal_reply_url:
+        :paramtype portal_reply_url: str
+        :keyword portal_update_url:
+        :paramtype portal_update_url: str
+        :keyword portal_identity:
+        :paramtype portal_identity: str
         :keyword id: Required.
         :paramtype id: str
         """
@@ -1844,6 +1917,11 @@ class Organization(msrest.serialization.Model):
         self.gallery_id = gallery_id
         self.registry_id = registry_id
         self.storage_id = storage_id
+        self.portal = portal
+        self.portal_url = portal_url
+        self.portal_reply_url = portal_reply_url
+        self.portal_update_url = portal_update_url
+        self.portal_identity = portal_identity
         self.id = id
 
 
@@ -1908,6 +1986,8 @@ class OrganizationDefinition(msrest.serialization.Model):
     :vartype subscription_id: str
     :ivar location: Required.
     :vartype location: str
+    :ivar portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+    :vartype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
     :ivar tags: A set of tags. Dictionary of :code:`<string>`.
     :vartype tags: dict[str, str]
     """
@@ -1924,6 +2004,7 @@ class OrganizationDefinition(msrest.serialization.Model):
         'display_name': {'key': 'displayName', 'type': 'str'},
         'subscription_id': {'key': 'subscriptionId', 'type': 'str'},
         'location': {'key': 'location', 'type': 'str'},
+        'portal': {'key': 'portal', 'type': 'str'},
         'tags': {'key': 'tags', 'type': '{str}'},
     }
 
@@ -1933,6 +2014,7 @@ class OrganizationDefinition(msrest.serialization.Model):
         display_name: str,
         subscription_id: str,
         location: str,
+        portal: Optional[Union[str, "OrganizationDefinitionPortal"]] = None,
         tags: Optional[Dict[str, str]] = None,
         **kwargs
     ):
@@ -1943,6 +2025,8 @@ class OrganizationDefinition(msrest.serialization.Model):
         :paramtype subscription_id: str
         :keyword location: Required.
         :paramtype location: str
+        :keyword portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+        :paramtype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
         :keyword tags: A set of tags. Dictionary of :code:`<string>`.
         :paramtype tags: dict[str, str]
         """
@@ -1951,6 +2035,7 @@ class OrganizationDefinition(msrest.serialization.Model):
         self.display_name = display_name
         self.subscription_id = subscription_id
         self.location = location
+        self.portal = portal
         self.tags = tags
 
 
