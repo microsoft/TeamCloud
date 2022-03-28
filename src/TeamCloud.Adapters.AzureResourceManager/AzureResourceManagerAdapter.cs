@@ -21,6 +21,7 @@ using TeamCloud.Model.Data;
 using TeamCloud.Secrets;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
+using TeamCloud.Model;
 
 namespace TeamCloud.Adapters.AzureResourceManager;
 
@@ -342,7 +343,7 @@ public sealed class AzureResourceManagerAdapter : Adapter
                 var resourceGroup = await session.ResourceGroups
                     .Define(resourceGroupName)
                         .WithRegion(location)
-                        .WithTag("TeamCloud.ComponentId", component.Id)
+                        .WithTags(component.GetWellKnownTags())
                     .CreateAsync()
                     .ConfigureAwait(false);
 

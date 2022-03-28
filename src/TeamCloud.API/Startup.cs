@@ -163,8 +163,7 @@ public class Startup
             const string EncryptionContainerName = "encryption";
 
             new BlobContainerClient(encryptionOptions.KeyStorage, EncryptionContainerName)
-                .CreateIfNotExistsAsync()
-                .Wait();
+                .CreateIfNotExists();
 
             var dataProtectionBuilder = services
                 .AddDataProtection()
