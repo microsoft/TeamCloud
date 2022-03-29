@@ -1610,12 +1610,12 @@ class Organization(msrest.serialization.Model):
     :vartype storage_id: str
     :ivar portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
     :vartype portal: str or ~teamcloud.models.OrganizationPortal
+    :ivar portal_id:
+    :vartype portal_id: str
     :ivar portal_url:
     :vartype portal_url: str
     :ivar portal_reply_url:
     :vartype portal_reply_url: str
-    :ivar portal_update_url:
-    :vartype portal_update_url: str
     :ivar portal_identity:
     :vartype portal_identity: str
     :ivar id: Required.
@@ -1645,9 +1645,9 @@ class Organization(msrest.serialization.Model):
         'registry_id': {'key': 'registryId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
         'portal': {'key': 'portal', 'type': 'str'},
+        'portal_id': {'key': 'portalId', 'type': 'str'},
         'portal_url': {'key': 'portalUrl', 'type': 'str'},
         'portal_reply_url': {'key': 'portalReplyUrl', 'type': 'str'},
-        'portal_update_url': {'key': 'portalUpdateUrl', 'type': 'str'},
         'portal_identity': {'key': 'portalIdentity', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
@@ -1684,12 +1684,12 @@ class Organization(msrest.serialization.Model):
         :paramtype storage_id: str
         :keyword portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
         :paramtype portal: str or ~teamcloud.models.OrganizationPortal
+        :keyword portal_id:
+        :paramtype portal_id: str
         :keyword portal_url:
         :paramtype portal_url: str
         :keyword portal_reply_url:
         :paramtype portal_reply_url: str
-        :keyword portal_update_url:
-        :paramtype portal_update_url: str
         :keyword portal_identity:
         :paramtype portal_identity: str
         :keyword id: Required.
@@ -1709,9 +1709,9 @@ class Organization(msrest.serialization.Model):
         self.registry_id = kwargs.get('registry_id', None)
         self.storage_id = kwargs.get('storage_id', None)
         self.portal = kwargs.get('portal', None)
+        self.portal_id = kwargs.get('portal_id', None)
         self.portal_url = kwargs.get('portal_url', None)
         self.portal_reply_url = kwargs.get('portal_reply_url', None)
-        self.portal_update_url = kwargs.get('portal_update_url', None)
         self.portal_identity = kwargs.get('portal_identity', None)
         self.id = kwargs['id']
 

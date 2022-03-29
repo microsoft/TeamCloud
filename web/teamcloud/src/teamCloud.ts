@@ -49,6 +49,8 @@ import {
   InitializeAuthorizationOptionalParams,
   InitializeAuthorizationResponse,
   NegotiateSignalROptionalParams,
+  UpdatePortalOptionalParams,
+  UpdatePortalResponse,
   GetAuditEntriesOptionalParams,
   GetAuditEntriesResponse,
   GetAuditEntryOptionalParams,
@@ -534,6 +536,21 @@ export class TeamCloud extends coreClient.ServiceClient {
     return this.sendOperationRequest(
       { organizationId, projectId, options },
       negotiateSignalROperationSpec
+    );
+  }
+
+  /**
+   * Updates the custom portal of the organization
+   * @param organizationId
+   * @param options The options parameters.
+   */
+  updatePortal(
+    organizationId: string,
+    options?: UpdatePortalOptionalParams
+  ): Promise<UpdatePortalResponse> {
+    return this.sendOperationRequest(
+      { organizationId, options },
+      updatePortalOperationSpec
     );
   }
 
@@ -1838,6 +1855,23 @@ const negotiateSignalROperationSpec: coreClient.OperationSpec = {
     Parameters.organizationId,
     Parameters.projectId
   ],
+  serializer
+};
+const updatePortalOperationSpec: coreClient.OperationSpec = {
+  path: "/orgs/{organizationId}/action/UpdatePortal",
+  httpMethod: "POST",
+  responses: {
+    200: {
+      bodyMapper: Mappers.OrganizationDataResult
+    },
+    401: {},
+    403: {},
+    404: {
+      bodyMapper: Mappers.ErrorResult
+    }
+  },
+  urlParameters: [Parameters.$host, Parameters.organizationId],
+  headerParameters: [Parameters.accept],
   serializer
 };
 const getAuditEntriesOperationSpec: coreClient.OperationSpec = {

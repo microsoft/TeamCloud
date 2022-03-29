@@ -132,6 +132,7 @@ output organizationData object = {
   galleryId: organizationSharedImageGallery.id
   registryId: organizationContainerRegistry.id
   storageId: organizationStorageAccount.id
+  portalId: backstageEnabled ? backstageDeployment.outputs.portalId : clutchEnabled ? clutchDeployment.outputs.portalId : ''
   portalUrl: backstageEnabled ? backstageDeployment.outputs.portalUrl : clutchEnabled ? clutchDeployment.outputs.portalUrl : ''
   portalReplyUrl: backstageEnabled ? backstageDeployment.outputs.portalReplyUrl : clutchEnabled ? clutchDeployment.outputs.portalReplyUrl : ''
   portalUpdateUrl: backstageEnabled ? backstageDeployment.outputs.portalUpdateUrl : clutchEnabled ? clutchDeployment.outputs.portalUpdateUrl : ''

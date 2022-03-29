@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1318.3566",
-      "templateHash": "8059566137204279865"
+      "templateHash": "12159588945620818716"
     }
   },
   "parameters": {
@@ -125,7 +125,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.1318.3566",
-              "templateHash": "16978214520608331092"
+              "templateHash": "10695536407611003341"
             }
           },
           "parameters": {
@@ -299,7 +299,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1318.3566",
-                      "templateHash": "14221165678811297896"
+                      "templateHash": "18325765286727455722"
                     }
                   },
                   "parameters": {
@@ -496,6 +496,10 @@
                     }
                   ],
                   "outputs": {
+                    "portalId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Web/sites', parameters('resourceName'))]"
+                    },
                     "portalUrl": {
                       "type": "string",
                       "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('resourceName'))).defaultHostName)]"
@@ -506,7 +510,7 @@
                     },
                     "portalUpdateUrl": {
                       "type": "string",
-                      "value": "[format('https://{0}/docker/hook', list(resourceId('Microsoft.Web/sites/config', split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[0], split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[1]), '2021-03-01').properties.scmUri)]"
+                      "value": "[format('{0}/docker/hook', list(resourceId('Microsoft.Web/sites/config', split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[0], split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[1]), '2021-03-01').properties.scmUri)]"
                     }
                   }
                 }
@@ -564,7 +568,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.4.1318.3566",
-                      "templateHash": "9572412175388297702"
+                      "templateHash": "14680427557209152429"
                     }
                   },
                   "parameters": {
@@ -707,6 +711,10 @@
                     }
                   ],
                   "outputs": {
+                    "portalId": {
+                      "type": "string",
+                      "value": "[resourceId('Microsoft.Web/sites', parameters('resourceName'))]"
+                    },
                     "portalUrl": {
                       "type": "string",
                       "value": "[format('https://{0}', reference(resourceId('Microsoft.Web/sites', parameters('resourceName'))).defaultHostName)]"
@@ -717,7 +725,7 @@
                     },
                     "portalUpdateUrl": {
                       "type": "string",
-                      "value": "[format('https://{0}/docker/hook', list(resourceId('Microsoft.Web/sites/config', split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[0], split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[1]), '2021-03-01').properties.scmUri)]"
+                      "value": "[format('{0}/docker/hook', list(resourceId('Microsoft.Web/sites/config', split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[0], split(format('{0}/publishingCredentials', parameters('resourceName')), '/')[1]), '2021-03-01').properties.scmUri)]"
                     }
                   }
                 }
@@ -736,6 +744,7 @@
                 "galleryId": "[resourceId('Microsoft.Compute/galleries', variables('resourceName'))]",
                 "registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('resourceName'))]",
                 "storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('resourceName'))]",
+                "portalId": "[if(variables('backstageEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment'))), '2020-10-01').outputs.portalId.value, if(variables('clutchEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment'))), '2020-10-01').outputs.portalId.value, ''))]",
                 "portalUrl": "[if(variables('backstageEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment'))), '2020-10-01').outputs.portalUrl.value, if(variables('clutchEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment'))), '2020-10-01').outputs.portalUrl.value, ''))]",
                 "portalReplyUrl": "[if(variables('backstageEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment'))), '2020-10-01').outputs.portalReplyUrl.value, if(variables('clutchEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment'))), '2020-10-01').outputs.portalReplyUrl.value, ''))]",
                 "portalUpdateUrl": "[if(variables('backstageEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-backstage', variables('portalDeployment'))), '2020-10-01').outputs.portalUpdateUrl.value, if(variables('clutchEnabled'), reference(resourceId('Microsoft.Resources/deployments', format('{0}-clutch', variables('portalDeployment'))), '2020-10-01').outputs.portalUpdateUrl.value, ''))]",

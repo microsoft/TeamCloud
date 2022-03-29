@@ -1231,11 +1231,11 @@ export interface Organization {
     // (undocumented)
     portal?: OrganizationPortal;
     // (undocumented)
+    portalId?: string;
+    // (undocumented)
     portalIdentity?: string;
     // (undocumented)
     portalReplyUrl?: string;
-    // (undocumented)
-    portalUpdateUrl?: string;
     // (undocumented)
     portalUrl?: string;
     // (undocumented)
@@ -1773,6 +1773,7 @@ export class TeamCloud extends coreClient.ServiceClient {
     updateDeploymentScope(organizationId: string, deploymentScopeId: string, options?: UpdateDeploymentScopeOptionalParams): Promise<UpdateDeploymentScopeResponse>;
     updateOrganizationUser(userId: string, organizationId: string, options?: UpdateOrganizationUserOptionalParams): Promise<UpdateOrganizationUserResponse>;
     updateOrganizationUserMe(organizationId: string, options?: UpdateOrganizationUserMeOptionalParams): Promise<UpdateOrganizationUserMeResponse>;
+    updatePortal(organizationId: string, options?: UpdatePortalOptionalParams): Promise<UpdatePortalResponse>;
     updateProjectIdentity(projectIdentityId: string, organizationId: string, projectId: string, options?: UpdateProjectIdentityOptionalParams): Promise<UpdateProjectIdentityResponse>;
     updateProjectTag(organizationId: string, projectId: string, options?: UpdateProjectTagOptionalParams): Promise<UpdateProjectTagResponse>;
     updateProjectTemplate(projectTemplateId: string, organizationId: string, options?: UpdateProjectTemplateOptionalParams): Promise<UpdateProjectTemplateResponse>;
@@ -1832,6 +1833,13 @@ export interface UpdateOrganizationUserOptionalParams extends coreClient.Operati
 
 // @public
 export type UpdateOrganizationUserResponse = UserDataResult;
+
+// @public
+export interface UpdatePortalOptionalParams extends coreClient.OperationOptions {
+}
+
+// @public
+export type UpdatePortalResponse = OrganizationDataResult;
 
 // @public
 export interface UpdateProjectIdentityOptionalParams extends coreClient.OperationOptions {

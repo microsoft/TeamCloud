@@ -56,11 +56,11 @@ public sealed class Organization : ContainerDocument, ISlug, IEquatable<Organiza
 
     public PortalType Portal { get; set; } = PortalType.TeamCloud;
    
+    public string PortalId { get; set; }
+
     public string PortalUrl { get; set; }
 
     public string PortalReplyUrl { get; set; }
-
-    public string PortalUpdateUrl { get; set; }
 
     public string PortalIdentity { get; set; }
 

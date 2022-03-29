@@ -16,7 +16,7 @@ from azure.core.tracing.decorator_async import distributed_trace_async
 
 from ... import models as _models
 from ..._vendor import _convert_request
-from ...operations._team_cloud_client_operations import build_cancel_component_task_request, build_create_component_request, build_create_component_task_request, build_create_deployment_scope_request, build_create_organization_request, build_create_organization_user_request, build_create_project_identity_request, build_create_project_request, build_create_project_tag_request, build_create_project_template_request, build_create_project_user_request, build_create_schedule_request, build_delete_component_request, build_delete_deployment_scope_request, build_delete_organization_request, build_delete_organization_user_request, build_delete_project_identity_request, build_delete_project_request, build_delete_project_tag_request, build_delete_project_template_request, build_delete_project_user_request, build_get_adapters_request, build_get_audit_commands_request, build_get_audit_entries_request, build_get_audit_entry_request, build_get_component_request, build_get_component_task_request, build_get_component_tasks_request, build_get_component_template_request, build_get_component_templates_request, build_get_components_request, build_get_deployment_scope_request, build_get_deployment_scopes_request, build_get_info_request, build_get_organization_request, build_get_organization_user_me_request, build_get_organization_user_request, build_get_organization_users_request, build_get_organizations_request, build_get_project_identities_request, build_get_project_identity_request, build_get_project_request, build_get_project_status_request, build_get_project_tag_by_key_request, build_get_project_tags_request, build_get_project_template_request, build_get_project_templates_request, build_get_project_user_me_request, build_get_project_user_request, build_get_project_users_request, build_get_projects_request, build_get_schedule_request, build_get_schedules_request, build_get_status_request, build_get_user_projects_me_request, build_get_user_projects_request, build_initialize_authorization_request, build_negotiate_signal_r_request, build_re_run_component_task_request, build_run_schedule_request, build_update_deployment_scope_request, build_update_organization_user_me_request, build_update_organization_user_request, build_update_project_identity_request, build_update_project_tag_request, build_update_project_template_request, build_update_project_user_me_request, build_update_project_user_request, build_update_schedule_request
+from ...operations._team_cloud_client_operations import build_cancel_component_task_request, build_create_component_request, build_create_component_task_request, build_create_deployment_scope_request, build_create_organization_request, build_create_organization_user_request, build_create_project_identity_request, build_create_project_request, build_create_project_tag_request, build_create_project_template_request, build_create_project_user_request, build_create_schedule_request, build_delete_component_request, build_delete_deployment_scope_request, build_delete_organization_request, build_delete_organization_user_request, build_delete_project_identity_request, build_delete_project_request, build_delete_project_tag_request, build_delete_project_template_request, build_delete_project_user_request, build_get_adapters_request, build_get_audit_commands_request, build_get_audit_entries_request, build_get_audit_entry_request, build_get_component_request, build_get_component_task_request, build_get_component_tasks_request, build_get_component_template_request, build_get_component_templates_request, build_get_components_request, build_get_deployment_scope_request, build_get_deployment_scopes_request, build_get_info_request, build_get_organization_request, build_get_organization_user_me_request, build_get_organization_user_request, build_get_organization_users_request, build_get_organizations_request, build_get_project_identities_request, build_get_project_identity_request, build_get_project_request, build_get_project_status_request, build_get_project_tag_by_key_request, build_get_project_tags_request, build_get_project_template_request, build_get_project_templates_request, build_get_project_user_me_request, build_get_project_user_request, build_get_project_users_request, build_get_projects_request, build_get_schedule_request, build_get_schedules_request, build_get_status_request, build_get_user_projects_me_request, build_get_user_projects_request, build_initialize_authorization_request, build_negotiate_signal_r_request, build_re_run_component_task_request, build_run_schedule_request, build_update_deployment_scope_request, build_update_organization_user_me_request, build_update_organization_user_request, build_update_portal_request, build_update_project_identity_request, build_update_project_tag_request, build_update_project_template_request, build_update_project_user_me_request, build_update_project_user_request, build_update_schedule_request
 T = TypeVar('T')
 ClsType = Optional[Callable[[PipelineResponse[HttpRequest, AsyncHttpResponse], T, Dict[str, Any]], Any]]
 
@@ -1320,6 +1320,63 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             return cls(pipeline_response, None, {})
 
     negotiate_signal_r.metadata = {'url': "/orgs/{organizationId}/projects/{projectId}/negotiate"}  # type: ignore
+
+
+    @distributed_trace_async
+    async def update_portal(
+        self,
+        organization_id: str,
+        **kwargs: Any
+    ) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]:
+        """Updates the custom portal of the organization.
+
+        Updates the custom portal of the organization.
+
+        :param organization_id:
+        :type organization_id: str
+        :keyword callable cls: A custom type or function that will be passed the direct response
+        :return: OrganizationDataResult or ErrorResult, or the result of cls(response)
+        :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
+        :raises: ~azure.core.exceptions.HttpResponseError
+        """
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
+        error_map = {
+            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
+        }
+        error_map.update(kwargs.pop('error_map', {}))
+
+        
+        request = build_update_portal_request(
+            organization_id=organization_id,
+            template_url=self.update_portal.metadata['url'],
+        )
+        request = _convert_request(request)
+        request.url = self._client.format_url(request.url)
+
+        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+            request,
+            stream=False,
+            **kwargs
+        )
+        response = pipeline_response.http_response
+
+        if response.status_code not in [200, 401, 403, 404]:
+            map_error(status_code=response.status_code, response=response, error_map=error_map)
+            raise HttpResponseError(response=response)
+
+        deserialized = None
+        if response.status_code == 200:
+            deserialized = self._deserialize('OrganizationDataResult', pipeline_response)
+
+        if response.status_code == 404:
+            deserialized = self._deserialize('ErrorResult', pipeline_response)
+
+        if cls:
+            return cls(pipeline_response, deserialized, {})
+
+        return deserialized
+
+    update_portal.metadata = {'url': "/orgs/{organizationId}/action/UpdatePortal"}  # type: ignore
 
 
     @distributed_trace_async

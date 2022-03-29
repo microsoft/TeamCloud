@@ -1349,6 +1349,53 @@
         }
       }
     },
+    "/orgs/{organizationId}/action/UpdatePortal": {
+      "post": {
+        "tags": [
+          "OrganizationAction"
+        ],
+        "summary": "Updates the custom portal of the organization",
+        "operationId": "UpdatePortal",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The custom organization portal was successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationDataResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The organization does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
     "/orgs/{organizationId}/audit": {
       "get": {
         "tags": [
@@ -5790,15 +5837,15 @@
             ],
             "type": "string"
           },
+          "portalId": {
+            "type": "string",
+            "nullable": true
+          },
           "portalUrl": {
             "type": "string",
             "nullable": true
           },
           "portalReplyUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "portalUpdateUrl": {
             "type": "string",
             "nullable": true
           },

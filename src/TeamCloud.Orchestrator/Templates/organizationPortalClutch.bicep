@@ -110,6 +110,7 @@ resource portalPublishing 'microsoft.web/sites/config@2021-03-01' existing = {
   name: '${resourceName}/publishingCredentials'
 }
 
+output portalId string = portalAppService.id
 output portalUrl string = 'https://${portalAppService.properties.defaultHostName}'
 output portalReplyUrl string = 'https://${portalAppService.properties.defaultHostName}/v1/authn/callback'
-output portalUpdateUrl string = 'https://${list(portalPublishing.id, '2021-03-01').properties.scmUri}/docker/hook'
+output portalUpdateUrl string = '${list(portalPublishing.id, '2021-03-01').properties.scmUri}/docker/hook'

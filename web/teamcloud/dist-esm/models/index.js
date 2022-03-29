@@ -112,18 +112,6 @@ export var KnownDeploymentScopeDefinitionType;
     KnownDeploymentScopeDefinitionType["GitHub"] = "GitHub";
     KnownDeploymentScopeDefinitionType["Kubernetes"] = "Kubernetes";
 })(KnownDeploymentScopeDefinitionType || (KnownDeploymentScopeDefinitionType = {}));
-/** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
-export var KnownCommandAuditEntityRuntimeStatus;
-(function (KnownCommandAuditEntityRuntimeStatus) {
-    KnownCommandAuditEntityRuntimeStatus["Running"] = "Running";
-    KnownCommandAuditEntityRuntimeStatus["Completed"] = "Completed";
-    KnownCommandAuditEntityRuntimeStatus["ContinuedAsNew"] = "ContinuedAsNew";
-    KnownCommandAuditEntityRuntimeStatus["Failed"] = "Failed";
-    KnownCommandAuditEntityRuntimeStatus["Canceled"] = "Canceled";
-    KnownCommandAuditEntityRuntimeStatus["Terminated"] = "Terminated";
-    KnownCommandAuditEntityRuntimeStatus["Pending"] = "Pending";
-    KnownCommandAuditEntityRuntimeStatus["Unknown"] = "Unknown";
-})(KnownCommandAuditEntityRuntimeStatus || (KnownCommandAuditEntityRuntimeStatus = {}));
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export var KnownOrganizationResourceState;
 (function (KnownOrganizationResourceState) {
@@ -142,6 +130,18 @@ export var KnownOrganizationPortal;
     KnownOrganizationPortal["Backstage"] = "Backstage";
     KnownOrganizationPortal["Clutch"] = "Clutch";
 })(KnownOrganizationPortal || (KnownOrganizationPortal = {}));
+/** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
+export var KnownCommandAuditEntityRuntimeStatus;
+(function (KnownCommandAuditEntityRuntimeStatus) {
+    KnownCommandAuditEntityRuntimeStatus["Running"] = "Running";
+    KnownCommandAuditEntityRuntimeStatus["Completed"] = "Completed";
+    KnownCommandAuditEntityRuntimeStatus["ContinuedAsNew"] = "ContinuedAsNew";
+    KnownCommandAuditEntityRuntimeStatus["Failed"] = "Failed";
+    KnownCommandAuditEntityRuntimeStatus["Canceled"] = "Canceled";
+    KnownCommandAuditEntityRuntimeStatus["Terminated"] = "Terminated";
+    KnownCommandAuditEntityRuntimeStatus["Pending"] = "Pending";
+    KnownCommandAuditEntityRuntimeStatus["Unknown"] = "Unknown";
+})(KnownCommandAuditEntityRuntimeStatus || (KnownCommandAuditEntityRuntimeStatus = {}));
 /** Known values of {@link OrganizationDefinitionPortal} that the service accepts. */
 export var KnownOrganizationDefinitionPortal;
 (function (KnownOrganizationDefinitionPortal) {

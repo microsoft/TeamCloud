@@ -1800,12 +1800,12 @@ class Organization(msrest.serialization.Model):
     :vartype storage_id: str
     :ivar portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
     :vartype portal: str or ~teamcloud.models.OrganizationPortal
+    :ivar portal_id:
+    :vartype portal_id: str
     :ivar portal_url:
     :vartype portal_url: str
     :ivar portal_reply_url:
     :vartype portal_reply_url: str
-    :ivar portal_update_url:
-    :vartype portal_update_url: str
     :ivar portal_identity:
     :vartype portal_identity: str
     :ivar id: Required.
@@ -1835,9 +1835,9 @@ class Organization(msrest.serialization.Model):
         'registry_id': {'key': 'registryId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
         'portal': {'key': 'portal', 'type': 'str'},
+        'portal_id': {'key': 'portalId', 'type': 'str'},
         'portal_url': {'key': 'portalUrl', 'type': 'str'},
         'portal_reply_url': {'key': 'portalReplyUrl', 'type': 'str'},
-        'portal_update_url': {'key': 'portalUpdateUrl', 'type': 'str'},
         'portal_identity': {'key': 'portalIdentity', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
@@ -1859,9 +1859,9 @@ class Organization(msrest.serialization.Model):
         registry_id: Optional[str] = None,
         storage_id: Optional[str] = None,
         portal: Optional[Union[str, "OrganizationPortal"]] = None,
+        portal_id: Optional[str] = None,
         portal_url: Optional[str] = None,
         portal_reply_url: Optional[str] = None,
-        portal_update_url: Optional[str] = None,
         portal_identity: Optional[str] = None,
         **kwargs
     ):
@@ -1893,12 +1893,12 @@ class Organization(msrest.serialization.Model):
         :paramtype storage_id: str
         :keyword portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
         :paramtype portal: str or ~teamcloud.models.OrganizationPortal
+        :keyword portal_id:
+        :paramtype portal_id: str
         :keyword portal_url:
         :paramtype portal_url: str
         :keyword portal_reply_url:
         :paramtype portal_reply_url: str
-        :keyword portal_update_url:
-        :paramtype portal_update_url: str
         :keyword portal_identity:
         :paramtype portal_identity: str
         :keyword id: Required.
@@ -1918,9 +1918,9 @@ class Organization(msrest.serialization.Model):
         self.registry_id = registry_id
         self.storage_id = storage_id
         self.portal = portal
+        self.portal_id = portal_id
         self.portal_url = portal_url
         self.portal_reply_url = portal_reply_url
-        self.portal_update_url = portal_update_url
         self.portal_identity = portal_identity
         self.id = id
 

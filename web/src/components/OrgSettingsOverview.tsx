@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DefaultButton, getTheme, Label, Link, Persona, PersonaSize, PrimaryButton, Stack, StackItem, Text, TextField } from '@fluentui/react';
+import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
 import { Member } from '../model';
 import { ContentSeparator, UserPersona } from '.';
 import { useOrg, useUser, useMembers } from '../hooks';
 import { KnownOrganizationPortal } from 'teamcloud';
+import { useUpdatePortal } from '../hooks/useUpdatePortal';
 
 export const OrgSettingsOverview: React.FC = () => {
 
@@ -29,8 +30,12 @@ export const OrgSettingsOverview: React.FC = () => {
         }
     }, [org, members, owner])
 
-    const _updatePortal = () => {
-        alert('Update portal !!!');
+    const _updatePortal = async () => {
+        await useUpdatePortal(org)
+    }
+
+    const _changeOwner = () => {
+        alert('NOT IMPLEMENTED YET !!!')
     }
 
     return org ? (
@@ -94,7 +99,7 @@ export const OrgSettingsOverview: React.FC = () => {
                         <DefaultButton
                             disabled={!(owner && user && owner.user.id === user.id)}
                             text='Change owner'
-                            onClick={() => console.log(owner)} />
+                            onClick={_changeOwner} />
                     </Stack.Item>
                 </Stack>
             </Stack.Item>
@@ -154,8 +159,8 @@ export const OrgSettingsOverview: React.FC = () => {
                             </Stack.Item>
                             <Stack.Item>
                                 <Link 
-                                    disabled={!(org.portalUpdateUrl)}
-                                    onClick={() => console.log(org.portalUpdateUrl)}>
+                                    disabled={!(org.portalId)}
+                                    onClick={_updatePortal}>
                                     Update portal
                                 </Link>
                             </Stack.Item>

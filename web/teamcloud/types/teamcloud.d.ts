@@ -1041,9 +1041,9 @@ export declare interface Organization {
     registryId?: string;
     storageId?: string;
     portal?: OrganizationPortal;
+    portalId?: string;
     portalUrl?: string;
     portalReplyUrl?: string;
-    portalUpdateUrl?: string;
     portalIdentity?: string;
     id: string;
 }
@@ -1601,6 +1601,12 @@ export declare class TeamCloud extends coreClient.ServiceClient {
      */
     negotiateSignalR(organizationId: string, projectId: string, options?: NegotiateSignalROptionalParams): Promise<void>;
     /**
+     * Updates the custom portal of the organization
+     * @param organizationId
+     * @param options The options parameters.
+     */
+    updatePortal(organizationId: string, options?: UpdatePortalOptionalParams): Promise<UpdatePortalResponse>;
+    /**
      * Gets all audit entries.
      * @param organizationId
      * @param options The options parameters.
@@ -1986,6 +1992,13 @@ export declare interface UpdateOrganizationUserOptionalParams extends coreClient
 
 /** Contains response data for the updateOrganizationUser operation. */
 export declare type UpdateOrganizationUserResponse = UserDataResult;
+
+/** Optional parameters. */
+export declare interface UpdatePortalOptionalParams extends coreClient.OperationOptions {
+}
+
+/** Contains response data for the updatePortal operation. */
+export declare type UpdatePortalResponse = OrganizationDataResult;
 
 /** Optional parameters. */
 export declare interface UpdateProjectIdentityOptionalParams extends coreClient.OperationOptions {

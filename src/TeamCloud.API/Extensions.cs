@@ -204,13 +204,16 @@ internal static class Extensions
         {
             return DataResult<TData>.NoContent().ToActionResult();
         }
-
-        if (httpMethod == HttpMethod.Post)
+        else if (httpMethod == HttpMethod.Post)
         {
-            if (!commandResult.Links.TryGetValue("location", out var location))
-                throw new NotSupportedException("Missing location link in command result.");
-
-            return DataResult<TData>.Created(commandResult.Result, location).ToActionResult();
+            if (commandResult.Links.TryGetValue("location", out var location))
+            {
+                return DataResult<TData>.Created(commandResult.Result, location).ToActionResult();
+            }
+            else
+            {
+                return DataResult<TData>.Ok(commandResult.Result).ToActionResult();
+            }
         }
         else if (httpMethod == HttpMethod.Put)
         {
