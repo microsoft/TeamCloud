@@ -55,15 +55,11 @@ A TeamCloud instance is made up of the following Azure resources:
 - [Key Vault][key-vault]
 - [Application Insights][application-insights]
 
-<!-- ![Azure architecture diagram](docs/img/TeamCloud.png) -->
-
 These resources are deployed using the [CLI](docs/CLI.md). After installing the CLI use `az tc deploy -h` deployment instructions.
 
 ## TeamCloud Website
 
 Although the TeamCloud CLI exposes all functionality provided by TeamCloud, you can also deploy a client website to interact with your instance.
-
-<!-- ![TeamCloud website](docs/img/tc_web_app_0.png) -->
 
 ## Projects
 
