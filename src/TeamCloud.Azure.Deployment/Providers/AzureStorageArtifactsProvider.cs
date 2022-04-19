@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using Flurl;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
+using Flurl;
 
 namespace TeamCloud.Azure.Deployment.Providers;
 

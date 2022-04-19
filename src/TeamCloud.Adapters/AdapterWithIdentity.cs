@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Data;
 using TeamCloud.Secrets;
 

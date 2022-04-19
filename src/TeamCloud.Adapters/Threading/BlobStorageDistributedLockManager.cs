@@ -5,16 +5,16 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs.Host;
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
-using Azure;
-using System.IO;
-using System.Text;
-using System.Diagnostics;
+using Microsoft.Azure.WebJobs.Host;
 
 namespace TeamCloud.Adapters.Threading;
 

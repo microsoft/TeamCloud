@@ -3,23 +3,23 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Azure.Storage.Sas;
+using Flurl.Http;
+using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Caching.Memory;
+using TeamCloud.Audit;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
-using TeamCloud.Model.Data;
-using Flurl.Http;
-using Azure.Storage.Sas;
-using TeamCloud.Model.Common;
-using TeamCloud.Audit;
-using System.Text;
-using TeamCloud.Model.Commands.Core;
 using TeamCloud.Microsoft.Graph;
-using Microsoft.ApplicationInsights;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Common;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders;
 
