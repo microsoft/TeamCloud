@@ -25,7 +25,7 @@ export const getManagementGroups = async (): Promise<ManagementGroup[]> => {
 
         console.log('==> GET ' + url);
 
-        let response: Response = await fetch(url, {
+        const response: Response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token?.token}`
@@ -58,7 +58,7 @@ export const getManagementGroup = async (id: string): Promise<ManagementGroup> =
 
     const token = await auth.getManagementToken();
 
-    let response: Response = await fetch(url, {
+    const response: Response = await fetch(url, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token?.token}`
@@ -86,7 +86,7 @@ export const getSubscriptions = async (): Promise<Subscription[]> => {
 
     const token = await auth.getManagementToken();
 
-    let response: Response = await fetch(url, {
+    const response: Response = await fetch(url, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token?.token}`
@@ -113,7 +113,7 @@ export const getResourceGroups = async (subscription: string): Promise<ResourceG
 
     const token = await auth.getManagementToken();
 
-    let response: Response = await fetch(url, {
+    const response: Response = await fetch(url, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token?.token}`

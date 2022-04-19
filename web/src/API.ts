@@ -10,9 +10,8 @@ const _getApiUrl = () => {
         if (!process.env.REACT_APP_TC_API_URL) throw new Error('Must set env variable $REACT_APP_TC_API_URL');
         return process.env.REACT_APP_TC_API_URL;
     }
-    else {
-        return "__REACT_APP_TC_API_URL__";
-    }
+    
+    return "__REACT_APP_TC_API_URL__";
 };
 
 export const apiUrl = _getApiUrl();
