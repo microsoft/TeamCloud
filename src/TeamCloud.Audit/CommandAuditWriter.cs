@@ -10,6 +10,7 @@ using Azure;
 using Azure.Data.Tables;
 using Azure.Storage.Blobs;
 using TeamCloud.Audit.Model;
+using TeamCloud.Azure.Storage;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Serialization;
 
@@ -19,19 +20,13 @@ public sealed class CommandAuditWriter : ICommandAuditWriter
 {
     private static readonly DateTime MinDateTime = new(1601, 1, 1, 0, 0, 0, DateTimeKind.Unspecified);
 
+    private readonly IStorageService storage;
     private readonly ICommandAuditOptions options;
-    private readonly Lazy<TableClient> tableClientInstance;
-    private readonly Lazy<BlobContainerClient> blobContainerClientInstance;
 
-    public CommandAuditWriter(ICommandAuditOptions options = null)
+    public CommandAuditWriter(IStorageService storageService, ICommandAuditOptions options = null)
     {
+        this.storage = storageService ?? throw new ArgumentNullException(nameof(storageService));
         this.options = options ?? CommandAuditOptions.Default;
-
-        tableClientInstance = new Lazy<TableClient>(() =>
-            new TableClient(this.options.ConnectionString, CommandAuditEntity.AUDIT_TABLE_NAME));
-
-        blobContainerClientInstance = new Lazy<BlobContainerClient>(() =>
-            new BlobContainerClient(this.options.ConnectionString, CommandAuditEntity.AUDIT_CONTAINER_NAME));
     }
 
     public Task WriteAsync(ICommand command, ICommandResult commandResult = default) => Task.WhenAll
@@ -42,8 +37,8 @@ public sealed class CommandAuditWriter : ICommandAuditWriter
 
     private async Task WriteContainerAsync(ICommand command, ICommandResult commandResult)
     {
-        var blobContainerClient = await blobContainerClientInstance
-            .EnsureContainerAsync()
+        var blobContainerClient = await storage.Blobs
+            .GetBlobContainerClientAsync(options.ConnectionString, CommandAuditEntity.AUDIT_CONTAINER_NAME)
             .ConfigureAwait(false);
 
         if (command.CommandId.Equals(commandResult?.CommandId))
@@ -73,8 +68,8 @@ public sealed class CommandAuditWriter : ICommandAuditWriter
     {
         var auditEntity = new CommandAuditEntity(command);
 
-        var tableClient = await tableClientInstance
-            .EnsureTableAsync()
+        var tableClient = await storage.Tables
+            .GetTableClientAsync(options.ConnectionString, CommandAuditEntity.AUDIT_TABLE_NAME)
             .ConfigureAwait(false);
 
         try
