@@ -10,8 +10,8 @@ using Azure.Storage.Sas;
 using Flurl.Http;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Caching.Memory;
-using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
+
+using TeamCloud.Azure.Storage;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders;
@@ -20,13 +20,13 @@ public sealed class ComponentExpander : DocumentExpander,
     IDocumentExpander<Component>
 {
     private readonly IProjectRepository projectRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IFileShareService fileShares;
     private readonly IMemoryCache cache;
 
-    public ComponentExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
+    public ComponentExpander(IProjectRepository projectRepository, IFileShareService fileShares, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
     {
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.fileShares = fileShares ?? throw new ArgumentNullException(nameof(fileShares));
         this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
     }
 
@@ -41,7 +41,7 @@ public sealed class ComponentExpander : DocumentExpander,
                 .GetAsync(document.Organization, document.ProjectId)
                 .ConfigureAwait(false);
 
-            if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+            if (string.IsNullOrEmpty(project?.StorageId))
             {
                 var cacheKey = $"{GetType()}|{document.GetType()}|{document.Id}";
 
@@ -81,17 +81,10 @@ public sealed class ComponentExpander : DocumentExpander,
 
             async Task<Uri> AcquireSasUrl(ICacheEntry entry)
             {
-                var storageAccount = await azureResourceService
-                    .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
-                    .ConfigureAwait(false);
-
-                if (storageAccount is null)
-                    return null;
-
                 entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
 
-                return await storageAccount
-                    .CreateShareFileSasUriAsync(document.Id, "value.json", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
+                return await fileShares
+                    .GetShareFileSasUriAsync(project.StorageId, document.Id, "value.json", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
                     .ConfigureAwait(false);
             }
         }

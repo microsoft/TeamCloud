@@ -147,7 +147,6 @@ public class AzureService : IAzureService
         return identity.Value;
     }
 
-
     public async Task DeleteResourceAsync(string resourceId, bool deleteLocks = false, CancellationToken cancellationToken = default)
     {
         var id = new ResourceIdentifier(resourceId);

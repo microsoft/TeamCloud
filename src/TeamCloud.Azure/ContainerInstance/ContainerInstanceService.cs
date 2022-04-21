@@ -19,6 +19,7 @@ namespace TeamCloud.Azure.ContainerInstance;
 
 public interface IContainerInstanceService
 {
+    Task<ContainerGroup> GetGroupAsync(string resourceId, CancellationToken cancellationToken = default);
     Task<IEnumerable<Usage>> GetUsagesAsync(string subscriptionId, string location, CancellationToken cancellationToken = default);
     Task<IEnumerable<Capabilities>> GetCapabilitiesAsync(string subscriptionId, string location, CancellationToken cancellationToken = default);
     Task StopAsync(string resourceId, CancellationToken cancellationToken = default);
@@ -33,7 +34,6 @@ public class ContainerInstanceService : IContainerInstanceService
     {
         this.arm = arm ?? throw new ArgumentNullException(nameof(arm));
     }
-
 
     private async Task<ContainerInstanceManagementClient> GetClientAsync(string subscriptionId, CancellationToken cancellationToken = default)
     {
@@ -50,6 +50,21 @@ public class ContainerInstanceService : IContainerInstanceService
         {
             SubscriptionId = subscriptionId
         };
+    }
+
+    public async Task<ContainerGroup> GetGroupAsync(string resourceId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(resourceId))
+            throw new ArgumentException($"'{nameof(resourceId)}' cannot be null or empty.", nameof(resourceId));
+
+        var id = new ResourceIdentifier(resourceId);
+
+        var client = await GetClientAsync(id.SubscriptionId, cancellationToken)
+            .ConfigureAwait(false);
+
+        return await client.ContainerGroups
+            .GetAsync(id.ResourceGroupName, id.Name, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<Usage>> GetUsagesAsync(string subscriptionId, string location, CancellationToken cancellationToken = default)
@@ -122,11 +137,7 @@ public class ContainerInstanceService : IContainerInstanceService
 
         var id = new ResourceIdentifier(resourceId);
 
-        var client = await GetClientAsync(id.SubscriptionId, cancellationToken)
-            .ConfigureAwait(false);
-
-        var group = await client.ContainerGroups
-            .GetAsync(id.ResourceGroupName, id.Name, cancellationToken)
+        var group = await GetGroupAsync(resourceId, cancellationToken)
             .ConfigureAwait(false);
 
         if (group is not null)
