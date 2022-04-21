@@ -98,7 +98,7 @@ public class Startup
             .UseSwagger()
             .UseSwaggerUI(setup =>
             {
-                setup.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                setup.SwaggerEndpoint("/openapi/v1/openapi.json", "TeamCloud API v1");
                 setup.OAuthClientId(resourceManagerOptions.ClientId);
                 setup.OAuthClientSecret("");
                 setup.OAuthUsePkce();
@@ -243,7 +243,11 @@ public class Startup
         {
             ConfigureAuthentication(services, azureResourceManagerOptions);
             ConfigureAuthorization(services);
-            ConfigureSwagger(services, azureResourceManagerOptions);
+
+            if (Configuration.TryBind<EndpointApiOptions>("Endpoint:Api", out var endpointApiOptions))
+            {
+                ConfigureSwagger(services, azureResourceManagerOptions, endpointApiOptions);
+            }
         }
         else
         {
@@ -253,12 +257,17 @@ public class Startup
 
 #pragma warning restore CA1822 // Mark members as static
 
-    private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
+    private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions, EndpointApiOptions endpointApiOptions)
     {
         services
             .AddSwaggerGen(options =>
             {
                 options.DocumentFilter<SwaggerDocumentFilter>();
+
+                options.AddServer(new OpenApiServer
+                {
+                    Url = endpointApiOptions.Url
+                });
 
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -268,7 +277,7 @@ public class Startup
                     Contact = new OpenApiContact
                     {
                         Url = new Uri("https://github.com/microsoft/TeamCloud/issues/new"),
-                        Email = @"Markus.Heiliger@microsoft.com",
+                        Email = @"colbyw@microsoft.com",
                         Name = "TeamCloud Dev Team"
                     },
                     License = new OpenApiLicense
