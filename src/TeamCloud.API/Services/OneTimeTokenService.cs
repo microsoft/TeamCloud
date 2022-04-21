@@ -9,34 +9,29 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Data.Tables;
-using Nito.AsyncEx;
+using TeamCloud.Azure.Storage;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.API.Services;
 
 public class OneTimeTokenService
 {
+    const string TableName = nameof(OneTimeTokenService);
+
+    private readonly ITableService tableService;
     private readonly IOneTimeTokenServiceOptions options;
 
-    private readonly AsyncLazy<TableClient> tableClient;
-
-    public OneTimeTokenService(IOneTimeTokenServiceOptions options)
+    public OneTimeTokenService(ITableService tableService, IOneTimeTokenServiceOptions options)
     {
+        this.tableService = tableService ?? throw new ArgumentNullException(nameof(tableService));
         this.options = options ?? throw new ArgumentNullException(nameof(options));
-
-        tableClient = new AsyncLazy<TableClient>(async () =>
-        {
-            var client = new TableClient(this.options.ConnectionString, nameof(OneTimeTokenService));
-
-            await client.CreateIfNotExistsAsync().ConfigureAwait(false);
-
-            return client;
-        });
     }
 
     public async Task<string> AcquireTokenAsync(User user, TimeSpan? ttl = null)
     {
-        var client = await tableClient.ConfigureAwait(false);
+        var client = await tableService
+            .GetTableClientAsync(options.ConnectionString, TableName)
+            .ConfigureAwait(false);
 
         var entity = new OneTimeTokenServiceEntity(Guid.Parse(user.Organization), Guid.Parse(user.Id), ttl);
 
@@ -54,7 +49,9 @@ public class OneTimeTokenService
 
         var timestamp = DateTimeOffset.UtcNow;
 
-        var client = await tableClient.ConfigureAwait(false);
+        var client = await tableService
+            .GetTableClientAsync(options.ConnectionString, TableName)
+            .ConfigureAwait(false);
 
         var filters = OneTimeTokenServiceEntity.DefaultPartitionKeyFilter;
 
