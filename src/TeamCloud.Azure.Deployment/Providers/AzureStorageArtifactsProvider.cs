@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using Flurl;
+using TeamCloud.Azure.Storage;
 
 namespace TeamCloud.Azure.Deployment.Providers;
 
@@ -18,11 +19,13 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
 {
     private const string DEPLOYMENT_CONTAINER_NAME = "deployments";
 
+    private readonly IStorageService storage;
     private readonly IAzureStorageArtifactsOptions azureStorageArtifactsOptions;
     private readonly IAzureDeploymentTokenProvider azureDeploymentTokenProvider;
 
-    public AzureStorageArtifactsProvider(IAzureStorageArtifactsOptions azureStorageArtifactsOptions, IAzureDeploymentTokenProvider azureDeploymentTokenProvider = null)
+    public AzureStorageArtifactsProvider(IStorageService storageService, IAzureStorageArtifactsOptions azureStorageArtifactsOptions, IAzureDeploymentTokenProvider azureDeploymentTokenProvider = null)
     {
+        this.storage = storageService ?? throw new ArgumentNullException(nameof(storageService));
         this.azureStorageArtifactsOptions = azureStorageArtifactsOptions ?? throw new ArgumentNullException(nameof(AzureStorageArtifactsProvider.azureStorageArtifactsOptions));
         this.azureDeploymentTokenProvider = azureDeploymentTokenProvider;
     }
@@ -57,7 +60,7 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
             container.Location = $"{location.TrimEnd('/')}/";
 
             container.Token = azureDeploymentTokenProvider is null
-                ? CreateSasToken()
+                ? await CreateSasTokenAsync()
                 : await azureDeploymentTokenProvider.AcquireToken(deploymentId, this).ConfigureAwait(false);
         }
 
@@ -66,8 +69,12 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
 
     private async Task<string> UploadTemplatesAsync(Guid deploymentId, IDictionary<string, string> templates)
     {
+        var blobContainerClient = await storage.Blobs
+            .GetBlobContainerClientAsync(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME)
+            .ConfigureAwait(false);
+
         var uploadTasks = templates.Select(template =>
-            new BlobClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME, $"{deploymentId}/{template.Key}")
+            blobContainerClient.GetBlobClient($"{deploymentId}/{template.Key}")
             .UploadAsync(BinaryData.FromString(template.Value), overwrite: true)
         );
 
@@ -75,21 +82,27 @@ public class AzureStorageArtifactsProvider : AzureDeploymentArtifactsProvider
             .WhenAll()
             .ConfigureAwait(false);
 
-        return new BlobClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME, $"{deploymentId}").Uri.AbsoluteUri;
+        return blobContainerClient.GetBlobClient($"{deploymentId}").Uri.AbsoluteUri;
     }
 
     [SuppressMessage("Security", "CA5377:Use Container Level Access Policy", Justification = "SasToken authentication is required.")]
-    private string CreateSasToken()
+    private async Task<string> CreateSasTokenAsync()
     {
-        var containerClient = new BlobContainerClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME);
-        var sasUri = containerClient.GenerateSasUri(BlobContainerSasPermissions.Read, DateTimeOffset.UtcNow.AddDays(1));
+        var blobContainerClient = await storage.Blobs
+            .GetBlobContainerClientAsync(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME)
+            .ConfigureAwait(false);
+
+        var sasUri = blobContainerClient.GenerateSasUri(BlobContainerSasPermissions.Read, DateTimeOffset.UtcNow.AddDays(1));
 
         return sasUri.PathAndQuery;
     }
 
     public override async Task<string> DownloadArtifactAsync(Guid deploymentId, string artifactName)
     {
-        var blobClient = new BlobClient(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME, $"{deploymentId}/{artifactName}");
+        var blobClient = await storage.Blobs
+            .GetBlobClientAsync(azureStorageArtifactsOptions.ConnectionString, DEPLOYMENT_CONTAINER_NAME, $"{deploymentId}/{artifactName}")
+            .ConfigureAwait(false);
+
         var artifactExists = await blobClient.ExistsAsync().ConfigureAwait(false);
 
         if (artifactExists)
