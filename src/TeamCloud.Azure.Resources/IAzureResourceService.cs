@@ -25,9 +25,9 @@ public interface IAzureResourceService
     Task<TAzureResource> GetResourceAsync<TAzureResource>(string resourceId, bool throwIfNotExists = false)
         where TAzureResource : AzureResource;
 
-    Task RegisterProviderAsync(Guid subscriptionId, string resourceNamespace);
+    // Task RegisterProviderAsync(Guid subscriptionId, string resourceNamespace);
 
-    Task RegisterProvidersAsync(Guid subscriptionId, IEnumerable<string> resourceNamespaces);
+    // Task RegisterProvidersAsync(Guid subscriptionId, IEnumerable<string> resourceNamespaces);
 
     Task<IEnumerable<string>> GetApiVersionsAsync(Guid subscriptionId, string resourceNamespace, string resourceType, bool includePreviewVersions = false);
 }

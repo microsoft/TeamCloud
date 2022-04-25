@@ -5,18 +5,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent.Models;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Rest.Azure;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace TeamCloud.Azure.Resources;
 
@@ -39,30 +34,28 @@ public static class Extensions
         return azureConfiguration;
     }
 
-    public static bool IsAzureResourceId(this string resourceId)
-    {
-        if (resourceId is null)
-            throw new ArgumentNullException(nameof(resourceId));
+    // public static bool IsAzureResourceId(this string resourceId)
+    // {
+    //     if (resourceId is null)
+    //         throw new ArgumentNullException(nameof(resourceId));
 
-        return AzureResourceIdentifier.TryParse(resourceId, out var _);
-    }
+    //     return AzureResourceIdentifier.TryParse(resourceId, out var _);
+    // }
 
-    public static async IAsyncEnumerable<T> AsContinuousCollectionAsync<T>(
-        this IPagedCollection<T> page
-    )
-    {
-        while (page?.Any() ?? false)
-        {
-            foreach (var element in page)
-            {
-                yield return element;
-            }
+    // public static async IAsyncEnumerable<T> AsContinuousCollectionAsync<T>(this IPagedCollection<T> page)
+    // {
+    //     while (page?.Any() ?? false)
+    //     {
+    //         foreach (var element in page)
+    //         {
+    //             yield return element;
+    //         }
 
-            page = await page
-                .GetNextPageAsync()
-                .ConfigureAwait(false);
-        }
-    }
+    //         page = await page
+    //             .GetNextPageAsync()
+    //             .ConfigureAwait(false);
+    //     }
+    // }
 
     public static async IAsyncEnumerable<T> AsContinuousCollectionAsync<T>(
         this IPage<T> firstPage,
@@ -115,34 +108,34 @@ public static class Extensions
     internal static IDictionary<string, string> ToDictionary(this IEnumerable<KeyValuePair<string, string>> keyValuePairs)
         => keyValuePairs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-    internal static T WithAzureResourceException<T>(this T obj, AzureEnvironment environment) where T : IHttpSettingsContainer
-    {
-        obj.Settings.OnErrorAsync = async (call) =>
-        {
-            try
-            {
-                if (call.Request.Url.ToString().StartsWith(environment.ResourceManagerEndpoint, StringComparison.OrdinalIgnoreCase) && call.Response is not null)
-                {
-                    var json = await call.Response
-                        .GetJsonAsync<JObject>()
-                        .ConfigureAwait(false);
+    // internal static T WithAzureResourceException<T>(this T obj, AzureEnvironment environment) where T : IHttpSettingsContainer
+    // {
+    //     obj.Settings.OnErrorAsync = async (call) =>
+    //     {
+    //         try
+    //         {
+    //             if (call.Request.Url.ToString().StartsWith(environment.ResourceManagerEndpoint, StringComparison.OrdinalIgnoreCase) && call.Response is not null)
+    //             {
+    //                 var json = await call.Response
+    //                     .GetJsonAsync<JObject>()
+    //                     .ConfigureAwait(false);
 
-                    var errorMessage = json
-                        .SelectToken("$.error.message")?
-                        .ToString();
+    //                 var errorMessage = json
+    //                     .SelectToken("$.error.message")?
+    //                     .ToString();
 
-                    if (!string.IsNullOrEmpty(errorMessage))
-                        throw new AzureResourceException(errorMessage);
-                }
-            }
-            catch (Exception exc) when (exc is not AzureResourceException)
-            {
-                // swallow all exceptions other than AzureResourceException
-            }
-        };
+    //                 if (!string.IsNullOrEmpty(errorMessage))
+    //                     throw new AzureResourceException(errorMessage);
+    //             }
+    //         }
+    //         catch (Exception exc) when (exc is not AzureResourceException)
+    //         {
+    //             // swallow all exceptions other than AzureResourceException
+    //         }
+    //     };
 
-        return obj;
-    }
+    //     return obj;
+    // }
 
     internal static Guid GetRoleDefinitionId(this RoleAssignmentInner roleAssignment)
     {

@@ -24,9 +24,9 @@ public sealed class AzureSubscription : AzureResource
         : base(GetResourceId(subscriptionId))
     { }
 
-    public AzureSubscription(Guid subscriptionId, IAzureResourceService azureResourceService)
-        : base(GetResourceId(subscriptionId), azureResourceService)
-    { }
+    // public AzureSubscription(Guid subscriptionId, IAzureResourceService azureResourceService)
+    //     : base(GetResourceId(subscriptionId), azureResourceService)
+    // { }
 
     public override async Task<bool> ExistsAsync()
     {
@@ -62,34 +62,34 @@ public sealed class AzureSubscription : AzureResource
             .ConfigureAwait(false);
     }
 
-    public async Task<AzureResourceGroup> CreateResourceGroupAsync(string name, string region = default)
-    {
-        var session = await AzureResourceService.AzureSessionService
-            .CreateSessionAsync(this.ResourceId.SubscriptionId)
-            .ConfigureAwait(false);
+    // public async Task<AzureResourceGroup> CreateResourceGroupAsync(string name, string region = default)
+    // {
+    //     var session = await AzureResourceService.AzureSessionService
+    //         .CreateSessionAsync(this.ResourceId.SubscriptionId)
+    //         .ConfigureAwait(false);
 
-        _ = await session.ResourceGroups
-            .Define(name)
-            .WithRegion(region ?? AzureResourceService.AzureSessionService.Environment.Name)
-            .CreateAsync()
-            .ConfigureAwait(false);
+    //     _ = await session.ResourceGroups
+    //         .Define(name)
+    //         .WithRegion(region ?? AzureResourceService.AzureSessionService.Environment.Name)
+    //         .CreateAsync()
+    //         .ConfigureAwait(false);
 
-        return new AzureResourceGroup(this.ResourceId.SubscriptionId, name, this.AzureResourceService);
-    }
+    //     return new AzureResourceGroup(this.ResourceId.SubscriptionId, name, this.AzureResourceService);
+    // }
 
-    public async IAsyncEnumerable<AzureResourceGroup> GetResourceGroupsAsync()
-    {
-        var session = await AzureResourceService.AzureSessionService
-            .CreateSessionAsync(this.ResourceId.SubscriptionId)
-            .ConfigureAwait(false);
+    // public async IAsyncEnumerable<AzureResourceGroup> GetResourceGroupsAsync()
+    // {
+    //     var session = await AzureResourceService.AzureSessionService
+    //         .CreateSessionAsync(this.ResourceId.SubscriptionId)
+    //         .ConfigureAwait(false);
 
-        var resourceGroups = await session.ResourceGroups
-            .ListAsync()
-            .ConfigureAwait(false);
+    //     var resourceGroups = await session.ResourceGroups
+    //         .ListAsync()
+    //         .ConfigureAwait(false);
 
-        await foreach (var resourceGroup in resourceGroups.AsContinuousCollectionAsync())
-            yield return new AzureResourceGroup(this.ResourceId.SubscriptionId, resourceGroup.Name);
-    }
+    //     await foreach (var resourceGroup in resourceGroups.AsContinuousCollectionAsync())
+    //         yield return new AzureResourceGroup(this.ResourceId.SubscriptionId, resourceGroup.Name);
+    // }
 
     public override async Task<IDictionary<string, string>> GetTagsAsync(bool includeHidden = false)
     {
@@ -148,59 +148,59 @@ public sealed class AzureSubscription : AzureResource
             .ConfigureAwait(false);
     }
 
-    public async IAsyncEnumerable<Region> GetRegionsAsync()
-    {
-        var token = await AzureResourceService.AzureSessionService
-            .AcquireTokenAsync()
-            .ConfigureAwait(false);
+    // public async IAsyncEnumerable<Region> GetRegionsAsync()
+    // {
+    //     var token = await AzureResourceService.AzureSessionService
+    //         .AcquireTokenAsync()
+    //         .ConfigureAwait(false);
 
-        var json = await AzureResourceService.AzureSessionService.Environment.ResourceManagerEndpoint
-            .AppendPathSegment($"subscriptions/{this.ResourceId.SubscriptionId}/locations")
-            .SetQueryParam("api-version", "2020-01-01")
-            .WithOAuthBearerToken(token)
-            .GetJObjectAsync()
-            .ConfigureAwait(false);
+    //     var json = await AzureResourceService.AzureSessionService.Environment.ResourceManagerEndpoint
+    //         .AppendPathSegment($"subscriptions/{this.ResourceId.SubscriptionId}/locations")
+    //         .SetQueryParam("api-version", "2020-01-01")
+    //         .WithOAuthBearerToken(token)
+    //         .GetJObjectAsync()
+    //         .ConfigureAwait(false);
 
-        while (true)
-        {
-            foreach (var item in json.SelectTokens("value[*]"))
-            {
+    //     while (true)
+    //     {
+    //         foreach (var item in json.SelectTokens("value[*]"))
+    //         {
 
-                var paired = item
-                    .SelectTokens("metadata.pairedRegion[*].name")
-                    .Select(token => token.ToString())
-                    .ToArray();
+    //             var paired = item
+    //                 .SelectTokens("metadata.pairedRegion[*].name")
+    //                 .Select(token => token.ToString())
+    //                 .ToArray();
 
-                yield return new Region()
-                {
-                    Name = item.SelectToken("name")?.ToString(),
-                    DisplayName = item.SelectToken("displayName")?.ToString(),
-                    Group = item.SelectToken("metadata.geographyGroup")?.ToString(),
-                    Paired = paired
-                };
-            }
+    //             yield return new Region()
+    //             {
+    //                 Name = item.SelectToken("name")?.ToString(),
+    //                 DisplayName = item.SelectToken("displayName")?.ToString(),
+    //                 Group = item.SelectToken("metadata.geographyGroup")?.ToString(),
+    //                 Paired = paired
+    //             };
+    //         }
 
-            var nextLink = json.SelectToken("nextLink")?.ToString();
+    //         var nextLink = json.SelectToken("nextLink")?.ToString();
 
-            if (string.IsNullOrEmpty(nextLink))
-                break;
+    //         if (string.IsNullOrEmpty(nextLink))
+    //             break;
 
-            json = await nextLink
-                .SetQueryParam("api-version", "2020-01-01")
-                .WithOAuthBearerToken(token)
-                .GetJObjectAsync()
-                .ConfigureAwait(false);
-        }
-    }
+    //         json = await nextLink
+    //             .SetQueryParam("api-version", "2020-01-01")
+    //             .WithOAuthBearerToken(token)
+    //             .GetJObjectAsync()
+    //             .ConfigureAwait(false);
+    //     }
+    // }
 
-    public sealed class Region
-    {
-        public string Name { get; internal set; }
+    // public sealed class Region
+    // {
+    //     public string Name { get; internal set; }
 
-        public string DisplayName { get; internal set; }
+    //     public string DisplayName { get; internal set; }
 
-        public string Group { get; internal set; }
+    //     public string Group { get; internal set; }
 
-        public string[] Paired { get; internal set; }
-    }
+    //     public string[] Paired { get; internal set; }
+    // }
 }
