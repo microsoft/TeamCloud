@@ -79,6 +79,14 @@ export const AuditList: React.FC = () => {
         return JSON.stringify(audit).toUpperCase().includes(filter.toUpperCase())
     }
 
+    const onSelectedCommandsChange = (event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
+        if (item) {
+            setSelectedCommands(
+                item.selected ? [...selectedCommands, (item.key ?? item.text) as string] : selectedCommands.filter(key => key !== (item.key ?? item.text) as string)
+            );
+        }
+    };
+
     const onRenderDate = (date?: Date | null) =>
         <Text>{date?.toDateTimeDisplayString(false)}</Text>;
 
@@ -119,7 +127,7 @@ export const AuditList: React.FC = () => {
                                 title="Time range"
                                 options={timeRangeOptions}
                                 onChange={(e, o) => setSelectedTimeRange(o?.key as string)}
-                                styles={{ dropdown: { minWidth: 250 } }}
+                                styles={{ dropdown: { width: 250 } }}
                             />
                         </Stack>
                         <Stack horizontal tokens={{ childrenGap: '10px' }} >
@@ -138,8 +146,8 @@ export const AuditList: React.FC = () => {
                                 title="Command"
                                 options={auditCommands?.map(ac => ({ key: ac, text: ac } as IDropdownOption)) ?? []}
                                 multiSelect
-                                onChange={(e, o) => setSelectedCommands((o?.selected ?? false) ? [...selectedCommands, (o?.key ?? o?.text) as string] : selectedCommands.filter(c => c !== ((o?.key ?? o?.text) as string)))}
-                                styles={{ dropdown: { minWidth: 250 } }}
+                                onChange={onSelectedCommandsChange}
+                                styles={{ dropdown: { width: 300 } }}
                             />
                         </Stack>
                         <IconButton
