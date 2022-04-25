@@ -11,6 +11,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Azure.Core;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
@@ -40,7 +41,7 @@ public sealed class ComponentTaskRunnerActivity
     private readonly IComponentRepository componentRepository;
     private readonly IComponentTemplateRepository componentTemplateRepository;
     private readonly IComponentTaskRepository componentTaskRepository;
-    private readonly IAzureSessionService azureSessionService;
+    private readonly IAzureService azure;
     private readonly IAzureResourceService azureResourceService;
     private readonly IAdapterProvider adapterProvider;
     private readonly IRunnerOptions runnerOptions;
@@ -51,7 +52,7 @@ public sealed class ComponentTaskRunnerActivity
                                        IComponentRepository componentRepository,
                                        IComponentTemplateRepository componentTemplateRepository,
                                        IComponentTaskRepository componentTaskRepository,
-                                       IAzureSessionService azureSessionService,
+                                       IAzureService azureService,
                                        IAzureResourceService azureResourceService,
                                        IAdapterProvider adapterProvider,
                                        IRunnerOptions runnerOptions)
@@ -62,7 +63,7 @@ public sealed class ComponentTaskRunnerActivity
         this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
         this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
-        this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+        this.azure = azureService ?? throw new ArgumentNullException(nameof(azureService));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         this.runnerOptions = runnerOptions ?? throw new ArgumentNullException(nameof(runnerOptions));
@@ -103,20 +104,19 @@ public sealed class ComponentTaskRunnerActivity
 
             try
             {
-                var tenantId = await azureSessionService
+                var tenantId = await azure
                     .GetTenantIdAsync()
                     .ConfigureAwait(false);
 
                 var organization = await organizationRepository
-                    .GetAsync(tenantId.ToString(), componentTask.Organization)
+                    .GetAsync(tenantId, componentTask.Organization)
                     .ConfigureAwait(false);
 
                 var project = await projectRepository
                     .GetAsync(componentTask.Organization, componentTask.ProjectId)
                     .ConfigureAwait(false);
 
-                var projectResourceId = AzureResourceIdentifier
-                    .Parse(project.ResourceId);
+                var projectResourceId = new ResourceIdentifier(project.ResourceId);
 
                 // we must not use the component task's id as runner label as this
                 // will violate the maximum length of a SSL certificats CN name.
@@ -150,13 +150,13 @@ public sealed class ComponentTaskRunnerActivity
                     }
                 };
 
-                var token = await azureSessionService
+                var token = await azure
                     .AcquireTokenAsync()
                     .ConfigureAwait(false);
 
                 try
                 {
-                    var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
+                    var response = await projectResourceId.GetApiUrl(azure.ArmEnvironment)
                         .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{component.Id}")
                         .SetQueryParam("api-version", "2021-09-01")
                         .WithOAuthBearerToken(token)
@@ -181,7 +181,7 @@ public sealed class ComponentTaskRunnerActivity
                             .ConfigureAwait(false);
                     }
 
-                    var response = await projectResourceId.GetApiUrl(azureSessionService.Environment)
+                    var response = await projectResourceId.GetApiUrl(azure.ArmEnvironment)
                         .AppendPathSegment($"/providers/Microsoft.ContainerInstance/containerGroups/{componentTask.Id}")
                         .SetQueryParam("api-version", "2019-12-01")
                         .AllowHttpStatus(HttpStatusCode.NotFound)
@@ -546,7 +546,7 @@ public sealed class ComponentTaskRunnerActivity
                             name = "TaskHost",
                             value = runnerHost
                         },
-                        new 
+                        new
                         {
                             name = "TaskToken",
                             value = taskToken
@@ -633,54 +633,38 @@ public sealed class ComponentTaskRunnerActivity
 
         async Task<object> GetShareAsync()
         {
-            if (!AzureResourceIdentifier.TryParse(project.StorageId, out var _))
+            if (string.IsNullOrEmpty(project.StorageId))
                 throw new NullReferenceException($"Missing storage id for project {project.Id}");
 
-            var componentStorage = await azureResourceService
-                .GetResourceAsync<AzureStorageAccountResource>(project.StorageId, true)
+            var shareClient = await azure.Storage.FileShares
+                .GetShareClientAsync(project.StorageId, component.Id)
                 .ConfigureAwait(false);
 
-            var componentShare = await componentStorage
-                .CreateShareClientAsync(component.Id)
-                .ConfigureAwait(false);
-
-            await componentShare
+            await shareClient
                 .CreateIfNotExistsAsync()
                 .ConfigureAwait(false);
 
-            var componentStorageKeys = await componentStorage
-                .GetKeysAsync()
+            var componentStorageKeys = await azure.Storage
+                .GetStorageAccountKeysAsync(project.StorageId)
                 .ConfigureAwait(false);
 
             return new
             {
-                shareName = componentShare.Name,
-                storageAccountName = componentShare.AccountName,
+                shareName = shareClient.Name,
+                storageAccountName = shareClient.AccountName,
                 storageAccountKey = componentStorageKeys.First()
             };
         }
 
         async Task<object> GetSecretsAsync()
         {
-            if (!AzureResourceIdentifier.TryParse(project.SharedVaultId, out var _))
+            if (string.IsNullOrEmpty(project.SharedVaultId))
                 throw new NullReferenceException($"Missing vault id for project {project.Id}");
-
-            var componentVault = await azureResourceService
-                .GetResourceAsync<AzureKeyVaultResource>(project.SharedVaultId, true)
-                .ConfigureAwait(false);
-
-            var identity = await azureResourceService.AzureSessionService
-                .GetIdentityAsync()
-                .ConfigureAwait(false);
-
-            await componentVault
-                .SetAllSecretPermissionsAsync(identity.ObjectId)
-                .ConfigureAwait(false);
 
             dynamic secretsObject = new ExpandoObject(); // the secrets container
             var secretsProperties = secretsObject as IDictionary<string, object>;
 
-            await foreach (var secret in componentVault.GetSecretsAsync())
+            await foreach (var secret in azure.KeyVaults.GetSecretsAsync(project.SharedVaultId, ensureIdentityAccess: true))
             {
                 if (secret.Value is null) continue;
 
@@ -697,66 +681,62 @@ public sealed class ComponentTaskRunnerActivity
         }
 
         async Task<object> GetCredentialsAsync()
-    {
-        dynamic credentialObject = new ExpandoObject(); // the credentials container
-        var credentialProperties = credentialObject as IDictionary<string, object>;
-
-        var deploymentScope = await deploymentScopeRepository
-            .GetAsync(component.Organization, component.DeploymentScopeId)
-            .ConfigureAwait(false);
-
-        var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
-
-        if (adapter is not null)
         {
-            var credential = await adapter
-                .GetServiceCredentialAsync(component)
+            dynamic credentialObject = new ExpandoObject(); // the credentials container
+            var credentialProperties = credentialObject as IDictionary<string, object>;
+
+            var deploymentScope = await deploymentScopeRepository
+                .GetAsync(component.Organization, component.DeploymentScopeId)
                 .ConfigureAwait(false);
 
-            if (credential is not null)
+            var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
+
+            if (adapter is not null)
             {
-                credentialProperties.Add(new KeyValuePair<string, object>("domain", EncodeValue(credential.Domain)));
-                credentialProperties.Add(new KeyValuePair<string, object>("username", EncodeValue(credential.UserName)));
-                credentialProperties.Add(new KeyValuePair<string, object>("password", EncodeValue(credential.Password)));
+                var credential = await adapter
+                    .GetServiceCredentialAsync(component)
+                    .ConfigureAwait(false);
 
-                string EncodeValue(string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+                if (credential is not null)
+                {
+                    credentialProperties.Add(new KeyValuePair<string, object>("domain", EncodeValue(credential.Domain)));
+                    credentialProperties.Add(new KeyValuePair<string, object>("username", EncodeValue(credential.UserName)));
+                    credentialProperties.Add(new KeyValuePair<string, object>("password", EncodeValue(credential.Password)));
+
+                    string EncodeValue(string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+                }
             }
+
+            var count = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{credentialProperties.Count}"));
+            credentialProperties.Add(new KeyValuePair<string, object>($"_{nameof(count)}", count));
+
+            return credentialObject;
         }
-
-        var count = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{credentialProperties.Count}"));
-        credentialProperties.Add(new KeyValuePair<string, object>($"_{nameof(count)}", count));
-
-        return credentialObject;
-    }
     }
 
-    private async Task<string> GetLocationAsync(Component component, Guid subscriptionId, int runnerCPU, int runnerMemory, bool usePairedRegion = false)
+    private async Task<string> GetLocationAsync(Component component, string subscriptionId, int runnerCPU, int runnerMemory, bool usePairedRegion = false)
     {
-        var tenantId = await azureSessionService
+        var tenantId = await azure
             .GetTenantIdAsync()
             .ConfigureAwait(false);
 
         var organization = await organizationRepository
-            .GetAsync(tenantId.ToString(), component.Organization)
+            .GetAsync(tenantId, component.Organization)
             .ConfigureAwait(false);
 
         var location = organization.Location;
 
         if (usePairedRegion || !await IsRegionCapableAsync(location))
         {
-            var subscription = await azureResourceService
-                .GetSubscriptionAsync(subscriptionId)
+            var region = await azure.GetSubscription(subscriptionId)
+                .GetLocationsAsync()
+                .SingleOrDefaultAsync(l => l.Name.Equals(location))
                 .ConfigureAwait(false);
 
-            var region = await subscription
-                .GetRegionsAsync()
-                .SingleOrDefaultAsync(r => r.Name.Equals(location))
-                .ConfigureAwait(false);
-
-            if (region?.Paired is not null)
+            if (region?.Metadata?.PairedRegions?.Any() ?? false)
             {
-                var pairedInfo = region.Paired
-                    .Select(pr => new { Region = pr, Capable = IsRegionCapableAsync(pr) });
+                var pairedInfo = region.Metadata.PairedRegions
+                    .Select(pr => new { Region = pr.Name, Capable = IsRegionCapableAsync(pr.Name) });
 
                 await pairedInfo
                     .Select(pi => pi.Capable)
@@ -772,8 +752,8 @@ public sealed class ComponentTaskRunnerActivity
 
         async Task<bool> IsRegionCapableAsync(string region)
         {
-            var capabilities = AzureContainerGroupResource
-                .GetCapabilitiesAsync(azureResourceService, subscriptionId, region);
+            var capabilities = azure.ContainerInstances
+                .GetCapabilitiesAsync(subscriptionId, region);
 
             return await capabilities
                 .AnyAsync(c => c.OsType.Equals("Linux", StringComparison.OrdinalIgnoreCase)

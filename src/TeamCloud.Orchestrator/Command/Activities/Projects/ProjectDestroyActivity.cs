@@ -7,7 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using TeamCloud.Azure.Resources;
+using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
@@ -17,12 +17,12 @@ namespace TeamCloud.Orchestrator.Command.Activities.Projects;
 public sealed class ProjectDestroyActivity
 {
     private readonly IProjectRepository projectRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azureService;
 
-    public ProjectDestroyActivity(IProjectRepository projectRepository, IAzureResourceService azureResourceService)
+    public ProjectDestroyActivity(IProjectRepository projectRepository, IAzureService azureService)
     {
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azureService = azureService ?? throw new ArgumentNullException(nameof(azureService));
     }
 
     [FunctionName(nameof(ProjectDestroyActivity))]
@@ -35,19 +35,11 @@ public sealed class ProjectDestroyActivity
 
         var project = context.GetInput<Input>().Project;
 
-        if (AzureResourceIdentifier.TryParse(project.ResourceId, out var resourceId))
+        if (!string.IsNullOrEmpty(project.ResourceId))
         {
-            var resourceGroup = await azureResourceService
-                .GetResourceGroupAsync(resourceId.SubscriptionId, resourceId.ResourceGroup)
+            await azureService
+                .DeleteResourceAsync(project.ResourceId, deleteLocks: true)
                 .ConfigureAwait(false);
-
-            if (resourceGroup is not null)
-            {
-                await resourceGroup
-                    .DeleteAsync(true)
-                    .ConfigureAwait(false);
-            }
-
         }
     }
 

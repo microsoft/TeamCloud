@@ -4,14 +4,13 @@
  */
 
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
+using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
@@ -23,12 +22,12 @@ namespace TeamCloud.Orchestrator.Command.Activities.ComponentTasks;
 public sealed class ComponentTaskTerminateActivity
 {
     private readonly IComponentTaskRepository componentTaskRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azure;
 
-    public ComponentTaskTerminateActivity(IComponentTaskRepository componentTaskRepository, IAzureResourceService azureResourceService)
+    public ComponentTaskTerminateActivity(IComponentTaskRepository componentTaskRepository, IAzureService azure)
     {
         this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
     }
 
     [FunctionName(nameof(ComponentTaskTerminateActivity))]
@@ -47,7 +46,7 @@ public sealed class ComponentTaskTerminateActivity
 
         try
         {
-            if (AzureResourceIdentifier.TryParse(componentTask.ResourceId, out var resourceId))
+            if (!string.IsNullOrEmpty(componentTask.ResourceId))
             {
                 if (!componentTask.TaskState.IsFinal())
                 {
@@ -58,16 +57,16 @@ public sealed class ComponentTaskTerminateActivity
                         .ConfigureAwait(false);
                 }
 
-                var containerGroup = await azureResourceService
-                    .GetResourceAsync<AzureContainerGroupResource>(resourceId.ToString())
+                var containerGroup = await azure.ContainerInstances
+                    .GetGroupAsync(componentTask.ResourceId)
                     .ConfigureAwait(false);
 
                 if (containerGroup is not null)
                 {
                     try
                     {
-                        await containerGroup
-                            .StopAsync()
+                        await azure.ContainerInstances
+                            .StopAsync(containerGroup.Id)
                             .ConfigureAwait(false);
                     }
                     catch
@@ -76,12 +75,12 @@ public sealed class ComponentTaskTerminateActivity
                     }
                     finally
                     {
-                        var location = await containerGroup
-                            .GetLocationAsync()
-                            .ConfigureAwait(false);
+                        var location = containerGroup.Location;
 
-                        var usageData = await AzureContainerGroupResource
-                            .GetUsageAsync(azureResourceService, containerGroup.ResourceId.SubscriptionId, location)
+                        var id = new ResourceIdentifier(containerGroup.Id);
+
+                        var usageData = await azure.ContainerInstances
+                            .GetUsageAsync(id.SubscriptionId, location)
                             .ConfigureAwait(false);
 
                         var usage = usageData
@@ -92,8 +91,8 @@ public sealed class ComponentTaskTerminateActivity
 
                         if (current >= limit)
                         {
-                            await containerGroup
-                                .DeleteAsync()
+                            await azure
+                                .DeleteResourceAsync(containerGroup.Id)
                                 .ConfigureAwait(false);
                         }
                     }
