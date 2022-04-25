@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
@@ -21,6 +23,7 @@ public interface IKeyVaultService
     public Task<VaultResource> GetKeyVaultAsync(string resourceId, CancellationToken cancellationToken = default);
     public Task SetAllSecretPermissionsAsync(string resourceId, string userId, CancellationToken cancellationToken = default);
     public Task<SecretClient> GetSecretClientAsync(string resourceId, bool ensureIdentityAccess = true, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<KeyValuePair<string, string>> GetSecretsAsync(string resourceId, bool ensureIdentityAccess = true, CancellationToken cancellationToken = default);
 }
 
 public class KeyVaultService : IKeyVaultService
@@ -107,5 +110,19 @@ public class KeyVaultService : IKeyVaultService
         }
 
         return secretClient;
+    }
+
+    public async IAsyncEnumerable<KeyValuePair<string, string>> GetSecretsAsync(string resourceId, bool ensureIdentityAccess = true, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var client = await GetSecretClientAsync(resourceId, ensureIdentityAccess, cancellationToken)
+            .ConfigureAwait(false);
+
+        await foreach (var item in client.GetPropertiesOfSecretsAsync(cancellationToken))
+        {
+            var secret = await client.GetSecretAsync(item.Name, null, cancellationToken)
+                .ConfigureAwait(false);
+
+            yield return new KeyValuePair<string, string>(secret.Value.Name, secret.Value.Value);
+        }
     }
 }

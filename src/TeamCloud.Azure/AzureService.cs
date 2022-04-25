@@ -33,8 +33,10 @@ public interface IAzureService
     Task<SubscriptionResource> GetSubscriptionAsync(string subscriptionId, bool throwIfNotExists = false, CancellationToken cancellationToken = default);
     Task<ResourceGroupResource> GetResourceGroupAsync(string subscriptionId, string resourceGroupName, bool throwIfNotExists = false, CancellationToken cancellationToken = default);
     Task DeleteResourceAsync(string resourceId, bool deleteLocks = false, CancellationToken cancellationToken = default);
-    Task<GenericResource> GetUserAssignedIdentiyAsync(string subscriptionId, string resourceGroupName, string name, CancellationToken cancellationToken = default);
+    Task<GenericResource> GetUserAssignedIdentityAsync(string subscriptionId, string resourceGroupName, string name, CancellationToken cancellationToken = default);
+    Task<GenericResource> CreateUserAssignedIdentityAsync(string subscriptionId, string resourceGroupName, string name, string location, CancellationToken cancellationToken = default);
     Task<IEnumerable<string>> GetApiVersionsAsync(string subscriptionId, string resourceProviderNamespace, string resourceType, bool includePreviewVersions = false, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(string resourceId, CancellationToken cancellationToken = default);
 }
 
 public class AzureService : IAzureService
@@ -133,18 +135,59 @@ public class AzureService : IAzureService
         return response.Value;
     }
 
-    public async Task<GenericResource> GetUserAssignedIdentiyAsync(string subscriptionId, string resourceGroupName, string name, CancellationToken cancellationToken = default)
+    public async Task<GenericResource> GetUserAssignedIdentityAsync(string subscriptionId, string resourceGroupName, string name, CancellationToken cancellationToken = default)
     {
         var id = ResourceGroupResource
             .CreateResourceIdentifier(subscriptionId, resourceGroupName)
             .AppendProviderResource("Microsoft.ManagedIdentity", "userAssignedIdentities", name);
 
-        var identity = await arm.GetArmClient(subscriptionId)
-            .GetGenericResources()
-            .GetAsync(id, cancellationToken)
+        var resources = arm
+            .GetArmClient(subscriptionId)
+            .GetGenericResources();
+
+        var exists = await resources
+            .ExistsAsync(id, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (exists)
+        {
+            var response = await resources
+                .GetAsync(id, cancellationToken)
+                .ConfigureAwait(false);
+
+            return response.Value;
+        }
+
+        return null;
+    }
+
+    public async Task<GenericResource> CreateUserAssignedIdentityAsync(string subscriptionId, string resourceGroupName, string name, string location, CancellationToken cancellationToken = default)
+    {
+        var id = ResourceGroupResource
+            .CreateResourceIdentifier(subscriptionId, resourceGroupName)
+            .AppendProviderResource("Microsoft.ManagedIdentity", "userAssignedIdentities", name);
+
+        var resources = arm
+            .GetArmClient(id.SubscriptionId)
+            .GetGenericResources();
+
+        var data = new GenericResourceData(new AzureLocation(location))
+        {
+
+        };
+
+        var identity = await resources
+            .CreateOrUpdateAsync(WaitUntil.Completed, id, data, cancellationToken)
             .ConfigureAwait(false);
 
         return identity.Value;
+
+        // var identity = await arm.GetArmClient(subscriptionId)
+        //     .GetGenericResources()
+        //     .GetAsync(id, cancellationToken)
+        //     .ConfigureAwait(false);
+
+        // return identity.Value;
     }
 
     public async Task DeleteResourceAsync(string resourceId, bool deleteLocks = false, CancellationToken cancellationToken = default)
@@ -158,7 +201,7 @@ public class AzureService : IAzureService
             .ExistsAsync(id, cancellationToken)
             .ConfigureAwait(false);
 
-        if (!exists.Value)
+        if (!exists)
             return;
 
         var resource = await resources
@@ -209,5 +252,20 @@ public class AzureService : IAzureService
             throw new ArgumentOutOfRangeException(nameof(resourceType));
 
         return includePreviewVersions ? resourceTypeMatch.ApiVersions.Where(v => !v.EndsWith("-preview", StringComparison.OrdinalIgnoreCase)) : resourceTypeMatch.ApiVersions;
+    }
+
+    public async Task<bool> ExistsAsync(string resourceId, CancellationToken cancellationToken = default)
+    {
+        var id = new ResourceIdentifier(resourceId);
+
+        arm.GetArmClient(id.SubscriptionId);
+
+        var exists = await arm
+            .GetArmClient(id.SubscriptionId)
+            .GetGenericResources()
+            .ExistsAsync(id, cancellationToken)
+            .ConfigureAwait(false);
+
+        return exists.Value;
     }
 }

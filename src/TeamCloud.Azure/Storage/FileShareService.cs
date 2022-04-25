@@ -68,7 +68,6 @@ public class FileShareService : IFileShareService
         return shareServiceClient.GetShareClient(shareName);
     }
 
-
     public async Task<ShareDirectoryClient> GetShareDirectoryClientAsync(string accountResourceId, string shareName, string directoryPath, bool ensureDirectoryExists = false, CancellationToken cancellationToken = default)
     {
         var shareClient = await GetShareClientAsync(accountResourceId, shareName, cancellationToken)
@@ -79,20 +78,26 @@ public class FileShareService : IFileShareService
         var directoryClient = shareClient.GetDirectoryClient(directoryNames[0]);
 
         if (ensureDirectoryExists)
+        {
             await directoryClient
                 .CreateIfNotExistsAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
+        }
 
         if (directoryNames.Length > 1)
+        {
             for (int i = 1; i < directoryNames.Length; i++)
             {
                 directoryClient = directoryClient.GetSubdirectoryClient(directoryNames[i]);
 
                 if (ensureDirectoryExists)
+                {
                     await directoryClient
                         .CreateIfNotExistsAsync(cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
+                }
             }
+        }
 
         return directoryClient;
     }
