@@ -1,15 +1,15 @@
 ﻿param resourceName string
 
 param organizationName string
-param organizationSlug string
+// param organizationSlug string
 param organizationTags object = {}
 param location string = resourceGroup().location
 
-param portalClientId string 
+param portalClientId string
 param portalTenantId string = tenant().tenantId
 
 @secure()
-param portalClientSecret string 
+param portalClientSecret string
 
 param registryServer string = 'teamcloud.azurecr.io'
 param registryUsername string = ''
@@ -17,17 +17,17 @@ param registryUsername string = ''
 @secure()
 param registryPassword string = ''
 
-param storageAccountName string 
+param storageAccountName string
 
 @secure()
-param storageAcountKey string 
+param storageAcountKey string
 
 var portalImage = 'teamcloud/tcportal-backstage:latest'
 
-var databaseUsername = 'portal'  
-var databasePassword = '${guid(resourceGroup().id)}'
+var databaseUsername = 'portal'
+var databasePassword = guid(resourceGroup().id)
 
-resource portalPostgreSql 'Microsoft.DBforPostgreSQL/flexibleServers@2021-06-01' =  {
+resource portalPostgreSql 'Microsoft.DBforPostgreSQL/flexibleServers@2021-06-01' = {
   name: resourceName
   location: location
   tags: organizationTags
@@ -35,24 +35,24 @@ resource portalPostgreSql 'Microsoft.DBforPostgreSQL/flexibleServers@2021-06-01'
     name: 'Standard_D4s_v3'
     tier: 'GeneralPurpose'
   }
-  properties:{
+  properties: {
     administratorLogin: databaseUsername
     administratorLoginPassword: databasePassword
     version: '13'
     storage: {
-        storageSizeGB: 32
+      storageSizeGB: 32
     }
     backup: {
-        backupRetentionDays: 7
-        geoRedundantBackup: 'Disabled'
+      backupRetentionDays: 7
+      geoRedundantBackup: 'Disabled'
     }
     highAvailability: {
-        mode: 'Disabled'
-    }  
+      mode: 'Disabled'
+    }
   }
 
   resource allowAllWindowsAzureIps 'firewallRules' = {
-    name: 'AllowAllWindowsAzureIps' 
+    name: 'AllowAllWindowsAzureIps'
     properties: {
       endIpAddress: '0.0.0.0'
       startIpAddress: '0.0.0.0'
@@ -76,7 +76,7 @@ resource portalAppServicePlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   }
 }
 
-resource portalAppService 'microsoft.web/sites@2021-03-01' =  {
+resource portalAppService 'microsoft.web/sites@2021-03-01' = {
   name: resourceName
   location: location
   tags: organizationTags
@@ -116,7 +116,7 @@ resource portalAppService 'microsoft.web/sites@2021-03-01' =  {
         }
         {
           name: 'POSTGRES_PORT'
-          value: '5432' 
+          value: '5432'
         }
         {
           name: 'POSTGRES_USER'
@@ -162,4 +162,5 @@ resource portalPublishing 'microsoft.web/sites/config@2021-03-01' existing = {
 output portalId string = portalAppService.id
 output portalUrl string = 'https://${portalAppService.properties.defaultHostName}'
 output portalReplyUrl string = 'https://${portalAppService.properties.defaultHostName}/api/auth/microsoft/handler/frame'
+#disable-next-line outputs-should-not-contain-secrets
 output portalUpdateUrl string = '${list(portalPublishing.id, '2021-03-01').properties.scmUri}/docker/hook'

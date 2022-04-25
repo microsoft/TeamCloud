@@ -1,5 +1,5 @@
 param organizationName string
-param organizationSlug string
+// param organizationSlug string
 param organizationTags object = {}
 param location string = resourceGroup().location
 
@@ -71,14 +71,14 @@ module backstageDeployment './organizationPortalBackstage.bicep' = if (backstage
   params: {
     resourceName: resourceName
     organizationName: organizationName
-    organizationSlug: organizationSlug
+    // organizationSlug: organizationSlug
     organizationTags: organizationTags
     location: location
     portalClientId: portalClientId
     portalClientSecret: portalClientSecret
     portalTenantId: portalTenantId
     storageAccountName: organizationStorageAccount.name
-    storageAcountKey: organizationStorageAccount.listKeys().keys[0].value 
+    storageAcountKey: organizationStorageAccount.listKeys().keys[0].value
   }
 }
 
@@ -87,14 +87,14 @@ module clutchDeployment './organizationPortalClutch.bicep' = if (clutchEnabled) 
   params: {
     resourceName: resourceName
     organizationName: organizationName
-    organizationSlug: organizationSlug
+    // organizationSlug: organizationSlug
     organizationTags: organizationTags
     location: location
     portalClientId: portalClientId
     portalClientSecret: portalClientSecret
     portalTenantId: portalTenantId
     storageAccountName: organizationStorageAccount.name
-    storageAcountKey: organizationStorageAccount.listKeys().keys[0].value 
+    storageAcountKey: organizationStorageAccount.listKeys().keys[0].value
   }
 }
 

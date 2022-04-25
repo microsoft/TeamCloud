@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1318.3566",
-      "templateHash": "12159588945620818716"
+      "version": "0.5.6.12127",
+      "templateHash": "12571788379715911355"
     }
   },
   "parameters": {
@@ -99,9 +99,6 @@
           "organizationName": {
             "value": "[parameters('organizationName')]"
           },
-          "organizationSlug": {
-            "value": "[parameters('organizationSlug')]"
-          },
           "organizationTags": {
             "value": "[parameters('organizationTags')]"
           },
@@ -124,15 +121,12 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1318.3566",
-              "templateHash": "10695536407611003341"
+              "version": "0.5.6.12127",
+              "templateHash": "13900633566035969725"
             }
           },
           "parameters": {
             "organizationName": {
-              "type": "string"
-            },
-            "organizationSlug": {
               "type": "string"
             },
             "organizationTags": {
@@ -267,9 +261,6 @@
                   "organizationName": {
                     "value": "[parameters('organizationName')]"
                   },
-                  "organizationSlug": {
-                    "value": "[parameters('organizationSlug')]"
-                  },
                   "organizationTags": {
                     "value": "[parameters('organizationTags')]"
                   },
@@ -298,8 +289,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1318.3566",
-                      "templateHash": "18325765286727455722"
+                      "version": "0.5.6.12127",
+                      "templateHash": "16307053731587401471"
                     }
                   },
                   "parameters": {
@@ -307,9 +298,6 @@
                       "type": "string"
                     },
                     "organizationName": {
-                      "type": "string"
-                    },
-                    "organizationSlug": {
                       "type": "string"
                     },
                     "organizationTags": {
@@ -352,7 +340,7 @@
                   "variables": {
                     "portalImage": "teamcloud/tcportal-backstage:latest",
                     "databaseUsername": "portal",
-                    "databasePassword": "[format('{0}', guid(resourceGroup().id))]"
+                    "databasePassword": "[guid(resourceGroup().id)]"
                   },
                   "resources": [
                     {
@@ -536,9 +524,6 @@
                   "organizationName": {
                     "value": "[parameters('organizationName')]"
                   },
-                  "organizationSlug": {
-                    "value": "[parameters('organizationSlug')]"
-                  },
                   "organizationTags": {
                     "value": "[parameters('organizationTags')]"
                   },
@@ -567,8 +552,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.4.1318.3566",
-                      "templateHash": "14680427557209152429"
+                      "version": "0.5.6.12127",
+                      "templateHash": "4492366723037266795"
                     }
                   },
                   "parameters": {
@@ -576,9 +561,6 @@
                       "type": "string"
                     },
                     "organizationName": {
-                      "type": "string"
-                    },
-                    "organizationSlug": {
                       "type": "string"
                     },
                     "organizationTags": {
@@ -786,8 +768,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1318.3566",
-              "templateHash": "4063573186521174889"
+              "version": "0.5.6.12127",
+              "templateHash": "13219212743069153430"
             }
           },
           "parameters": {

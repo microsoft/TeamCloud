@@ -1,15 +1,15 @@
 ﻿param resourceName string
 
 param organizationName string
-param organizationSlug string
+// param organizationSlug string
 param organizationTags object = {}
 param location string = resourceGroup().location
 
-param portalClientId string 
+param portalClientId string
 param portalTenantId string = tenant().tenantId
 
 @secure()
-param portalClientSecret string 
+param portalClientSecret string
 
 param registryServer string = 'teamcloud.azurecr.io'
 param registryUsername string = ''
@@ -17,10 +17,10 @@ param registryUsername string = ''
 @secure()
 param registryPassword string = ''
 
-param storageAccountName string 
+param storageAccountName string
 
 @secure()
-param storageAcountKey string 
+param storageAcountKey string
 
 var portalImage = 'teamcloud/tcportal-clutch:latest'
 
@@ -113,4 +113,5 @@ resource portalPublishing 'microsoft.web/sites/config@2021-03-01' existing = {
 output portalId string = portalAppService.id
 output portalUrl string = 'https://${portalAppService.properties.defaultHostName}'
 output portalReplyUrl string = 'https://${portalAppService.properties.defaultHostName}/v1/authn/callback'
+#disable-next-line outputs-should-not-contain-secrets
 output portalUpdateUrl string = '${list(portalPublishing.id, '2021-03-01').properties.scmUri}/docker/hook'

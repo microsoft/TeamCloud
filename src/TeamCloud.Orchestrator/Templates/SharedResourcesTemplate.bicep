@@ -43,7 +43,7 @@ module organizationResources './organizationResources.bicep' = if (deployOrganiz
   scope: organizationResourceGroup
   params: {
     organizationName: organizationName
-    organizationSlug: organizationSlug
+    // organizationSlug: organizationSlug
     organizationTags: organizationTags
 
     portal: portal
