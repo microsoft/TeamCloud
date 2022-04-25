@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
+using Azure.Core;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
@@ -36,6 +37,7 @@ using Microsoft.VisualStudio.Services.WebApi;
 using Microsoft.VisualStudio.Services.WebApi.Patch.Json;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
+using TeamCloud.Azure.KeyVault;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
 using TeamCloud.Http;
@@ -43,7 +45,6 @@ using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Secrets;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
 using TeamCloud.Templates;
@@ -68,6 +69,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
     private readonly IDeploymentScopeRepository deploymentScopeRepository;
     private readonly IComponentRepository componentRepository;
     private readonly IComponentTemplateRepository componentTemplateRepository;
+    private readonly IAzureService azure;
     private readonly IAzureResourceService azureResourceService;
     private readonly IFunctionsHost functionsHost;
 
@@ -80,26 +82,26 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
         IAuthorizationSessionClient sessionClient,
         IAuthorizationTokenClient tokenClient,
         IDistributedLockManager distributedLockManager,
-        ISecretsStoreProvider secretsStoreProvider,
         IHttpClientFactory httpClientFactory,
         IOrganizationRepository organizationRepository,
         IUserRepository userRepository,
+        IAzureService azure,
         IDeploymentScopeRepository deploymentScopeRepository,
         IProjectRepository projectRepository,
         IComponentRepository componentRepository,
         IComponentTemplateRepository componentTemplateRepository,
-        IAzureSessionService azureSessionService,
         IAzureResourceService azureResourceService,
         IGraphService graphService,
         IFunctionsHost functionsHost = null,
         ILoggerFactory loggerFactory = null)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         this.functionsHost = functionsHost ?? FunctionsHost.Default;
 
@@ -945,14 +947,16 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
                         .GetServiceEndpointsAsync(teamProject.Id, "AzureRM")
                         .ConfigureAwait(false);
 
-                    if (AzureResourceIdentifier.TryParse(componentProject.ResourceId, out var projectResourceId))
+                    if (!string.IsNullOrEmpty(componentProject.ResourceId))
                     {
                         // the corresponding TeamCloud project has already a resource group assigned and
                         // therefore has a 'home subscription' - so we are ready to create/update a service endpoint.
 
+                        var projectResourceId = new ResourceIdentifier(componentProject.ResourceId);
+
                         var projectResourceGroup = await azureResourceService
-                        .GetResourceGroupAsync(projectResourceId.SubscriptionId, projectResourceId.ResourceGroup)
-                        .ConfigureAwait(false);
+                            .GetResourceGroupAsync(Guid.Parse(projectResourceId.SubscriptionId), projectResourceId.ResourceGroupName)
+                            .ConfigureAwait(false);
 
                         if (projectResourceGroup is not null)
                         {

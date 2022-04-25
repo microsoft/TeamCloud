@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Core;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
@@ -32,7 +33,6 @@ using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
-using TeamCloud.Secrets;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
 using TeamCloud.Templates;
@@ -55,8 +55,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     private readonly IProjectRepository projectRepository;
     private readonly IComponentRepository componentRepository;
     private readonly IComponentTemplateRepository componentTemplateRepository;
-    private readonly IAzureSessionService azureSessionService;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azure;
     private readonly IGraphService graphService;
     private readonly IFunctionsHost functionsHost;
 
@@ -69,19 +68,17 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         IAuthorizationSessionClient sessionClient,
         IAuthorizationTokenClient tokenClient,
         IDistributedLockManager distributedLockManager,
-        ISecretsStoreProvider secretsStoreProvider,
         IHttpClientFactory httpClientFactory,
         IOrganizationRepository organizationRepository,
         IUserRepository userRepository,
+        IAzureService azure,
         IDeploymentScopeRepository deploymentScopeRepository,
         IProjectRepository projectRepository,
         IComponentRepository componentRepository,
         IComponentTemplateRepository componentTemplateRepository,
-        IAzureSessionService azureSessionService,
-        IAzureResourceService azureResourceService,
         IGraphService graphService,
         IFunctionsHost functionsHost = null)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
@@ -90,8 +87,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
         this.componentRepository = componentRepository ?? throw new ArgumentNullException(nameof(componentRepository));
         this.componentTemplateRepository = componentTemplateRepository ?? throw new ArgumentNullException(nameof(componentTemplateRepository));
-        this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
         this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.functionsHost = functionsHost ?? FunctionsHost.Default;
     }
@@ -909,7 +905,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
         async Task SyncTeamCloudIdentityAsync()
         {
-            if (AzureResourceIdentifier.TryParse(componentProject.ResourceId, out var projectResourceId) && GitHubIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+            if (!string.IsNullOrEmpty(componentProject.ResourceId) && GitHubIdentifier.TryParse(component.ResourceId, out var componentResourceId))
             {
                 var servicePrincipal = await base.GetServiceIdentityAsync((Component)component, (bool)true)
                     .ConfigureAwait(false);
@@ -920,7 +916,9 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
                 if (repository is not null)
                 {
-                    var servicePrincipalJson = GitHubExtensions.ToJson(servicePrincipal, (Guid)projectResourceId.SubscriptionId);
+                    var projectResourceId = new ResourceIdentifier(componentProject.ResourceId);
+
+                    var servicePrincipalJson = GitHubExtensions.ToJson(servicePrincipal, Guid.Parse(projectResourceId.SubscriptionId));
 
                     var keyJson = await repository.Url
                         .AppendPathSegment("actions/secrets/public-key")

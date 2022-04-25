@@ -7,8 +7,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
+using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 
@@ -17,12 +16,12 @@ namespace TeamCloud.Adapters.Diagnostics;
 public sealed class AdapterInitializationLoggerFactory : IAdapterInitializationLoggerFactory
 {
     private readonly IProjectRepository projectRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azure;
 
-    public AdapterInitializationLoggerFactory(IProjectRepository projectRepository, IAzureResourceService azureResourceService)
+    public AdapterInitializationLoggerFactory(IProjectRepository projectRepository, IAzureService azure)
     {
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
     }
 
     public async Task<ILogger> CreateLoggerAsync(ComponentTask componentTask, ILogger logger)
@@ -38,34 +37,17 @@ public sealed class AdapterInitializationLoggerFactory : IAdapterInitializationL
                 .GetAsync(componentTask.Organization, componentTask.ProjectId)
                 .ConfigureAwait(false);
 
-            if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+            if (!string.IsNullOrEmpty(project?.StorageId) && await azure.ExistsAsync(project.StorageId).ConfigureAwait(false))
             {
-                var storageAccount = await azureResourceService
-                    .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                var fileClient = await azure.Storage.FileShares
+                    .GetShareFileClientAsync(project.StorageId, componentTask.ComponentId, ".output", $"{componentTask.Id}", ensureDirectroyExists: true)
                     .ConfigureAwait(false);
 
-                if (storageAccount is not null)
-                {
-                    var shareClient = await storageAccount
-                        .CreateShareClientAsync(componentTask.ComponentId)
-                        .ConfigureAwait(false);
+                var fileStream = await fileClient
+                    .OpenWriteAsync(true, 0)
+                    .ConfigureAwait(false);
 
-                    var directoryClient = shareClient
-                        .GetDirectoryClient(".output");
-
-                    await directoryClient
-                        .CreateIfNotExistsAsync()
-                        .ConfigureAwait(false);
-
-                    var fileClient = directoryClient
-                        .GetFileClient($"{componentTask.Id}");
-
-                    var fileStream = await fileClient
-                        .OpenWriteAsync(true, 0)
-                        .ConfigureAwait(false);
-
-                    return new AdapterInitializationLogger(logger, fileStream);
-                }
+                return new AdapterInitializationLogger(logger, fileStream);
             }
         }
         catch

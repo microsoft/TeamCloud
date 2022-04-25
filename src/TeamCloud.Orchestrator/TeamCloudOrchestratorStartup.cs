@@ -44,7 +44,6 @@ using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Data;
 using TeamCloud.Orchestrator.Options;
-using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 using TeamCloud.Validation.Providers;
 
@@ -83,7 +82,6 @@ public class TeamCloudOrchestratorStartup : FunctionsStartup
             })
             .AddTeamCloudHttp()
             .AddTeamCloudAudit()
-            .AddTeamCloudSecrets()
             .AddMvcCore()
             .AddNewtonsoftJson();
 

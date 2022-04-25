@@ -13,21 +13,20 @@ using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json.Linq;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Data;
+using TeamCloud.Microsoft.Graph;
+using TeamCloud.Model;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Secrets;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
-using TeamCloud.Model;
 
 namespace TeamCloud.Adapters.AzureResourceManager;
 
 public sealed class AzureResourceManagerAdapter : Adapter
 {
-    private readonly IAzureSessionService azureSessionService;
+    private readonly IAzureService azure;
     private readonly IAzureResourceService azureResourceService;
     private readonly IOrganizationRepository organizationRepository;
     private readonly IUserRepository userRepository;
@@ -44,8 +43,7 @@ public sealed class AzureResourceManagerAdapter : Adapter
     public AzureResourceManagerAdapter(IAuthorizationSessionClient sessionClient,
         IAuthorizationTokenClient tokenClient,
         IDistributedLockManager distributedLockManager,
-        ISecretsStoreProvider secretsStoreProvider,
-        IAzureSessionService azureSessionService,
+        IAzureService azure,
         IGraphService graphService,
         IAzureResourceService azureResourceService,
         IOrganizationRepository organizationRepository,
@@ -54,9 +52,9 @@ public sealed class AzureResourceManagerAdapter : Adapter
         IProjectRepository projectRepository,
         IComponentRepository componentRepository,
         IComponentTemplateRepository componentTemplateRepository)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
-        this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));

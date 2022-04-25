@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Data.Tables;
-using Nito.AsyncEx;
+using TeamCloud.Azure.Storage;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization;
@@ -17,22 +17,13 @@ public sealed class AuthorizationTokenClient : IAuthorizationTokenClient
 {
     public const string TableName = "Adapters";
 
+    private readonly ITableService tableService;
     private readonly IAuthorizationTokenOptions options;
 
-    private readonly AsyncLazy<TableClient> tableClient;
-
-    public AuthorizationTokenClient(IAuthorizationTokenOptions options)
+    public AuthorizationTokenClient(ITableService tableService, IAuthorizationTokenOptions options)
     {
+        this.tableService = tableService ?? throw new ArgumentNullException(nameof(tableService));
         this.options = options ?? throw new ArgumentNullException(nameof(options));
-
-        tableClient = new AsyncLazy<TableClient>(async () =>
-        {
-            var client = new TableClient(this.options.ConnectionString, TableName);
-
-            await client.CreateIfNotExistsAsync().ConfigureAwait(false);
-
-            return client;
-        });
     }
 
     public async Task<TAuthorizationToken> GetAsync<TAuthorizationToken>(DeploymentScope deploymentScope)
@@ -41,7 +32,9 @@ public sealed class AuthorizationTokenClient : IAuthorizationTokenClient
         if (deploymentScope is null)
             throw new ArgumentNullException(nameof(deploymentScope));
 
-        var client = await tableClient.ConfigureAwait(false);
+        var client = await tableService
+            .GetTableClientAsync(options.ConnectionString, TableName)
+            .ConfigureAwait(false);
 
         var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
         var partitionKey = string.Join(",", typeof(TAuthorizationToken).AssemblyQualifiedName.Split(',').Take(2));
@@ -67,7 +60,9 @@ public sealed class AuthorizationTokenClient : IAuthorizationTokenClient
         if (authorizationToken is null)
             throw new ArgumentNullException(nameof(authorizationToken));
 
-        var client = await tableClient.ConfigureAwait(false);
+        var client = await tableService
+            .GetTableClientAsync(options.ConnectionString, TableName)
+            .ConfigureAwait(false);
 
         if (authorizationToken.ETag != default && force)
             authorizationToken.ETag = ETag.All;

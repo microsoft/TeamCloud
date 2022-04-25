@@ -15,7 +15,6 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
   </ItemGroup>
@@ -27,7 +26,6 @@
     <ProjectReference Include="..\TeamCloud.Configuration\TeamCloud.Configuration.csproj" />
     <ProjectReference Include="..\TeamCloud.Data\TeamCloud.Data.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
-    <ProjectReference Include="..\TeamCloud.Secrets\TeamCloud.Secrets.csproj" />
   </ItemGroup>
 
 </Project>

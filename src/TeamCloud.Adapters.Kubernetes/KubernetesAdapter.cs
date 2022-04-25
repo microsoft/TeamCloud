@@ -5,28 +5,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using k8s;
 using k8s.KubeConfigModels;
+using k8s.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Rest;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Microsoft.Graph;
-using TeamCloud.Data;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.Model.Data;
-using TeamCloud.Secrets;
-using TeamCloud.Serialization;
-using TeamCloud.Serialization.Forms;
-using User = TeamCloud.Model.Data.User;
-using KubernetesClient = k8s.Kubernetes;
-using k8s.Models;
-using Microsoft.Rest;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Azure.Resources.Typed;
-using System.Net;
+using TeamCloud.Data;
+using TeamCloud.Microsoft.Graph;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Data;
+using TeamCloud.Serialization;
+using TeamCloud.Serialization.Forms;
 using YamlDotNet.Serialization;
+using KubernetesClient = k8s.Kubernetes;
+using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Adapters.Kubernetes;
 
@@ -42,15 +41,14 @@ public sealed class KubernetesAdapter : Adapter
     public KubernetesAdapter(IAuthorizationSessionClient sessionClient,
                              IAuthorizationTokenClient tokenClient,
                              IDistributedLockManager distributedLockManager,
-                             ISecretsStoreProvider secretsStoreProvider,
-                             IAzureSessionService azureSessionService,
+                             IAzureService azure,
                              IAzureResourceService azureResourceService,
                              IGraphService graphService,
                              IOrganizationRepository organizationRepository,
                              IDeploymentScopeRepository deploymentScopeRepository,
                              IProjectRepository projectRepository,
                              IUserRepository userRepository)
-        : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
     }

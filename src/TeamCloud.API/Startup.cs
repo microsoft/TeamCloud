@@ -52,7 +52,6 @@ using TeamCloud.Git.Services;
 using TeamCloud.Http;
 using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Validation;
-using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 using TeamCloud.Validation.Providers;
 
@@ -142,8 +141,7 @@ public class Startup
                     .Register<KubernetesAdapter>();
             })
             .AddTeamCloudAudit()
-            .AddTeamCloudHttp()
-            .AddTeamCloudSecrets();
+            .AddTeamCloudHttp();
 
         if (Configuration.TryBind<AzureCosmosDbOptions>("Azure:CosmosDb", out var azureCosmosDbOptions))
         {
