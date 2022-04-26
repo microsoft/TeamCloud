@@ -117,8 +117,7 @@ public class OrganizationsController : TeamCloudController
             Tenant = UserService.CurrentUserTenant,
             DisplayName = organizationDefinition.DisplayName,
             SubscriptionId = organizationDefinition.SubscriptionId,
-            Location = organizationDefinition.Location,
-            Portal = organizationDefinition.Portal
+            Location = organizationDefinition.Location
         };
 
         var currentUser = await UserService

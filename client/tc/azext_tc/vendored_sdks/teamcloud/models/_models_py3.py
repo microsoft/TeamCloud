@@ -1798,16 +1798,6 @@ class Organization(msrest.serialization.Model):
     :vartype registry_id: str
     :ivar storage_id:
     :vartype storage_id: str
-    :ivar portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-    :vartype portal: str or ~teamcloud.models.OrganizationPortal
-    :ivar portal_id:
-    :vartype portal_id: str
-    :ivar portal_url:
-    :vartype portal_url: str
-    :ivar portal_reply_url:
-    :vartype portal_reply_url: str
-    :ivar portal_identity:
-    :vartype portal_identity: str
     :ivar id: Required.
     :vartype id: str
     """
@@ -1834,11 +1824,6 @@ class Organization(msrest.serialization.Model):
         'gallery_id': {'key': 'galleryId', 'type': 'str'},
         'registry_id': {'key': 'registryId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
-        'portal': {'key': 'portal', 'type': 'str'},
-        'portal_id': {'key': 'portalId', 'type': 'str'},
-        'portal_url': {'key': 'portalUrl', 'type': 'str'},
-        'portal_reply_url': {'key': 'portalReplyUrl', 'type': 'str'},
-        'portal_identity': {'key': 'portalIdentity', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -1858,11 +1843,6 @@ class Organization(msrest.serialization.Model):
         gallery_id: Optional[str] = None,
         registry_id: Optional[str] = None,
         storage_id: Optional[str] = None,
-        portal: Optional[Union[str, "_models.OrganizationPortal"]] = None,
-        portal_id: Optional[str] = None,
-        portal_url: Optional[str] = None,
-        portal_reply_url: Optional[str] = None,
-        portal_identity: Optional[str] = None,
         **kwargs
     ):
         """
@@ -1891,16 +1871,6 @@ class Organization(msrest.serialization.Model):
         :paramtype registry_id: str
         :keyword storage_id:
         :paramtype storage_id: str
-        :keyword portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-        :paramtype portal: str or ~teamcloud.models.OrganizationPortal
-        :keyword portal_id:
-        :paramtype portal_id: str
-        :keyword portal_url:
-        :paramtype portal_url: str
-        :keyword portal_reply_url:
-        :paramtype portal_reply_url: str
-        :keyword portal_identity:
-        :paramtype portal_identity: str
         :keyword id: Required.
         :paramtype id: str
         """
@@ -1917,11 +1887,6 @@ class Organization(msrest.serialization.Model):
         self.gallery_id = gallery_id
         self.registry_id = registry_id
         self.storage_id = storage_id
-        self.portal = portal
-        self.portal_id = portal_id
-        self.portal_url = portal_url
-        self.portal_reply_url = portal_reply_url
-        self.portal_identity = portal_identity
         self.id = id
 
 
@@ -1986,8 +1951,6 @@ class OrganizationDefinition(msrest.serialization.Model):
     :vartype subscription_id: str
     :ivar location: Required.
     :vartype location: str
-    :ivar portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-    :vartype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
     :ivar tags: A set of tags. Dictionary of :code:`<string>`.
     :vartype tags: dict[str, str]
     """
@@ -2004,7 +1967,6 @@ class OrganizationDefinition(msrest.serialization.Model):
         'display_name': {'key': 'displayName', 'type': 'str'},
         'subscription_id': {'key': 'subscriptionId', 'type': 'str'},
         'location': {'key': 'location', 'type': 'str'},
-        'portal': {'key': 'portal', 'type': 'str'},
         'tags': {'key': 'tags', 'type': '{str}'},
     }
 
@@ -2014,7 +1976,6 @@ class OrganizationDefinition(msrest.serialization.Model):
         display_name: str,
         subscription_id: str,
         location: str,
-        portal: Optional[Union[str, "_models.OrganizationDefinitionPortal"]] = None,
         tags: Optional[Dict[str, str]] = None,
         **kwargs
     ):
@@ -2025,8 +1986,6 @@ class OrganizationDefinition(msrest.serialization.Model):
         :paramtype subscription_id: str
         :keyword location: Required.
         :paramtype location: str
-        :keyword portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-        :paramtype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
         :keyword tags: A set of tags. Dictionary of :code:`<string>`.
         :paramtype tags: dict[str, str]
         """
@@ -2035,7 +1994,6 @@ class OrganizationDefinition(msrest.serialization.Model):
         self.display_name = display_name
         self.subscription_id = subscription_id
         self.location = location
-        self.portal = portal
         self.tags = tags
 
 

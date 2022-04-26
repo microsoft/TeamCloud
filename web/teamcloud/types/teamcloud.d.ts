@@ -909,20 +909,6 @@ export declare enum KnownDeploymentScopeType {
     Kubernetes = "Kubernetes"
 }
 
-/** Known values of {@link OrganizationDefinitionPortal} that the service accepts. */
-export declare enum KnownOrganizationDefinitionPortal {
-    TeamCloud = "TeamCloud",
-    Backstage = "Backstage",
-    Clutch = "Clutch"
-}
-
-/** Known values of {@link OrganizationPortal} that the service accepts. */
-export declare enum KnownOrganizationPortal {
-    TeamCloud = "TeamCloud",
-    Backstage = "Backstage",
-    Clutch = "Clutch"
-}
-
 /** Known values of {@link OrganizationResourceState} that the service accepts. */
 export declare enum KnownOrganizationResourceState {
     Pending = "Pending",
@@ -1040,11 +1026,6 @@ export declare interface Organization {
     galleryId?: string;
     registryId?: string;
     storageId?: string;
-    portal?: OrganizationPortal;
-    portalId?: string;
-    portalUrl?: string;
-    portalReplyUrl?: string;
-    portalIdentity?: string;
     id: string;
 }
 
@@ -1061,23 +1042,11 @@ export declare interface OrganizationDefinition {
     displayName: string;
     subscriptionId: string;
     location: string;
-    portal?: OrganizationDefinitionPortal;
     /** Dictionary of <string> */
     tags?: {
         [propertyName: string]: string;
     };
 }
-
-/**
- * Defines values for OrganizationDefinitionPortal. \
- * {@link KnownOrganizationDefinitionPortal} can be used interchangeably with OrganizationDefinitionPortal,
- *  this enum contains the known values that the service supports.
- * ### Known values supported by the service
- * **TeamCloud** \
- * **Backstage** \
- * **Clutch**
- */
-export declare type OrganizationDefinitionPortal = string;
 
 export declare interface OrganizationListDataResult {
     code?: number;
@@ -1086,17 +1055,6 @@ export declare interface OrganizationListDataResult {
     readonly data?: Organization[];
     location?: string;
 }
-
-/**
- * Defines values for OrganizationPortal. \
- * {@link KnownOrganizationPortal} can be used interchangeably with OrganizationPortal,
- *  this enum contains the known values that the service supports.
- * ### Known values supported by the service
- * **TeamCloud** \
- * **Backstage** \
- * **Clutch**
- */
-export declare type OrganizationPortal = string;
 
 /**
  * Defines values for OrganizationResourceState. \
@@ -1601,12 +1559,6 @@ export declare class TeamCloud extends coreClient.ServiceClient {
      */
     negotiateSignalR(organizationId: string, projectId: string, options?: NegotiateSignalROptionalParams): Promise<void>;
     /**
-     * Updates the custom portal of the organization
-     * @param organizationId
-     * @param options The options parameters.
-     */
-    updatePortal(organizationId: string, options?: UpdatePortalOptionalParams): Promise<UpdatePortalResponse>;
-    /**
      * Gets all audit entries.
      * @param organizationId
      * @param options The options parameters.
@@ -1992,13 +1944,6 @@ export declare interface UpdateOrganizationUserOptionalParams extends coreClient
 
 /** Contains response data for the updateOrganizationUser operation. */
 export declare type UpdateOrganizationUserResponse = UserDataResult;
-
-/** Optional parameters. */
-export declare interface UpdatePortalOptionalParams extends coreClient.OperationOptions {
-}
-
-/** Contains response data for the updatePortal operation. */
-export declare type UpdatePortalResponse = OrganizationDataResult;
 
 /** Optional parameters. */
 export declare interface UpdateProjectIdentityOptionalParams extends coreClient.OperationOptions {

@@ -254,35 +254,6 @@ export interface DeploymentScopeDataResult {
   location?: string;
 }
 
-export interface OrganizationDataResult {
-  code?: number;
-  status?: string;
-  data?: Organization;
-  location?: string;
-}
-
-export interface Organization {
-  tenant: string;
-  slug: string;
-  displayName: string;
-  subscriptionId: string;
-  location: string;
-  /** Dictionary of <string> */
-  tags?: { [propertyName: string]: string };
-  resourceId?: string;
-  resourceState?: OrganizationResourceState;
-  secretsVaultId?: string;
-  galleryId?: string;
-  registryId?: string;
-  storageId?: string;
-  portal?: OrganizationPortal;
-  portalId?: string;
-  portalUrl?: string;
-  portalReplyUrl?: string;
-  portalIdentity?: string;
-  id: string;
-}
-
 export interface CommandAuditEntityListDataResult {
   code?: number;
   status?: string;
@@ -338,15 +309,38 @@ export interface OrganizationListDataResult {
   location?: string;
 }
 
+export interface Organization {
+  tenant: string;
+  slug: string;
+  displayName: string;
+  subscriptionId: string;
+  location: string;
+  /** Dictionary of <string> */
+  tags?: { [propertyName: string]: string };
+  resourceId?: string;
+  resourceState?: OrganizationResourceState;
+  secretsVaultId?: string;
+  galleryId?: string;
+  registryId?: string;
+  storageId?: string;
+  id: string;
+}
+
 export interface OrganizationDefinition {
   /** NOTE: This property will not be serialized. It can only be populated by the server. */
   readonly slug?: string;
   displayName: string;
   subscriptionId: string;
   location: string;
-  portal?: OrganizationDefinitionPortal;
   /** Dictionary of <string> */
   tags?: { [propertyName: string]: string };
+}
+
+export interface OrganizationDataResult {
+  code?: number;
+  status?: string;
+  data?: Organization;
+  location?: string;
 }
 
 export interface UserListDataResult {
@@ -864,50 +858,6 @@ export enum KnownDeploymentScopeDefinitionType {
  */
 export type DeploymentScopeDefinitionType = string;
 
-/** Known values of {@link OrganizationResourceState} that the service accepts. */
-export enum KnownOrganizationResourceState {
-  Pending = "Pending",
-  Initializing = "Initializing",
-  Provisioning = "Provisioning",
-  Provisioned = "Provisioned",
-  Deprovisioning = "Deprovisioning",
-  Deprovisioned = "Deprovisioned",
-  Failed = "Failed"
-}
-
-/**
- * Defines values for OrganizationResourceState. \
- * {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState,
- *  this enum contains the known values that the service supports.
- * ### Known values supported by the service
- * **Pending** \
- * **Initializing** \
- * **Provisioning** \
- * **Provisioned** \
- * **Deprovisioning** \
- * **Deprovisioned** \
- * **Failed**
- */
-export type OrganizationResourceState = string;
-
-/** Known values of {@link OrganizationPortal} that the service accepts. */
-export enum KnownOrganizationPortal {
-  TeamCloud = "TeamCloud",
-  Backstage = "Backstage",
-  Clutch = "Clutch"
-}
-
-/**
- * Defines values for OrganizationPortal. \
- * {@link KnownOrganizationPortal} can be used interchangeably with OrganizationPortal,
- *  this enum contains the known values that the service supports.
- * ### Known values supported by the service
- * **TeamCloud** \
- * **Backstage** \
- * **Clutch**
- */
-export type OrganizationPortal = string;
-
 /** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
 export enum KnownCommandAuditEntityRuntimeStatus {
   Running = "Running",
@@ -936,23 +886,31 @@ export enum KnownCommandAuditEntityRuntimeStatus {
  */
 export type CommandAuditEntityRuntimeStatus = string;
 
-/** Known values of {@link OrganizationDefinitionPortal} that the service accepts. */
-export enum KnownOrganizationDefinitionPortal {
-  TeamCloud = "TeamCloud",
-  Backstage = "Backstage",
-  Clutch = "Clutch"
+/** Known values of {@link OrganizationResourceState} that the service accepts. */
+export enum KnownOrganizationResourceState {
+  Pending = "Pending",
+  Initializing = "Initializing",
+  Provisioning = "Provisioning",
+  Provisioned = "Provisioned",
+  Deprovisioning = "Deprovisioning",
+  Deprovisioned = "Deprovisioned",
+  Failed = "Failed"
 }
 
 /**
- * Defines values for OrganizationDefinitionPortal. \
- * {@link KnownOrganizationDefinitionPortal} can be used interchangeably with OrganizationDefinitionPortal,
+ * Defines values for OrganizationResourceState. \
+ * {@link KnownOrganizationResourceState} can be used interchangeably with OrganizationResourceState,
  *  this enum contains the known values that the service supports.
  * ### Known values supported by the service
- * **TeamCloud** \
- * **Backstage** \
- * **Clutch**
+ * **Pending** \
+ * **Initializing** \
+ * **Provisioning** \
+ * **Provisioned** \
+ * **Deprovisioning** \
+ * **Deprovisioned** \
+ * **Failed**
  */
-export type OrganizationDefinitionPortal = string;
+export type OrganizationResourceState = string;
 
 /** Known values of {@link UserType} that the service accepts. */
 export enum KnownUserType {
@@ -1235,13 +1193,6 @@ export type InitializeAuthorizationResponse = DeploymentScopeDataResult;
 /** Optional parameters. */
 export interface NegotiateSignalROptionalParams
   extends coreClient.OperationOptions {}
-
-/** Optional parameters. */
-export interface UpdatePortalOptionalParams
-  extends coreClient.OperationOptions {}
-
-/** Contains response data for the updatePortal operation. */
-export type UpdatePortalResponse = OrganizationDataResult;
 
 /** Optional parameters. */
 export interface GetAuditEntriesOptionalParams

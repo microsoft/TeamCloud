@@ -621,34 +621,6 @@ def build_negotiate_signal_r_request(
     )
 
 
-def build_update_portal_request(
-    organization_id,  # type: str
-    **kwargs  # type: Any
-):
-    # type: (...) -> HttpRequest
-    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
-
-    accept = _headers.pop('Accept', "application/json")
-
-    # Construct URL
-    _url = kwargs.pop("template_url", "/orgs/{organizationId}/action/UpdatePortal")
-    path_format_arguments = {
-        "organizationId": _SERIALIZER.url("organization_id", organization_id, 'str'),
-    }
-
-    _url = _format_url_section(_url, **path_format_arguments)
-
-    # Construct headers
-    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
-
-    return HttpRequest(
-        method="POST",
-        url=_url,
-        headers=_headers,
-        **kwargs
-    )
-
-
 def build_get_audit_entries_request(
     organization_id,  # type: str
     **kwargs  # type: Any
@@ -3617,70 +3589,6 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             return cls(pipeline_response, None, {})
 
     negotiate_signal_r.metadata = {'url': "/orgs/{organizationId}/projects/{projectId}/negotiate"}  # type: ignore
-
-
-    @distributed_trace
-    def update_portal(
-        self,
-        organization_id,  # type: str
-        **kwargs  # type: Any
-    ):
-        # type: (...) -> Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]
-        """Updates the custom portal of the organization.
-
-        Updates the custom portal of the organization.
-
-        :param organization_id:
-        :type organization_id: str
-        :keyword callable cls: A custom type or function that will be passed the direct response
-        :return: OrganizationDataResult or ErrorResult, or the result of cls(response)
-        :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
-        :raises: ~azure.core.exceptions.HttpResponseError
-        """
-        error_map = {
-            401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
-        }
-        error_map.update(kwargs.pop('error_map', {}) or {})
-
-        _headers = kwargs.pop("headers", {}) or {}
-        _params = kwargs.pop("params", {}) or {}
-
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]]
-
-        
-        request = build_update_portal_request(
-            organization_id=organization_id,
-            template_url=self.update_portal.metadata['url'],
-            headers=_headers,
-            params=_params,
-        )
-        request = _convert_request(request)
-        request.url = self._client.format_url(request.url)  # type: ignore
-
-        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
-            request,
-            stream=False,
-            **kwargs
-        )
-        response = pipeline_response.http_response
-
-        if response.status_code not in [200, 401, 403, 404]:
-            map_error(status_code=response.status_code, response=response, error_map=error_map)
-            raise HttpResponseError(response=response)
-
-        deserialized = None
-        if response.status_code == 200:
-            deserialized = self._deserialize('OrganizationDataResult', pipeline_response)
-
-        if response.status_code == 404:
-            deserialized = self._deserialize('ErrorResult', pipeline_response)
-
-        if cls:
-            return cls(pipeline_response, deserialized, {})
-
-        return deserialized
-
-    update_portal.metadata = {'url': "/orgs/{organizationId}/action/UpdatePortal"}  # type: ignore
 
 
     @distributed_trace

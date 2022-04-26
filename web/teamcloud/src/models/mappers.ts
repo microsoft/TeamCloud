@@ -1431,176 +1431,6 @@ export const DeploymentScopeDataResult: coreClient.CompositeMapper = {
   }
 };
 
-export const OrganizationDataResult: coreClient.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "OrganizationDataResult",
-    modelProperties: {
-      code: {
-        serializedName: "code",
-        type: {
-          name: "Number"
-        }
-      },
-      status: {
-        serializedName: "status",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      data: {
-        serializedName: "data",
-        type: {
-          name: "Composite",
-          className: "Organization"
-        }
-      },
-      location: {
-        serializedName: "location",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
-export const Organization: coreClient.CompositeMapper = {
-  type: {
-    name: "Composite",
-    className: "Organization",
-    modelProperties: {
-      tenant: {
-        serializedName: "tenant",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      slug: {
-        serializedName: "slug",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      displayName: {
-        serializedName: "displayName",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      subscriptionId: {
-        serializedName: "subscriptionId",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      location: {
-        serializedName: "location",
-        required: true,
-        type: {
-          name: "String"
-        }
-      },
-      tags: {
-        serializedName: "tags",
-        nullable: true,
-        type: {
-          name: "Dictionary",
-          value: { type: { name: "String" } }
-        }
-      },
-      resourceId: {
-        serializedName: "resourceId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      resourceState: {
-        serializedName: "resourceState",
-        type: {
-          name: "String"
-        }
-      },
-      secretsVaultId: {
-        serializedName: "secretsVaultId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      galleryId: {
-        serializedName: "galleryId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      registryId: {
-        serializedName: "registryId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      storageId: {
-        serializedName: "storageId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      portal: {
-        serializedName: "portal",
-        type: {
-          name: "String"
-        }
-      },
-      portalId: {
-        serializedName: "portalId",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      portalUrl: {
-        serializedName: "portalUrl",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      portalReplyUrl: {
-        serializedName: "portalReplyUrl",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      portalIdentity: {
-        serializedName: "portalIdentity",
-        nullable: true,
-        type: {
-          name: "String"
-        }
-      },
-      id: {
-        serializedName: "id",
-        required: true,
-        type: {
-          name: "String"
-        }
-      }
-    }
-  }
-};
-
 export const CommandAuditEntityListDataResult: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
@@ -1901,6 +1731,106 @@ export const OrganizationListDataResult: coreClient.CompositeMapper = {
   }
 };
 
+export const Organization: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "Organization",
+    modelProperties: {
+      tenant: {
+        serializedName: "tenant",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      slug: {
+        serializedName: "slug",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      displayName: {
+        serializedName: "displayName",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      subscriptionId: {
+        serializedName: "subscriptionId",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      location: {
+        serializedName: "location",
+        required: true,
+        type: {
+          name: "String"
+        }
+      },
+      tags: {
+        serializedName: "tags",
+        nullable: true,
+        type: {
+          name: "Dictionary",
+          value: { type: { name: "String" } }
+        }
+      },
+      resourceId: {
+        serializedName: "resourceId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      resourceState: {
+        serializedName: "resourceState",
+        type: {
+          name: "String"
+        }
+      },
+      secretsVaultId: {
+        serializedName: "secretsVaultId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      galleryId: {
+        serializedName: "galleryId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      registryId: {
+        serializedName: "registryId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      storageId: {
+        serializedName: "storageId",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      id: {
+        serializedName: "id",
+        required: true,
+        type: {
+          name: "String"
+        }
+      }
+    }
+  }
+};
+
 export const OrganizationDefinition: coreClient.CompositeMapper = {
   type: {
     name: "Composite",
@@ -1935,18 +1865,48 @@ export const OrganizationDefinition: coreClient.CompositeMapper = {
           name: "String"
         }
       },
-      portal: {
-        serializedName: "portal",
-        type: {
-          name: "String"
-        }
-      },
       tags: {
         serializedName: "tags",
         nullable: true,
         type: {
           name: "Dictionary",
           value: { type: { name: "String" } }
+        }
+      }
+    }
+  }
+};
+
+export const OrganizationDataResult: coreClient.CompositeMapper = {
+  type: {
+    name: "Composite",
+    className: "OrganizationDataResult",
+    modelProperties: {
+      code: {
+        serializedName: "code",
+        type: {
+          name: "Number"
+        }
+      },
+      status: {
+        serializedName: "status",
+        nullable: true,
+        type: {
+          name: "String"
+        }
+      },
+      data: {
+        serializedName: "data",
+        type: {
+          name: "Composite",
+          className: "Organization"
+        }
+      },
+      location: {
+        serializedName: "location",
+        nullable: true,
+        type: {
+          name: "String"
         }
       }
     }

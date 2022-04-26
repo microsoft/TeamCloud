@@ -5,21 +5,17 @@
 
 using System;
 using System.Threading.Tasks;
-using Flurl;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
-using TeamCloud.Model.Messaging;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestration.Deployment;
 using TeamCloud.Orchestrator.Command.Activities.Organizations;
-using TeamCloud.Orchestrator.Command.Activities.Portal;
 using TeamCloud.Orchestrator.Command.Entities;
 using TeamCloud.Serialization;
 
@@ -79,34 +75,6 @@ public sealed class OrganizationDeployCommandHandler : CommandHandler<Organizati
                     commandResult.Result = await orchestrationContext
                         .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Provisioned })
                         .ConfigureAwait(true);
-
-                    if (commandResult.Result.Portal != PortalType.TeamCloud)
-                    {
-                        bool requestConsent = await orchestrationContext
-                            .CallActivityWithRetryAsync<bool>(nameof(PortalGrantPermissonsActivity), new PortalGrantPermissonsActivity.Input() { Organization = commandResult.Result })
-                            .ConfigureAwait(true);
-
-                        if (requestConsent)
-                        {
-                            var message = NotificationMessage.Create<PortalPermissionGrantMessage>(command.User);
-
-                            message.Merge(new PortalPermissionGrantMessageData()
-                            {
-                                Organization = commandResult.Result
-                            });
-
-                            await commandQueue
-                                .AddAsync(new NotificationSendMailCommand<PortalPermissionGrantMessage>(command.User, message))
-                                .ConfigureAwait(true);
-                        }
-
-                        if (!string.IsNullOrEmpty(commandResult.Result.PortalReplyUrl))
-                        {
-                            await orchestrationContext
-                                .CallActivityWithRetryAsync(nameof(PortalRegisterReplyUrlActivity), new PortalRegisterReplyUrlActivity.Input() { Organization = commandResult.Result, ReplyUrl = commandResult.Result.PortalReplyUrl })
-                                .ConfigureAwait(true);
-                        }
-                    }
                 }
                 else
                 {

@@ -1606,16 +1606,6 @@ class Organization(msrest.serialization.Model):
     :vartype registry_id: str
     :ivar storage_id:
     :vartype storage_id: str
-    :ivar portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-    :vartype portal: str or ~teamcloud.models.OrganizationPortal
-    :ivar portal_id:
-    :vartype portal_id: str
-    :ivar portal_url:
-    :vartype portal_url: str
-    :ivar portal_reply_url:
-    :vartype portal_reply_url: str
-    :ivar portal_identity:
-    :vartype portal_identity: str
     :ivar id: Required.
     :vartype id: str
     """
@@ -1642,11 +1632,6 @@ class Organization(msrest.serialization.Model):
         'gallery_id': {'key': 'galleryId', 'type': 'str'},
         'registry_id': {'key': 'registryId', 'type': 'str'},
         'storage_id': {'key': 'storageId', 'type': 'str'},
-        'portal': {'key': 'portal', 'type': 'str'},
-        'portal_id': {'key': 'portalId', 'type': 'str'},
-        'portal_url': {'key': 'portalUrl', 'type': 'str'},
-        'portal_reply_url': {'key': 'portalReplyUrl', 'type': 'str'},
-        'portal_identity': {'key': 'portalIdentity', 'type': 'str'},
         'id': {'key': 'id', 'type': 'str'},
     }
 
@@ -1680,16 +1665,6 @@ class Organization(msrest.serialization.Model):
         :paramtype registry_id: str
         :keyword storage_id:
         :paramtype storage_id: str
-        :keyword portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-        :paramtype portal: str or ~teamcloud.models.OrganizationPortal
-        :keyword portal_id:
-        :paramtype portal_id: str
-        :keyword portal_url:
-        :paramtype portal_url: str
-        :keyword portal_reply_url:
-        :paramtype portal_reply_url: str
-        :keyword portal_identity:
-        :paramtype portal_identity: str
         :keyword id: Required.
         :paramtype id: str
         """
@@ -1706,11 +1681,6 @@ class Organization(msrest.serialization.Model):
         self.gallery_id = kwargs.get('gallery_id', None)
         self.registry_id = kwargs.get('registry_id', None)
         self.storage_id = kwargs.get('storage_id', None)
-        self.portal = kwargs.get('portal', None)
-        self.portal_id = kwargs.get('portal_id', None)
-        self.portal_url = kwargs.get('portal_url', None)
-        self.portal_reply_url = kwargs.get('portal_reply_url', None)
-        self.portal_identity = kwargs.get('portal_identity', None)
         self.id = kwargs['id']
 
 
@@ -1770,8 +1740,6 @@ class OrganizationDefinition(msrest.serialization.Model):
     :vartype subscription_id: str
     :ivar location: Required.
     :vartype location: str
-    :ivar portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-    :vartype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
     :ivar tags: A set of tags. Dictionary of :code:`<string>`.
     :vartype tags: dict[str, str]
     """
@@ -1788,7 +1756,6 @@ class OrganizationDefinition(msrest.serialization.Model):
         'display_name': {'key': 'displayName', 'type': 'str'},
         'subscription_id': {'key': 'subscriptionId', 'type': 'str'},
         'location': {'key': 'location', 'type': 'str'},
-        'portal': {'key': 'portal', 'type': 'str'},
         'tags': {'key': 'tags', 'type': '{str}'},
     }
 
@@ -1803,8 +1770,6 @@ class OrganizationDefinition(msrest.serialization.Model):
         :paramtype subscription_id: str
         :keyword location: Required.
         :paramtype location: str
-        :keyword portal: Known values are: "TeamCloud", "Backstage", "Clutch".
-        :paramtype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
         :keyword tags: A set of tags. Dictionary of :code:`<string>`.
         :paramtype tags: dict[str, str]
         """
@@ -1813,7 +1778,6 @@ class OrganizationDefinition(msrest.serialization.Model):
         self.display_name = kwargs['display_name']
         self.subscription_id = kwargs['subscription_id']
         self.location = kwargs['location']
-        self.portal = kwargs.get('portal', None)
         self.tags = kwargs.get('tags', None)
 
 

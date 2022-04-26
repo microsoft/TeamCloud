@@ -3,11 +3,9 @@
 
 import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
-import { Member } from '../model';
 import { ContentSeparator, UserPersona } from '.';
-import { useOrg, useUser, useMembers } from '../hooks';
-import { KnownOrganizationPortal } from 'teamcloud';
-import { useUpdatePortal } from '../hooks/useUpdatePortal';
+import { useMembers, useOrg, useUser } from '../hooks';
+import { Member } from '../model';
 
 export const OrgSettingsOverview: React.FC = () => {
 
@@ -28,15 +26,11 @@ export const OrgSettingsOverview: React.FC = () => {
         } else if (owner) {
             setOwner(undefined);
         }
-    }, [org, members, owner])
-
-    const _updatePortal = async () => {
-        await useUpdatePortal(org)
-    }
+    }, [org, members, owner]);
 
     const _changeOwner = () => {
-        alert('NOT IMPLEMENTED YET !!!')
-    }
+        alert('NOT IMPLEMENTED YET !!!');
+    };
 
     return org ? (
         <Stack styles={{ root: { maxWidth: '600px' } }} tokens={{ childrenGap: '20px' }}>
@@ -143,57 +137,6 @@ export const OrgSettingsOverview: React.FC = () => {
                     )}
                 </Stack>
             </Stack.Item>
-            {org.portal && org.portal !== KnownOrganizationPortal.TeamCloud && (
-                <>
-                    <Stack.Item>
-                        <ContentSeparator />
-                    </Stack.Item>
-                    <Stack.Item>
-                        <Stack tokens={{ childrenGap: '14px' }}>
-                            <Stack.Item>
-                                <TextField
-                                    readOnly
-                                    label='Portal'
-                                    description='The type used for this organization'
-                                    defaultValue={org.portal} />
-                            </Stack.Item>
-                            <Stack.Item>
-                                <Link 
-                                    disabled={!(org.portalId)}
-                                    onClick={_updatePortal}>
-                                    Update portal
-                                </Link>
-                            </Stack.Item>
-                            {!org.portalUrl && (
-                                <Stack.Item>
-                                    <TextField
-                                        readOnly
-                                        disabled
-                                        label='Portal URL'
-                                        description='Url to the organization`s portal'
-                                        defaultValue='creating...' />
-                                </Stack.Item>
-                            )}
-                            {org.portalUrl && (
-                                <>
-                                    <Stack.Item>
-                                        <TextField
-                                            readOnly
-                                            label='Portal URL'
-                                            description='Url to the organization`s portal'
-                                            defaultValue={org.portalUrl} />
-                                    </Stack.Item>
-                                    <Stack.Item>
-                                        <Link target='_blank' href='{org.portalUrl}'>
-                                            Open in browser
-                                        </Link>
-                                    </Stack.Item>
-                                </>
-                            )}
-                        </Stack>
-                    </Stack.Item>
-                </>
-            )}
             <Stack.Item>
                 <ContentSeparator />
             </Stack.Item>
@@ -223,4 +166,4 @@ export const OrgSettingsOverview: React.FC = () => {
             </Stack.Item>
         </Stack>
     ) : <></>;
-}
+};

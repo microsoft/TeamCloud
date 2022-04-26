@@ -112,24 +112,6 @@ export var KnownDeploymentScopeDefinitionType;
     KnownDeploymentScopeDefinitionType["GitHub"] = "GitHub";
     KnownDeploymentScopeDefinitionType["Kubernetes"] = "Kubernetes";
 })(KnownDeploymentScopeDefinitionType || (KnownDeploymentScopeDefinitionType = {}));
-/** Known values of {@link OrganizationResourceState} that the service accepts. */
-export var KnownOrganizationResourceState;
-(function (KnownOrganizationResourceState) {
-    KnownOrganizationResourceState["Pending"] = "Pending";
-    KnownOrganizationResourceState["Initializing"] = "Initializing";
-    KnownOrganizationResourceState["Provisioning"] = "Provisioning";
-    KnownOrganizationResourceState["Provisioned"] = "Provisioned";
-    KnownOrganizationResourceState["Deprovisioning"] = "Deprovisioning";
-    KnownOrganizationResourceState["Deprovisioned"] = "Deprovisioned";
-    KnownOrganizationResourceState["Failed"] = "Failed";
-})(KnownOrganizationResourceState || (KnownOrganizationResourceState = {}));
-/** Known values of {@link OrganizationPortal} that the service accepts. */
-export var KnownOrganizationPortal;
-(function (KnownOrganizationPortal) {
-    KnownOrganizationPortal["TeamCloud"] = "TeamCloud";
-    KnownOrganizationPortal["Backstage"] = "Backstage";
-    KnownOrganizationPortal["Clutch"] = "Clutch";
-})(KnownOrganizationPortal || (KnownOrganizationPortal = {}));
 /** Known values of {@link CommandAuditEntityRuntimeStatus} that the service accepts. */
 export var KnownCommandAuditEntityRuntimeStatus;
 (function (KnownCommandAuditEntityRuntimeStatus) {
@@ -142,13 +124,17 @@ export var KnownCommandAuditEntityRuntimeStatus;
     KnownCommandAuditEntityRuntimeStatus["Pending"] = "Pending";
     KnownCommandAuditEntityRuntimeStatus["Unknown"] = "Unknown";
 })(KnownCommandAuditEntityRuntimeStatus || (KnownCommandAuditEntityRuntimeStatus = {}));
-/** Known values of {@link OrganizationDefinitionPortal} that the service accepts. */
-export var KnownOrganizationDefinitionPortal;
-(function (KnownOrganizationDefinitionPortal) {
-    KnownOrganizationDefinitionPortal["TeamCloud"] = "TeamCloud";
-    KnownOrganizationDefinitionPortal["Backstage"] = "Backstage";
-    KnownOrganizationDefinitionPortal["Clutch"] = "Clutch";
-})(KnownOrganizationDefinitionPortal || (KnownOrganizationDefinitionPortal = {}));
+/** Known values of {@link OrganizationResourceState} that the service accepts. */
+export var KnownOrganizationResourceState;
+(function (KnownOrganizationResourceState) {
+    KnownOrganizationResourceState["Pending"] = "Pending";
+    KnownOrganizationResourceState["Initializing"] = "Initializing";
+    KnownOrganizationResourceState["Provisioning"] = "Provisioning";
+    KnownOrganizationResourceState["Provisioned"] = "Provisioned";
+    KnownOrganizationResourceState["Deprovisioning"] = "Deprovisioning";
+    KnownOrganizationResourceState["Deprovisioned"] = "Deprovisioned";
+    KnownOrganizationResourceState["Failed"] = "Failed";
+})(KnownOrganizationResourceState || (KnownOrganizationResourceState = {}));
 /** Known values of {@link UserType} that the service accepts. */
 export var KnownUserType;
 (function (KnownUserType) {

@@ -3,18 +3,10 @@
 //   Licensed under the MIT License.
 //
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Graph;
-using Microsoft.TeamFoundation.TestManagement.WebApi;
 using NSubstitute;
-using NSubstitute.ReturnsExtensions;
-using TeamCloud.Microsoft.Graph;
 using TeamCloud.Notification;
 using TeamCloud.Notification.Smtp;
 

@@ -9,17 +9,8 @@ param projectTags object = {}
 @minLength(36)
 @maxLength(36)
 param organizationId string
-param organizationName string
 param organizationSlug string
 param organizationTags object = {}
-
-param portal string = 'teamcloud'
-
-@secure()
-param portalClientId string = ''
-
-@secure()
-param portalClientSecret string = ''
 
 param deploymentScopes array = []
 param location string = deployment().location
@@ -42,14 +33,7 @@ module organizationResources './organizationResources.bicep' = if (deployOrganiz
   name: organizationDeploymentName
   scope: organizationResourceGroup
   params: {
-    organizationName: organizationName
-    // organizationSlug: organizationSlug
     organizationTags: organizationTags
-
-    portal: portal
-    portalClientId: portalClientId
-    portalClientSecret: portalClientSecret
-
     location: location
   }
 }

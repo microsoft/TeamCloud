@@ -91,18 +91,6 @@ class DeploymentScopeType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
     GIT_HUB = "GitHub"
     KUBERNETES = "Kubernetes"
 
-class OrganizationDefinitionPortal(str, Enum, metaclass=CaseInsensitiveEnumMeta):
-
-    TEAM_CLOUD = "TeamCloud"
-    BACKSTAGE = "Backstage"
-    CLUTCH = "Clutch"
-
-class OrganizationPortal(str, Enum, metaclass=CaseInsensitiveEnumMeta):
-
-    TEAM_CLOUD = "TeamCloud"
-    BACKSTAGE = "Backstage"
-    CLUTCH = "Clutch"
-
 class OrganizationResourceState(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     PENDING = "Pending"

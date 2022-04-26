@@ -9,13 +9,11 @@
 
 	<ItemGroup>
 	  <None Remove="Messaging\AlternateIdentityMessage.html" />
-	  <None Remove="Messaging\PortalPermissionGrantMessage.html" />
 	  <None Remove="Messaging\WelcomeMessage.html" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Messaging\AlternateIdentityMessage.html" />
-	  <EmbeddedResource Include="Messaging\PortalPermissionGrantMessage.html" />
 	  <EmbeddedResource Include="Messaging\WelcomeMessage.html" />
 	</ItemGroup>
 
