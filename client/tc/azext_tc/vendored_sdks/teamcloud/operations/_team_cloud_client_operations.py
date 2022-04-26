@@ -15,6 +15,7 @@ from azure.core.pipeline import PipelineResponse
 from azure.core.pipeline.transport import HttpResponse
 from azure.core.rest import HttpRequest
 from azure.core.tracing.decorator import distributed_trace
+from azure.core.utils import case_insensitive_dict
 
 from .. import models as _models
 from .._vendor import _convert_request, _format_url_section
@@ -33,18 +34,20 @@ def build_get_adapters_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/adapters")
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -55,9 +58,12 @@ def build_get_components_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    deleted = kwargs.pop('deleted', False)  # type: Optional[bool]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+    _params = case_insensitive_dict(kwargs.pop("params", {}) or {})
 
-    accept = "application/json"
+    deleted = kwargs.pop('deleted', _params.pop('deleted', False))  # type: Optional[bool]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components")
     path_format_arguments = {
@@ -68,19 +74,17 @@ def build_get_components_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct parameters
-    _query_parameters = kwargs.pop("params", {})  # type: Dict[str, Any]
     if deleted is not None:
-        _query_parameters['deleted'] = _SERIALIZER.query("deleted", deleted, 'bool')
+        _params['deleted'] = _SERIALIZER.query("deleted", deleted, 'bool')
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        params=_query_parameters,
-        headers=_header_parameters,
+        params=_params,
+        headers=_headers,
         **kwargs
     )
 
@@ -91,9 +95,11 @@ def build_create_component_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components")
     path_format_arguments = {
@@ -104,15 +110,14 @@ def build_create_component_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -124,7 +129,10 @@ def build_get_component_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components/{componentId}")
     path_format_arguments = {
@@ -136,13 +144,12 @@ def build_get_component_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -154,7 +161,10 @@ def build_delete_component_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components/{componentId}")
     path_format_arguments = {
@@ -166,13 +176,12 @@ def build_delete_component_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -184,7 +193,10 @@ def build_get_component_tasks_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks")
     path_format_arguments = {
@@ -196,13 +208,12 @@ def build_get_component_tasks_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -214,9 +225,11 @@ def build_create_component_task_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks")
     path_format_arguments = {
@@ -228,15 +241,14 @@ def build_create_component_task_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -249,7 +261,10 @@ def build_get_component_task_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}")
     path_format_arguments = {
@@ -262,13 +277,12 @@ def build_get_component_task_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -281,7 +295,10 @@ def build_cancel_component_task_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/cancel")  # pylint: disable=line-too-long
     path_format_arguments = {
@@ -294,13 +311,12 @@ def build_cancel_component_task_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -313,7 +329,10 @@ def build_re_run_component_task_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/components/{componentId}/tasks/{taskId}/rerun")  # pylint: disable=line-too-long
     path_format_arguments = {
@@ -326,13 +345,12 @@ def build_re_run_component_task_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -343,7 +361,10 @@ def build_get_component_templates_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/templates")
     path_format_arguments = {
@@ -354,13 +375,12 @@ def build_get_component_templates_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -372,7 +392,10 @@ def build_get_component_template_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/templates/{id}")
     path_format_arguments = {
@@ -384,13 +407,12 @@ def build_get_component_template_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -400,7 +422,10 @@ def build_get_deployment_scopes_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/scopes")
     path_format_arguments = {
@@ -410,13 +435,12 @@ def build_get_deployment_scopes_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -426,9 +450,11 @@ def build_create_deployment_scope_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/scopes")
     path_format_arguments = {
@@ -438,15 +464,14 @@ def build_create_deployment_scope_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -457,7 +482,10 @@ def build_get_deployment_scope_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/scopes/{deploymentScopeId}")
     path_format_arguments = {
@@ -468,13 +496,12 @@ def build_get_deployment_scope_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -485,9 +512,11 @@ def build_update_deployment_scope_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/scopes/{deploymentScopeId}")
     path_format_arguments = {
@@ -498,15 +527,14 @@ def build_update_deployment_scope_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -517,7 +545,10 @@ def build_delete_deployment_scope_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/scopes/{deploymentScopeId}")
     path_format_arguments = {
@@ -528,13 +559,12 @@ def build_delete_deployment_scope_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -545,7 +575,10 @@ def build_initialize_authorization_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/scopes/{deploymentScopeId}/authorize/initialize")
     path_format_arguments = {
@@ -556,13 +589,12 @@ def build_initialize_authorization_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -594,7 +626,10 @@ def build_update_portal_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/action/UpdatePortal")
     path_format_arguments = {
@@ -604,13 +639,12 @@ def build_update_portal_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -620,10 +654,13 @@ def build_get_audit_entries_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    time_range = kwargs.pop('time_range', None)  # type: Optional[str]
-    commands = kwargs.pop('commands', None)  # type: Optional[List[str]]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+    _params = case_insensitive_dict(kwargs.pop("params", {}) or {})
 
-    accept = "application/json"
+    time_range = kwargs.pop('time_range', _params.pop('timeRange', None))  # type: Optional[str]
+    commands = kwargs.pop('commands', _params.pop('commands', None))  # type: Optional[List[str]]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/audit")
     path_format_arguments = {
@@ -633,21 +670,19 @@ def build_get_audit_entries_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct parameters
-    _query_parameters = kwargs.pop("params", {})  # type: Dict[str, Any]
     if time_range is not None:
-        _query_parameters['timeRange'] = _SERIALIZER.query("time_range", time_range, 'str')
+        _params['timeRange'] = _SERIALIZER.query("time_range", time_range, 'str')
     if commands is not None:
-        _query_parameters['commands'] = _SERIALIZER.query("commands", commands, '[str]')
+        _params['commands'] = _SERIALIZER.query("commands", commands, '[str]')
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        params=_query_parameters,
-        headers=_header_parameters,
+        params=_params,
+        headers=_headers,
         **kwargs
     )
 
@@ -658,9 +693,12 @@ def build_get_audit_entry_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    expand = kwargs.pop('expand', False)  # type: Optional[bool]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+    _params = case_insensitive_dict(kwargs.pop("params", {}) or {})
 
-    accept = "application/json"
+    expand = kwargs.pop('expand', _params.pop('expand', False))  # type: Optional[bool]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/audit/{commandId}")
     path_format_arguments = {
@@ -671,19 +709,17 @@ def build_get_audit_entry_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct parameters
-    _query_parameters = kwargs.pop("params", {})  # type: Dict[str, Any]
     if expand is not None:
-        _query_parameters['expand'] = _SERIALIZER.query("expand", expand, 'bool')
+        _params['expand'] = _SERIALIZER.query("expand", expand, 'bool')
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        params=_query_parameters,
-        headers=_header_parameters,
+        params=_params,
+        headers=_headers,
         **kwargs
     )
 
@@ -693,7 +729,10 @@ def build_get_audit_commands_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/audit/commands")
     path_format_arguments = {
@@ -703,13 +742,12 @@ def build_get_audit_commands_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -718,18 +756,20 @@ def build_get_organizations_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs")
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -738,22 +778,23 @@ def build_create_organization_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs")
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -763,7 +804,10 @@ def build_get_organization_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}")
     path_format_arguments = {
@@ -773,13 +817,12 @@ def build_get_organization_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -789,7 +832,10 @@ def build_delete_organization_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}")
     path_format_arguments = {
@@ -799,13 +845,12 @@ def build_delete_organization_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -815,7 +860,10 @@ def build_get_organization_users_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/users")
     path_format_arguments = {
@@ -825,13 +873,12 @@ def build_get_organization_users_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -841,9 +888,11 @@ def build_create_organization_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/users")
     path_format_arguments = {
@@ -853,15 +902,14 @@ def build_create_organization_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -872,7 +920,10 @@ def build_get_organization_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/users/{userId}")
     path_format_arguments = {
@@ -883,13 +934,12 @@ def build_get_organization_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -900,9 +950,11 @@ def build_update_organization_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/users/{userId}")
     path_format_arguments = {
@@ -913,15 +965,14 @@ def build_update_organization_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -932,7 +983,10 @@ def build_delete_organization_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/users/{userId}")
     path_format_arguments = {
@@ -943,13 +997,12 @@ def build_delete_organization_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -959,7 +1012,10 @@ def build_get_organization_user_me_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/me")
     path_format_arguments = {
@@ -969,13 +1025,12 @@ def build_get_organization_user_me_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -985,9 +1040,11 @@ def build_update_organization_user_me_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/me")
     path_format_arguments = {
@@ -997,15 +1054,14 @@ def build_update_organization_user_me_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1015,7 +1071,10 @@ def build_get_projects_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects")
     path_format_arguments = {
@@ -1025,13 +1084,12 @@ def build_get_projects_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1041,9 +1099,11 @@ def build_create_project_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects")
     path_format_arguments = {
@@ -1053,15 +1113,14 @@ def build_create_project_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1072,7 +1131,10 @@ def build_get_project_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}")
     path_format_arguments = {
@@ -1083,13 +1145,12 @@ def build_get_project_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1100,7 +1161,10 @@ def build_delete_project_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}")
     path_format_arguments = {
@@ -1111,13 +1175,12 @@ def build_delete_project_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1128,7 +1191,10 @@ def build_get_project_identities_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/identities")
     path_format_arguments = {
@@ -1139,13 +1205,12 @@ def build_get_project_identities_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1156,9 +1221,11 @@ def build_create_project_identity_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/identities")
     path_format_arguments = {
@@ -1169,15 +1236,14 @@ def build_create_project_identity_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1189,7 +1255,10 @@ def build_get_project_identity_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/identities/{projectIdentityId}")
     path_format_arguments = {
@@ -1201,13 +1270,12 @@ def build_get_project_identity_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1219,9 +1287,11 @@ def build_update_project_identity_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/identities/{projectIdentityId}")
     path_format_arguments = {
@@ -1233,15 +1303,14 @@ def build_update_project_identity_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1253,7 +1322,10 @@ def build_delete_project_identity_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/identities/{projectIdentityId}")
     path_format_arguments = {
@@ -1265,13 +1337,12 @@ def build_delete_project_identity_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1282,7 +1353,10 @@ def build_get_project_tags_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/tags")
     path_format_arguments = {
@@ -1293,13 +1367,12 @@ def build_get_project_tags_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1310,9 +1383,11 @@ def build_create_project_tag_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/tags")
     path_format_arguments = {
@@ -1323,15 +1398,14 @@ def build_create_project_tag_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1342,9 +1416,11 @@ def build_update_project_tag_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/tags")
     path_format_arguments = {
@@ -1355,15 +1431,14 @@ def build_update_project_tag_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1375,7 +1450,10 @@ def build_get_project_tag_by_key_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/tags/{tagKey}")
     path_format_arguments = {
@@ -1387,13 +1465,12 @@ def build_get_project_tag_by_key_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1405,7 +1482,10 @@ def build_delete_project_tag_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/tags/{tagKey}")
     path_format_arguments = {
@@ -1417,13 +1497,12 @@ def build_delete_project_tag_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1433,7 +1512,10 @@ def build_get_project_templates_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/templates")
     path_format_arguments = {
@@ -1443,13 +1525,12 @@ def build_get_project_templates_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1459,9 +1540,11 @@ def build_create_project_template_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/templates")
     path_format_arguments = {
@@ -1471,15 +1554,14 @@ def build_create_project_template_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1490,7 +1572,10 @@ def build_get_project_template_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/templates/{projectTemplateId}")
     path_format_arguments = {
@@ -1501,13 +1586,12 @@ def build_get_project_template_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1518,9 +1602,11 @@ def build_update_project_template_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/templates/{projectTemplateId}")
     path_format_arguments = {
@@ -1531,15 +1617,14 @@ def build_update_project_template_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1550,7 +1635,10 @@ def build_delete_project_template_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/templates/{projectTemplateId}")
     path_format_arguments = {
@@ -1561,13 +1649,12 @@ def build_delete_project_template_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1578,7 +1665,10 @@ def build_get_project_users_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/users")
     path_format_arguments = {
@@ -1589,13 +1679,12 @@ def build_get_project_users_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1606,9 +1695,11 @@ def build_create_project_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/users")
     path_format_arguments = {
@@ -1619,15 +1710,14 @@ def build_create_project_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1639,7 +1729,10 @@ def build_get_project_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/users/{userId}")
     path_format_arguments = {
@@ -1651,13 +1744,12 @@ def build_get_project_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1669,9 +1761,11 @@ def build_update_project_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/users/{userId}")
     path_format_arguments = {
@@ -1683,15 +1777,14 @@ def build_update_project_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1703,7 +1796,10 @@ def build_delete_project_user_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/users/{userId}")
     path_format_arguments = {
@@ -1715,13 +1811,12 @@ def build_delete_project_user_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="DELETE",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1732,7 +1827,10 @@ def build_get_project_user_me_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/users/me")
     path_format_arguments = {
@@ -1743,13 +1841,12 @@ def build_get_project_user_me_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1760,9 +1857,11 @@ def build_update_project_user_me_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/users/me")
     path_format_arguments = {
@@ -1773,15 +1872,14 @@ def build_update_project_user_me_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1790,18 +1888,20 @@ def build_get_info_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/")
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1812,7 +1912,10 @@ def build_get_schedules_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/schedules")
     path_format_arguments = {
@@ -1823,13 +1926,12 @@ def build_get_schedules_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1840,9 +1942,11 @@ def build_create_schedule_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/schedules")
     path_format_arguments = {
@@ -1853,15 +1957,14 @@ def build_create_schedule_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1873,7 +1976,10 @@ def build_get_schedule_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}")
     path_format_arguments = {
@@ -1885,13 +1991,12 @@ def build_get_schedule_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1903,9 +2008,11 @@ def build_update_schedule_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    content_type = kwargs.pop('content_type', None)  # type: Optional[str]
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
 
-    accept = "application/json"
+    content_type = kwargs.pop('content_type', _headers.pop('Content-Type', None))  # type: Optional[str]
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}")
     path_format_arguments = {
@@ -1917,15 +2024,14 @@ def build_update_schedule_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
     if content_type is not None:
-        _header_parameters['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+        _headers['Content-Type'] = _SERIALIZER.header("content_type", content_type, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="PUT",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1937,7 +2043,10 @@ def build_run_schedule_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/schedules/{scheduleId}/run")
     path_format_arguments = {
@@ -1949,13 +2058,12 @@ def build_run_schedule_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="POST",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1966,7 +2074,10 @@ def build_get_status_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/status/{trackingId}")
     path_format_arguments = {
@@ -1977,13 +2088,12 @@ def build_get_status_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -1995,7 +2105,10 @@ def build_get_project_status_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/projects/{projectId}/status/{trackingId}")
     path_format_arguments = {
@@ -2007,13 +2120,12 @@ def build_get_project_status_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -2024,7 +2136,10 @@ def build_get_user_projects_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/users/{userId}/projects")
     path_format_arguments = {
@@ -2035,13 +2150,12 @@ def build_get_user_projects_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -2051,7 +2165,10 @@ def build_get_user_projects_me_request(
     **kwargs  # type: Any
 ):
     # type: (...) -> HttpRequest
-    accept = "application/json"
+    _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+
+    accept = _headers.pop('Accept', "application/json")
+
     # Construct URL
     _url = kwargs.pop("template_url", "/orgs/{organizationId}/me/projects")
     path_format_arguments = {
@@ -2061,13 +2178,12 @@ def build_get_user_projects_me_request(
     _url = _format_url_section(_url, **path_format_arguments)
 
     # Construct headers
-    _header_parameters = kwargs.pop("headers", {})  # type: Dict[str, Any]
-    _header_parameters['Accept'] = _SERIALIZER.header("accept", accept, 'str')
+    _headers['Accept'] = _SERIALIZER.header("accept", accept, 'str')
 
     return HttpRequest(
         method="GET",
         url=_url,
-        headers=_header_parameters,
+        headers=_headers,
         **kwargs
     )
 
@@ -2079,7 +2195,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.AdapterInformationListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.AdapterInformationListDataResult, _models.ErrorResult]]
         """Gets all Adapters.
 
         Gets all Adapters.
@@ -2090,20 +2206,26 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.AdapterInformationListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.AdapterInformationListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_adapters_request(
             template_url=self.get_adapters.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2137,7 +2259,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         deleted=False,  # type: Optional[bool]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentListDataResult, _models.ErrorResult]]
         """Gets all Components for a Project.
 
         Gets all Components for a Project.
@@ -2153,11 +2275,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ComponentListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_components_request(
@@ -2165,11 +2291,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             project_id=project_id,
             deleted=deleted,
             template_url=self.get_components.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2203,10 +2331,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.ComponentDefinition"]
+        body=None,  # type: Optional[_models.ComponentDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentDataResult, _models.StatusResult, _models.ErrorResult]]
         """Creates a new Project Component.
 
         Creates a new Project Component.
@@ -2223,13 +2351,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ComponentDefinition')
@@ -2242,11 +2373,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_component.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2289,7 +2422,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentDataResult, _models.ErrorResult]]
         """Gets a Project Component.
 
         Gets a Project Component.
@@ -2305,11 +2438,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_request(
@@ -2317,11 +2454,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_component.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2358,7 +2497,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ComponentDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ComponentDataResult, _models.ErrorResult]]
         """Deletes an existing Project Component.
 
         Deletes an existing Project Component.
@@ -2375,11 +2514,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ComponentDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ComponentDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_component_request(
@@ -2387,11 +2530,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_component.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2431,7 +2576,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         component_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentTaskListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentTaskListDataResult, _models.ErrorResult]]
         """Gets all Component Tasks.
 
         Gets all Component Tasks.
@@ -2447,11 +2592,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ComponentTaskListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_tasks_request(
@@ -2459,11 +2608,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             project_id=project_id,
             component_id=component_id,
             template_url=self.get_component_tasks.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2498,10 +2649,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         project_id,  # type: str
         component_id,  # type: str
-        body=None,  # type: Optional["_models.ComponentTaskDefinition"]
+        body=None,  # type: Optional[_models.ComponentTaskDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]
         """Creates a new Project Component Task.
 
         Creates a new Project Component Task.
@@ -2520,13 +2671,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ComponentTaskDefinition')
@@ -2540,11 +2694,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2588,7 +2744,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         component_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentTaskDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentTaskDataResult, _models.ErrorResult]]
         """Gets the Component Task.
 
         Gets the Component Task.
@@ -2606,11 +2762,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ComponentTaskDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_task_request(
@@ -2619,11 +2779,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             project_id=project_id,
             component_id=component_id,
             template_url=self.get_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2661,7 +2823,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         task_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]
         """Rerun a Project Component Task.
 
         Rerun a Project Component Task.
@@ -2680,11 +2842,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_cancel_component_task_request(
@@ -2693,11 +2859,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             component_id=component_id,
             task_id=task_id,
             template_url=self.cancel_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2738,7 +2906,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         task_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]
         """Cancel an active Project Component Task.
 
         Cancel an active Project Component Task.
@@ -2757,11 +2925,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_re_run_component_task_request(
@@ -2770,11 +2942,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             component_id=component_id,
             task_id=task_id,
             template_url=self.re_run_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2813,7 +2987,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentTemplateListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentTemplateListDataResult, _models.ErrorResult]]
         """Gets all Component Templates for a Project.
 
         Gets all Component Templates for a Project.
@@ -2828,22 +3002,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTemplateListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTemplateListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_templates_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_component_templates.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2880,7 +3060,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ComponentTemplateDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ComponentTemplateDataResult, _models.ErrorResult]]
         """Gets the Component Template.
 
         Gets the Component Template.
@@ -2896,11 +3076,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ComponentTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTemplateDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_template_request(
@@ -2908,11 +3092,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_component_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2947,7 +3133,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.DeploymentScopeListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.DeploymentScopeListDataResult, _models.ErrorResult]]
         """Gets all Deployment Scopes.
 
         Gets all Deployment Scopes.
@@ -2960,21 +3146,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_deployment_scopes_request(
             organization_id=organization_id,
             template_url=self.get_deployment_scopes.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3004,10 +3196,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
     def create_deployment_scope(
         self,
         organization_id,  # type: str
-        body=None,  # type: Optional["_models.DeploymentScopeDefinition"]
+        body=None,  # type: Optional[_models.DeploymentScopeDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]
         """Creates a new Deployment Scope.
 
         Creates a new Deployment Scope.
@@ -3021,13 +3213,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'DeploymentScopeDefinition')
@@ -3039,11 +3234,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3079,7 +3276,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         deployment_scope_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]
         """Gets a Deployment Scope.
 
         Gets a Deployment Scope.
@@ -3093,22 +3290,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         
         request = build_get_deployment_scope_request(
             organization_id=organization_id,
             deployment_scope_id=deployment_scope_id,
             template_url=self.get_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3142,10 +3345,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         organization_id,  # type: str
         deployment_scope_id,  # type: str
-        body=None,  # type: Optional["_models.DeploymentScope"]
+        body=None,  # type: Optional[_models.DeploymentScope]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]
         """Updates an existing Deployment Scope.
 
         Updates an existing Deployment Scope.
@@ -3161,13 +3364,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'DeploymentScope')
@@ -3180,11 +3386,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3220,7 +3428,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         deployment_scope_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]
         """Deletes a Deployment Scope.
 
         Deletes a Deployment Scope.
@@ -3234,22 +3442,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_deployment_scope_request(
             organization_id=organization_id,
             deployment_scope_id=deployment_scope_id,
             template_url=self.delete_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3285,7 +3499,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         deployment_scope_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]
         """Initialize a new authorization session for a deployment scope.
 
         Initialize a new authorization session for a deployment scope.
@@ -3299,22 +3513,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         
         request = build_initialize_authorization_request(
             organization_id=organization_id,
             deployment_scope_id=deployment_scope_id,
             template_url=self.initialize_authorization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3361,22 +3581,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[None]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[None]
 
         
         request = build_negotiate_signal_r_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.negotiate_signal_r.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3399,7 +3625,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]
         """Updates the custom portal of the organization.
 
         Updates the custom portal of the organization.
@@ -3411,21 +3637,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]]
 
         
         request = build_update_portal_request(
             organization_id=organization_id,
             template_url=self.update_portal.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3459,7 +3691,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         commands=None,  # type: Optional[List[str]]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.CommandAuditEntityListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.CommandAuditEntityListDataResult, _models.ErrorResult]]
         """Gets all audit entries.
 
         Gets all audit entries.
@@ -3476,11 +3708,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.CommandAuditEntityListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.CommandAuditEntityListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_audit_entries_request(
@@ -3488,11 +3724,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             time_range=time_range,
             commands=commands,
             template_url=self.get_audit_entries.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3529,7 +3767,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         expand=False,  # type: Optional[bool]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.CommandAuditEntityDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.CommandAuditEntityDataResult, _models.ErrorResult]]
         """Gets an audit entry.
 
         Gets an audit entry.
@@ -3545,11 +3783,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.CommandAuditEntityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.CommandAuditEntityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.CommandAuditEntityDataResult, _models.ErrorResult]]]
 
         
         request = build_get_audit_entry_request(
@@ -3557,11 +3799,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             expand=expand,
             template_url=self.get_audit_entry.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3596,7 +3840,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StringListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StringListDataResult, _models.ErrorResult]]
         """Gets all auditable commands.
 
         Gets all auditable commands.
@@ -3608,21 +3852,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StringListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StringListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_audit_commands_request(
             organization_id=organization_id,
             template_url=self.get_audit_commands.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3656,7 +3906,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.OrganizationListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.OrganizationListDataResult, _models.ErrorResult]]
         """Gets all Organizations.
 
         Gets all Organizations.
@@ -3666,20 +3916,26 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.OrganizationListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organizations_request(
             template_url=self.get_organizations.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3711,10 +3967,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
     @distributed_trace
     def create_organization(
         self,
-        body=None,  # type: Optional["_models.OrganizationDefinition"]
+        body=None,  # type: Optional[_models.OrganizationDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]
         """Creates a new Organization.
 
         Creates a new Organization.
@@ -3726,13 +3982,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'OrganizationDefinition')
@@ -3743,11 +4002,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_organization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3785,7 +4046,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]
         """Gets an Organization.
 
         Gets an Organization.
@@ -3797,21 +4058,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_request(
             organization_id=organization_id,
             template_url=self.get_organization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3846,7 +4113,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Deletes an existing Organization.
 
         Deletes an existing Organization.
@@ -3858,21 +4125,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_organization_request(
             organization_id=organization_id,
             template_url=self.delete_organization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3904,7 +4177,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserListDataResult, _models.ErrorResult]]
         """Gets all Users.
 
         Gets all Users.
@@ -3916,21 +4189,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.UserListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_users_request(
             organization_id=organization_id,
             template_url=self.get_organization_users.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3963,10 +4242,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
     def create_organization_user(
         self,
         organization_id,  # type: str
-        body=None,  # type: Optional["_models.UserDefinition"]
+        body=None,  # type: Optional[_models.UserDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]
         """Creates a new User.
 
         Creates a new User.
@@ -3980,13 +4259,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'UserDefinition')
@@ -3998,11 +4280,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4041,7 +4325,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]
         """Gets a User.
 
         Gets a User.
@@ -4055,22 +4339,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_user_request(
             user_id=user_id,
             organization_id=organization_id,
             template_url=self.get_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4104,10 +4394,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         user_id,  # type: str
         organization_id,  # type: str
-        body=None,  # type: Optional["_models.User"]
+        body=None,  # type: Optional[_models.User]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]
         """Updates an existing User.
 
         Updates an existing User.
@@ -4124,13 +4414,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -4143,11 +4436,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4186,7 +4481,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.UserDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.UserDataResult, _models.ErrorResult]]
         """Deletes an existing User.
 
         Deletes an existing User.
@@ -4201,22 +4496,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_organization_user_request(
             user_id=user_id,
             organization_id=organization_id,
             template_url=self.delete_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4251,7 +4552,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]
         """Gets a User A User matching the current authenticated user.
 
         Gets a User A User matching the current authenticated user.
@@ -4263,21 +4564,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_user_me_request(
             organization_id=organization_id,
             template_url=self.get_organization_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4310,10 +4617,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
     def update_organization_user_me(
         self,
         organization_id,  # type: str
-        body=None,  # type: Optional["_models.User"]
+        body=None,  # type: Optional[_models.User]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]
         """Updates an existing User.
 
         Updates an existing User.
@@ -4328,13 +4635,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -4346,11 +4656,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_organization_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4388,7 +4700,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]
         """Gets all Projects.
 
         Gets all Projects.
@@ -4400,21 +4712,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_projects_request(
             organization_id=organization_id,
             template_url=self.get_projects.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4444,10 +4762,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
     def create_project(
         self,
         organization_id,  # type: str
-        body=None,  # type: Optional["_models.ProjectDefinition"]
+        body=None,  # type: Optional[_models.ProjectDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectDataResult, _models.StatusResult, _models.ErrorResult]]
         """Creates a new Project.
 
         Creates a new Project.
@@ -4462,13 +4780,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectDefinition')
@@ -4480,11 +4801,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_project.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4523,7 +4846,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectDataResult, _models.ErrorResult]]
         """Gets a Project.
 
         Gets a Project.
@@ -4537,22 +4860,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_request(
             project_id=project_id,
             organization_id=organization_id,
             template_url=self.get_project.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4588,7 +4917,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Deletes a Project.
 
         Deletes a Project.
@@ -4602,22 +4931,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_request(
             project_id=project_id,
             organization_id=organization_id,
             template_url=self.delete_project.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4653,7 +4988,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectIdentityListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectIdentityListDataResult, _models.ErrorResult]]
         """Gets all Project Identities.
 
         Gets all Project Identities.
@@ -4668,22 +5003,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_identities_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_identities.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4714,10 +5055,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.ProjectIdentityDefinition"]
+        body=None,  # type: Optional[_models.ProjectIdentityDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]
         """Creates a new Project Identity.
 
         Creates a new Project Identity.
@@ -4733,13 +5074,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectIdentityDefinition')
@@ -4752,11 +5096,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4793,7 +5139,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]
         """Gets a Project Identity.
 
         Gets a Project Identity.
@@ -4809,11 +5155,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_identity_request(
@@ -4821,11 +5171,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4860,10 +5212,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_identity_id,  # type: str
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.ProjectIdentity"]
+        body=None,  # type: Optional[_models.ProjectIdentity]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Updates an existing Project Identity.
 
         Updates an existing Project Identity.
@@ -4881,13 +5233,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectIdentity')
@@ -4901,11 +5256,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4942,7 +5299,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]
         """Deletes a Project Identity.
 
         Deletes a Project Identity.
@@ -4958,11 +5315,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_identity_request(
@@ -4970,11 +5331,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5010,7 +5373,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]
         """Gets all Tags for a Project.
 
         Gets all Tags for a Project.
@@ -5024,22 +5387,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_tags_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_tags.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5076,7 +5445,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         body=None,  # type: Optional[Dict[str, str]]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Creates a new Project Tag.
 
         Creates a new Project Tag.
@@ -5092,13 +5461,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, '{str}')
@@ -5111,11 +5483,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_project_tag.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5155,7 +5529,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         body=None,  # type: Optional[Dict[str, str]]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Updates an existing Project Tag.
 
         Updates an existing Project Tag.
@@ -5171,13 +5545,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, '{str}')
@@ -5190,11 +5567,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_project_tag.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5231,7 +5610,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]
         """Gets a Project Tag by Key.
 
         Gets a Project Tag by Key.
@@ -5247,11 +5626,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_tag_by_key_request(
@@ -5259,11 +5642,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_tag_by_key.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5300,7 +5685,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Deletes an existing Project Tag.
 
         Deletes an existing Project Tag.
@@ -5316,11 +5701,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_tag_request(
@@ -5328,11 +5717,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_project_tag.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5367,7 +5758,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectTemplateListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectTemplateListDataResult, _models.ErrorResult]]
         """Gets all Project Templates.
 
         Gets all Project Templates.
@@ -5380,21 +5771,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_templates_request(
             organization_id=organization_id,
             template_url=self.get_project_templates.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5424,10 +5821,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
     def create_project_template(
         self,
         organization_id,  # type: str
-        body=None,  # type: Optional["_models.ProjectTemplateDefinition"]
+        body=None,  # type: Optional[_models.ProjectTemplateDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]
         """Creates a new Project Template.
 
         Creates a new Project Template.
@@ -5441,13 +5838,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectTemplateDefinition')
@@ -5459,11 +5859,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5499,7 +5901,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]
         """Gets a Project Template.
 
         Gets a Project Template.
@@ -5513,22 +5915,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_template_request(
             project_template_id=project_template_id,
             organization_id=organization_id,
             template_url=self.get_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5562,10 +5970,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         project_template_id,  # type: str
         organization_id,  # type: str
-        body=None,  # type: Optional["_models.ProjectTemplate"]
+        body=None,  # type: Optional[_models.ProjectTemplate]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]
         """Updates an existing Project Template.
 
         Updates an existing Project Template.
@@ -5581,13 +5989,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectTemplate')
@@ -5600,11 +6011,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5640,7 +6053,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]
         """Deletes a Project Template.
 
         Deletes a Project Template.
@@ -5654,22 +6067,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_template_request(
             project_template_id=project_template_id,
             organization_id=organization_id,
             template_url=self.delete_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5705,7 +6124,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserListDataResult, _models.ErrorResult]]
         """Gets all Users for a Project.
 
         Gets all Users for a Project.
@@ -5719,22 +6138,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.UserListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_users_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_users.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5768,10 +6193,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.UserDefinition"]
+        body=None,  # type: Optional[_models.UserDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]
         """Creates a new Project User.
 
         Creates a new Project User.
@@ -5788,13 +6213,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'UserDefinition')
@@ -5807,11 +6235,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5854,7 +6284,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]
         """Gets a Project User by ID or email address.
 
         Gets a Project User by ID or email address.
@@ -5870,11 +6300,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_user_request(
@@ -5882,11 +6316,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -5921,10 +6357,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         user_id,  # type: str
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.User"]
+        body=None,  # type: Optional[_models.User]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]
         """Updates an existing Project User.
 
         Updates an existing Project User.
@@ -5943,13 +6379,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -5963,11 +6402,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6007,7 +6448,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Deletes an existing Project User.
 
         Deletes an existing Project User.
@@ -6023,11 +6464,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_user_request(
@@ -6035,11 +6480,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6075,7 +6522,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]
         """Gets a Project User for the calling user.
 
         Gets a Project User for the calling user.
@@ -6089,22 +6536,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_user_me_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6138,10 +6591,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.User"]
+        body=None,  # type: Optional[_models.User]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]
         """Updates an existing Project User.
 
         Updates an existing Project User.
@@ -6158,13 +6611,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -6177,11 +6633,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_project_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6218,7 +6676,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         **kwargs  # type: Any
     ):
-        # type: (...) -> "_models.TeamCloudInformationDataResult"
+        # type: (...) -> _models.TeamCloudInformationDataResult
         """Gets information about this TeamCloud deployment.
 
         Gets information about this TeamCloud deployment.
@@ -6228,20 +6686,26 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.TeamCloudInformationDataResult
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType["_models.TeamCloudInformationDataResult"]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[_models.TeamCloudInformationDataResult]
 
         
         request = build_get_info_request(
             template_url=self.get_info.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6269,7 +6733,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ScheduleListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ScheduleListDataResult, _models.ErrorResult]]
         """Gets all Schedule.
 
         Gets all Schedule.
@@ -6283,22 +6747,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ScheduleListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_schedules_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_schedules.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6329,10 +6799,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         self,
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.ScheduleDefinition"]
+        body=None,  # type: Optional[_models.ScheduleDefinition]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]
         """Creates a new Project Schedule.
 
         Creates a new Project Schedule.
@@ -6348,13 +6818,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ScheduleDefinition')
@@ -6367,11 +6840,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.create_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6411,7 +6886,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]
         """Gets the Schedule.
 
         Gets the Schedule.
@@ -6427,11 +6902,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         
         request = build_get_schedule_request(
@@ -6439,11 +6918,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6478,10 +6959,10 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         schedule_id,  # type: str
         organization_id,  # type: str
         project_id,  # type: str
-        body=None,  # type: Optional["_models.Schedule"]
+        body=None,  # type: Optional[_models.Schedule]
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]
         """Updates a Project Schedule.
 
         Updates a Project Schedule.
@@ -6499,13 +6980,16 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'Schedule')
@@ -6519,11 +7003,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             content_type=content_type,
             json=_json,
             template_url=self.update_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6563,7 +7049,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         project_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]
         """Runs a Project Schedule.
 
         Runs a Project Schedule.
@@ -6579,11 +7065,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         
         request = build_run_schedule_request(
@@ -6591,11 +7081,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.run_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6631,7 +7123,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Gets the status of a long-running operation.
 
         Gets the status of a long-running operation.
@@ -6645,22 +7137,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_get_status_request(
             tracking_id=tracking_id,
             organization_id=organization_id,
             template_url=self.get_status.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6703,7 +7201,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]
         """Gets the status of a long-running operation.
 
         Gets the status of a long-running operation.
@@ -6719,11 +7217,15 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_get_project_status_request(
@@ -6731,11 +7233,13 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
             tracking_id=tracking_id,
             organization_id=organization_id,
             template_url=self.get_project_status.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6777,7 +7281,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         user_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]
         """Gets all Projects for a User.
 
         Gets all Projects for a User.
@@ -6791,22 +7295,28 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_user_projects_request(
             organization_id=organization_id,
             user_id=user_id,
             template_url=self.get_user_projects.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -6841,7 +7351,7 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         organization_id,  # type: str
         **kwargs  # type: Any
     ):
-        # type: (...) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]
+        # type: (...) -> Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]
         """Gets all Projects for a User.
 
         Gets all Projects for a User.
@@ -6853,21 +7363,27 @@ class TeamCloudClientOperationsMixin(object):  # pylint: disable=too-many-public
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_user_projects_me_request(
             organization_id=organization_id,
             template_url=self.get_user_projects_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs

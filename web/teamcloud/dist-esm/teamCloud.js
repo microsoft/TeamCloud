@@ -6,6 +6,7 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 import * as coreClient from "@azure/core-client";
+import * as coreRestPipeline from "@azure/core-rest-pipeline";
 import * as Parameters from "./models/parameters";
 import * as Mappers from "./models/mappers";
 export class TeamCloud extends coreClient.ServiceClient {
@@ -42,6 +43,22 @@ export class TeamCloud extends coreClient.ServiceClient {
                 userAgentPrefix
             }, baseUri: (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri) !== null && _b !== void 0 ? _b : "{$host}" });
         super(optionsWithDefaults);
+        if ((options === null || options === void 0 ? void 0 : options.pipeline) && options.pipeline.getOrderedPolicies().length > 0) {
+            const pipelinePolicies = options.pipeline.getOrderedPolicies();
+            const bearerTokenAuthenticationPolicyFound = pipelinePolicies.some((pipelinePolicy) => pipelinePolicy.name ===
+                coreRestPipeline.bearerTokenAuthenticationPolicyName);
+            if (!bearerTokenAuthenticationPolicyFound) {
+                this.pipeline.removePolicy({
+                    name: coreRestPipeline.bearerTokenAuthenticationPolicyName
+                });
+                this.pipeline.addPolicy(coreRestPipeline.bearerTokenAuthenticationPolicy({
+                    scopes: `${optionsWithDefaults.baseUri}/.default`,
+                    challengeCallbacks: {
+                        authorizeRequestOnChallenge: coreClient.authorizeRequestOnClaimChallenge
+                    }
+                }));
+            }
+        }
         // Parameter assignments
         this.$host = $host;
     }

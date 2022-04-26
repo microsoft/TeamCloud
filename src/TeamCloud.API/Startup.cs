@@ -262,10 +262,12 @@ public class Startup
             {
                 options.DocumentFilter<SwaggerDocumentFilter>();
 
-                options.AddServer(new OpenApiServer
-                {
-                    Url = endpointApiOptions.Url
-                });
+                // #if !DEBUG
+                // options.AddServer(new OpenApiServer
+                // {
+                //     Url = endpointApiOptions.Url
+                // });
+                // #endif
 
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {

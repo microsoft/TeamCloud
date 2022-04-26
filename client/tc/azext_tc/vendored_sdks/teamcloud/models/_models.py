@@ -12,8 +12,7 @@ import msrest.serialization
 class AdapterInformation(msrest.serialization.Model):
     """AdapterInformation.
 
-    :ivar type: Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
-     "Kubernetes".
+    :ivar type: Known values are: "AzureResourceManager", "AzureDevOps", "GitHub", "Kubernetes".
     :vartype type: str or ~teamcloud.models.AdapterInformationType
     :ivar display_name:
     :vartype display_name: str
@@ -35,8 +34,7 @@ class AdapterInformation(msrest.serialization.Model):
         **kwargs
     ):
         """
-        :keyword type: Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
-         "Kubernetes".
+        :keyword type: Known values are: "AzureResourceManager", "AzureDevOps", "GitHub", "Kubernetes".
         :paramtype type: str or ~teamcloud.models.AdapterInformationType
         :keyword display_name:
         :paramtype display_name: str
@@ -151,8 +149,8 @@ class CommandAuditEntity(msrest.serialization.Model):
     :vartype command: str
     :ivar component_task:
     :vartype component_task: str
-    :ivar runtime_status: Possible values include: "Running", "Completed", "ContinuedAsNew",
-     "Failed", "Canceled", "Terminated", "Pending", "Unknown".
+    :ivar runtime_status: Known values are: "Running", "Completed", "ContinuedAsNew", "Failed",
+     "Canceled", "Terminated", "Pending", "Unknown".
     :vartype runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
     :ivar custom_status:
     :vartype custom_status: str
@@ -217,8 +215,8 @@ class CommandAuditEntity(msrest.serialization.Model):
         :paramtype command: str
         :keyword component_task:
         :paramtype component_task: str
-        :keyword runtime_status: Possible values include: "Running", "Completed", "ContinuedAsNew",
-         "Failed", "Canceled", "Terminated", "Pending", "Unknown".
+        :keyword runtime_status: Known values are: "Running", "Completed", "ContinuedAsNew", "Failed",
+         "Canceled", "Terminated", "Pending", "Unknown".
         :paramtype runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
         :keyword custom_status:
         :paramtype custom_status: str
@@ -363,13 +361,13 @@ class Component(msrest.serialization.Model):
     :vartype input_json: str
     :ivar value_json:
     :vartype value_json: str
-    :ivar type: Required. Possible values include: "Environment", "Repository", "Namespace".
+    :ivar type: Required. Known values are: "Environment", "Repository", "Namespace".
     :vartype type: str or ~teamcloud.models.ComponentType
     :ivar resource_id:
     :vartype resource_id: str
     :ivar resource_url:
     :vartype resource_url: str
-    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar resource_state: Known values are: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :vartype resource_state: str or ~teamcloud.models.ComponentResourceState
     :ivar deployment_scope_id:
@@ -452,13 +450,13 @@ class Component(msrest.serialization.Model):
         :paramtype input_json: str
         :keyword value_json:
         :paramtype value_json: str
-        :keyword type: Required. Possible values include: "Environment", "Repository", "Namespace".
+        :keyword type: Required. Known values are: "Environment", "Repository", "Namespace".
         :paramtype type: str or ~teamcloud.models.ComponentType
         :keyword resource_id:
         :paramtype resource_id: str
         :keyword resource_url:
         :paramtype resource_url: str
-        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+        :keyword resource_state: Known values are: "Pending", "Initializing", "Provisioning",
          "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
         :paramtype resource_state: str or ~teamcloud.models.ComponentResourceState
         :keyword deployment_scope_id:
@@ -656,7 +654,7 @@ class ComponentTask(msrest.serialization.Model):
     :vartype requested_by: str
     :ivar schedule_id:
     :vartype schedule_id: str
-    :ivar type: Possible values include: "Custom", "Create", "Delete".
+    :ivar type: Known values are: "Custom", "Create", "Delete".
     :vartype type: str or ~teamcloud.models.ComponentTaskType
     :ivar type_name:
     :vartype type_name: str
@@ -672,8 +670,8 @@ class ComponentTask(msrest.serialization.Model):
     :vartype output: str
     :ivar resource_id:
     :vartype resource_id: str
-    :ivar task_state: Possible values include: "Pending", "Initializing", "Processing",
-     "Succeeded", "Canceled", "Failed".
+    :ivar task_state: Known values are: "Pending", "Initializing", "Processing", "Succeeded",
+     "Canceled", "Failed".
     :vartype task_state: str or ~teamcloud.models.ComponentTaskState
     :ivar exit_code:
     :vartype exit_code: int
@@ -734,7 +732,7 @@ class ComponentTask(msrest.serialization.Model):
         :paramtype requested_by: str
         :keyword schedule_id:
         :paramtype schedule_id: str
-        :keyword type: Possible values include: "Custom", "Create", "Delete".
+        :keyword type: Known values are: "Custom", "Create", "Delete".
         :paramtype type: str or ~teamcloud.models.ComponentTaskType
         :keyword type_name:
         :paramtype type_name: str
@@ -750,8 +748,8 @@ class ComponentTask(msrest.serialization.Model):
         :paramtype output: str
         :keyword resource_id:
         :paramtype resource_id: str
-        :keyword task_state: Possible values include: "Pending", "Initializing", "Processing",
-         "Succeeded", "Canceled", "Failed".
+        :keyword task_state: Known values are: "Pending", "Initializing", "Processing", "Succeeded",
+         "Canceled", "Failed".
         :paramtype task_state: str or ~teamcloud.models.ComponentTaskState
         :keyword exit_code:
         :paramtype exit_code: int
@@ -990,7 +988,7 @@ class ComponentTaskTemplate(msrest.serialization.Model):
     :vartype description: str
     :ivar input_json_schema:
     :vartype input_json_schema: str
-    :ivar type: Possible values include: "Custom", "Create", "Delete".
+    :ivar type: Known values are: "Custom", "Create", "Delete".
     :vartype type: str or ~teamcloud.models.ComponentTaskTemplateType
     :ivar type_name:
     :vartype type_name: str
@@ -1022,7 +1020,7 @@ class ComponentTaskTemplate(msrest.serialization.Model):
         :paramtype description: str
         :keyword input_json_schema:
         :paramtype input_json_schema: str
-        :keyword type: Possible values include: "Custom", "Create", "Delete".
+        :keyword type: Known values are: "Custom", "Create", "Delete".
         :paramtype type: str or ~teamcloud.models.ComponentTaskTemplateType
         """
         super(ComponentTaskTemplate, self).__init__(**kwargs)
@@ -1059,7 +1057,7 @@ class ComponentTemplate(msrest.serialization.Model):
     :vartype tasks: list[~teamcloud.models.ComponentTaskTemplate]
     :ivar task_runner:
     :vartype task_runner: ~teamcloud.models.ComponentTaskRunner
-    :ivar type: Required. Possible values include: "Environment", "Repository", "Namespace".
+    :ivar type: Required. Known values are: "Environment", "Repository", "Namespace".
     :vartype type: str or ~teamcloud.models.ComponentTemplateType
     :ivar folder:
     :vartype folder: str
@@ -1120,7 +1118,7 @@ class ComponentTemplate(msrest.serialization.Model):
         :paramtype tasks: list[~teamcloud.models.ComponentTaskTemplate]
         :keyword task_runner:
         :paramtype task_runner: ~teamcloud.models.ComponentTaskRunner
-        :keyword type: Required. Possible values include: "Environment", "Repository", "Namespace".
+        :keyword type: Required. Known values are: "Environment", "Repository", "Namespace".
         :paramtype type: str or ~teamcloud.models.ComponentTemplateType
         :keyword folder:
         :paramtype folder: str
@@ -1294,7 +1292,7 @@ class DeploymentScope(msrest.serialization.Model):
     :vartype slug: str
     :ivar is_default: Required.
     :vartype is_default: bool
-    :ivar type: Required. Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+    :ivar type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
      "Kubernetes".
     :vartype type: str or ~teamcloud.models.DeploymentScopeType
     :ivar input_data_schema:
@@ -1360,8 +1358,8 @@ class DeploymentScope(msrest.serialization.Model):
         :paramtype slug: str
         :keyword is_default: Required.
         :paramtype is_default: bool
-        :keyword type: Required. Possible values include: "AzureResourceManager", "AzureDevOps",
-         "GitHub", "Kubernetes".
+        :keyword type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
+         "Kubernetes".
         :paramtype type: str or ~teamcloud.models.DeploymentScopeType
         :keyword input_data_schema:
         :paramtype input_data_schema: str
@@ -1450,7 +1448,7 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
 
     :ivar display_name: Required.
     :vartype display_name: str
-    :ivar type: Required. Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+    :ivar type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
      "Kubernetes".
     :vartype type: str or ~teamcloud.models.DeploymentScopeDefinitionType
     :ivar slug:
@@ -1482,8 +1480,8 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
         """
         :keyword display_name: Required.
         :paramtype display_name: str
-        :keyword type: Required. Possible values include: "AzureResourceManager", "AzureDevOps",
-         "GitHub", "Kubernetes".
+        :keyword type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
+         "Kubernetes".
         :paramtype type: str or ~teamcloud.models.DeploymentScopeDefinitionType
         :keyword input_data:
         :paramtype input_data: str
@@ -1597,7 +1595,7 @@ class Organization(msrest.serialization.Model):
     :vartype tags: dict[str, str]
     :ivar resource_id:
     :vartype resource_id: str
-    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar resource_state: Known values are: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :vartype resource_state: str or ~teamcloud.models.OrganizationResourceState
     :ivar secrets_vault_id:
@@ -1608,7 +1606,7 @@ class Organization(msrest.serialization.Model):
     :vartype registry_id: str
     :ivar storage_id:
     :vartype storage_id: str
-    :ivar portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+    :ivar portal: Known values are: "TeamCloud", "Backstage", "Clutch".
     :vartype portal: str or ~teamcloud.models.OrganizationPortal
     :ivar portal_id:
     :vartype portal_id: str
@@ -1671,7 +1669,7 @@ class Organization(msrest.serialization.Model):
         :paramtype tags: dict[str, str]
         :keyword resource_id:
         :paramtype resource_id: str
-        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+        :keyword resource_state: Known values are: "Pending", "Initializing", "Provisioning",
          "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
         :paramtype resource_state: str or ~teamcloud.models.OrganizationResourceState
         :keyword secrets_vault_id:
@@ -1682,7 +1680,7 @@ class Organization(msrest.serialization.Model):
         :paramtype registry_id: str
         :keyword storage_id:
         :paramtype storage_id: str
-        :keyword portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+        :keyword portal: Known values are: "TeamCloud", "Backstage", "Clutch".
         :paramtype portal: str or ~teamcloud.models.OrganizationPortal
         :keyword portal_id:
         :paramtype portal_id: str
@@ -1772,7 +1770,7 @@ class OrganizationDefinition(msrest.serialization.Model):
     :vartype subscription_id: str
     :ivar location: Required.
     :vartype location: str
-    :ivar portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+    :ivar portal: Known values are: "TeamCloud", "Backstage", "Clutch".
     :vartype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
     :ivar tags: A set of tags. Dictionary of :code:`<string>`.
     :vartype tags: dict[str, str]
@@ -1805,7 +1803,7 @@ class OrganizationDefinition(msrest.serialization.Model):
         :paramtype subscription_id: str
         :keyword location: Required.
         :paramtype location: str
-        :keyword portal: Possible values include: "TeamCloud", "Backstage", "Clutch".
+        :keyword portal: Known values are: "TeamCloud", "Backstage", "Clutch".
         :paramtype portal: str or ~teamcloud.models.OrganizationDefinitionPortal
         :keyword tags: A set of tags. Dictionary of :code:`<string>`.
         :paramtype tags: dict[str, str]
@@ -1889,7 +1887,7 @@ class Project(msrest.serialization.Model):
     :vartype tags: dict[str, str]
     :ivar resource_id:
     :vartype resource_id: str
-    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar resource_state: Known values are: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :vartype resource_state: str or ~teamcloud.models.ProjectResourceState
     :ivar vault_id:
@@ -1961,7 +1959,7 @@ class Project(msrest.serialization.Model):
         :paramtype tags: dict[str, str]
         :keyword resource_id:
         :paramtype resource_id: str
-        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+        :keyword resource_state: Known values are: "Pending", "Initializing", "Provisioning",
          "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
         :paramtype resource_state: str or ~teamcloud.models.ProjectResourceState
         :keyword shared_vault_id:
@@ -2369,7 +2367,7 @@ class ProjectMembership(msrest.serialization.Model):
 
     :ivar project_id: Required.
     :vartype project_id: str
-    :ivar role: Required. Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
+    :ivar role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
     :vartype role: str or ~teamcloud.models.ProjectMembershipRole
     :ivar properties: Dictionary of :code:`<string>`.
     :vartype properties: dict[str, str]
@@ -2393,8 +2391,7 @@ class ProjectMembership(msrest.serialization.Model):
         """
         :keyword project_id: Required.
         :paramtype project_id: str
-        :keyword role: Required. Possible values include: "None", "Member", "Admin", "Owner",
-         "Adapter".
+        :keyword role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
         :paramtype role: str or ~teamcloud.models.ProjectMembershipRole
         :keyword properties: Dictionary of :code:`<string>`.
         :paramtype properties: dict[str, str]
@@ -2680,9 +2677,9 @@ class RepositoryReference(msrest.serialization.Model):
     :vartype mount_url: str
     :ivar ref:
     :vartype ref: str
-    :ivar provider: Required. Possible values include: "Unknown", "GitHub", "DevOps".
+    :ivar provider: Required. Known values are: "Unknown", "GitHub", "DevOps".
     :vartype provider: str or ~teamcloud.models.RepositoryReferenceProvider
-    :ivar type: Required. Possible values include: "Unknown", "Tag", "Branch", "Hash".
+    :ivar type: Required. Known values are: "Unknown", "Tag", "Branch", "Hash".
     :vartype type: str or ~teamcloud.models.RepositoryReferenceType
     :ivar organization:
     :vartype organization: str
@@ -2729,9 +2726,9 @@ class RepositoryReference(msrest.serialization.Model):
         :paramtype mount_url: str
         :keyword ref:
         :paramtype ref: str
-        :keyword provider: Required. Possible values include: "Unknown", "GitHub", "DevOps".
+        :keyword provider: Required. Known values are: "Unknown", "GitHub", "DevOps".
         :paramtype provider: str or ~teamcloud.models.RepositoryReferenceProvider
-        :keyword type: Required. Possible values include: "Unknown", "Tag", "Branch", "Hash".
+        :keyword type: Required. Known values are: "Unknown", "Tag", "Branch", "Hash".
         :paramtype type: str or ~teamcloud.models.RepositoryReferenceType
         :keyword organization:
         :paramtype organization: str
@@ -2757,8 +2754,8 @@ class RepositoryReference(msrest.serialization.Model):
 class ResultError(msrest.serialization.Model):
     """ResultError.
 
-    :ivar code: Possible values include: "Unknown", "Failed", "Conflict", "NotFound",
-     "ServerError", "ValidationError", "Unauthorized", "Forbidden".
+    :ivar code: Known values are: "Unknown", "Failed", "Conflict", "NotFound", "ServerError",
+     "ValidationError", "Unauthorized", "Forbidden".
     :vartype code: str or ~teamcloud.models.ResultErrorCode
     :ivar message:
     :vartype message: str
@@ -2777,8 +2774,8 @@ class ResultError(msrest.serialization.Model):
         **kwargs
     ):
         """
-        :keyword code: Possible values include: "Unknown", "Failed", "Conflict", "NotFound",
-         "ServerError", "ValidationError", "Unauthorized", "Forbidden".
+        :keyword code: Known values are: "Unknown", "Failed", "Conflict", "NotFound", "ServerError",
+         "ValidationError", "Unauthorized", "Forbidden".
         :paramtype code: str or ~teamcloud.models.ResultErrorCode
         :keyword message:
         :paramtype message: str
@@ -3291,9 +3288,9 @@ class User(msrest.serialization.Model):
     :vartype login_name: str
     :ivar mail_address:
     :vartype mail_address: str
-    :ivar user_type: Required. Possible values include: "User", "Group", "System", "Service".
+    :ivar user_type: Required. Known values are: "User", "Group", "System", "Service".
     :vartype user_type: str or ~teamcloud.models.UserType
-    :ivar role: Required. Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
+    :ivar role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
     :vartype role: str or ~teamcloud.models.UserRole
     :ivar project_memberships:
     :vartype project_memberships: list[~teamcloud.models.ProjectMembership]
@@ -3342,10 +3339,9 @@ class User(msrest.serialization.Model):
         :paramtype login_name: str
         :keyword mail_address:
         :paramtype mail_address: str
-        :keyword user_type: Required. Possible values include: "User", "Group", "System", "Service".
+        :keyword user_type: Required. Known values are: "User", "Group", "System", "Service".
         :paramtype user_type: str or ~teamcloud.models.UserType
-        :keyword role: Required. Possible values include: "None", "Member", "Admin", "Owner",
-         "Adapter".
+        :keyword role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
         :paramtype role: str or ~teamcloud.models.UserRole
         :keyword project_memberships:
         :paramtype project_memberships: list[~teamcloud.models.ProjectMembership]
