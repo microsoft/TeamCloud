@@ -90,7 +90,7 @@ public class CosmosDbProjectRepository : CosmosDbRepository<Project>, IProjectRe
         }
     }
 
-    public override Task<Project> GetAsync(string organization, string identifier, bool expand = false) => GetCachedAsync(organization, identifier, async cached =>
+    public override async Task<Project> GetAsync(string organization, string identifier, bool expand = false) 
     {
         if (identifier is null)
             throw new ArgumentNullException(nameof(identifier));
@@ -103,14 +103,10 @@ public class CosmosDbProjectRepository : CosmosDbRepository<Project>, IProjectRe
         try
         {
             var response = await container
-                .ReadItemAsync<Project>(identifier, GetPartitionKey(organization), cached?.GetItemNoneMatchRequestOptions())
+                .ReadItemAsync<Project>(identifier, GetPartitionKey(organization))
                 .ConfigureAwait(false);
 
-            project = SetCached(organization, identifier, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-        {
-            project = cached;
+            project = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -132,7 +128,7 @@ public class CosmosDbProjectRepository : CosmosDbRepository<Project>, IProjectRe
 
         return await ExpandAsync(project, expand)
             .ConfigureAwait(false);
-    });
+    }
 
     public async Task<bool> NameExistsAsync(string organization, string name)
     {

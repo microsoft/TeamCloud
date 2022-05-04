@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 using Newtonsoft.Json.Schema.Generation;
 
 namespace TeamCloud.Serialization.Forms;
@@ -61,16 +62,36 @@ public static class TeamCloudForm
 
             foreach (var propertyToken in token.SelectTokens("$..properties.*"))
             {
-                var titleToken = propertyToken.SelectToken("title");
+#pragma warning disable CS0618 // Type or member is obsolete
 
-                if (titleToken is null
-                    && propertyToken is JObject propertyObject
-                    && propertyToken.Parent is JProperty propertyParent)
+                if (propertyToken is JObject propertyObject && propertyToken.Parent is JProperty propertyParent)
                 {
-                    var title = PrettyPrintCamelCase(propertyParent.Name);
+                    var typeToken = propertyToken.SelectToken("type");
 
-                    propertyObject.Add("title", new JValue(title));
+                    var propertyType = typeToken is null ? JsonSchemaType.None : typeToken switch
+                    {
+                        JArray typeArray => Enum.Parse<JsonSchemaType>(typeArray.FirstOrDefault()?.ToString() ?? JsonSchemaType.None.ToString(), true),
+                        _ => Enum.Parse<JsonSchemaType>(typeToken.ToString(), true)
+                    };
+
+                    var titleToken = propertyToken.SelectToken("title");
+
+                    if (titleToken is null)
+                    {
+                        var title = PrettyPrintCamelCase(propertyParent.Name);
+
+                        propertyObject.Add("title", new JValue(title));
+                    }
+
+                    var defaultToken = propertyToken.SelectToken("default");
+
+                    if (defaultToken is null && propertyType == JsonSchemaType.Boolean)
+                    {
+                        propertyObject.Add("default", new JValue(false));
+                    }
                 }
+
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             foreach (var additionalPropertiesToken in token.SelectTokens("$..additionalProperties").Reverse())

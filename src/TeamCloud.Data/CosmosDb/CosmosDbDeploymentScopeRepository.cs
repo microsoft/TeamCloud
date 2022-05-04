@@ -154,7 +154,7 @@ public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentSc
         }
     }
 
-    public override Task<DeploymentScope> GetAsync(string organization, string identifier, bool expand = false) => GetCachedAsync(organization, identifier, async cached =>
+    public override async Task<DeploymentScope> GetAsync(string organization, string identifier, bool expand = false) 
     {
         if (identifier is null)
             throw new ArgumentNullException(nameof(identifier));
@@ -170,11 +170,7 @@ public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentSc
                 .ReadItemAsync<DeploymentScope>(identifier, GetPartitionKey(organization))
                 .ConfigureAwait(false);
 
-            deploymentScope = SetCached(organization, identifier, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-        {
-            deploymentScope = cached;
+            deploymentScope = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -196,7 +192,7 @@ public class CosmosDbDeploymentScopeRepository : CosmosDbRepository<DeploymentSc
 
         return await ExpandAsync(deploymentScope, expand)
             .ConfigureAwait(false);
-    });
+    }
 
     public async Task<DeploymentScope> GetDefaultAsync(string organization)
     {

@@ -42,7 +42,7 @@ public interface IArmService
     // IStorageService Storage { get; }
     ArmEnvironment ArmEnvironment { get; }
     Task<string> GetTenantIdAsync(CancellationToken cancellationToken = default);
-    DefaultAzureCredential GetTokenCredential();
+    TokenCredential GetTokenCredential();
     ArmClient GetArmClient(string subscriptionId = null);
     Task<IAzureIdentity> GetIdentityAsync(CancellationToken cancellationToken = default);
     Task<string> AcquireTokenAsync(CancellationToken cancellationToken = default);
@@ -72,6 +72,7 @@ public class ArmService : IArmService
     public ArmEnvironment ArmEnvironment => ArmEnvironment.AzurePublicCloud;
 
     // The DefaultAzureCredential will attempt to authenticate via the following mechanisms in order.
+    //
     //   1. Environment - The DefaultAzureCredential will read account information specified via environment
     //      variables and use it to authenticate. (AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET)
     //   2. Managed Identity - If the application is deployed to an Azure host with Managed Identity enabled,
@@ -86,7 +87,14 @@ public class ArmService : IArmService
     //      Connect-AzAccount command, the DefaultAzureCredential will authenticate with that account.
     //   7. Interactive - If enabled the DefaultAzureCredential will interactively authenticate the developer
     //      via the current system's default browser. (disabled by default)
-    public DefaultAzureCredential GetTokenCredential() => new();
+    //
+    // As this sequence won't respect the client secret credentials provided by our configuration we introduce
+    // a custom ChainedTokenCredential which first tries to authenticate using the client secret provided by
+    // the TeamCloud configuration and then falls back to the DefaultAzureCredential sequence.
+
+    public TokenCredential GetTokenCredential() => new ChainedTokenCredential(
+        new ClientSecretCredential(azureSessionOptions.TenantId, azureSessionOptions.ClientId, azureSessionOptions.ClientSecret), 
+        new DefaultAzureCredential());
 
     public ArmClient GetArmClient(string subscriptionId = null)
     {
@@ -102,31 +110,21 @@ public class ArmService : IArmService
         return armClient;
     }
 
-    private static string _tenantId;
-
     public async Task<string> GetTenantIdAsync(CancellationToken cancellationToken = default)
     {
-        if (!string.IsNullOrEmpty(_tenantId))
-            return _tenantId;
-
         var envVar = Environment.GetEnvironmentVariable("AZURE_TENANT_ID");
 
         if (envVar is not null && Guid.TryParse(envVar, out var tenantId))
         {
-            _tenantId = tenantId.ToString();
+            return tenantId.ToString();
         }
         else
         {
             var identity = await GetIdentityAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            _tenantId = identity.TenantId;
+            return identity.TenantId;
         }
-
-        if (string.IsNullOrEmpty(_tenantId))
-            throw new NotSupportedException();
-
-        return _tenantId;
     }
 
     public IAzureSessionOptions Options { get => azureSessionOptions; }
@@ -162,6 +160,7 @@ public class ArmService : IArmService
             // ensure we disable SSL verfication for this process when using the Azure CLI to aqcuire MSI token.
             // otherwise our code will fail in dev scenarios where a dev proxy like fiddler is running to sniff
             // http traffix between our services or between service and other reset apis (e.g. Azure)
+
             Environment.SetEnvironmentVariable("AZURE_CLI_DISABLE_CONNECTION_VERIFICATION", "1", EnvironmentVariableTarget.Process);
         }
 
@@ -171,4 +170,6 @@ public class ArmService : IArmService
 
         return accessToken.Token;
     }
+
+
 }

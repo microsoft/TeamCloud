@@ -78,7 +78,7 @@ public class CosmosDbOrganizationRepository : CosmosDbRepository<Organization>, 
             .ConfigureAwait(false);
     }
 
-    public override Task<Organization> GetAsync(string tenant, string identifier, bool expand = false) => GetCachedAsync(tenant, identifier, (async (cached) =>
+    public override async Task<Organization> GetAsync(string tenant, string identifier, bool expand = false)
     {
         if (identifier is null)
             throw new ArgumentNullException(nameof(identifier));
@@ -91,14 +91,10 @@ public class CosmosDbOrganizationRepository : CosmosDbRepository<Organization>, 
         try
         {
             var response = await container
-                .ReadItemAsync<Organization>(identifier, GetPartitionKey(tenant), cached?.GetItemNoneMatchRequestOptions())
+                .ReadItemAsync<Organization>(identifier, GetPartitionKey(tenant))
                 .ConfigureAwait(false);
 
-            organization = SetCached(tenant, identifier, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-        {
-            organization = cached;
+            organization = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -120,7 +116,7 @@ public class CosmosDbOrganizationRepository : CosmosDbRepository<Organization>, 
 
         return await ExpandAsync(organization, expand)
             .ConfigureAwait(false);
-    }));
+    }
 
     public override async IAsyncEnumerable<Organization> ListAsync(string tenant)
     {

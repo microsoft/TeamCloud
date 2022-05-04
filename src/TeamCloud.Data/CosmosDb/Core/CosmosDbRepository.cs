@@ -167,51 +167,6 @@ public abstract class CosmosDbRepository<T> : ICosmosDbRepository, IDocumentRepo
 
     public abstract Task<T> RemoveAsync(T document);
 
-    private string GetCacheKey(string partitionId, string documentId)
-        => $"{typeof(T)}|{partitionId}|{documentId}";
-
-    protected async Task<T> GetCachedAsync(string partitionId, string documentId, Func<T, Task<T>> callback)
-    {
-        if (string.IsNullOrWhiteSpace(partitionId))
-            throw new ArgumentException($"'{nameof(partitionId)}' cannot be null or whitespace.", nameof(partitionId));
-
-        if (string.IsNullOrWhiteSpace(documentId))
-            throw new ArgumentException($"'{nameof(documentId)}' cannot be null or whitespace.", nameof(documentId));
-
-        if (callback is null)
-            throw new ArgumentNullException(nameof(callback));
-
-        if (memoryCache is null)
-            return await callback(default(T)).ConfigureAwait(false);
-
-        var cacheKey = GetCacheKey(partitionId, documentId);
-        var cacheItem = memoryCache.Get<T>(cacheKey);
-
-        if (cacheItem is ICloneable cloneable)
-            cacheItem = (T)cloneable.Clone();
-
-        return await callback(cacheItem)
-            .ConfigureAwait(false);
-    }
-
-    protected T SetCached(string partitionId, string documentId, T document)
-    {
-        if (string.IsNullOrWhiteSpace(partitionId))
-            throw new ArgumentException($"'{nameof(partitionId)}' cannot be null or whitespace.", nameof(partitionId));
-
-        if (string.IsNullOrWhiteSpace(documentId))
-            throw new ArgumentException($"'{nameof(documentId)}' cannot be null or whitespace.", nameof(documentId));
-
-        if (memoryCache is not null && document is not null)
-        {
-            var cacheKey = GetCacheKey(partitionId, documentId);
-
-            memoryCache.Set(cacheKey, document, MemoryCacheOptions);
-        }
-
-        return document;
-    }
-
     protected async Task<IEnumerable<T>> NotifySubscribersAsync(IEnumerable<T> documents, DocumentSubscriptionEvent subscriptionEvent)
     {
         if (documents is null)
