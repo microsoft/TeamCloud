@@ -121,7 +121,7 @@ public class CosmosDbProjectTemplateRepository : CosmosDbRepository<ProjectTempl
         }
     }
 
-    public override Task<ProjectTemplate> GetAsync(string organization, string id, bool expand = false) => GetCachedAsync(organization, id, async cached =>
+    public override async Task<ProjectTemplate> GetAsync(string organization, string id, bool expand = false) 
     {
         var container = await GetContainerAsync()
             .ConfigureAwait(false);
@@ -134,11 +134,7 @@ public class CosmosDbProjectTemplateRepository : CosmosDbRepository<ProjectTempl
                 .ReadItemAsync<ProjectTemplate>(id, GetPartitionKey(organization))
                 .ConfigureAwait(false);
 
-            projectTemplate = SetCached(organization, id, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-        {
-            projectTemplate = cached;
+            projectTemplate = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -150,7 +146,7 @@ public class CosmosDbProjectTemplateRepository : CosmosDbRepository<ProjectTempl
 
         return await ExpandAsync(projectTemplate, expand)
             .ConfigureAwait(false);
-    });
+    }
 
     public async Task<ProjectTemplate> GetDefaultAsync(string organization)
     {

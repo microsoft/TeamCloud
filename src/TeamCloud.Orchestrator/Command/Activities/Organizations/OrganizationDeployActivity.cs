@@ -3,10 +3,10 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Data;
@@ -14,6 +14,7 @@ using TeamCloud.Model;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 using TeamCloud.Orchestrator.Templates;
+using TeamCloud.Serialization;
 
 namespace TeamCloud.Orchestrator.Command.Activities.Organizations;
 
@@ -38,19 +39,27 @@ public sealed class OrganizationDeployActivity
         if (context is null)
             throw new ArgumentNullException(nameof(context));
 
-        var organization = context.GetInput<Input>().Organization;
+        try
+        {
+            var organization = context.GetInput<Input>().Organization;
 
-        var template = new SharedResourcesTemplate();
+            var template = new SharedResourcesTemplate();
 
-        template.Parameters["organizationId"] = organization.Id;
-        template.Parameters["organizationName"] = organization.Slug;
-        template.Parameters["organizationTags"] = organization.GetWellKnownTags();
+            template.Parameters["organizationId"] = organization.Id;
+            template.Parameters["organizationSlug"] = organization.Slug;
+            template.Parameters["organizationTags"] = organization.GetWellKnownTags();
 
-        var deployment = await azureDeploymentService
-            .DeploySubscriptionTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organization.Location)
-            .ConfigureAwait(false);
 
-        return deployment.ResourceId;
+            var deployment = await azureDeploymentService
+                .DeploySubscriptionTemplateAsync(template, Guid.Parse(organization.SubscriptionId), organization.Location)
+                .ConfigureAwait(false);
+
+            return deployment.ResourceId;
+        }
+        catch (Exception exc)
+        {
+            throw exc.AsSerializable();
+        }
     }
 
     internal struct Input

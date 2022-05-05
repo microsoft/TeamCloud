@@ -3,6 +3,12 @@
  *  Licensed under the MIT License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Azure.Management.Graph.RBAC.Fluent;
@@ -13,12 +19,6 @@ using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Rest.Azure;
 using Microsoft.Rest.Azure.OData;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using TeamCloud.Azure.Resources.Typed;
 using TeamCloud.Http;
 
@@ -53,14 +53,14 @@ public class AzureResource
         AzureResourceService = null;
     }
 
-    protected AzureResource(string resourceId, IAzureResourceService azureResourceService)
-    {
-        if (resourceId is null)
-            throw new ArgumentNullException(nameof(resourceId));
+    // protected AzureResource(string resourceId, IAzureResourceService azureResourceService)
+    // {
+    //     if (resourceId is null)
+    //         throw new ArgumentNullException(nameof(resourceId));
 
-        ResourceId = AzureResourceIdentifier.Parse(resourceId);
-        AzureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
-    }
+    //     ResourceId = AzureResourceIdentifier.Parse(resourceId);
+    //     AzureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+    // }
 
     protected IAzureResourceService AzureResourceService { get; private set; }
 
@@ -227,12 +227,12 @@ public class AzureResource
         return apiVersions.FirstOrDefault();
     }
 
-    public async Task<string> GetLocationAsync()
-    {
-        var json = await GetJsonAsync().ConfigureAwait(false);
+    // public async Task<string> GetLocationAsync()
+    // {
+    //     var json = await GetJsonAsync().ConfigureAwait(false);
 
-        return json?.SelectToken("location")?.ToString();
-    }
+    //     return json?.SelectToken("location")?.ToString();
+    // }
 
     public async Task<JObject> GetJsonAsync(string apiVersion = null)
     {
@@ -341,34 +341,34 @@ public class AzureResource
             .ConfigureAwait(false);
     }
 
-    public async Task<string> GetTagAsync(string key)
-    {
-        var tags = await GetTagsAsync(true)
-            .ConfigureAwait(false);
+    // public async Task<string> GetTagAsync(string key)
+    // {
+    //     var tags = await GetTagsAsync(true)
+    //         .ConfigureAwait(false);
 
-        if (tags.TryGetValue(key, out string value))
-            return value;
+    //     if (tags.TryGetValue(key, out string value))
+    //         return value;
 
-        return default;
-    }
+    //     return default;
+    // }
 
-    public async Task SetTagAsync(string key, string value = default)
-    {
-        var tags = await GetTagsAsync(true)
-            .ConfigureAwait(false);
+    // public async Task SetTagAsync(string key, string value = default)
+    // {
+    //     var tags = await GetTagsAsync(true)
+    //         .ConfigureAwait(false);
 
-        if (tags.TryGetValue(key, out string currentValue) && currentValue == value)
-        {
-            return; // no need to update or delete
-        }
-        else
-        {
-            tags[key] = value;
-        }
+    //     if (tags.TryGetValue(key, out string currentValue) && currentValue == value)
+    //     {
+    //         return; // no need to update or delete
+    //     }
+    //     else
+    //     {
+    //         tags[key] = value;
+    //     }
 
-        await SetTagsAsync(tags)
-            .ConfigureAwait(false);
-    }
+    //     await SetTagsAsync(tags)
+    //         .ConfigureAwait(false);
+    // }
 
     public virtual async Task AddRoleAssignmentAsync(string userObjectId, Guid roleDefinitionId)
     {
@@ -435,19 +435,19 @@ public class AzureResource
             .Any(assignment => assignment.GetRoleDefinitionId() == roleDefinitionId);
     }
 
-    public virtual async Task<IEnumerable<Guid>> GetRoleAssignmentsAsync(string userObjectId)
-    {
-        if (string.IsNullOrEmpty(userObjectId))
-            throw new ArgumentException($"'{nameof(userObjectId)}' cannot be null or empty.", nameof(userObjectId));
+    // public virtual async Task<IEnumerable<Guid>> GetRoleAssignmentsAsync(string userObjectId)
+    // {
+    //     if (string.IsNullOrEmpty(userObjectId))
+    //         throw new ArgumentException($"'{nameof(userObjectId)}' cannot be null or empty.", nameof(userObjectId));
 
-        var assignments = await GetRoleAssignmentsInternalAsync(userObjectId, false)
-            .ConfigureAwait(false);
+    //     var assignments = await GetRoleAssignmentsInternalAsync(userObjectId, false)
+    //         .ConfigureAwait(false);
 
-        if (assignments.TryGetValue(userObjectId, out var roleAssignments))
-            return roleAssignments.Select(roleAssignment => roleAssignment.GetRoleDefinitionId());
+    //     if (assignments.TryGetValue(userObjectId, out var roleAssignments))
+    //         return roleAssignments.Select(roleAssignment => roleAssignment.GetRoleDefinitionId());
 
-        return Enumerable.Empty<Guid>();
-    }
+    //     return Enumerable.Empty<Guid>();
+    // }
 
     public virtual async Task SetRoleAssignmentsAsync(IDictionary<string, IEnumerable<Guid>> roleAssignments)
     {

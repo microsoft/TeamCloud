@@ -4,12 +4,12 @@
  */
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Azure.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Resources;
+using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
@@ -21,17 +21,17 @@ public sealed class ComponentIdentityActivity
     private readonly IOrganizationRepository organizationRepository;
     private readonly IDeploymentScopeRepository deploymentScopeRepository;
     private readonly IProjectRepository projectRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azure;
 
     public ComponentIdentityActivity(IOrganizationRepository organizationRepository,
                                      IDeploymentScopeRepository deploymentScopeRepository,
                                      IProjectRepository projectRepository,
-                                     IAzureResourceService azureResourceService)
+                                     IAzureService azure)
     {
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
     }
 
     [FunctionName(nameof(ComponentIdentityActivity))]
@@ -48,7 +48,7 @@ public sealed class ComponentIdentityActivity
 
         var component = context.GetInput<Input>().Component;
 
-        if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var identityId))
+        if (string.IsNullOrEmpty(component.IdentityId))
         {
             var deploymentScope = await deploymentScopeRepository
                 .GetAsync(component.Organization, component.DeploymentScopeId)
@@ -58,47 +58,36 @@ public sealed class ComponentIdentityActivity
                 .GetAsync(component.Organization, component.ProjectId)
                 .ConfigureAwait(false);
 
-            var projectResourceId = AzureResourceIdentifier.Parse(project.ResourceId);
+            var projectResourceId = new ResourceIdentifier(project.ResourceId);
 
-            var session = await azureResourceService.AzureSessionService
-                .CreateSessionAsync(projectResourceId.SubscriptionId)
+            var identity = await azure
+                .GetUserAssignedIdentityAsync(projectResourceId.SubscriptionId, projectResourceId.ResourceGroupName, deploymentScope.Id)
                 .ConfigureAwait(false);
-
-            var identities = await session.Identities
-                .ListByResourceGroupAsync(projectResourceId.ResourceGroup, loadAllPages: true)
-                .ConfigureAwait(false);
-
-            var identity = identities
-                .SingleOrDefault(i => i.Name.Equals(deploymentScope.Id, StringComparison.OrdinalIgnoreCase));
 
             if (identity is null)
             {
                 var location = await GetLocationAsync(component)
                     .ConfigureAwait(false);
 
-                identity = await session.Identities
-                    .Define(deploymentScope.Id)
-                        .WithRegion(location)
-                        .WithExistingResourceGroup(projectResourceId.ResourceGroup)
-                    .CreateAsync()
+                identity = await azure
+                    .CreateUserAssignedIdentityAsync(projectResourceId.SubscriptionId, projectResourceId.ResourceGroupName, deploymentScope.Id, location)
                     .ConfigureAwait(false);
             }
 
             component.IdentityId = identity.Id;
         }
 
-
         return component;
     }
 
     private async Task<string> GetLocationAsync(Component component)
     {
-        var tenantId = await azureResourceService.AzureSessionService
+        var tenantId = await azure
             .GetTenantIdAsync()
             .ConfigureAwait(false);
 
         var organization = await organizationRepository
-            .GetAsync(tenantId.ToString(), component.Organization)
+            .GetAsync(tenantId, component.Organization)
             .ConfigureAwait(false);
 
         return organization.Location;

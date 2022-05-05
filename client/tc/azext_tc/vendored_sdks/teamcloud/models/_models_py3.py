@@ -7,18 +7,19 @@
 # --------------------------------------------------------------------------
 
 import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Union
 
 import msrest.serialization
 
-from ._team_cloud_client_enums import *
+if TYPE_CHECKING:
+    # pylint: disable=unused-import,ungrouped-imports
+    import __init__ as _models
 
 
 class AdapterInformation(msrest.serialization.Model):
     """AdapterInformation.
 
-    :ivar type: Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
-     "Kubernetes".
+    :ivar type: Known values are: "AzureResourceManager", "AzureDevOps", "GitHub", "Kubernetes".
     :vartype type: str or ~teamcloud.models.AdapterInformationType
     :ivar display_name:
     :vartype display_name: str
@@ -38,15 +39,14 @@ class AdapterInformation(msrest.serialization.Model):
     def __init__(
         self,
         *,
-        type: Optional[Union[str, "AdapterInformationType"]] = None,
+        type: Optional[Union[str, "_models.AdapterInformationType"]] = None,
         display_name: Optional[str] = None,
         input_data_schema: Optional[str] = None,
         input_data_form: Optional[str] = None,
         **kwargs
     ):
         """
-        :keyword type: Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
-         "Kubernetes".
+        :keyword type: Known values are: "AzureResourceManager", "AzureDevOps", "GitHub", "Kubernetes".
         :paramtype type: str or ~teamcloud.models.AdapterInformationType
         :keyword display_name:
         :paramtype display_name: str
@@ -141,6 +141,14 @@ class CommandAuditEntity(msrest.serialization.Model):
 
     Variables are only populated by the server, and will be ignored when sending a request.
 
+    :ivar partition_key:
+    :vartype partition_key: str
+    :ivar row_key:
+    :vartype row_key: str
+    :ivar timestamp:
+    :vartype timestamp: ~datetime.datetime
+    :ivar e_tag: Any object.
+    :vartype e_tag: any
     :ivar command_id:
     :vartype command_id: str
     :ivar organization_id:
@@ -159,8 +167,8 @@ class CommandAuditEntity(msrest.serialization.Model):
     :vartype command: str
     :ivar component_task:
     :vartype component_task: str
-    :ivar runtime_status: Possible values include: "Running", "Completed", "ContinuedAsNew",
-     "Failed", "Canceled", "Terminated", "Pending", "Unknown".
+    :ivar runtime_status: Known values are: "Running", "Completed", "ContinuedAsNew", "Failed",
+     "Canceled", "Terminated", "Pending", "Unknown".
     :vartype runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
     :ivar custom_status:
     :vartype custom_status: str
@@ -175,13 +183,13 @@ class CommandAuditEntity(msrest.serialization.Model):
     _validation = {
         'command_id': {'readonly': True},
         'organization_id': {'readonly': True},
-        'project_id': {'readonly': True},
-        'user_id': {'readonly': True},
-        'parent_id': {'readonly': True},
-        'component_task': {'readonly': True},
     }
 
     _attribute_map = {
+        'partition_key': {'key': 'partitionKey', 'type': 'str'},
+        'row_key': {'key': 'rowKey', 'type': 'str'},
+        'timestamp': {'key': 'timestamp', 'type': 'iso-8601'},
+        'e_tag': {'key': 'eTag', 'type': 'object'},
         'command_id': {'key': 'commandId', 'type': 'str'},
         'organization_id': {'key': 'organizationId', 'type': 'str'},
         'command_json': {'key': 'commandJson', 'type': 'str'},
@@ -201,10 +209,18 @@ class CommandAuditEntity(msrest.serialization.Model):
     def __init__(
         self,
         *,
+        partition_key: Optional[str] = None,
+        row_key: Optional[str] = None,
+        timestamp: Optional[datetime.datetime] = None,
+        e_tag: Optional[Any] = None,
         command_json: Optional[str] = None,
         result_json: Optional[str] = None,
+        project_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
         command: Optional[str] = None,
-        runtime_status: Optional[Union[str, "CommandAuditEntityRuntimeStatus"]] = None,
+        component_task: Optional[str] = None,
+        runtime_status: Optional[Union[str, "_models.CommandAuditEntityRuntimeStatus"]] = None,
         custom_status: Optional[str] = None,
         errors: Optional[str] = None,
         created: Optional[datetime.datetime] = None,
@@ -212,14 +228,30 @@ class CommandAuditEntity(msrest.serialization.Model):
         **kwargs
     ):
         """
+        :keyword partition_key:
+        :paramtype partition_key: str
+        :keyword row_key:
+        :paramtype row_key: str
+        :keyword timestamp:
+        :paramtype timestamp: ~datetime.datetime
+        :keyword e_tag: Any object.
+        :paramtype e_tag: any
         :keyword command_json:
         :paramtype command_json: str
         :keyword result_json:
         :paramtype result_json: str
+        :keyword project_id:
+        :paramtype project_id: str
+        :keyword user_id:
+        :paramtype user_id: str
+        :keyword parent_id:
+        :paramtype parent_id: str
         :keyword command:
         :paramtype command: str
-        :keyword runtime_status: Possible values include: "Running", "Completed", "ContinuedAsNew",
-         "Failed", "Canceled", "Terminated", "Pending", "Unknown".
+        :keyword component_task:
+        :paramtype component_task: str
+        :keyword runtime_status: Known values are: "Running", "Completed", "ContinuedAsNew", "Failed",
+         "Canceled", "Terminated", "Pending", "Unknown".
         :paramtype runtime_status: str or ~teamcloud.models.CommandAuditEntityRuntimeStatus
         :keyword custom_status:
         :paramtype custom_status: str
@@ -231,15 +263,19 @@ class CommandAuditEntity(msrest.serialization.Model):
         :paramtype updated: ~datetime.datetime
         """
         super(CommandAuditEntity, self).__init__(**kwargs)
+        self.partition_key = partition_key
+        self.row_key = row_key
+        self.timestamp = timestamp
+        self.e_tag = e_tag
         self.command_id = None
         self.organization_id = None
         self.command_json = command_json
         self.result_json = result_json
-        self.project_id = None
-        self.user_id = None
-        self.parent_id = None
+        self.project_id = project_id
+        self.user_id = user_id
+        self.parent_id = parent_id
         self.command = command
-        self.component_task = None
+        self.component_task = component_task
         self.runtime_status = runtime_status
         self.custom_status = custom_status
         self.errors = errors
@@ -272,7 +308,7 @@ class CommandAuditEntityDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["CommandAuditEntity"] = None,
+        data: Optional["_models.CommandAuditEntity"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -369,13 +405,13 @@ class Component(msrest.serialization.Model):
     :vartype input_json: str
     :ivar value_json:
     :vartype value_json: str
-    :ivar type: Required. Possible values include: "Environment", "Repository", "Namespace".
+    :ivar type: Required. Known values are: "Environment", "Repository", "Namespace".
     :vartype type: str or ~teamcloud.models.ComponentType
     :ivar resource_id:
     :vartype resource_id: str
     :ivar resource_url:
     :vartype resource_url: str
-    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar resource_state: Known values are: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :vartype resource_state: str or ~teamcloud.models.ComponentResourceState
     :ivar deployment_scope_id:
@@ -440,7 +476,7 @@ class Component(msrest.serialization.Model):
         project_id: str,
         project_name: str,
         creator: str,
-        type: Union[str, "ComponentType"],
+        type: Union[str, "_models.ComponentType"],
         slug: str,
         id: str,
         href: Optional[str] = None,
@@ -450,7 +486,7 @@ class Component(msrest.serialization.Model):
         value_json: Optional[str] = None,
         resource_id: Optional[str] = None,
         resource_url: Optional[str] = None,
-        resource_state: Optional[Union[str, "ComponentResourceState"]] = None,
+        resource_state: Optional[Union[str, "_models.ComponentResourceState"]] = None,
         deployment_scope_id: Optional[str] = None,
         deployment_scope_name: Optional[str] = None,
         identity_id: Optional[str] = None,
@@ -481,13 +517,13 @@ class Component(msrest.serialization.Model):
         :paramtype input_json: str
         :keyword value_json:
         :paramtype value_json: str
-        :keyword type: Required. Possible values include: "Environment", "Repository", "Namespace".
+        :keyword type: Required. Known values are: "Environment", "Repository", "Namespace".
         :paramtype type: str or ~teamcloud.models.ComponentType
         :keyword resource_id:
         :paramtype resource_id: str
         :keyword resource_url:
         :paramtype resource_url: str
-        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+        :keyword resource_state: Known values are: "Pending", "Initializing", "Provisioning",
          "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
         :paramtype resource_state: str or ~teamcloud.models.ComponentResourceState
         :keyword deployment_scope_id:
@@ -555,7 +591,7 @@ class ComponentDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["Component"] = None,
+        data: Optional["_models.Component"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -699,7 +735,7 @@ class ComponentTask(msrest.serialization.Model):
     :vartype requested_by: str
     :ivar schedule_id:
     :vartype schedule_id: str
-    :ivar type: Possible values include: "Custom", "Create", "Delete".
+    :ivar type: Known values are: "Custom", "Create", "Delete".
     :vartype type: str or ~teamcloud.models.ComponentTaskType
     :ivar type_name:
     :vartype type_name: str
@@ -715,8 +751,8 @@ class ComponentTask(msrest.serialization.Model):
     :vartype output: str
     :ivar resource_id:
     :vartype resource_id: str
-    :ivar task_state: Possible values include: "Pending", "Initializing", "Processing",
-     "Succeeded", "Canceled", "Failed".
+    :ivar task_state: Known values are: "Pending", "Initializing", "Processing", "Succeeded",
+     "Canceled", "Failed".
     :vartype task_state: str or ~teamcloud.models.ComponentTaskState
     :ivar exit_code:
     :vartype exit_code: int
@@ -768,7 +804,7 @@ class ComponentTask(msrest.serialization.Model):
         id: str,
         requested_by: Optional[str] = None,
         schedule_id: Optional[str] = None,
-        type: Optional[Union[str, "ComponentTaskType"]] = None,
+        type: Optional[Union[str, "_models.ComponentTaskType"]] = None,
         type_name: Optional[str] = None,
         created: Optional[datetime.datetime] = None,
         started: Optional[datetime.datetime] = None,
@@ -776,7 +812,7 @@ class ComponentTask(msrest.serialization.Model):
         input_json: Optional[str] = None,
         output: Optional[str] = None,
         resource_id: Optional[str] = None,
-        task_state: Optional[Union[str, "ComponentTaskState"]] = None,
+        task_state: Optional[Union[str, "_models.ComponentTaskState"]] = None,
         exit_code: Optional[int] = None,
         **kwargs
     ):
@@ -797,7 +833,7 @@ class ComponentTask(msrest.serialization.Model):
         :paramtype requested_by: str
         :keyword schedule_id:
         :paramtype schedule_id: str
-        :keyword type: Possible values include: "Custom", "Create", "Delete".
+        :keyword type: Known values are: "Custom", "Create", "Delete".
         :paramtype type: str or ~teamcloud.models.ComponentTaskType
         :keyword type_name:
         :paramtype type_name: str
@@ -813,8 +849,8 @@ class ComponentTask(msrest.serialization.Model):
         :paramtype output: str
         :keyword resource_id:
         :paramtype resource_id: str
-        :keyword task_state: Possible values include: "Pending", "Initializing", "Processing",
-         "Succeeded", "Canceled", "Failed".
+        :keyword task_state: Known values are: "Pending", "Initializing", "Processing", "Succeeded",
+         "Canceled", "Failed".
         :paramtype task_state: str or ~teamcloud.models.ComponentTaskState
         :keyword exit_code:
         :paramtype exit_code: int
@@ -868,7 +904,7 @@ class ComponentTaskDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["ComponentTask"] = None,
+        data: Optional["_models.ComponentTask"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -1027,12 +1063,15 @@ class ComponentTaskRunner(msrest.serialization.Model):
 
     :ivar id:
     :vartype id: str
+    :ivar web_server:
+    :vartype web_server: bool
     :ivar with_property: Dictionary of :code:`<string>`.
     :vartype with_property: dict[str, str]
     """
 
     _attribute_map = {
         'id': {'key': 'id', 'type': 'str'},
+        'web_server': {'key': 'webServer', 'type': 'bool'},
         'with_property': {'key': 'with', 'type': '{str}'},
     }
 
@@ -1040,17 +1079,21 @@ class ComponentTaskRunner(msrest.serialization.Model):
         self,
         *,
         id: Optional[str] = None,
+        web_server: Optional[bool] = None,
         with_property: Optional[Dict[str, str]] = None,
         **kwargs
     ):
         """
         :keyword id:
         :paramtype id: str
+        :keyword web_server:
+        :paramtype web_server: bool
         :keyword with_property: Dictionary of :code:`<string>`.
         :paramtype with_property: dict[str, str]
         """
         super(ComponentTaskRunner, self).__init__(**kwargs)
         self.id = id
+        self.web_server = web_server
         self.with_property = with_property
 
 
@@ -1067,7 +1110,7 @@ class ComponentTaskTemplate(msrest.serialization.Model):
     :vartype description: str
     :ivar input_json_schema:
     :vartype input_json_schema: str
-    :ivar type: Possible values include: "Custom", "Create", "Delete".
+    :ivar type: Known values are: "Custom", "Create", "Delete".
     :vartype type: str or ~teamcloud.models.ComponentTaskTemplateType
     :ivar type_name:
     :vartype type_name: str
@@ -1093,7 +1136,7 @@ class ComponentTaskTemplate(msrest.serialization.Model):
         display_name: Optional[str] = None,
         description: Optional[str] = None,
         input_json_schema: Optional[str] = None,
-        type: Optional[Union[str, "ComponentTaskTemplateType"]] = None,
+        type: Optional[Union[str, "_models.ComponentTaskTemplateType"]] = None,
         **kwargs
     ):
         """
@@ -1105,7 +1148,7 @@ class ComponentTaskTemplate(msrest.serialization.Model):
         :paramtype description: str
         :keyword input_json_schema:
         :paramtype input_json_schema: str
-        :keyword type: Possible values include: "Custom", "Create", "Delete".
+        :keyword type: Known values are: "Custom", "Create", "Delete".
         :paramtype type: str or ~teamcloud.models.ComponentTaskTemplateType
         """
         super(ComponentTaskTemplate, self).__init__(**kwargs)
@@ -1142,7 +1185,7 @@ class ComponentTemplate(msrest.serialization.Model):
     :vartype tasks: list[~teamcloud.models.ComponentTaskTemplate]
     :ivar task_runner:
     :vartype task_runner: ~teamcloud.models.ComponentTaskRunner
-    :ivar type: Required. Possible values include: "Environment", "Repository", "Namespace".
+    :ivar type: Required. Known values are: "Environment", "Repository", "Namespace".
     :vartype type: str or ~teamcloud.models.ComponentTemplateType
     :ivar folder:
     :vartype folder: str
@@ -1184,15 +1227,15 @@ class ComponentTemplate(msrest.serialization.Model):
         organization: str,
         organization_name: str,
         parent_id: str,
-        repository: "RepositoryReference",
-        type: Union[str, "ComponentTemplateType"],
+        repository: "_models.RepositoryReference",
+        type: Union[str, "_models.ComponentTemplateType"],
         id: str,
         display_name: Optional[str] = None,
         description: Optional[str] = None,
-        permissions: Optional["ComponentTemplatePermissions"] = None,
+        permissions: Optional["_models.ComponentTemplatePermissions"] = None,
         input_json_schema: Optional[str] = None,
-        tasks: Optional[List["ComponentTaskTemplate"]] = None,
-        task_runner: Optional["ComponentTaskRunner"] = None,
+        tasks: Optional[List["_models.ComponentTaskTemplate"]] = None,
+        task_runner: Optional["_models.ComponentTaskRunner"] = None,
         folder: Optional[str] = None,
         configuration: Optional[Any] = None,
         **kwargs
@@ -1218,7 +1261,7 @@ class ComponentTemplate(msrest.serialization.Model):
         :paramtype tasks: list[~teamcloud.models.ComponentTaskTemplate]
         :keyword task_runner:
         :paramtype task_runner: ~teamcloud.models.ComponentTaskRunner
-        :keyword type: Required. Possible values include: "Environment", "Repository", "Namespace".
+        :keyword type: Required. Known values are: "Environment", "Repository", "Namespace".
         :paramtype type: str or ~teamcloud.models.ComponentTemplateType
         :keyword folder:
         :paramtype folder: str
@@ -1269,7 +1312,7 @@ class ComponentTemplateDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["ComponentTemplate"] = None,
+        data: Optional["_models.ComponentTemplate"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -1407,7 +1450,7 @@ class DeploymentScope(msrest.serialization.Model):
     :vartype slug: str
     :ivar is_default: Required.
     :vartype is_default: bool
-    :ivar type: Required. Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+    :ivar type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
      "Kubernetes".
     :vartype type: str or ~teamcloud.models.DeploymentScopeType
     :ivar input_data_schema:
@@ -1466,7 +1509,7 @@ class DeploymentScope(msrest.serialization.Model):
         display_name: str,
         slug: str,
         is_default: bool,
-        type: Union[str, "DeploymentScopeType"],
+        type: Union[str, "_models.DeploymentScopeType"],
         id: str,
         input_data_schema: Optional[str] = None,
         input_data: Optional[str] = None,
@@ -1475,7 +1518,7 @@ class DeploymentScope(msrest.serialization.Model):
         authorizable: Optional[bool] = None,
         authorized: Optional[bool] = None,
         authorize_url: Optional[str] = None,
-        component_types: Optional[List[Union[str, "DeploymentScopeComponentTypesItem"]]] = None,
+        component_types: Optional[List[Union[str, "_models.DeploymentScopeComponentTypesItem"]]] = None,
         **kwargs
     ):
         """
@@ -1489,8 +1532,8 @@ class DeploymentScope(msrest.serialization.Model):
         :paramtype slug: str
         :keyword is_default: Required.
         :paramtype is_default: bool
-        :keyword type: Required. Possible values include: "AzureResourceManager", "AzureDevOps",
-         "GitHub", "Kubernetes".
+        :keyword type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
+         "Kubernetes".
         :paramtype type: str or ~teamcloud.models.DeploymentScopeType
         :keyword input_data_schema:
         :paramtype input_data_schema: str
@@ -1554,7 +1597,7 @@ class DeploymentScopeDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["DeploymentScope"] = None,
+        data: Optional["_models.DeploymentScope"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -1584,7 +1627,7 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
 
     :ivar display_name: Required.
     :vartype display_name: str
-    :ivar type: Required. Possible values include: "AzureResourceManager", "AzureDevOps", "GitHub",
+    :ivar type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
      "Kubernetes".
     :vartype type: str or ~teamcloud.models.DeploymentScopeDefinitionType
     :ivar slug:
@@ -1613,7 +1656,7 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
         self,
         *,
         display_name: str,
-        type: Union[str, "DeploymentScopeDefinitionType"],
+        type: Union[str, "_models.DeploymentScopeDefinitionType"],
         input_data: Optional[str] = None,
         is_default: Optional[bool] = None,
         **kwargs
@@ -1621,8 +1664,8 @@ class DeploymentScopeDefinition(msrest.serialization.Model):
         """
         :keyword display_name: Required.
         :paramtype display_name: str
-        :keyword type: Required. Possible values include: "AzureResourceManager", "AzureDevOps",
-         "GitHub", "Kubernetes".
+        :keyword type: Required. Known values are: "AzureResourceManager", "AzureDevOps", "GitHub",
+         "Kubernetes".
         :paramtype type: str or ~teamcloud.models.DeploymentScopeDefinitionType
         :keyword input_data:
         :paramtype input_data: str
@@ -1708,7 +1751,7 @@ class ErrorResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        errors: Optional[List["ResultError"]] = None,
+        errors: Optional[List["_models.ResultError"]] = None,
         **kwargs
     ):
         """
@@ -1744,7 +1787,7 @@ class Organization(msrest.serialization.Model):
     :vartype tags: dict[str, str]
     :ivar resource_id:
     :vartype resource_id: str
-    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar resource_state: Known values are: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :vartype resource_state: str or ~teamcloud.models.OrganizationResourceState
     :ivar secrets_vault_id:
@@ -1795,7 +1838,7 @@ class Organization(msrest.serialization.Model):
         id: str,
         tags: Optional[Dict[str, str]] = None,
         resource_id: Optional[str] = None,
-        resource_state: Optional[Union[str, "OrganizationResourceState"]] = None,
+        resource_state: Optional[Union[str, "_models.OrganizationResourceState"]] = None,
         secrets_vault_id: Optional[str] = None,
         gallery_id: Optional[str] = None,
         registry_id: Optional[str] = None,
@@ -1817,7 +1860,7 @@ class Organization(msrest.serialization.Model):
         :paramtype tags: dict[str, str]
         :keyword resource_id:
         :paramtype resource_id: str
-        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+        :keyword resource_state: Known values are: "Pending", "Initializing", "Provisioning",
          "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
         :paramtype resource_state: str or ~teamcloud.models.OrganizationResourceState
         :keyword secrets_vault_id:
@@ -1872,7 +1915,7 @@ class OrganizationDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["Organization"] = None,
+        data: Optional["_models.Organization"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -2028,7 +2071,7 @@ class Project(msrest.serialization.Model):
     :vartype tags: dict[str, str]
     :ivar resource_id:
     :vartype resource_id: str
-    :ivar resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+    :ivar resource_state: Known values are: "Pending", "Initializing", "Provisioning",
      "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
     :vartype resource_state: str or ~teamcloud.models.ProjectResourceState
     :ivar vault_id:
@@ -2087,10 +2130,10 @@ class Project(msrest.serialization.Model):
         template: str,
         id: str,
         template_input: Optional[str] = None,
-        users: Optional[List["User"]] = None,
+        users: Optional[List["_models.User"]] = None,
         tags: Optional[Dict[str, str]] = None,
         resource_id: Optional[str] = None,
-        resource_state: Optional[Union[str, "ProjectResourceState"]] = None,
+        resource_state: Optional[Union[str, "_models.ProjectResourceState"]] = None,
         shared_vault_id: Optional[str] = None,
         secrets_vault_id: Optional[str] = None,
         storage_id: Optional[str] = None,
@@ -2117,7 +2160,7 @@ class Project(msrest.serialization.Model):
         :paramtype tags: dict[str, str]
         :keyword resource_id:
         :paramtype resource_id: str
-        :keyword resource_state: Possible values include: "Pending", "Initializing", "Provisioning",
+        :keyword resource_state: Known values are: "Pending", "Initializing", "Provisioning",
          "Provisioned", "Deprovisioning", "Deprovisioned", "Failed".
         :paramtype resource_state: str or ~teamcloud.models.ProjectResourceState
         :keyword shared_vault_id:
@@ -2178,7 +2221,7 @@ class ProjectDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["Project"] = None,
+        data: Optional["_models.Project"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -2239,7 +2282,7 @@ class ProjectDefinition(msrest.serialization.Model):
         display_name: str,
         template: str,
         template_input: str,
-        users: Optional[List["UserDefinition"]] = None,
+        users: Optional[List["_models.UserDefinition"]] = None,
         **kwargs
     ):
         """
@@ -2399,7 +2442,7 @@ class ProjectIdentityDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["ProjectIdentity"] = None,
+        data: Optional["_models.ProjectIdentity"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -2564,7 +2607,7 @@ class ProjectMembership(msrest.serialization.Model):
 
     :ivar project_id: Required.
     :vartype project_id: str
-    :ivar role: Required. Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
+    :ivar role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
     :vartype role: str or ~teamcloud.models.ProjectMembershipRole
     :ivar properties: Dictionary of :code:`<string>`.
     :vartype properties: dict[str, str]
@@ -2585,15 +2628,14 @@ class ProjectMembership(msrest.serialization.Model):
         self,
         *,
         project_id: str,
-        role: Union[str, "ProjectMembershipRole"],
+        role: Union[str, "_models.ProjectMembershipRole"],
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
         """
         :keyword project_id: Required.
         :paramtype project_id: str
-        :keyword role: Required. Possible values include: "None", "Member", "Admin", "Owner",
-         "Adapter".
+        :keyword role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
         :paramtype role: str or ~teamcloud.models.ProjectMembershipRole
         :keyword properties: Dictionary of :code:`<string>`.
         :paramtype properties: dict[str, str]
@@ -2664,7 +2706,7 @@ class ProjectTemplate(msrest.serialization.Model):
         organization_name: str,
         slug: str,
         display_name: str,
-        repository: "RepositoryReference",
+        repository: "_models.RepositoryReference",
         is_default: bool,
         id: str,
         name: Optional[str] = None,
@@ -2736,7 +2778,7 @@ class ProjectTemplateDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["ProjectTemplate"] = None,
+        data: Optional["_models.ProjectTemplate"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -2782,7 +2824,7 @@ class ProjectTemplateDefinition(msrest.serialization.Model):
         self,
         *,
         display_name: str,
-        repository: "RepositoryDefinition",
+        repository: "_models.RepositoryDefinition",
         **kwargs
     ):
         """
@@ -2907,9 +2949,9 @@ class RepositoryReference(msrest.serialization.Model):
     :vartype mount_url: str
     :ivar ref:
     :vartype ref: str
-    :ivar provider: Required. Possible values include: "Unknown", "GitHub", "DevOps".
+    :ivar provider: Required. Known values are: "Unknown", "GitHub", "DevOps".
     :vartype provider: str or ~teamcloud.models.RepositoryReferenceProvider
-    :ivar type: Required. Possible values include: "Unknown", "Tag", "Branch", "Hash".
+    :ivar type: Required. Known values are: "Unknown", "Tag", "Branch", "Hash".
     :vartype type: str or ~teamcloud.models.RepositoryReferenceType
     :ivar organization:
     :vartype organization: str
@@ -2943,8 +2985,8 @@ class RepositoryReference(msrest.serialization.Model):
         self,
         *,
         url: str,
-        provider: Union[str, "RepositoryReferenceProvider"],
-        type: Union[str, "RepositoryReferenceType"],
+        provider: Union[str, "_models.RepositoryReferenceProvider"],
+        type: Union[str, "_models.RepositoryReferenceType"],
         token: Optional[str] = None,
         version: Optional[str] = None,
         basel_url: Optional[str] = None,
@@ -2968,9 +3010,9 @@ class RepositoryReference(msrest.serialization.Model):
         :paramtype mount_url: str
         :keyword ref:
         :paramtype ref: str
-        :keyword provider: Required. Possible values include: "Unknown", "GitHub", "DevOps".
+        :keyword provider: Required. Known values are: "Unknown", "GitHub", "DevOps".
         :paramtype provider: str or ~teamcloud.models.RepositoryReferenceProvider
-        :keyword type: Required. Possible values include: "Unknown", "Tag", "Branch", "Hash".
+        :keyword type: Required. Known values are: "Unknown", "Tag", "Branch", "Hash".
         :paramtype type: str or ~teamcloud.models.RepositoryReferenceType
         :keyword organization:
         :paramtype organization: str
@@ -2996,8 +3038,8 @@ class RepositoryReference(msrest.serialization.Model):
 class ResultError(msrest.serialization.Model):
     """ResultError.
 
-    :ivar code: Possible values include: "Unknown", "Failed", "Conflict", "NotFound",
-     "ServerError", "ValidationError", "Unauthorized", "Forbidden".
+    :ivar code: Known values are: "Unknown", "Failed", "Conflict", "NotFound", "ServerError",
+     "ValidationError", "Unauthorized", "Forbidden".
     :vartype code: str or ~teamcloud.models.ResultErrorCode
     :ivar message:
     :vartype message: str
@@ -3014,14 +3056,14 @@ class ResultError(msrest.serialization.Model):
     def __init__(
         self,
         *,
-        code: Optional[Union[str, "ResultErrorCode"]] = None,
+        code: Optional[Union[str, "_models.ResultErrorCode"]] = None,
         message: Optional[str] = None,
-        errors: Optional[List["ValidationError"]] = None,
+        errors: Optional[List["_models.ValidationError"]] = None,
         **kwargs
     ):
         """
-        :keyword code: Possible values include: "Unknown", "Failed", "Conflict", "NotFound",
-         "ServerError", "ValidationError", "Unauthorized", "Forbidden".
+        :keyword code: Known values are: "Unknown", "Failed", "Conflict", "NotFound", "ServerError",
+         "ValidationError", "Unauthorized", "Forbidden".
         :paramtype code: str or ~teamcloud.models.ResultErrorCode
         :keyword message:
         :paramtype message: str
@@ -3110,7 +3152,7 @@ class Schedule(msrest.serialization.Model):
         id: str,
         enabled: Optional[bool] = None,
         recurring: Optional[bool] = None,
-        days_of_week: Optional[List[Union[str, "ScheduleDaysOfWeekItem"]]] = None,
+        days_of_week: Optional[List[Union[str, "_models.ScheduleDaysOfWeekItem"]]] = None,
         utc_hour: Optional[int] = None,
         utc_minute: Optional[int] = None,
         creator: Optional[str] = None,
@@ -3118,7 +3160,7 @@ class Schedule(msrest.serialization.Model):
         last_updated_by: Optional[str] = None,
         last_updated: Optional[datetime.datetime] = None,
         last_run: Optional[datetime.datetime] = None,
-        component_tasks: Optional[List["ComponentTaskReference"]] = None,
+        component_tasks: Optional[List["_models.ComponentTaskReference"]] = None,
         **kwargs
     ):
         """
@@ -3199,7 +3241,7 @@ class ScheduleDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["Schedule"] = None,
+        data: Optional["_models.Schedule"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -3251,10 +3293,10 @@ class ScheduleDefinition(msrest.serialization.Model):
         *,
         enabled: Optional[bool] = None,
         recurring: Optional[bool] = None,
-        days_of_week: Optional[List[Union[str, "ScheduleDefinitionDaysOfWeekItem"]]] = None,
+        days_of_week: Optional[List[Union[str, "_models.ScheduleDefinitionDaysOfWeekItem"]]] = None,
         utc_hour: Optional[int] = None,
         utc_minute: Optional[int] = None,
-        component_tasks: Optional[List["ComponentTaskReference"]] = None,
+        component_tasks: Optional[List["_models.ComponentTaskReference"]] = None,
         **kwargs
     ):
         """
@@ -3371,7 +3413,7 @@ class StatusResult(msrest.serialization.Model):
         status: Optional[str] = None,
         state_message: Optional[str] = None,
         location: Optional[str] = None,
-        errors: Optional[List["ResultError"]] = None,
+        errors: Optional[List["_models.ResultError"]] = None,
         tracking_id: Optional[str] = None,
         **kwargs
     ):
@@ -3554,7 +3596,7 @@ class TeamCloudInformationDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["TeamCloudInformation"] = None,
+        data: Optional["_models.TeamCloudInformation"] = None,
         location: Optional[str] = None,
         **kwargs
     ):
@@ -3590,9 +3632,9 @@ class User(msrest.serialization.Model):
     :vartype login_name: str
     :ivar mail_address:
     :vartype mail_address: str
-    :ivar user_type: Required. Possible values include: "User", "Group", "System", "Service".
+    :ivar user_type: Required. Known values are: "User", "Group", "System", "Service".
     :vartype user_type: str or ~teamcloud.models.UserType
-    :ivar role: Required. Possible values include: "None", "Member", "Admin", "Owner", "Adapter".
+    :ivar role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
     :vartype role: str or ~teamcloud.models.UserRole
     :ivar project_memberships:
     :vartype project_memberships: list[~teamcloud.models.ProjectMembership]
@@ -3631,14 +3673,14 @@ class User(msrest.serialization.Model):
         *,
         organization: str,
         organization_name: str,
-        user_type: Union[str, "UserType"],
-        role: Union[str, "UserRole"],
+        user_type: Union[str, "_models.UserType"],
+        role: Union[str, "_models.UserRole"],
         id: str,
         display_name: Optional[str] = None,
         login_name: Optional[str] = None,
         mail_address: Optional[str] = None,
-        project_memberships: Optional[List["ProjectMembership"]] = None,
-        alternate_identities: Optional["UserAlternateIdentities"] = None,
+        project_memberships: Optional[List["_models.ProjectMembership"]] = None,
+        alternate_identities: Optional["_models.UserAlternateIdentities"] = None,
         properties: Optional[Dict[str, str]] = None,
         **kwargs
     ):
@@ -3653,10 +3695,9 @@ class User(msrest.serialization.Model):
         :paramtype login_name: str
         :keyword mail_address:
         :paramtype mail_address: str
-        :keyword user_type: Required. Possible values include: "User", "Group", "System", "Service".
+        :keyword user_type: Required. Known values are: "User", "Group", "System", "Service".
         :paramtype user_type: str or ~teamcloud.models.UserType
-        :keyword role: Required. Possible values include: "None", "Member", "Admin", "Owner",
-         "Adapter".
+        :keyword role: Required. Known values are: "None", "Member", "Admin", "Owner", "Adapter".
         :paramtype role: str or ~teamcloud.models.UserRole
         :keyword project_memberships:
         :paramtype project_memberships: list[~teamcloud.models.ProjectMembership]
@@ -3704,10 +3745,10 @@ class UserAlternateIdentities(msrest.serialization.Model):
     def __init__(
         self,
         *,
-        azure_resource_manager: Optional["AlternateIdentity"] = None,
-        azure_dev_ops: Optional["AlternateIdentity"] = None,
-        git_hub: Optional["AlternateIdentity"] = None,
-        kubernetes: Optional["AlternateIdentity"] = None,
+        azure_resource_manager: Optional["_models.AlternateIdentity"] = None,
+        azure_dev_ops: Optional["_models.AlternateIdentity"] = None,
+        git_hub: Optional["_models.AlternateIdentity"] = None,
+        kubernetes: Optional["_models.AlternateIdentity"] = None,
         **kwargs
     ):
         """
@@ -3752,7 +3793,7 @@ class UserDataResult(msrest.serialization.Model):
         *,
         code: Optional[int] = None,
         status: Optional[str] = None,
-        data: Optional["User"] = None,
+        data: Optional["_models.User"] = None,
         location: Optional[str] = None,
         **kwargs
     ):

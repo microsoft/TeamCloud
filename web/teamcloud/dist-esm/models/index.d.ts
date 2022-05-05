@@ -172,6 +172,7 @@ export interface ComponentTaskTemplate {
 }
 export interface ComponentTaskRunner {
     id?: string;
+    webServer?: boolean;
     /** Dictionary of <string> */
     with?: {
         [propertyName: string]: string;
@@ -229,21 +230,22 @@ export interface CommandAuditEntityListDataResult {
     location?: string;
 }
 export interface CommandAuditEntity {
+    partitionKey?: string;
+    rowKey?: string;
+    timestamp?: Date;
+    /** Any object */
+    eTag?: Record<string, unknown>;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly commandId?: string;
     /** NOTE: This property will not be serialized. It can only be populated by the server. */
     readonly organizationId?: string;
     commandJson?: string;
     resultJson?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly projectId?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly userId?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly parentId?: string;
+    projectId?: string;
+    userId?: string;
+    parentId?: string;
     command?: string;
-    /** NOTE: This property will not be serialized. It can only be populated by the server. */
-    readonly componentTask?: string;
+    componentTask?: string;
     runtimeStatus?: CommandAuditEntityRuntimeStatus;
     customStatus?: string;
     errors?: string;

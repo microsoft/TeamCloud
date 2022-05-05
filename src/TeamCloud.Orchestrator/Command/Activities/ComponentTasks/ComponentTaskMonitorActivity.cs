@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 using Azure.Storage.Files.Shares.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
+using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Common;
 using TeamCloud.Model.Data;
@@ -24,13 +23,13 @@ public sealed class ComponentDeploymentMonitorActivity
 {
     private readonly IComponentTaskRepository componentTaskRepository;
     private readonly IProjectRepository projectRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azure;
 
-    public ComponentDeploymentMonitorActivity(IComponentTaskRepository componentTaskRepository, IProjectRepository projectRepository, IAzureResourceService azureResourceService)
+    public ComponentDeploymentMonitorActivity(IComponentTaskRepository componentTaskRepository, IProjectRepository projectRepository, IAzureService azure)
     {
         this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
     }
 
     [FunctionName(nameof(ComponentDeploymentMonitorActivity))]
@@ -46,20 +45,14 @@ public sealed class ComponentDeploymentMonitorActivity
         try
         {
 
-            if (AzureResourceIdentifier.TryParse(componentTask.ResourceId, out var resourceId)
-                && await azureResourceService.ExistsResourceAsync(resourceId.ToString()).ConfigureAwait(false))
+            if (!string.IsNullOrEmpty(componentTask.ResourceId) && await azure.ExistsAsync(componentTask.ResourceId).ConfigureAwait(false))
             {
-                var session = await azureResourceService.AzureSessionService
-                    .CreateSessionAsync(resourceId.SubscriptionId)
-                    .ConfigureAwait(false);
-
-                var group = await session.ContainerGroups
-                    .GetByIdAsync(resourceId.ToString())
+                var group = await azure.ContainerInstances
+                    .GetGroupAsync(componentTask.ResourceId)
                     .ConfigureAwait(false);
 
                 var runner = group.Containers
-                    .SingleOrDefault(c => c.Key.Equals(componentTask.Id, StringComparison.OrdinalIgnoreCase))
-                    .Value;
+                    .SingleOrDefault(c => c.Name.Equals(componentTask.Id, StringComparison.OrdinalIgnoreCase));
 
                 if (runner?.InstanceView is null)
                 {
@@ -88,33 +81,25 @@ public sealed class ComponentDeploymentMonitorActivity
                     {
                         var output = new StringBuilder();
 
-                        output.AppendLine($"Creating runner {group.Id} ended in state {group.State} !!! {Environment.NewLine}");
-                        output.AppendLine(await group.GetLogContentAsync(runner.Name).ConfigureAwait(false));
+                        output.AppendLine($"Creating runner {group.Id} ended in state {group.ProvisioningState} !!! {Environment.NewLine}");
+                        output.AppendLine(await azure.ContainerInstances.GetLogsAsync(group.Id, runner.Name).ConfigureAwait(false));
 
                         var project = await projectRepository
                             .GetAsync(componentTask.Organization, componentTask.ProjectId)
                             .ConfigureAwait(false);
 
-                        if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+                        if (!string.IsNullOrEmpty(project?.StorageId))
                         {
-                            var storage = await azureResourceService
-                                .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString())
-                                .ConfigureAwait(false);
-
-                            if (storage is not null)
+                            if (await azure.ExistsAsync(project.StorageId).ConfigureAwait(false))
                             {
                                 var outputDirectory = ".output";
 
-                                var fileClient = await storage
-                                    .CreateShareFileClientAsync(componentTask.ComponentId, $"{outputDirectory}/{componentTask.Id}")
+                                var fileClient = await azure.Storage.FileShares
+                                    .GetShareFileClientAsync(project.StorageId, componentTask.ComponentId, outputDirectory, componentTask.Id, ensureDirectroyExists: true)
                                     .ConfigureAwait(false);
 
                                 if (!await fileClient.ExistsAsync().ConfigureAwait(false))
                                 {
-                                    await storage
-                                        .EnsureDirectoryPathAsync(componentTask.ComponentId, outputDirectory)
-                                        .ConfigureAwait(false);
-
                                     var logBuffer = Encoding.Default.GetBytes(output.ToString());
 
                                     using var fileStream = await fileClient
@@ -122,7 +107,8 @@ public sealed class ComponentDeploymentMonitorActivity
                                         .ConfigureAwait(false);
 
                                     await fileStream
-                                        .WriteAsync(logBuffer, 0, logBuffer.Length)
+                                        .WriteAsync(logBuffer)
+                                        // .WriteAsync(logBuffer, 0, logBuffer.Length)
                                         .ConfigureAwait(false);
                                 }
                             }

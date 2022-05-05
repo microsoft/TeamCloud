@@ -16,11 +16,10 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Microsoft.Graph;
 using TeamCloud.Data;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Data;
-using TeamCloud.Secrets;
 
 namespace TeamCloud.Adapters;
 
@@ -37,8 +36,7 @@ public abstract class Adapter : IAdapter
     private readonly IAuthorizationSessionClient sessionClient;
     private readonly IAuthorizationTokenClient tokenClient;
     private readonly IDistributedLockManager distributedLockManager;
-    private readonly ISecretsStoreProvider secretsStoreProvider;
-    private readonly IAzureSessionService azureSessionService;
+    private readonly IAzureService azure;
     private readonly IGraphService graphService;
     private readonly IOrganizationRepository organizationRepository;
     private readonly IDeploymentScopeRepository deploymentScopeRepository;
@@ -48,8 +46,7 @@ public abstract class Adapter : IAdapter
     protected Adapter(IAuthorizationSessionClient sessionClient,
                       IAuthorizationTokenClient tokenClient,
                       IDistributedLockManager distributedLockManager,
-                      ISecretsStoreProvider secretsStoreProvider,
-                      IAzureSessionService azureSessionService,
+                      IAzureService azure,
                       IGraphService graphService,
                       IOrganizationRepository organizationRepository,
                       IDeploymentScopeRepository deploymentScopeRepository,
@@ -59,8 +56,7 @@ public abstract class Adapter : IAdapter
         this.sessionClient = sessionClient ?? throw new ArgumentNullException(nameof(sessionClient));
         this.tokenClient = tokenClient ?? throw new ArgumentNullException(nameof(tokenClient));
         this.distributedLockManager = distributedLockManager ?? throw new ArgumentNullException(nameof(distributedLockManager));
-        this.secretsStoreProvider = secretsStoreProvider ?? throw new ArgumentNullException(nameof(secretsStoreProvider));
-        this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
         this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.deploymentScopeRepository = deploymentScopeRepository ?? throw new ArgumentNullException(nameof(deploymentScopeRepository));
@@ -164,12 +160,12 @@ public abstract class Adapter : IAdapter
         if (callback is null)
             throw new ArgumentNullException(nameof(callback));
 
-        var tenantId = await azureSessionService
+        var tenantId = await azure
             .GetTenantIdAsync()
             .ConfigureAwait(false);
 
         var organization = await organizationRepository
-            .GetAsync(tenantId.ToString(), component.Organization, true)
+            .GetAsync(tenantId, component.Organization, true)
             .ConfigureAwait(false);
 
         var deploymentScope = await deploymentScopeRepository
@@ -191,12 +187,12 @@ public abstract class Adapter : IAdapter
         if (callback is null)
             throw new ArgumentNullException(nameof(callback));
 
-        var tenantId = await azureSessionService
+        var tenantId = await azure
             .GetTenantIdAsync()
             .ConfigureAwait(false);
 
         var organization = await organizationRepository
-            .GetAsync(tenantId.ToString(), component.Organization, true)
+            .GetAsync(tenantId, component.Organization, true)
             .ConfigureAwait(false);
 
         var deploymentScope = await deploymentScopeRepository

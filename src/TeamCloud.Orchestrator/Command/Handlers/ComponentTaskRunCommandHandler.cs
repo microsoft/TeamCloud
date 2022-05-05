@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Resources;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
 using TeamCloud.Model.Common;
@@ -67,7 +66,7 @@ public sealed class ComponentTaskRunCommandHandler : CommandHandler<ComponentTas
                     commandResult.Result = await UpdateComponentTaskAsync(orchestrationContext, commandResult.Result, TaskState.Initializing)
                         .ConfigureAwait(true);
 
-                    if (!AzureResourceIdentifier.TryParse(component.IdentityId, out var _))
+                    if (string.IsNullOrEmpty(component.IdentityId))
                     {
                         // ensure every component has an identity assigned that can be used
                         // as the identity of the task runner container to access azure or

@@ -3,23 +3,22 @@
  *  Licensed under the MIT License.
  */
 
-using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
-using TeamCloud.Model.Data;
-using Flurl.Http;
 using Azure.Storage.Sas;
-using TeamCloud.Model.Common;
-using TeamCloud.Audit;
-using System.Text;
-using TeamCloud.Model.Commands.Core;
-using TeamCloud.Microsoft.Graph;
+using Flurl.Http;
 using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Caching.Memory;
+using TeamCloud.Audit;
+using TeamCloud.Azure;
+using TeamCloud.Microsoft.Graph;
+using TeamCloud.Model.Commands.Core;
+using TeamCloud.Model.Common;
+using TeamCloud.Model.Data;
 
 namespace TeamCloud.Data.Expanders;
 
@@ -29,15 +28,15 @@ public sealed class ComponentTaskExpander : DocumentExpander,
     private const string Seperator = "\r\n-----\r\n\r\n";
 
     private readonly IProjectRepository projectRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azure;
     private readonly IGraphService graphService;
     private readonly ICommandAuditReader commandAuditReader;
     private readonly IMemoryCache cache;
 
-    public ComponentTaskExpander(IProjectRepository projectRepository, IAzureResourceService azureResourceService, IGraphService graphService, ICommandAuditReader commandAuditReader, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
+    public ComponentTaskExpander(IProjectRepository projectRepository, IAzureService azureService, IGraphService graphService, ICommandAuditReader commandAuditReader, IMemoryCache cache, TelemetryClient telemetryClient) : base(true, telemetryClient)
     {
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azure = azureService ?? throw new ArgumentNullException(nameof(azureService));
         this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.commandAuditReader = commandAuditReader ?? throw new ArgumentNullException(nameof(commandAuditReader));
         this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -75,20 +74,13 @@ public sealed class ComponentTaskExpander : DocumentExpander,
     {
         var output = default(string);
 
-        if (document.TaskState.IsActive() && AzureResourceIdentifier.TryParse(document.ResourceId, out var resourceId))
+        if (document.TaskState.IsActive() && !string.IsNullOrEmpty(document.ResourceId))
         {
             try
             {
-                var containerGroup = await azureResourceService
-                    .GetResourceAsync<AzureContainerGroupResource>(resourceId.ToString())
+                output = await azure.ContainerInstances
+                    .GetEventContentAsync(document.ResourceId, document.Id)
                     .ConfigureAwait(false);
-
-                if (containerGroup is not null)
-                {
-                    output = await containerGroup
-                        .GetEventContentAsync(document.Id)
-                        .ConfigureAwait(false);
-                }
             }
             catch
             {
@@ -181,20 +173,13 @@ public sealed class ComponentTaskExpander : DocumentExpander,
                     .GetAsync(document.Organization, document.ProjectId)
                     .ConfigureAwait(false);
 
-                if (AzureResourceIdentifier.TryParse(project?.StorageId, out var storageId))
+                if (!string.IsNullOrWhiteSpace(project?.StorageId))
                 {
-                    var storageAccount = await azureResourceService
-                        .GetResourceAsync<AzureStorageAccountResource>(storageId.ToString(), false)
+                    entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
+
+                    entry.Value = await azure.Storage.FileShares // create a shared access token with an additional expiration offset to avoid time sync issues when fetching the output
+                        .GetShareFileSasUriAsync(project.StorageId, document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
                         .ConfigureAwait(false);
-
-                    if (storageAccount is not null)
-                    {
-                        entry.AbsoluteExpiration = DateTimeOffset.UtcNow.AddDays(1);
-
-                        entry.Value = await storageAccount // create a shared access token with an additional expiration offset to avoid time sync issues when fetching the output
-                            .CreateShareFileSasUriAsync(document.ComponentId, $".output/{document.Id}", ShareFileSasPermissions.Read, entry.AbsoluteExpiration.Value.AddMinutes(5))
-                            .ConfigureAwait(false);
-                    }
                 }
             }
             catch

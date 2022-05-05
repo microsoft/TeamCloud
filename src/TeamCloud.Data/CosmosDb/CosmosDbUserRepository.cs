@@ -55,7 +55,7 @@ public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
             .ConfigureAwait(false);
     }
 
-    public override Task<User> GetAsync(string organization, string id, bool expand = false) => GetCachedAsync(organization, id, async cached =>
+    public override async Task<User> GetAsync(string organization, string id, bool expand = false) 
     {
         var container = await GetContainerAsync()
             .ConfigureAwait(false);
@@ -68,11 +68,7 @@ public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
                 .ReadItemAsync<User>(id, GetPartitionKey(organization))
                 .ConfigureAwait(false);
 
-            user = SetCached(organization, id, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-        {
-            user = cached;
+            user = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -81,7 +77,7 @@ public class CosmosDbUserRepository : CosmosDbRepository<User>, IUserRepository
 
         return await ExpandAsync(user, expand)
             .ConfigureAwait(false);
-    });
+    }
 
     private async Task<User> GetAsync(User user, bool expand = false)
     {

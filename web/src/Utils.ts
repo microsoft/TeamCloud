@@ -30,8 +30,12 @@ export const matchesProject = (list: [{ projectId: string }], project: Project) 
 export const undefinedOrWrongParent = (list: [{ id: string }], parent: { id: string }) =>
     list === undefined || list.some(i => i.id !== parent.id);
 
-export const prettyPrintCamlCaseString = (value: string) =>
-    value.charAt(0).toUpperCase() + value.slice(1).replace(/\B[A-Z]/g, " $&");
+export const prettyPrintCamlCaseString = (value: string) => {
+    const knownCompounds = ['GitHub', 'DevOps', 'TeamCloud'];
+    return (knownCompounds.indexOf(value.charAt(0).toUpperCase() + value.slice(1)) >= 0
+        ? value.charAt(0).toUpperCase() + value.slice(1)
+        : value.charAt(0).toUpperCase() + value.slice(1).replace(/\B[A-Z]/g, " $&"));
+}
 
 export const isActiveComponentTaskState = (value: KnownComponentTaskState | undefined) : boolean => 
     (value && [ KnownComponentTaskState.Pending, KnownComponentTaskState.Initializing, KnownComponentTaskState.Processing ].includes(value)) as boolean; 

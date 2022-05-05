@@ -38,175 +38,175 @@ public sealed class AzureStorageAccountResource : AzureTypedResource
             .ConfigureAwait(false);
     }
 
-    public async Task<IEnumerable<string>> GetKeysAsync()
-    {
-        var storage = await storageInstance
-            .ConfigureAwait(false);
+    // public async Task<IEnumerable<string>> GetKeysAsync()
+    // {
+    //     var storage = await storageInstance
+    //         .ConfigureAwait(false);
 
-        var storageKeys = await storage
-            .GetKeysAsync()
-            .ConfigureAwait(false);
+    //     var storageKeys = await storage
+    //         .GetKeysAsync()
+    //         .ConfigureAwait(false);
 
-        return storageKeys
-            .Select(k => k.Value);
-    }
+    //     return storageKeys
+    //         .Select(k => k.Value);
+    // }
 
-    public async Task<string> GetConnectionStringAsync()
-    {
-        var storage = await storageInstance
-            .ConfigureAwait(false);
+    // public async Task<string> GetConnectionStringAsync()
+    // {
+    //     var storage = await storageInstance
+    //         .ConfigureAwait(false);
 
-        var storageKeys = await storage
-            .GetKeysAsync()
-            .ConfigureAwait(false);
+    //     var storageKeys = await storage
+    //         .GetKeysAsync()
+    //         .ConfigureAwait(false);
 
-        var storageCredentials = new StorageCredentials(storage.Name, storageKeys.First().Value);
+    //     var storageCredentials = new StorageCredentials(storage.Name, storageKeys.First().Value);
 
-        return new CloudStorageAccount(storageCredentials, true).ToString(true);
-    }
+    //     return new CloudStorageAccount(storageCredentials, true).ToString(true);
+    // }
 
-    public async Task EnsureDirectoryPathAsync(string shareName, string directoryPath)
-    {
-        if (string.IsNullOrEmpty(shareName))
-            throw new ArgumentException($"'{nameof(shareName)}' cannot be null or empty.", nameof(shareName));
+    // public async Task EnsureDirectoryPathAsync(string shareName, string directoryPath)
+    // {
+    //     if (string.IsNullOrEmpty(shareName))
+    //         throw new ArgumentException($"'{nameof(shareName)}' cannot be null or empty.", nameof(shareName));
 
-        if (string.IsNullOrEmpty(directoryPath))
-            throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or empty.", nameof(directoryPath));
+    //     if (string.IsNullOrEmpty(directoryPath))
+    //         throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or empty.", nameof(directoryPath));
 
-        var directoryNames = directoryPath.Split('/');
+    //     var directoryNames = directoryPath.Split('/');
 
-        for (int i = 0; i < directoryNames.Length; i++)
-        {
-            var path = string.Join('/', directoryNames.Take(i + 1));
+    //     for (int i = 0; i < directoryNames.Length; i++)
+    //     {
+    //         var path = string.Join('/', directoryNames.Take(i + 1));
 
-            await CreateShareDirectoryClientAsync(shareName, path)
-                .ContinueWith(client => client.Result.CreateIfNotExistsAsync()).Unwrap()
-                .ConfigureAwait(false);
-        }
-    }
+    //         await CreateShareDirectoryClientAsync(shareName, path)
+    //             .ContinueWith(client => client.Result.CreateIfNotExistsAsync()).Unwrap()
+    //             .ConfigureAwait(false);
+    //     }
+    // }
 
-    public async Task<ShareClient> CreateShareClientAsync(string shareName, bool useSharedKey = false, ShareClientOptions options = null)
-    {
-        if (string.IsNullOrWhiteSpace(shareName))
-            throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
+    // public async Task<ShareClient> CreateShareClientAsync(string shareName, bool useSharedKey = false, ShareClientOptions options = null)
+    // {
+    //     if (string.IsNullOrWhiteSpace(shareName))
+    //         throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
 
-        if (useSharedKey)
-        {
-            var storage = await storageInstance
-                .ConfigureAwait(false);
+    //     if (useSharedKey)
+    //     {
+    //         var storage = await storageInstance
+    //             .ConfigureAwait(false);
 
-            var shareUri = storage.EndPoints.Primary.File
-                .AppendPathSegment(shareName)
-                .ToUri();
+    //         var shareUri = storage.EndPoints.Primary.File
+    //             .AppendPathSegment(shareName)
+    //             .ToUri();
 
-            return await GetKeysAsync()
-                .ContinueWith(keys => new StorageSharedKeyCredential(storage.Name, keys.Result.First()), TaskContinuationOptions.OnlyOnRanToCompletion)
-                .ContinueWith(cred => new ShareClient(shareUri, cred.Result, options))
-                .ConfigureAwait(false);
-        }
+    //         return await GetKeysAsync()
+    //             .ContinueWith(keys => new StorageSharedKeyCredential(storage.Name, keys.Result.First()), TaskContinuationOptions.OnlyOnRanToCompletion)
+    //             .ContinueWith(cred => new ShareClient(shareUri, cred.Result, options))
+    //             .ConfigureAwait(false);
+    //     }
 
-        return await GetConnectionStringAsync()
-            .ContinueWith((connectionString) => new ShareClient(connectionString.Result, shareName, options), TaskContinuationOptions.OnlyOnRanToCompletion)
-            .ConfigureAwait(false);
-    }
+    //     return await GetConnectionStringAsync()
+    //         .ContinueWith((connectionString) => new ShareClient(connectionString.Result, shareName, options), TaskContinuationOptions.OnlyOnRanToCompletion)
+    //         .ConfigureAwait(false);
+    // }
 
-    public async Task<Uri> CreateShareSasUriAsync(string shareName, string directoryPath, ShareSasPermissions permissions, DateTimeOffset expiresOn)
-    {
-        if (string.IsNullOrWhiteSpace(shareName))
-            throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
+    // public async Task<Uri> CreateShareSasUriAsync(string shareName, string directoryPath, ShareSasPermissions permissions, DateTimeOffset expiresOn)
+    // {
+    //     if (string.IsNullOrWhiteSpace(shareName))
+    //         throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
 
-        if (string.IsNullOrWhiteSpace(directoryPath))
-            throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or whitespace.", nameof(directoryPath));
+    //     if (string.IsNullOrWhiteSpace(directoryPath))
+    //         throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or whitespace.", nameof(directoryPath));
 
-        var client = await CreateShareClientAsync(shareName, useSharedKey: true)
-            .ConfigureAwait(false);
+    //     var client = await CreateShareClientAsync(shareName, useSharedKey: true)
+    //         .ConfigureAwait(false);
 
-        return client.GenerateSasUri(permissions, expiresOn);
-    }
+    //     return client.GenerateSasUri(permissions, expiresOn);
+    // }
 
-    public async Task<ShareDirectoryClient> CreateShareDirectoryClientAsync(string shareName, string directoryPath, bool useSharedKey = false, ShareClientOptions options = null)
-    {
-        if (string.IsNullOrWhiteSpace(shareName))
-            throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
+    // public async Task<ShareDirectoryClient> CreateShareDirectoryClientAsync(string shareName, string directoryPath, bool useSharedKey = false, ShareClientOptions options = null)
+    // {
+    //     if (string.IsNullOrWhiteSpace(shareName))
+    //         throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
 
-        if (string.IsNullOrWhiteSpace(directoryPath))
-            throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or whitespace.", nameof(directoryPath));
+    //     if (string.IsNullOrWhiteSpace(directoryPath))
+    //         throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or whitespace.", nameof(directoryPath));
 
-        if (useSharedKey)
-        {
-            var storage = await storageInstance
-                .ConfigureAwait(false);
+    //     if (useSharedKey)
+    //     {
+    //         var storage = await storageInstance
+    //             .ConfigureAwait(false);
 
-            var shareFileUri = storage.EndPoints.Primary.File
-                .AppendPathSegment(shareName)
-                .AppendPathSegments(directoryPath.Split('/', StringSplitOptions.RemoveEmptyEntries))
-                .ToUri();
+    //         var shareFileUri = storage.EndPoints.Primary.File
+    //             .AppendPathSegment(shareName)
+    //             .AppendPathSegments(directoryPath.Split('/', StringSplitOptions.RemoveEmptyEntries))
+    //             .ToUri();
 
-            return await GetKeysAsync()
-                .ContinueWith(keys => new StorageSharedKeyCredential(storage.Name, keys.Result.First()), TaskContinuationOptions.OnlyOnRanToCompletion)
-                .ContinueWith(cred => new ShareDirectoryClient(shareFileUri, cred.Result, options))
-                .ConfigureAwait(false);
-        }
+    //         return await GetKeysAsync()
+    //             .ContinueWith(keys => new StorageSharedKeyCredential(storage.Name, keys.Result.First()), TaskContinuationOptions.OnlyOnRanToCompletion)
+    //             .ContinueWith(cred => new ShareDirectoryClient(shareFileUri, cred.Result, options))
+    //             .ConfigureAwait(false);
+    //     }
 
-        return await GetConnectionStringAsync()
-            .ContinueWith((connectionString) => new ShareDirectoryClient(connectionString.Result, shareName, directoryPath, options), TaskContinuationOptions.OnlyOnRanToCompletion)
-            .ConfigureAwait(false);
-    }
+    //     return await GetConnectionStringAsync()
+    //         .ContinueWith((connectionString) => new ShareDirectoryClient(connectionString.Result, shareName, directoryPath, options), TaskContinuationOptions.OnlyOnRanToCompletion)
+    //         .ConfigureAwait(false);
+    // }
 
-    public async Task<Uri> CreateShareDirectorySasUriAsync(string shareName, string directoryPath, ShareFileSasPermissions permissions, DateTimeOffset expiresOn)
-    {
-        if (string.IsNullOrWhiteSpace(shareName))
-            throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
+    // public async Task<Uri> CreateShareDirectorySasUriAsync(string shareName, string directoryPath, ShareFileSasPermissions permissions, DateTimeOffset expiresOn)
+    // {
+    //     if (string.IsNullOrWhiteSpace(shareName))
+    //         throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
 
-        if (string.IsNullOrWhiteSpace(directoryPath))
-            throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or whitespace.", nameof(directoryPath));
+    //     if (string.IsNullOrWhiteSpace(directoryPath))
+    //         throw new ArgumentException($"'{nameof(directoryPath)}' cannot be null or whitespace.", nameof(directoryPath));
 
-        var client = await CreateShareDirectoryClientAsync(shareName, directoryPath, useSharedKey: true)
-            .ConfigureAwait(false);
+    //     var client = await CreateShareDirectoryClientAsync(shareName, directoryPath, useSharedKey: true)
+    //         .ConfigureAwait(false);
 
-        return client.GenerateSasUri(permissions, expiresOn);
-    }
+    //     return client.GenerateSasUri(permissions, expiresOn);
+    // }
 
-    public async Task<ShareFileClient> CreateShareFileClientAsync(string shareName, string filePath, bool useSharedKey = false, ShareClientOptions options = null)
-    {
-        if (string.IsNullOrWhiteSpace(shareName))
-            throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
+    // public async Task<ShareFileClient> CreateShareFileClientAsync(string shareName, string filePath, bool useSharedKey = false, ShareClientOptions options = null)
+    // {
+    //     if (string.IsNullOrWhiteSpace(shareName))
+    //         throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
 
-        if (string.IsNullOrWhiteSpace(filePath))
-            throw new ArgumentException($"'{nameof(filePath)}' cannot be null or whitespace.", nameof(filePath));
+    //     if (string.IsNullOrWhiteSpace(filePath))
+    //         throw new ArgumentException($"'{nameof(filePath)}' cannot be null or whitespace.", nameof(filePath));
 
-        if (useSharedKey)
-        {
-            var storage = await storageInstance
-                .ConfigureAwait(false);
+    //     if (useSharedKey)
+    //     {
+    //         var storage = await storageInstance
+    //             .ConfigureAwait(false);
 
-            var shareFileUri = storage.EndPoints.Primary.File
-                .AppendPathSegment(shareName)
-                .AppendPathSegments(filePath.Split('/', StringSplitOptions.RemoveEmptyEntries))
-                .ToUri();
+    //         var shareFileUri = storage.EndPoints.Primary.File
+    //             .AppendPathSegment(shareName)
+    //             .AppendPathSegments(filePath.Split('/', StringSplitOptions.RemoveEmptyEntries))
+    //             .ToUri();
 
-            return await GetKeysAsync()
-                .ContinueWith(keys => new StorageSharedKeyCredential(storage.Name, keys.Result.First()), TaskContinuationOptions.OnlyOnRanToCompletion)
-                .ContinueWith(cred => new ShareFileClient(shareFileUri, cred.Result, options))
-                .ConfigureAwait(false);
-        }
+    //         return await GetKeysAsync()
+    //             .ContinueWith(keys => new StorageSharedKeyCredential(storage.Name, keys.Result.First()), TaskContinuationOptions.OnlyOnRanToCompletion)
+    //             .ContinueWith(cred => new ShareFileClient(shareFileUri, cred.Result, options))
+    //             .ConfigureAwait(false);
+    //     }
 
-        return await GetConnectionStringAsync()
-            .ContinueWith((connectionString) => new ShareFileClient(connectionString.Result, shareName, filePath, options), TaskContinuationOptions.OnlyOnRanToCompletion)
-            .ConfigureAwait(false);
-    }
+    //     return await GetConnectionStringAsync()
+    //         .ContinueWith((connectionString) => new ShareFileClient(connectionString.Result, shareName, filePath, options), TaskContinuationOptions.OnlyOnRanToCompletion)
+    //         .ConfigureAwait(false);
+    // }
 
-    public async Task<Uri> CreateShareFileSasUriAsync(string shareName, string filePath, ShareFileSasPermissions permissions, DateTimeOffset expiresOn)
-    {
-        if (string.IsNullOrWhiteSpace(shareName))
-            throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
+    // public async Task<Uri> CreateShareFileSasUriAsync(string shareName, string filePath, ShareFileSasPermissions permissions, DateTimeOffset expiresOn)
+    // {
+    //     if (string.IsNullOrWhiteSpace(shareName))
+    //         throw new ArgumentException($"'{nameof(shareName)}' cannot be null or whitespace.", nameof(shareName));
 
-        if (string.IsNullOrWhiteSpace(filePath))
-            throw new ArgumentException($"'{nameof(filePath)}' cannot be null or whitespace.", nameof(filePath));
+    //     if (string.IsNullOrWhiteSpace(filePath))
+    //         throw new ArgumentException($"'{nameof(filePath)}' cannot be null or whitespace.", nameof(filePath));
 
-        var client = await CreateShareFileClientAsync(shareName, filePath, useSharedKey: true)
-            .ConfigureAwait(false);
+    //     var client = await CreateShareFileClientAsync(shareName, filePath, useSharedKey: true)
+    //         .ConfigureAwait(false);
 
-        return client.GenerateSasUri(permissions, expiresOn);
-    }
+    //     return client.GenerateSasUri(permissions, expiresOn);
+    // }
 }

@@ -50,7 +50,7 @@ public sealed class CosmosDbProjectIdentityRepository : CosmosDbRepository<Proje
         }
     }
 
-    public override Task<ProjectIdentity> GetAsync(string projectId, string identifier, bool expand = false) => GetCachedAsync(projectId, identifier, async cached =>
+    public override async Task<ProjectIdentity> GetAsync(string projectId, string identifier, bool expand = false) 
     {
         if (projectId is null)
             throw new ArgumentNullException(nameof(projectId));
@@ -72,11 +72,7 @@ public sealed class CosmosDbProjectIdentityRepository : CosmosDbRepository<Proje
                 .ReadItemAsync<ProjectIdentity>(identifierParsed.ToString(), GetPartitionKey(projectId))
                 .ConfigureAwait(false);
 
-            projectIdentity = SetCached(projectId, identifier, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-        {
-            projectIdentity = cached;
+            projectIdentity = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -85,7 +81,7 @@ public sealed class CosmosDbProjectIdentityRepository : CosmosDbRepository<Proje
 
         return await ExpandAsync(projectIdentity, expand)
             .ConfigureAwait(false);
-    });
+    }
 
     public override async IAsyncEnumerable<ProjectIdentity> ListAsync(string projectId)
     {

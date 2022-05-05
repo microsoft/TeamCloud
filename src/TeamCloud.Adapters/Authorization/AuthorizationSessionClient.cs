@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Data.Tables;
-using Nito.AsyncEx;
+using TeamCloud.Azure.Storage;
 using TeamCloud.Model.Data;
 
 namespace TeamCloud.Adapters.Authorization;
@@ -17,21 +17,13 @@ public sealed class AuthorizationSessionClient : IAuthorizationSessionClient
 {
     public const string TableName = "Adapters";
 
+    private readonly ITableService tableService;
     private readonly IAuthorizationSessionOptions options;
-    private readonly AsyncLazy<TableClient> tableClient;
 
-    public AuthorizationSessionClient(IAuthorizationSessionOptions options)
+    public AuthorizationSessionClient(ITableService tableService, IAuthorizationSessionOptions options)
     {
+        this.tableService = tableService ?? throw new ArgumentNullException(nameof(tableService));
         this.options = options ?? throw new ArgumentNullException(nameof(options));
-
-        tableClient = new AsyncLazy<TableClient>(async () =>
-        {
-            var client = new TableClient(this.options.ConnectionString, TableName);
-
-            await client.CreateIfNotExistsAsync().ConfigureAwait(false);
-
-            return client;
-        });
     }
 
     public async Task<TAuthorizationSession> GetAsync<TAuthorizationSession>(DeploymentScope deploymentScope)
@@ -40,7 +32,9 @@ public sealed class AuthorizationSessionClient : IAuthorizationSessionClient
         if (deploymentScope is null)
             throw new ArgumentNullException(nameof(deploymentScope));
 
-        var client = await tableClient.ConfigureAwait(false);
+        var client = await tableService
+            .GetTableClientAsync(options.ConnectionString, TableName)
+            .ConfigureAwait(false);
 
         var rowKey = AuthorizationEntity.GetEntityId(deploymentScope);
         var partitionKey = string.Join(",", typeof(TAuthorizationSession).AssemblyQualifiedName.Split(',').Take(2));
@@ -79,7 +73,9 @@ public sealed class AuthorizationSessionClient : IAuthorizationSessionClient
         if (authorizationSession is null)
             throw new ArgumentNullException(nameof(authorizationSession));
 
-        var client = await tableClient.ConfigureAwait(false);
+        var client = await tableService
+            .GetTableClientAsync(options.ConnectionString, TableName)
+            .ConfigureAwait(false);
 
         await client
             .UpsertEntityAsync(authorizationSession, TableUpdateMode.Replace)

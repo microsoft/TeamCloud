@@ -7,10 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Core;
+using Azure.ResourceManager.Resources;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Resources;
+using TeamCloud.Azure;
 using TeamCloud.Model.Data;
 using TeamCloud.Orchestration;
 
@@ -18,11 +20,11 @@ namespace TeamCloud.Orchestrator.Command.Activities.Components;
 
 public sealed class ComponentResourcesActivity
 {
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azureService;
 
-    public ComponentResourcesActivity(IAzureResourceService azureResourceService)
+    public ComponentResourcesActivity(IAzureService azureService)
     {
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azureService = azureService ?? throw new ArgumentNullException(nameof(azureService));
     }
 
     [FunctionName(nameof(ComponentResourcesActivity))]
@@ -38,31 +40,33 @@ public sealed class ComponentResourcesActivity
             throw new ArgumentNullException(nameof(log));
 
         var component = context.GetInput<Input>().Component;
-        IAsyncEnumerable<AzureResource> resources = null;
 
-        if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+        IAsyncEnumerable<GenericResource> resources = null;
+
+        if (!string.IsNullOrEmpty(component.ResourceId))
         {
-            if (string.IsNullOrEmpty(componentResourceId.ResourceGroup))
+            var resourceId = new ResourceIdentifier(component.ResourceId);
+
+            if (string.IsNullOrEmpty(resourceId.ResourceGroupName))
             {
-                var subscription = await azureResourceService
-                    .GetSubscriptionAsync(componentResourceId.SubscriptionId)
+                var subscription = await azureService
+                    .GetSubscriptionAsync(resourceId.SubscriptionId)
                     .ConfigureAwait(false);
 
                 if (subscription is not null)
                 {
-                    resources = subscription.GetResourceGroupsAsync()
-                        .SelectMany(rg => rg.GetResourcesAsync());
+                    resources = subscription.GetGenericResourcesAsync();
                 }
             }
             else
             {
-                var resourceGroup = await azureResourceService
-                    .GetResourceGroupAsync(componentResourceId.SubscriptionId, componentResourceId.ResourceGroup)
+                var resourceGroup = await azureService
+                    .GetResourceGroupAsync(resourceId.SubscriptionId, resourceId.ResourceGroupName)
                     .ConfigureAwait(false);
 
                 if (resourceGroup is not null)
                 {
-                    resources = resourceGroup.GetResourcesAsync();
+                    resources = resourceGroup.GetGenericResourcesAsync();
                 }
             }
         }
@@ -71,7 +75,7 @@ public sealed class ComponentResourcesActivity
             return Array.Empty<string>();
 
         return await resources
-            .Select(r => r.ResourceId.ToString())
+            .Select(r => r.Id.ToString())
             .ToArrayAsync()
             .ConfigureAwait(false);
     }

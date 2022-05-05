@@ -4,13 +4,12 @@
  */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
+using Azure.Core;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using TeamCloud.Azure.Resources;
-using TeamCloud.Azure.Resources.Typed;
+using TeamCloud.Azure;
 using TeamCloud.Data;
 using TeamCloud.Model.Commands;
 using TeamCloud.Model.Commands.Core;
@@ -24,12 +23,12 @@ namespace TeamCloud.Orchestrator.Command.Handlers;
 public sealed class ComponentTaskCancelCommandHandler : CommandHandler<ComponentTaskCancelCommand>
 {
     private readonly IComponentTaskRepository componentTaskRepository;
-    private readonly IAzureResourceService azureResourceService;
+    private readonly IAzureService azureService;
 
-    public ComponentTaskCancelCommandHandler(IComponentTaskRepository componentTaskRepository, IAzureResourceService azureResourceService)
+    public ComponentTaskCancelCommandHandler(IComponentTaskRepository componentTaskRepository, IAzureService azureService)
     {
         this.componentTaskRepository = componentTaskRepository ?? throw new ArgumentNullException(nameof(componentTaskRepository));
-        this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
+        this.azureService = azureService ?? throw new ArgumentNullException(nameof(azureService));
     }
 
     public override bool Orchestration => false;
@@ -71,18 +70,11 @@ public sealed class ComponentTaskCancelCommandHandler : CommandHandler<Component
                         .ConfigureAwait(Orchestration);
                 }
 
-                if (AzureResourceIdentifier.TryParse(commandResult.Result.ResourceId, out var resourceId))
+                if (!string.IsNullOrEmpty(commandResult.Result.ResourceId))
                 {
-                    var containerGroup = await azureResourceService
-                        .GetResourceAsync<AzureContainerGroupResource>(resourceId.ToString())
-                        .ConfigureAwait(false);
-
-                    if (containerGroup is not null)
-                    {
-                        await containerGroup
-                            .DeleteAsync(true)
-                            .ConfigureAwait(false);
-                    }
+                    await azureService
+                        .DeleteResourceAsync(commandResult.Result.ResourceId, deleteLocks: true)
+                        .ConfigureAwait(Orchestration);
                 }
 
                 commandResult.Result.TaskState = TaskState.Canceled;

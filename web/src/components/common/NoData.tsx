@@ -10,6 +10,7 @@ export interface INoDataProps {
     image?: string;
     buttonText?: string;
     buttonIcon?: string;
+    buttonDisabled?: boolean;
     onButtonClick?: () => void;
 }
 
@@ -43,6 +44,7 @@ export const NoData: React.FC<INoDataProps> = (props) => {
             {props.buttonText && (
                 <Stack.Item>
                     <PrimaryButton
+                        disabled={props.buttonDisabled}
                         text={props.buttonText}
                         iconProps={props.buttonIcon ? { iconName: props.buttonIcon } : undefined}
                         onClick={props.onButtonClick} />

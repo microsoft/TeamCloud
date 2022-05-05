@@ -4,17 +4,17 @@
  */
 
 using System;
-using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs.Host;
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
-using Azure;
-using System.IO;
-using System.Text;
-using System.Diagnostics;
+using Microsoft.Azure.WebJobs.Host;
+using TeamCloud.Azure.Storage;
 
 namespace TeamCloud.Adapters.Threading;
 
@@ -31,12 +31,12 @@ public sealed class BlobStorageDistributedLockManager : IDistributedLockManager
     private const string OWNERID_METADATA = "OwnerId";
     private const string CONTAINER_NAME = "distributed-locks";
 
-    private readonly ConcurrentDictionary<string, BlobContainerClient> lockBlobContainerClientMap = new(StringComparer.OrdinalIgnoreCase);
-
+    private readonly IBlobService blobs;
     private readonly IBlobStorageDistributedLockOptions options;
 
-    public BlobStorageDistributedLockManager(IBlobStorageDistributedLockOptions options = null)
+    public BlobStorageDistributedLockManager(IBlobService blobs, IBlobStorageDistributedLockOptions options = null)
     {
+        this.blobs = blobs ?? throw new ArgumentNullException(nameof(blobs));
         this.options = options ?? BlobStorageDistributedLockOptions.Default;
     }
 
@@ -55,7 +55,7 @@ public sealed class BlobStorageDistributedLockManager : IDistributedLockManager
 
     public async Task<string> GetLockOwnerAsync(string account, string lockId, CancellationToken cancellationToken)
     {
-        var containerClient = await GetContainerClientAsync(account, cancellationToken)
+        var containerClient = await GetContainerClientAsync(cancellationToken)
             .ConfigureAwait(false);
 
         var lockBlob = containerClient
@@ -80,7 +80,7 @@ public sealed class BlobStorageDistributedLockManager : IDistributedLockManager
 
     public async Task<IDistributedLock> TryLockAsync(string account, string lockId, string lockOwnerId, string proposedLeaseId, TimeSpan lockPeriod, CancellationToken cancellationToken)
     {
-        var containerClient = await GetContainerClientAsync(account, cancellationToken)
+        var containerClient = await GetContainerClientAsync(cancellationToken)
             .ConfigureAwait(false);
 
         var lockBlob = containerClient
@@ -101,23 +101,8 @@ public sealed class BlobStorageDistributedLockManager : IDistributedLockManager
         return lockHandle;
     }
 
-    private async Task<BlobContainerClient> GetContainerClientAsync(string account, CancellationToken cancellationToken)
-    {
-        account ??= string.Empty;
-
-        if (!lockBlobContainerClientMap.TryGetValue(account, out var containerClient))
-        {
-            containerClient = new BlobContainerClient(options.ConnectionString, CONTAINER_NAME);
-
-            await containerClient
-                .CreateIfNotExistsAsync(PublicAccessType.None, null, cancellationToken)
-                .ConfigureAwait(false);
-
-            lockBlobContainerClientMap[account] = containerClient;
-        }
-
-        return containerClient;
-    }
+    private Task<BlobContainerClient> GetContainerClientAsync(CancellationToken cancellationToken)
+        => blobs.GetBlobContainerClientAsync(options.ConnectionString, CONTAINER_NAME, cancellationToken: cancellationToken);
 
     private static string GetLockPath(string lockId) => $"locks/{lockId}";
 

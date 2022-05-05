@@ -56,30 +56,30 @@ public class AzureResourceService : IAzureResourceService
             .ConfigureAwait(false);
     }
 
-    public async Task RegisterProviderAsync(Guid subscriptionId, string resourceNamespace)
-    {
-        if (resourceNamespace is null)
-            throw new ArgumentNullException(nameof(resourceNamespace));
+    // public async Task RegisterProviderAsync(Guid subscriptionId, string resourceNamespace)
+    // {
+    //     if (resourceNamespace is null)
+    //         throw new ArgumentNullException(nameof(resourceNamespace));
 
-        using var resourceManagementClient = await AzureSessionService
-            .CreateClientAsync<ResourceManagementClient>(subscriptionId: subscriptionId)
-            .ConfigureAwait(false);
+    //     using var resourceManagementClient = await AzureSessionService
+    //         .CreateClientAsync<ResourceManagementClient>(subscriptionId: subscriptionId)
+    //         .ConfigureAwait(false);
 
-        var provider = await resourceManagementClient.Providers
-            .GetAsync(resourceNamespace)
-            .ConfigureAwait(false);
+    //     var provider = await resourceManagementClient.Providers
+    //         .GetAsync(resourceNamespace)
+    //         .ConfigureAwait(false);
 
-        if (provider.RegistrationState.Equals("NotRegistered", StringComparison.OrdinalIgnoreCase)
-            && provider.RegistrationPolicy.Equals("RegistrationRequired", StringComparison.OrdinalIgnoreCase))
-        {
-            await resourceManagementClient.Providers
-                .RegisterAsync(provider.NamespaceProperty)
-                .ConfigureAwait(false);
-        }
-    }
+    //     if (provider.RegistrationState.Equals("NotRegistered", StringComparison.OrdinalIgnoreCase)
+    //         && provider.RegistrationPolicy.Equals("RegistrationRequired", StringComparison.OrdinalIgnoreCase))
+    //     {
+    //         await resourceManagementClient.Providers
+    //             .RegisterAsync(provider.NamespaceProperty)
+    //             .ConfigureAwait(false);
+    //     }
+    // }
 
-    public Task RegisterProvidersAsync(Guid subscriptionId, IEnumerable<string> resourceNamespaces)
-        => Task.WhenAll(resourceNamespaces.Distinct().Select(n => RegisterProviderAsync(subscriptionId, n)));
+    // public Task RegisterProvidersAsync(Guid subscriptionId, IEnumerable<string> resourceNamespaces)
+    //     => Task.WhenAll(resourceNamespaces.Distinct().Select(n => RegisterProviderAsync(subscriptionId, n)));
 
     public async Task<IEnumerable<string>> GetApiVersionsAsync(Guid subscriptionId, string resourceNamespace, string resourceType, bool includePreviewVersions = false)
     {

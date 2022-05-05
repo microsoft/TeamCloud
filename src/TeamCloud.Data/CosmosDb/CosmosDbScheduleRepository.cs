@@ -46,7 +46,7 @@ public sealed class CosmosDbScheduleRepository : CosmosDbRepository<Schedule>, I
             .ConfigureAwait(false);
     }
 
-    public override Task<Schedule> GetAsync(string projectId, string id, bool expand = false) => GetCachedAsync(projectId, id, async cached =>
+    public override async Task<Schedule> GetAsync(string projectId, string id, bool expand = false) 
     {
         if (projectId is null)
             throw new ArgumentNullException(nameof(projectId));
@@ -68,11 +68,7 @@ public sealed class CosmosDbScheduleRepository : CosmosDbRepository<Schedule>, I
                 .ReadItemAsync<Schedule>(idParsed.ToString(), GetPartitionKey(projectId))
                 .ConfigureAwait(false);
 
-            schedule = SetCached(projectId, id, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
-        {
-            schedule = cached;
+            schedule = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -81,7 +77,7 @@ public sealed class CosmosDbScheduleRepository : CosmosDbRepository<Schedule>, I
 
         return await ExpandAsync(schedule, expand)
             .ConfigureAwait(false);
-    });
+    }
 
     public override async IAsyncEnumerable<Schedule> ListAsync(string projectId)
     {

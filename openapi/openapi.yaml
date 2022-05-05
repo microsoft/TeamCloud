@@ -5,7 +5,7 @@ info:
   contact:
     name: TeamCloud Dev Team
     url: https://github.com/microsoft/TeamCloud/issues/new
-    email: Markus.Heiliger@microsoft.com
+    email: colbyw@microsoft.com
   license:
     name: TeamCloud is licensed under the MIT License
     url: https://github.com/microsoft/TeamCloud/blob/main/LICENSE
@@ -2974,6 +2974,18 @@ components:
     CommandAuditEntity:
       type: object
       properties:
+        partitionKey:
+          type: string
+          nullable: true
+        rowKey:
+          type: string
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        eTag:
+          $ref: '#/components/schemas/ETag'
         commandId:
           type: string
           nullable: true
@@ -2991,22 +3003,18 @@ components:
         projectId:
           type: string
           nullable: true
-          readOnly: true
         userId:
           type: string
           nullable: true
-          readOnly: true
         parentId:
           type: string
           nullable: true
-          readOnly: true
         command:
           type: string
           nullable: true
         componentTask:
           type: string
           nullable: true
-          readOnly: true
         runtimeStatus:
           enum:
             - Running
@@ -3343,6 +3351,8 @@ components:
         id:
           type: string
           nullable: true
+        webServer:
+          type: boolean
         with:
           type: object
           additionalProperties:
@@ -3617,6 +3627,9 @@ components:
           items:
             $ref: '#/components/schemas/ResultError'
           nullable: true
+      additionalProperties: false
+    ETag:
+      type: object
       additionalProperties: false
     Organization:
       required:

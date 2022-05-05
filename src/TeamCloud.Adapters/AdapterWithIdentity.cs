@@ -8,17 +8,16 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Host;
 using TeamCloud.Adapters.Authorization;
 using TeamCloud.Azure;
-using TeamCloud.Microsoft.Graph;
+using TeamCloud.Azure.KeyVault;
 using TeamCloud.Data;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Data;
-using TeamCloud.Secrets;
 
 namespace TeamCloud.Adapters;
 
 public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 {
-    private readonly ISecretsStoreProvider secretsStoreProvider;
-    private readonly IAzureSessionService azureSessionService;
+    private readonly IAzureService azure;
     private readonly IGraphService graphService;
     private readonly IOrganizationRepository organizationRepository;
     private readonly IProjectRepository projectRepository;
@@ -28,16 +27,14 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
     protected AdapterWithIdentity(IAuthorizationSessionClient sessionClient,
                                   IAuthorizationTokenClient tokenClient,
                                   IDistributedLockManager distributedLockManager,
-                                  ISecretsStoreProvider secretsStoreProvider,
-                                  IAzureSessionService azureSessionService,
+                                  IAzureService azure,
                                   IGraphService graphService,
                                   IOrganizationRepository organizationRepository,
                                   IDeploymentScopeRepository deploymentScopeRepository,
                                   IProjectRepository projectRepository,
-                                  IUserRepository userRepository) : base(sessionClient, tokenClient, distributedLockManager, secretsStoreProvider, azureSessionService, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+                                  IUserRepository userRepository) : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
-        this.secretsStoreProvider = secretsStoreProvider ?? throw new ArgumentNullException(nameof(secretsStoreProvider));
-        this.azureSessionService = azureSessionService ?? throw new ArgumentNullException(nameof(azureSessionService));
+        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
         this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
@@ -85,11 +82,11 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .GetAsync(component.Organization, component.ProjectId)
                     .ConfigureAwait(false);
 
-                var secretsStore = await secretsStoreProvider
-                    .GetSecretsStoreAsync(project)
+                var secretClient = await azure.KeyVaults
+                    .GetSecretClientAsync(project.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 
-                servicePrincipal = await secretsStore
+                servicePrincipal = await secretClient
                     .SetSecretAsync(servicePrincipal.Id.ToString(), servicePrincipal)
                     .ConfigureAwait(false);
             }
@@ -99,11 +96,11 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .GetAsync(component.Organization, component.ProjectId)
                     .ConfigureAwait(false);
 
-                var secretsStore = await secretsStoreProvider
-                    .GetSecretsStoreAsync(project)
+                var secretClient = await azure.KeyVaults
+                    .GetSecretClientAsync(project.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 
-                servicePrincipal = (await secretsStore
+                servicePrincipal = (await secretClient
                     .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.Id.ToString())
                     .ConfigureAwait(false)) ?? servicePrincipal;
             }
@@ -150,37 +147,37 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 
             if (!string.IsNullOrEmpty(servicePrincipal.Password))
             {
-                var tenantId = await azureSessionService
+                var tenantId = await azure
                     .GetTenantIdAsync()
                     .ConfigureAwait(false);
 
                 var organization = await organizationRepository
-                    .GetAsync(tenantId.ToString(), deploymentScope.Organization)
+                    .GetAsync(tenantId, deploymentScope.Organization)
                     .ConfigureAwait(false);
 
-                var secretsStore = await secretsStoreProvider
-                    .GetSecretsStoreAsync(organization)
+                var secretClient = await azure.KeyVaults
+                    .GetSecretClientAsync(organization.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 
-                servicePrincipal = await secretsStore
+                servicePrincipal = await secretClient
                     .SetSecretAsync(servicePrincipal.Id.ToString(), servicePrincipal)
                     .ConfigureAwait(false);
             }
             else if (withPassword)
             {
-                var tenantId = await azureSessionService
+                var tenantId = await azure
                     .GetTenantIdAsync()
                     .ConfigureAwait(false);
 
                 var organization = await organizationRepository
-                    .GetAsync(tenantId.ToString(), deploymentScope.Organization)
+                    .GetAsync(tenantId, deploymentScope.Organization)
                     .ConfigureAwait(false);
 
-                var secretsStore = await secretsStoreProvider
-                    .GetSecretsStoreAsync(organization)
+                var secretClient = await azure.KeyVaults
+                    .GetSecretClientAsync(organization.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 
-                servicePrincipal = (await secretsStore
+                servicePrincipal = (await secretClient
                     .GetSecretAsync<AzureServicePrincipal>(servicePrincipal.Id.ToString())
                     .ConfigureAwait(false)) ?? servicePrincipal;
             }

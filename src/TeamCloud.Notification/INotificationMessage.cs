@@ -9,7 +9,7 @@ namespace TeamCloud.Notification;
 
 public interface INotificationMessage
 {
-    IEnumerable<INotificationRecipient> Recipients { get; set; }
+    IEnumerable<INotificationAddress> Recipients { get; set; }
 
     string Subject { get; set; }
 

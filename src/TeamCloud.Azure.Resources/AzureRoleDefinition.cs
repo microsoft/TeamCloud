@@ -19,14 +19,14 @@ public static class AzureRoleDefinition
     public static readonly Guid Reader = Guid.Parse("acdd72a7-3385-48ef-bd42-f606fba81ae7");
 
     // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#user-access-administrator
-    public static readonly Guid UserAccessAdministrator = Guid.Parse("18d7d88d-d35e-4fb5-a5c3-7773c20a72d9");
+    // public static readonly Guid UserAccessAdministrator = Guid.Parse("18d7d88d-d35e-4fb5-a5c3-7773c20a72d9");
 
     // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#devtest-labs-user
-    public static readonly Guid DevTestLabUser = Guid.Parse("76283e04-6283-4c54-8f91-bcf1374a3c64");
+    // public static readonly Guid DevTestLabUser = Guid.Parse("76283e04-6283-4c54-8f91-bcf1374a3c64");
 
     // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#azure-kubernetes-service-cluster-admin-role
-    public static readonly Guid KubernetesServiceClusterAdmin = Guid.Parse("0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8");
+    // public static readonly Guid KubernetesServiceClusterAdmin = Guid.Parse("0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8");
 
     // https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#azure-kubernetes-service-cluster-user-role
-    public static readonly Guid KubernetesServiceClusterUser = Guid.Parse("4abbcc35-e782-43d8-92c5-2d3f1bd2253f");
+    // public static readonly Guid KubernetesServiceClusterUser = Guid.Parse("4abbcc35-e782-43d8-92c5-2d3f1bd2253f");
 }

@@ -48,7 +48,7 @@ public sealed class CosmosDbComponentRepository : CosmosDbRepository<Component>,
             .ConfigureAwait(false);
     }
 
-    public override Task<Component> GetAsync(string projectId, string id, bool expand = false) => GetCachedAsync(projectId, id, async cached =>
+    public override async Task<Component> GetAsync(string projectId, string id, bool expand = false) 
     {
         if (projectId is null)
             throw new ArgumentNullException(nameof(projectId));
@@ -64,14 +64,10 @@ public sealed class CosmosDbComponentRepository : CosmosDbRepository<Component>,
         try
         {
             var response = await container
-                .ReadItemAsync<Component>(id, GetPartitionKey(projectId), cached?.GetItemNoneMatchRequestOptions())
+                .ReadItemAsync<Component>(id, GetPartitionKey(projectId))
                 .ConfigureAwait(false);
 
-            component = SetCached(projectId, id, response.Resource);
-        }
-        catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotModified)
-        {
-            component = cached;
+            component = response.Resource;
         }
         catch (CosmosException cosmosEx) when (cosmosEx.StatusCode == HttpStatusCode.NotFound)
         {
@@ -93,7 +89,7 @@ public sealed class CosmosDbComponentRepository : CosmosDbRepository<Component>,
 
         return await ExpandAsync(component, expand)
                 .ConfigureAwait(false);
-    });
+    }
 
     public override IAsyncEnumerable<Component> ListAsync(string projectId)
         => ListAsync(projectId, includeDeleted: false);

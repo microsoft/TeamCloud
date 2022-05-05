@@ -25,7 +25,6 @@ using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
-using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
@@ -36,6 +35,7 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Validation;
 using TeamCloud.Notification.Smtp;
 using TeamCloud.Orchestration;
@@ -44,7 +44,6 @@ using TeamCloud.Orchestrator;
 using TeamCloud.Orchestrator.Command;
 using TeamCloud.Orchestrator.Command.Data;
 using TeamCloud.Orchestrator.Options;
-using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 using TeamCloud.Validation.Providers;
 
@@ -83,7 +82,6 @@ public class TeamCloudOrchestratorStartup : FunctionsStartup
             })
             .AddTeamCloudHttp()
             .AddTeamCloudAudit()
-            .AddTeamCloudSecrets()
             .AddMvcCore()
             .AddNewtonsoftJson();
 
@@ -124,8 +122,7 @@ public class TeamCloudOrchestratorStartup : FunctionsStartup
             const string EncryptionContainerName = "encryption";
 
             new BlobContainerClient(encryptionOptions.KeyStorage, EncryptionContainerName)
-                .CreateIfNotExistsAsync()
-                .Wait();
+                .CreateIfNotExists();
 
             var dataProtectionBuilder = builder.Services
                 .AddDataProtection()

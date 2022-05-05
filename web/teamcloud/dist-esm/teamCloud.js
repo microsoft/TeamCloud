@@ -6,10 +6,10 @@
  * Changes may cause incorrect behavior and will be lost if the code is regenerated.
  */
 import * as coreClient from "@azure/core-client";
+import * as coreRestPipeline from "@azure/core-rest-pipeline";
 import * as Parameters from "./models/parameters";
 import * as Mappers from "./models/mappers";
-import { TeamCloudContext } from "./teamCloudContext";
-export class TeamCloud extends TeamCloudContext {
+export class TeamCloud extends coreClient.ServiceClient {
     /**
      * Initializes a new instance of the TeamCloud class.
      * @param credentials Subscription credentials which uniquely identify client subscription.
@@ -17,7 +17,50 @@ export class TeamCloud extends TeamCloudContext {
      * @param options The parameter options
      */
     constructor(credentials, $host, options) {
-        super(credentials, $host, options);
+        var _a, _b;
+        if (credentials === undefined) {
+            throw new Error("'credentials' cannot be null");
+        }
+        if ($host === undefined) {
+            throw new Error("'$host' cannot be null");
+        }
+        // Initializing default values for options
+        if (!options) {
+            options = {};
+        }
+        const defaults = {
+            requestContentType: "application/json; charset=utf-8",
+            credential: credentials
+        };
+        const packageDetails = `azsdk-js-teamcloud/1.0.0-beta.1`;
+        const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix
+            ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}`
+            : `${packageDetails}`;
+        if (!options.credentialScopes) {
+            options.credentialScopes = ["openid"];
+        }
+        const optionsWithDefaults = Object.assign(Object.assign(Object.assign({}, defaults), options), { userAgentOptions: {
+                userAgentPrefix
+            }, baseUri: (_b = (_a = options.endpoint) !== null && _a !== void 0 ? _a : options.baseUri) !== null && _b !== void 0 ? _b : "{$host}" });
+        super(optionsWithDefaults);
+        if ((options === null || options === void 0 ? void 0 : options.pipeline) && options.pipeline.getOrderedPolicies().length > 0) {
+            const pipelinePolicies = options.pipeline.getOrderedPolicies();
+            const bearerTokenAuthenticationPolicyFound = pipelinePolicies.some((pipelinePolicy) => pipelinePolicy.name ===
+                coreRestPipeline.bearerTokenAuthenticationPolicyName);
+            if (!bearerTokenAuthenticationPolicyFound) {
+                this.pipeline.removePolicy({
+                    name: coreRestPipeline.bearerTokenAuthenticationPolicyName
+                });
+                this.pipeline.addPolicy(coreRestPipeline.bearerTokenAuthenticationPolicy({
+                    scopes: `${optionsWithDefaults.baseUri}/.default`,
+                    challengeCallbacks: {
+                        authorizeRequestOnChallenge: coreClient.authorizeRequestOnClaimChallenge
+                    }
+                }));
+            }
+        }
+        // Parameter assignments
+        this.$host = $host;
     }
     /**
      * Gets all Adapters.

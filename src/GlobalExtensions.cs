@@ -152,7 +152,8 @@ internal static class GlobalExtensions
     private static readonly string[] WellknownCompounds = new[]
     {
             "GitHub",
-            "DevOps"
+            "DevOps",
+            "TeamCloud"
         };
 
     internal static string ToString(this Enum instance, bool prettyPrint, params string[] compounds)

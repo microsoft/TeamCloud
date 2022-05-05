@@ -6,7 +6,7 @@
     "contact": {
       "name": "TeamCloud Dev Team",
       "url": "https://github.com/microsoft/TeamCloud/issues/new",
-      "email": "Markus.Heiliger@microsoft.com"
+      "email": "colbyw@microsoft.com"
     },
     "license": {
       "name": "TeamCloud is licensed under the MIT License",
@@ -4822,6 +4822,22 @@
       "CommandAuditEntity": {
         "type": "object",
         "properties": {
+          "partitionKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "rowKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "eTag": {
+            "$ref": "#/components/schemas/ETag"
+          },
           "commandId": {
             "type": "string",
             "nullable": true,
@@ -4842,18 +4858,15 @@
           },
           "projectId": {
             "type": "string",
-            "nullable": true,
-            "readOnly": true
+            "nullable": true
           },
           "userId": {
             "type": "string",
-            "nullable": true,
-            "readOnly": true
+            "nullable": true
           },
           "parentId": {
             "type": "string",
-            "nullable": true,
-            "readOnly": true
+            "nullable": true
           },
           "command": {
             "type": "string",
@@ -4861,8 +4874,7 @@
           },
           "componentTask": {
             "type": "string",
-            "nullable": true,
-            "readOnly": true
+            "nullable": true
           },
           "runtimeStatus": {
             "enum": [
@@ -5317,6 +5329,9 @@
             "type": "string",
             "nullable": true
           },
+          "webServer": {
+            "type": "boolean"
+          },
           "with": {
             "type": "object",
             "additionalProperties": {
@@ -5696,6 +5711,10 @@
             "nullable": true
           }
         },
+        "additionalProperties": false
+      },
+      "ETag": {
+        "type": "object",
         "additionalProperties": false
       },
       "Organization": {

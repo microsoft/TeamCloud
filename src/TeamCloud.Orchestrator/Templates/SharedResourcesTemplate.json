@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1124.51302",
-      "templateHash": "1638699186682122981"
+      "version": "0.4.1318.3566",
+      "templateHash": "13290359977463760000"
     }
   },
   "parameters": {
@@ -23,30 +23,34 @@
       "type": "object",
       "defaultValue": {}
     },
-    "deploymentScopes": {
-      "type": "array",
-      "defaultValue": []
-    },
     "organizationId": {
       "type": "string",
       "maxLength": 36,
       "minLength": 36
     },
-    "organizationName": {
+    "organizationSlug": {
       "type": "string"
     },
     "organizationTags": {
       "type": "object",
       "defaultValue": {}
+    },
+    "deploymentScopes": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[deployment().location]"
     }
   },
   "variables": {
     "deployProject": "[and(not(empty(parameters('projectName'))), not(equals(parameters('projectId'), '00000000-0000-0000-0000-000000000000')))]",
     "projectResourceGroupName": "[format('TCP-{0}-{1}', parameters('projectName'), uniqueString(parameters('projectId')))]",
-    "projectDeploymentName": "[take(format('{0}-{1}', deployment().name, uniqueString(parameters('projectId'), 'resources')), 64)]",
+    "projectDeploymentName": "[take(format('{0}-project', deployment().name), 64)]",
     "deployOrganization": "[not(variables('deployProject'))]",
-    "organizationResourceGroupName": "[format('TCO-{0}-{1}', parameters('organizationName'), uniqueString(parameters('organizationId')))]",
-    "organizationDeploymentName": "[take(format('{0}-{1}', deployment().name, uniqueString(parameters('organizationId'), 'resources')), 64)]"
+    "organizationResourceGroupName": "[format('TCO-{0}-{1}', parameters('organizationSlug'), uniqueString(parameters('organizationId')))]",
+    "organizationDeploymentName": "[take(format('{0}-organization', deployment().name), 64)]"
   },
   "resources": [
     {
@@ -54,7 +58,7 @@
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-10-01",
       "name": "[variables('organizationResourceGroupName')]",
-      "location": "[deployment().location]",
+      "location": "[parameters('location')]",
       "tags": "[parameters('organizationTags')]"
     },
     {
@@ -62,7 +66,7 @@
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2019-10-01",
       "name": "[variables('projectResourceGroupName')]",
-      "location": "[deployment().location]",
+      "location": "[parameters('location')]",
       "tags": "[parameters('projectTags')]"
     },
     {
@@ -77,8 +81,11 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "tags": {
+          "organizationTags": {
             "value": "[parameters('organizationTags')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
           }
         },
         "template": {
@@ -87,26 +94,31 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1124.51302",
-              "templateHash": "2056363907895207247"
+              "version": "0.4.1318.3566",
+              "templateHash": "16989437146596640972"
             }
           },
           "parameters": {
-            "tags": {
+            "organizationTags": {
               "type": "object",
               "defaultValue": {}
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
             }
           },
           "variables": {
             "resourcePrefix": "tc",
-            "uniqueName": "[format('{0}{1}', variables('resourcePrefix'), uniqueString(resourceGroup().id))]"
+            "resourceName": "[format('{0}{1}', variables('resourcePrefix'), uniqueString(resourceGroup().id))]"
           },
           "resources": [
             {
               "type": "Microsoft.KeyVault/vaults",
               "apiVersion": "2019-09-01",
-              "name": "[format('{0}-secrets', variables('uniqueName'))]",
-              "location": "[resourceGroup().location]",
+              "name": "[format('{0}-secrets', variables('resourceName'))]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
               "properties": {
                 "sku": {
                   "name": "standard",
@@ -118,40 +130,39 @@
                 "enableSoftDelete": true,
                 "tenantId": "[subscription().tenantId]",
                 "accessPolicies": []
-              },
-              "tags": "[parameters('tags')]"
+              }
             },
             {
               "type": "Microsoft.Compute/galleries",
               "apiVersion": "2020-09-30",
-              "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
-              "properties": {},
-              "tags": "[parameters('tags')]"
+              "name": "[variables('resourceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
+              "properties": {}
             },
             {
               "type": "Microsoft.ContainerRegistry/registries",
               "apiVersion": "2019-12-01-preview",
-              "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
+              "name": "[variables('resourceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
               "sku": {
                 "name": "Standard"
               },
               "properties": {
                 "adminUserEnabled": false
-              },
-              "tags": "[parameters('tags')]"
+              }
             },
             {
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2019-06-01",
-              "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
+              "name": "[variables('resourceName')]",
+              "location": "[parameters('location')]",
+              "tags": "[parameters('organizationTags')]",
               "kind": "StorageV2",
               "sku": {
                 "name": "Premium_LRS"
-              },
-              "tags": "[parameters('tags')]"
+              }
             }
           ],
           "outputs": {
@@ -159,10 +170,10 @@
               "type": "object",
               "value": {
                 "resourceId": "[resourceGroup().id]",
-                "secretsVaultId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}-secrets', variables('uniqueName')))]",
-                "galleryId": "[resourceId('Microsoft.Compute/galleries', variables('uniqueName'))]",
-                "registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('uniqueName'))]",
-                "storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueName'))]"
+                "secretsVaultId": "[resourceId('Microsoft.KeyVault/vaults', format('{0}-secrets', variables('resourceName')))]",
+                "galleryId": "[resourceId('Microsoft.Compute/galleries', variables('resourceName'))]",
+                "registryId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('resourceName'))]",
+                "storageId": "[resourceId('Microsoft.Storage/storageAccounts', variables('resourceName'))]"
               }
             }
           }
@@ -189,6 +200,9 @@
           },
           "deploymentScopes": {
             "value": "[parameters('deploymentScopes')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
           }
         },
         "template": {
@@ -197,8 +211,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.1124.51302",
-              "templateHash": "978003646548595270"
+              "version": "0.4.1318.3566",
+              "templateHash": "4063573186521174889"
             }
           },
           "parameters": {
@@ -209,6 +223,10 @@
             "deploymentScopes": {
               "type": "array",
               "defaultValue": []
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
             }
           },
           "variables": {
@@ -220,7 +238,7 @@
               "type": "Microsoft.KeyVault/vaults",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}-shared', variables('uniqueName'))]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('location')]",
               "properties": {
                 "sku": {
                   "name": "standard",
@@ -239,7 +257,7 @@
               "type": "Microsoft.KeyVault/vaults",
               "apiVersion": "2019-09-01",
               "name": "[format('{0}-secrets', variables('uniqueName'))]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('location')]",
               "properties": {
                 "sku": {
                   "name": "standard",
@@ -258,7 +276,7 @@
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2019-06-01",
               "name": "[variables('uniqueName')]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('location')]",
               "sku": {
                 "name": "Standard_LRS"
               },
@@ -275,7 +293,7 @@
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
               "name": "[parameters('deploymentScopes')[copyIndex()]]",
-              "location": "[resourceGroup().location]"
+              "location": "[parameters('location')]"
             }
           ],
           "outputs": {

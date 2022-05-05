@@ -13,6 +13,7 @@ from azure.core.pipeline import PipelineResponse
 from azure.core.pipeline.transport import AsyncHttpResponse
 from azure.core.rest import HttpRequest
 from azure.core.tracing.decorator_async import distributed_trace_async
+from azure.core.utils import case_insensitive_dict
 
 from ... import models as _models
 from ..._vendor import _convert_request
@@ -26,7 +27,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def get_adapters(
         self,
         **kwargs: Any
-    ) -> Optional[Union["_models.AdapterInformationListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.AdapterInformationListDataResult, _models.ErrorResult]]:
         """Gets all Adapters.
 
         Gets all Adapters.
@@ -37,20 +38,26 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.AdapterInformationListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.AdapterInformationListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_adapters_request(
             template_url=self.get_adapters.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -83,7 +90,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_id: str,
         deleted: Optional[bool] = False,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentListDataResult, _models.ErrorResult]]:
         """Gets all Components for a Project.
 
         Gets all Components for a Project.
@@ -92,18 +99,22 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param deleted:
+        :param deleted:  Default value is False.
         :type deleted: bool
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ComponentListDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ComponentListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_components_request(
@@ -111,11 +122,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             project_id=project_id,
             deleted=deleted,
             template_url=self.get_components.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -149,9 +162,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.ComponentDefinition"] = None,
+        body: Optional[_models.ComponentDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Creates a new Project Component.
 
         Creates a new Project Component.
@@ -160,7 +173,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ComponentDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ComponentDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -168,13 +181,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ComponentDefinition')
@@ -187,11 +203,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_component.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -233,7 +251,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentDataResult, _models.ErrorResult]]:
         """Gets a Project Component.
 
         Gets a Project Component.
@@ -249,11 +267,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ComponentDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_request(
@@ -261,11 +283,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_component.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -301,7 +325,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ComponentDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ComponentDataResult, _models.ErrorResult]]:
         """Deletes an existing Project Component.
 
         Deletes an existing Project Component.
@@ -318,11 +342,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ComponentDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ComponentDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_component_request(
@@ -330,11 +358,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_component.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -373,7 +403,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_id: str,
         component_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentTaskListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentTaskListDataResult, _models.ErrorResult]]:
         """Gets all Component Tasks.
 
         Gets all Component Tasks.
@@ -389,11 +419,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ComponentTaskListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_tasks_request(
@@ -401,11 +435,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             project_id=project_id,
             component_id=component_id,
             template_url=self.get_component_tasks.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -440,9 +476,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         component_id: str,
-        body: Optional["_models.ComponentTaskDefinition"] = None,
+        body: Optional[_models.ComponentTaskDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Creates a new Project Component Task.
 
         Creates a new Project Component Task.
@@ -453,7 +489,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type project_id: str
         :param component_id:
         :type component_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ComponentTaskDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ComponentTaskDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -461,13 +497,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ComponentTaskDefinition')
@@ -481,11 +520,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -528,7 +569,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_id: str,
         component_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentTaskDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentTaskDataResult, _models.ErrorResult]]:
         """Gets the Component Task.
 
         Gets the Component Task.
@@ -546,11 +587,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ComponentTaskDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_task_request(
@@ -559,11 +604,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             project_id=project_id,
             component_id=component_id,
             template_url=self.get_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -600,7 +647,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         component_id: str,
         task_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Rerun a Project Component Task.
 
         Rerun a Project Component Task.
@@ -619,11 +666,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_cancel_component_task_request(
@@ -632,11 +683,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             component_id=component_id,
             task_id=task_id,
             template_url=self.cancel_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -676,7 +729,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         component_id: str,
         task_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Cancel an active Project Component Task.
 
         Cancel an active Project Component Task.
@@ -695,11 +748,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTaskDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTaskDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_re_run_component_task_request(
@@ -708,11 +765,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             component_id=component_id,
             task_id=task_id,
             template_url=self.re_run_component_task.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -750,7 +809,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentTemplateListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentTemplateListDataResult, _models.ErrorResult]]:
         """Gets all Component Templates for a Project.
 
         Gets all Component Templates for a Project.
@@ -765,22 +824,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTemplateListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTemplateListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_templates_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_component_templates.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -816,7 +881,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ComponentTemplateDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ComponentTemplateDataResult, _models.ErrorResult]]:
         """Gets the Component Template.
 
         Gets the Component Template.
@@ -832,11 +897,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ComponentTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ComponentTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ComponentTemplateDataResult, _models.ErrorResult]]]
 
         
         request = build_get_component_template_request(
@@ -844,11 +913,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_component_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -882,7 +953,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.DeploymentScopeListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.DeploymentScopeListDataResult, _models.ErrorResult]]:
         """Gets all Deployment Scopes.
 
         Gets all Deployment Scopes.
@@ -895,21 +966,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_deployment_scopes_request(
             organization_id=organization_id,
             template_url=self.get_deployment_scopes.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -939,29 +1016,32 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def create_deployment_scope(
         self,
         organization_id: str,
-        body: Optional["_models.DeploymentScopeDefinition"] = None,
+        body: Optional[_models.DeploymentScopeDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]:
         """Creates a new Deployment Scope.
 
         Creates a new Deployment Scope.
 
         :param organization_id:
         :type organization_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.DeploymentScopeDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: DeploymentScopeDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'DeploymentScopeDefinition')
@@ -973,11 +1053,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1012,7 +1094,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         deployment_scope_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]:
         """Gets a Deployment Scope.
 
         Gets a Deployment Scope.
@@ -1026,22 +1108,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         
         request = build_get_deployment_scope_request(
             organization_id=organization_id,
             deployment_scope_id=deployment_scope_id,
             template_url=self.get_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1075,9 +1163,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         deployment_scope_id: str,
-        body: Optional["_models.DeploymentScope"] = None,
+        body: Optional[_models.DeploymentScope] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]:
         """Updates an existing Deployment Scope.
 
         Updates an existing Deployment Scope.
@@ -1086,20 +1174,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param deployment_scope_id:
         :type deployment_scope_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.DeploymentScope
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: DeploymentScopeDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'DeploymentScope')
@@ -1112,11 +1203,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1151,7 +1244,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         deployment_scope_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]:
         """Deletes a Deployment Scope.
 
         Deletes a Deployment Scope.
@@ -1165,22 +1258,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_deployment_scope_request(
             organization_id=organization_id,
             deployment_scope_id=deployment_scope_id,
             template_url=self.delete_deployment_scope.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1215,7 +1314,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         deployment_scope_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]:
         """Initialize a new authorization session for a deployment scope.
 
         Initialize a new authorization session for a deployment scope.
@@ -1229,22 +1328,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.DeploymentScopeDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.DeploymentScopeDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.DeploymentScopeDataResult, _models.ErrorResult]]]
 
         
         request = build_initialize_authorization_request(
             organization_id=organization_id,
             deployment_scope_id=deployment_scope_id,
             template_url=self.initialize_authorization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1290,22 +1395,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[None]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[None]
 
         
         request = build_negotiate_signal_r_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.negotiate_signal_r.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1329,16 +1440,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         time_range: Optional[str] = None,
         commands: Optional[List[str]] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.CommandAuditEntityListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.CommandAuditEntityListDataResult, _models.ErrorResult]]:
         """Gets all audit entries.
 
         Gets all audit entries.
 
         :param organization_id:
         :type organization_id: str
-        :param time_range:
+        :param time_range:  Default value is None.
         :type time_range: str
-        :param commands:
+        :param commands:  Default value is None.
         :type commands: list[str]
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: CommandAuditEntityListDataResult or ErrorResult, or the result of cls(response)
@@ -1346,11 +1457,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.CommandAuditEntityListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.CommandAuditEntityListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_audit_entries_request(
@@ -1358,11 +1473,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             time_range=time_range,
             commands=commands,
             template_url=self.get_audit_entries.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1398,7 +1515,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         expand: Optional[bool] = False,
         **kwargs: Any
-    ) -> Optional[Union["_models.CommandAuditEntityDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.CommandAuditEntityDataResult, _models.ErrorResult]]:
         """Gets an audit entry.
 
         Gets an audit entry.
@@ -1407,18 +1524,22 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type command_id: str
         :param organization_id:
         :type organization_id: str
-        :param expand:
+        :param expand:  Default value is False.
         :type expand: bool
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: CommandAuditEntityDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.CommandAuditEntityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.CommandAuditEntityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.CommandAuditEntityDataResult, _models.ErrorResult]]]
 
         
         request = build_get_audit_entry_request(
@@ -1426,11 +1547,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             expand=expand,
             template_url=self.get_audit_entry.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1464,7 +1587,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StringListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StringListDataResult, _models.ErrorResult]]:
         """Gets all auditable commands.
 
         Gets all auditable commands.
@@ -1476,21 +1599,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StringListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StringListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_audit_commands_request(
             organization_id=organization_id,
             template_url=self.get_audit_commands.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1523,7 +1652,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def get_organizations(
         self,
         **kwargs: Any
-    ) -> Optional[Union["_models.OrganizationListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.OrganizationListDataResult, _models.ErrorResult]]:
         """Gets all Organizations.
 
         Gets all Organizations.
@@ -1533,20 +1662,26 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.OrganizationListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organizations_request(
             template_url=self.get_organizations.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1578,27 +1713,30 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     @distributed_trace_async
     async def create_organization(
         self,
-        body: Optional["_models.OrganizationDefinition"] = None,
+        body: Optional[_models.OrganizationDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]:
         """Creates a new Organization.
 
         Creates a new Organization.
 
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.OrganizationDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: OrganizationDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'OrganizationDefinition')
@@ -1609,11 +1747,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_organization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1650,7 +1790,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]:
         """Gets an Organization.
 
         Gets an Organization.
@@ -1662,21 +1802,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.OrganizationDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.OrganizationDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.OrganizationDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_request(
             organization_id=organization_id,
             template_url=self.get_organization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1710,7 +1856,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Deletes an existing Organization.
 
         Deletes an existing Organization.
@@ -1722,21 +1868,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_organization_request(
             organization_id=organization_id,
             template_url=self.delete_organization.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1767,7 +1919,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserListDataResult, _models.ErrorResult]]:
         """Gets all Users.
 
         Gets all Users.
@@ -1779,21 +1931,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.UserListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_users_request(
             organization_id=organization_id,
             template_url=self.get_organization_users.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1826,29 +1984,32 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def create_organization_user(
         self,
         organization_id: str,
-        body: Optional["_models.UserDefinition"] = None,
+        body: Optional[_models.UserDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]:
         """Creates a new User.
 
         Creates a new User.
 
         :param organization_id:
         :type organization_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.UserDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: UserDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'UserDefinition')
@@ -1860,11 +2021,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1902,7 +2065,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         user_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]:
         """Gets a User.
 
         Gets a User.
@@ -1916,22 +2079,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_user_request(
             user_id=user_id,
             organization_id=organization_id,
             template_url=self.get_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -1965,9 +2134,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         user_id: str,
         organization_id: str,
-        body: Optional["_models.User"] = None,
+        body: Optional[_models.User] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Updates an existing User.
 
         Updates an existing User.
@@ -1976,7 +2145,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type user_id: str
         :param organization_id:
         :type organization_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -1984,13 +2153,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -2003,11 +2175,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2045,7 +2219,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         user_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.UserDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.UserDataResult, _models.ErrorResult]]:
         """Deletes an existing User.
 
         Deletes an existing User.
@@ -2060,22 +2234,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_organization_user_request(
             user_id=user_id,
             organization_id=organization_id,
             template_url=self.delete_organization_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2109,7 +2289,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]:
         """Gets a User A User matching the current authenticated user.
 
         Gets a User A User matching the current authenticated user.
@@ -2121,21 +2301,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_organization_user_me_request(
             organization_id=organization_id,
             template_url=self.get_organization_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2168,16 +2354,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def update_organization_user_me(
         self,
         organization_id: str,
-        body: Optional["_models.User"] = None,
+        body: Optional[_models.User] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Updates an existing User.
 
         Updates an existing User.
 
         :param organization_id:
         :type organization_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -2185,13 +2371,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -2203,11 +2392,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_organization_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2244,7 +2435,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]:
         """Gets all Projects.
 
         Gets all Projects.
@@ -2256,21 +2447,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_projects_request(
             organization_id=organization_id,
             template_url=self.get_projects.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2300,16 +2497,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def create_project(
         self,
         organization_id: str,
-        body: Optional["_models.ProjectDefinition"] = None,
+        body: Optional[_models.ProjectDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Creates a new Project.
 
         Creates a new Project.
 
         :param organization_id:
         :type organization_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ProjectDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ProjectDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -2317,13 +2514,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectDefinition')
@@ -2335,11 +2535,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_project.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2377,7 +2579,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectDataResult, _models.ErrorResult]]:
         """Gets a Project.
 
         Gets a Project.
@@ -2391,22 +2593,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_request(
             project_id=project_id,
             organization_id=organization_id,
             template_url=self.get_project.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2441,7 +2649,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Deletes a Project.
 
         Deletes a Project.
@@ -2455,22 +2663,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_request(
             project_id=project_id,
             organization_id=organization_id,
             template_url=self.delete_project.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2505,7 +2719,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectIdentityListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectIdentityListDataResult, _models.ErrorResult]]:
         """Gets all Project Identities.
 
         Gets all Project Identities.
@@ -2520,22 +2734,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_identities_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_identities.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2566,9 +2786,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.ProjectIdentityDefinition"] = None,
+        body: Optional[_models.ProjectIdentityDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]:
         """Creates a new Project Identity.
 
         Creates a new Project Identity.
@@ -2577,20 +2797,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ProjectIdentityDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ProjectIdentityDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectIdentityDefinition')
@@ -2603,11 +2826,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2643,7 +2868,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]:
         """Gets a Project Identity.
 
         Gets a Project Identity.
@@ -2659,11 +2884,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_identity_request(
@@ -2671,11 +2900,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2710,9 +2941,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_identity_id: str,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.ProjectIdentity"] = None,
+        body: Optional[_models.ProjectIdentity] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Updates an existing Project Identity.
 
         Updates an existing Project Identity.
@@ -2723,20 +2954,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ProjectIdentity
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: StatusResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectIdentity')
@@ -2750,11 +2984,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2790,7 +3026,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]:
         """Deletes a Project Identity.
 
         Deletes a Project Identity.
@@ -2806,11 +3042,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectIdentityDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectIdentityDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectIdentityDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_identity_request(
@@ -2818,11 +3058,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_project_identity.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2857,7 +3099,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]:
         """Gets all Tags for a Project.
 
         Gets all Tags for a Project.
@@ -2871,22 +3113,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_tags_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_tags.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -2922,7 +3170,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_id: str,
         body: Optional[Dict[str, str]] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Creates a new Project Tag.
 
         Creates a new Project Tag.
@@ -2931,20 +3179,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: dict[str, str]
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: StatusResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, '{str}')
@@ -2957,11 +3208,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_project_tag.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3000,7 +3253,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_id: str,
         body: Optional[Dict[str, str]] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Updates an existing Project Tag.
 
         Updates an existing Project Tag.
@@ -3009,20 +3262,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: dict[str, str]
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: StatusResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, '{str}')
@@ -3035,11 +3291,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_project_tag.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3075,7 +3333,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]:
         """Gets a Project Tag by Key.
 
         Gets a Project Tag by Key.
@@ -3091,11 +3349,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StringDictionaryDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StringDictionaryDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StringDictionaryDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_tag_by_key_request(
@@ -3103,11 +3365,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_tag_by_key.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3143,7 +3407,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Deletes an existing Project Tag.
 
         Deletes an existing Project Tag.
@@ -3159,11 +3423,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_tag_request(
@@ -3171,11 +3439,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_project_tag.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3209,7 +3479,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectTemplateListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectTemplateListDataResult, _models.ErrorResult]]:
         """Gets all Project Templates.
 
         Gets all Project Templates.
@@ -3222,21 +3492,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_templates_request(
             organization_id=organization_id,
             template_url=self.get_project_templates.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3266,29 +3542,32 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def create_project_template(
         self,
         organization_id: str,
-        body: Optional["_models.ProjectTemplateDefinition"] = None,
+        body: Optional[_models.ProjectTemplateDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]:
         """Creates a new Project Template.
 
         Creates a new Project Template.
 
         :param organization_id:
         :type organization_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ProjectTemplateDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ProjectTemplateDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectTemplateDefinition')
@@ -3300,11 +3579,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3339,7 +3620,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_template_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]:
         """Gets a Project Template.
 
         Gets a Project Template.
@@ -3353,22 +3634,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_template_request(
             project_template_id=project_template_id,
             organization_id=organization_id,
             template_url=self.get_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3402,9 +3689,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         project_template_id: str,
         organization_id: str,
-        body: Optional["_models.ProjectTemplate"] = None,
+        body: Optional[_models.ProjectTemplate] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]:
         """Updates an existing Project Template.
 
         Updates an existing Project Template.
@@ -3413,20 +3700,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type project_template_id: str
         :param organization_id:
         :type organization_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ProjectTemplate
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ProjectTemplateDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ProjectTemplate')
@@ -3439,11 +3729,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3478,7 +3770,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         project_template_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]:
         """Deletes a Project Template.
 
         Deletes a Project Template.
@@ -3492,22 +3784,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectTemplateDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectTemplateDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectTemplateDataResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_template_request(
             project_template_id=project_template_id,
             organization_id=organization_id,
             template_url=self.delete_project_template.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3542,7 +3840,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserListDataResult, _models.ErrorResult]]:
         """Gets all Users for a Project.
 
         Gets all Users for a Project.
@@ -3556,22 +3854,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.UserListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_users_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_users.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3605,9 +3909,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.UserDefinition"] = None,
+        body: Optional[_models.UserDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Creates a new Project User.
 
         Creates a new Project User.
@@ -3616,7 +3920,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.UserDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -3624,13 +3928,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'UserDefinition')
@@ -3643,11 +3950,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3689,7 +3998,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]:
         """Gets a Project User by ID or email address.
 
         Gets a Project User by ID or email address.
@@ -3705,11 +4014,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_user_request(
@@ -3717,11 +4030,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3756,9 +4071,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         user_id: str,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.User"] = None,
+        body: Optional[_models.User] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Updates an existing Project User.
 
         Updates an existing Project User.
@@ -3769,7 +4084,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -3777,13 +4092,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -3797,11 +4115,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3840,7 +4160,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Deletes an existing Project User.
 
         Deletes an existing Project User.
@@ -3856,11 +4176,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_delete_project_user_request(
@@ -3868,11 +4192,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.delete_project_user.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3907,7 +4233,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.ErrorResult]]:
         """Gets a Project User for the calling user.
 
         Gets a Project User for the calling user.
@@ -3921,22 +4247,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.UserDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.ErrorResult]]]
 
         
         request = build_get_project_user_me_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_project_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -3970,9 +4302,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.User"] = None,
+        body: Optional[_models.User] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]:
         """Updates an existing Project User.
 
         Updates an existing Project User.
@@ -3981,7 +4313,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.User
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: UserDataResult or StatusResult or ErrorResult, or the result of cls(response)
@@ -3989,13 +4321,16 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
          ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.UserDataResult", "_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.UserDataResult, _models.StatusResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'User')
@@ -4008,11 +4343,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_project_user_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4048,7 +4385,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
     async def get_info(
         self,
         **kwargs: Any
-    ) -> "_models.TeamCloudInformationDataResult":
+    ) -> _models.TeamCloudInformationDataResult:
         """Gets information about this TeamCloud deployment.
 
         Gets information about this TeamCloud deployment.
@@ -4058,20 +4395,26 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.TeamCloudInformationDataResult
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType["_models.TeamCloudInformationDataResult"]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[_models.TeamCloudInformationDataResult]
 
         
         request = build_get_info_request(
             template_url=self.get_info.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4098,7 +4441,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ScheduleListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ScheduleListDataResult, _models.ErrorResult]]:
         """Gets all Schedule.
 
         Gets all Schedule.
@@ -4112,22 +4455,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ScheduleListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_schedules_request(
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_schedules.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4158,9 +4507,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.ScheduleDefinition"] = None,
+        body: Optional[_models.ScheduleDefinition] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]:
         """Creates a new Project Schedule.
 
         Creates a new Project Schedule.
@@ -4169,20 +4518,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.ScheduleDefinition
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ScheduleDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'ScheduleDefinition')
@@ -4195,11 +4547,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.create_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4238,7 +4592,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]:
         """Gets the Schedule.
 
         Gets the Schedule.
@@ -4254,11 +4608,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         
         request = build_get_schedule_request(
@@ -4266,11 +4624,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.get_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4305,9 +4665,9 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         schedule_id: str,
         organization_id: str,
         project_id: str,
-        body: Optional["_models.Schedule"] = None,
+        body: Optional[_models.Schedule] = None,
         **kwargs: Any
-    ) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]:
         """Updates a Project Schedule.
 
         Updates a Project Schedule.
@@ -4318,20 +4678,23 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :type organization_id: str
         :param project_id:
         :type project_id: str
-        :param body:
+        :param body:  Default value is None.
         :type body: ~teamcloud.models.Schedule
         :keyword callable cls: A custom type or function that will be passed the direct response
         :return: ScheduleDataResult or ErrorResult, or the result of cls(response)
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
 
-        content_type = kwargs.pop('content_type', "application/json")  # type: Optional[str]
+        _headers = case_insensitive_dict(kwargs.pop("headers", {}) or {})
+        _params = kwargs.pop("params", {}) or {}
+
+        content_type = kwargs.pop('content_type', _headers.pop('Content-Type', "application/json"))  # type: Optional[str]
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         if body is not None:
             _json = self._serialize.body(body, 'Schedule')
@@ -4345,11 +4708,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             content_type=content_type,
             json=_json,
             template_url=self.update_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4388,7 +4753,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         project_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]:
         """Runs a Project Schedule.
 
         Runs a Project Schedule.
@@ -4404,11 +4769,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ScheduleDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ScheduleDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ScheduleDataResult, _models.ErrorResult]]]
 
         
         request = build_run_schedule_request(
@@ -4416,11 +4785,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             organization_id=organization_id,
             project_id=project_id,
             template_url=self.run_schedule.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4455,7 +4826,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         tracking_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Gets the status of a long-running operation.
 
         Gets the status of a long-running operation.
@@ -4469,22 +4840,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_get_status_request(
             tracking_id=tracking_id,
             organization_id=organization_id,
             template_url=self.get_status.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4526,7 +4903,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         tracking_id: str,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.StatusResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.StatusResult, _models.ErrorResult]]:
         """Gets the status of a long-running operation.
 
         Gets the status of a long-running operation.
@@ -4542,11 +4919,15 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.StatusResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.StatusResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.StatusResult, _models.ErrorResult]]]
 
         
         request = build_get_project_status_request(
@@ -4554,11 +4935,13 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
             tracking_id=tracking_id,
             organization_id=organization_id,
             template_url=self.get_project_status.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4599,7 +4982,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         organization_id: str,
         user_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]:
         """Gets all Projects for a User.
 
         Gets all Projects for a User.
@@ -4613,22 +4996,28 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_user_projects_request(
             organization_id=organization_id,
             user_id=user_id,
             template_url=self.get_user_projects.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs
@@ -4662,7 +5051,7 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         self,
         organization_id: str,
         **kwargs: Any
-    ) -> Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]:
+    ) -> Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]:
         """Gets all Projects for a User.
 
         Gets all Projects for a User.
@@ -4674,21 +5063,27 @@ class TeamCloudClientOperationsMixin:  # pylint: disable=too-many-public-methods
         :rtype: ~teamcloud.models.ProjectListDataResult or ~teamcloud.models.ErrorResult or None
         :raises: ~azure.core.exceptions.HttpResponseError
         """
-        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union["_models.ProjectListDataResult", "_models.ErrorResult"]]]
         error_map = {
             401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError
         }
-        error_map.update(kwargs.pop('error_map', {}))
+        error_map.update(kwargs.pop('error_map', {}) or {})
+
+        _headers = kwargs.pop("headers", {}) or {}
+        _params = kwargs.pop("params", {}) or {}
+
+        cls = kwargs.pop('cls', None)  # type: ClsType[Optional[Union[_models.ProjectListDataResult, _models.ErrorResult]]]
 
         
         request = build_get_user_projects_me_request(
             organization_id=organization_id,
             template_url=self.get_user_projects_me.metadata['url'],
+            headers=_headers,
+            params=_params,
         )
         request = _convert_request(request)
-        request.url = self._client.format_url(request.url)
+        request.url = self._client.format_url(request.url)  # type: ignore
 
-        pipeline_response = await self._client._pipeline.run(  # pylint: disable=protected-access
+        pipeline_response = await self._client._pipeline.run(  # type: ignore # pylint: disable=protected-access
             request,
             stream=False,
             **kwargs

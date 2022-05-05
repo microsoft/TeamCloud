@@ -40,43 +40,43 @@ popd
 
 line
 
-pushd $tc_dir/web
+# pushd $tc_dir/web
 
-    log "[Web] Uninstalling teamcloud from web"
-    npm uninstall teamcloud --legacy-peer-deps
+#     log "[Web] Uninstalling teamcloud from web"
+#     npm uninstall teamcloud --legacy-peer-deps
 
-    if [ -d ./node_modules ]; then
-        log "[Web] Deleteing web node_modules"
-        rm -rf ./node_modules
-    fi
+#     if [ -d ./node_modules ]; then
+#         log "[Web] Deleteing web node_modules"
+#         rm -rf ./node_modules
+#     fi
 
-    if [ -f ./package-lock.json ]; then
-        log "[Web] Deleteing web package.lock"
-        rm ./package-lock.json
-    fi
+#     if [ -f ./package-lock.json ]; then
+#         log "[Web] Deleteing web package.lock"
+#         rm ./package-lock.json
+#     fi
 
-popd
+# popd
 
-line
+# line
 
-pushd $tc_dir/web/teamcloud
+# pushd $tc_dir/web/teamcloud
 
-    # log "[TypeScript] Deleteing everything from teamcloud"
-    # rm -rf ./*
+#     # log "[TypeScript] Deleteing everything from teamcloud"
+#     # rm -rf ./*
 
-    if [ -d ./node_modules ]; then
-        log "[TypeScript] Deleteing teamcloud node_modules"
-        rm -rf ./node_modules
-    fi
+#     if [ -d ./node_modules ]; then
+#         log "[TypeScript] Deleteing teamcloud node_modules"
+#         rm -rf ./node_modules
+#     fi
 
-    if [ -f ./package-lock.json ]; then
-        log "[TypeScript] Deleteing teamcloud package.lock"
-        rm ./package-lock.json
-    fi
+#     if [ -f ./package-lock.json ]; then
+#         log "[TypeScript] Deleteing teamcloud package.lock"
+#         rm ./package-lock.json
+#     fi
 
-popd
+# popd
 
-line
+# line
 
 pushd $tc_dir/openapi
 

@@ -7,10 +7,15 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Reflection;
+using Azure.Core;
+using Azure.ResourceManager;
+using Flurl;
 using Flurl.Http.Configuration;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using TeamCloud.Azure.ContainerInstance;
+using TeamCloud.Azure.KeyVault;
+using TeamCloud.Azure.Storage;
 using static Microsoft.Azure.Management.ResourceManager.Fluent.Core.RestClient.RestClientBuilder;
 
 namespace TeamCloud.Azure;
@@ -27,12 +32,23 @@ public static class Extensions
             throw new ArgumentNullException(nameof(configuration));
 
         services
-            .TryAddSingleton<IAzureSessionService, AzureSessionService>();
+            .AddSingleton<IAzureSessionService, AzureSessionService>()
+            .AddSingleton<IArmService, ArmService>()
+            .AddSingleton<IAzureService, AzureService>()
+            .AddSingleton<IStorageService, StorageService>()
+            .AddSingleton<IKeyVaultService, KeyVaultService>()
+            .AddSingleton<IBlobService, BlobService>()
+            .AddSingleton<ITableService, TableService>()
+            .AddSingleton<IFileShareService, FileShareService>()
+            .AddSingleton<IContainerInstanceService, ContainerInstanceService>();
 
         configuration.Invoke(new AzureConfiguration(services));
 
         return services;
     }
+
+    public static string GetApiUrl(this ResourceIdentifier resourceId, ArmEnvironment armEnvironment)
+        => armEnvironment.Endpoint.AppendPathSegment(resourceId.ToString()).ToString();
 
     public static string GetEndpointUrl(this Microsoft.Azure.Management.ResourceManager.Fluent.AzureEnvironment azureEnvironment, AzureEndpoint azureEndpoint)
     {

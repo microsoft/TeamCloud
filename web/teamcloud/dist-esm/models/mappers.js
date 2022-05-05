@@ -1110,6 +1110,12 @@ export const ComponentTaskRunner = {
                     name: "String"
                 }
             },
+            webServer: {
+                serializedName: "webServer",
+                type: {
+                    name: "Boolean"
+                }
+            },
             with: {
                 serializedName: "with",
                 nullable: true,
@@ -1444,6 +1450,34 @@ export const CommandAuditEntity = {
         name: "Composite",
         className: "CommandAuditEntity",
         modelProperties: {
+            partitionKey: {
+                serializedName: "partitionKey",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            rowKey: {
+                serializedName: "rowKey",
+                nullable: true,
+                type: {
+                    name: "String"
+                }
+            },
+            timestamp: {
+                serializedName: "timestamp",
+                nullable: true,
+                type: {
+                    name: "DateTime"
+                }
+            },
+            eTag: {
+                serializedName: "eTag",
+                type: {
+                    name: "Dictionary",
+                    value: { type: { name: "any" } }
+                }
+            },
             commandId: {
                 serializedName: "commandId",
                 readOnly: true,
@@ -1476,7 +1510,6 @@ export const CommandAuditEntity = {
             },
             projectId: {
                 serializedName: "projectId",
-                readOnly: true,
                 nullable: true,
                 type: {
                     name: "String"
@@ -1484,7 +1517,6 @@ export const CommandAuditEntity = {
             },
             userId: {
                 serializedName: "userId",
-                readOnly: true,
                 nullable: true,
                 type: {
                     name: "String"
@@ -1492,7 +1524,6 @@ export const CommandAuditEntity = {
             },
             parentId: {
                 serializedName: "parentId",
-                readOnly: true,
                 nullable: true,
                 type: {
                     name: "String"
@@ -1507,7 +1538,6 @@ export const CommandAuditEntity = {
             },
             componentTask: {
                 serializedName: "componentTask",
-                readOnly: true,
                 nullable: true,
                 type: {
                     name: "String"

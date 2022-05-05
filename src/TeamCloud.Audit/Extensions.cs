@@ -4,9 +4,6 @@
  */
 
 using System;
-using System.Threading.Tasks;
-using Azure.Storage.Blobs;
-using Azure.Data.Tables;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TeamCloud.Audit.Model;
@@ -63,29 +60,5 @@ public static class Extensions
             throw new ArgumentNullException(nameof(commandAuditEntity));
 
         return $"{ToPathSegmentSafe(commandAuditEntity.OrganizationId)}/{ToPathSegmentSafe(commandAuditEntity.ProjectId)}/{commandAuditEntity.CommandId}.{RESULT_QUALIFIER}.json";
-    }
-
-    internal static async Task<BlobContainerClient> EnsureContainerAsync(this Lazy<BlobContainerClient> blobContainerClient)
-    {
-        if (!blobContainerClient.IsValueCreated)
-        {
-            _ = await blobContainerClient.Value
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
-        }
-
-        return blobContainerClient.Value;
-    }
-
-    internal static async Task<TableClient> EnsureTableAsync(this Lazy<TableClient> tableClient)
-    {
-        if (!tableClient.IsValueCreated)
-        {
-            _ = await tableClient.Value
-                .CreateIfNotExistsAsync()
-                .ConfigureAwait(false);
-        }
-
-        return tableClient.Value;
     }
 }

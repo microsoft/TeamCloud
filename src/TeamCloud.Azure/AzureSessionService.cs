@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Azure.Identity;
 using Flurl.Http.Configuration;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 using Microsoft.Identity.Client;
@@ -30,8 +29,8 @@ public class AzureSessionService : IAzureSessionService
     public static bool IsAzureEnvironment =>
         !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
 
-    public static Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, IAzureSessionOptions azureSessionOptions = null, IHttpClientFactory httpClientFactory = null)
-        => new AzureSessionService(azureSessionOptions, httpClientFactory).AcquireTokenAsync(azureEndpoint);
+    // public static Task<string> AcquireTokenAsync(AzureEndpoint azureEndpoint = AzureEndpoint.ResourceManagerEndpoint, IAzureSessionOptions azureSessionOptions = null, IHttpClientFactory httpClientFactory = null)
+    //     => new AzureSessionService(azureSessionOptions, httpClientFactory).AcquireTokenAsync(azureEndpoint);
 
     private readonly IAzureSessionOptions azureSessionOptions;
     private readonly IHttpClientFactory httpClientFactory;

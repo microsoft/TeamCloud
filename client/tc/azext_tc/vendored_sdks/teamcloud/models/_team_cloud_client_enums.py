@@ -7,18 +7,17 @@
 # --------------------------------------------------------------------------
 
 from enum import Enum
-from six import with_metaclass
 from azure.core import CaseInsensitiveEnumMeta
 
 
-class AdapterInformationType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class AdapterInformationType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     AZURE_RESOURCE_MANAGER = "AzureResourceManager"
     AZURE_DEV_OPS = "AzureDevOps"
     GIT_HUB = "GitHub"
     KUBERNETES = "Kubernetes"
 
-class CommandAuditEntityRuntimeStatus(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class CommandAuditEntityRuntimeStatus(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     RUNNING = "Running"
     COMPLETED = "Completed"
@@ -29,7 +28,7 @@ class CommandAuditEntityRuntimeStatus(with_metaclass(CaseInsensitiveEnumMeta, st
     PENDING = "Pending"
     UNKNOWN = "Unknown"
 
-class ComponentResourceState(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentResourceState(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     PENDING = "Pending"
     INITIALIZING = "Initializing"
@@ -39,7 +38,7 @@ class ComponentResourceState(with_metaclass(CaseInsensitiveEnumMeta, str, Enum))
     DEPROVISIONED = "Deprovisioned"
     FAILED = "Failed"
 
-class ComponentTaskState(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentTaskState(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     PENDING = "Pending"
     INITIALIZING = "Initializing"
@@ -48,51 +47,51 @@ class ComponentTaskState(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
     CANCELED = "Canceled"
     FAILED = "Failed"
 
-class ComponentTaskTemplateType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentTaskTemplateType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     CUSTOM = "Custom"
     CREATE = "Create"
     DELETE = "Delete"
 
-class ComponentTaskType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentTaskType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     CUSTOM = "Custom"
     CREATE = "Create"
     DELETE = "Delete"
 
-class ComponentTemplateType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentTemplateType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     ENVIRONMENT = "Environment"
     REPOSITORY = "Repository"
     NAMESPACE = "Namespace"
 
-class ComponentType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ComponentType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     ENVIRONMENT = "Environment"
     REPOSITORY = "Repository"
     NAMESPACE = "Namespace"
 
-class DeploymentScopeComponentTypesItem(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class DeploymentScopeComponentTypesItem(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     ENVIRONMENT = "Environment"
     REPOSITORY = "Repository"
     NAMESPACE = "Namespace"
 
-class DeploymentScopeDefinitionType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class DeploymentScopeDefinitionType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     AZURE_RESOURCE_MANAGER = "AzureResourceManager"
     AZURE_DEV_OPS = "AzureDevOps"
     GIT_HUB = "GitHub"
     KUBERNETES = "Kubernetes"
 
-class DeploymentScopeType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class DeploymentScopeType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     AZURE_RESOURCE_MANAGER = "AzureResourceManager"
     AZURE_DEV_OPS = "AzureDevOps"
     GIT_HUB = "GitHub"
     KUBERNETES = "Kubernetes"
 
-class OrganizationResourceState(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class OrganizationResourceState(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     PENDING = "Pending"
     INITIALIZING = "Initializing"
@@ -102,7 +101,7 @@ class OrganizationResourceState(with_metaclass(CaseInsensitiveEnumMeta, str, Enu
     DEPROVISIONED = "Deprovisioned"
     FAILED = "Failed"
 
-class ProjectMembershipRole(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ProjectMembershipRole(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     NONE = "None"
     MEMBER = "Member"
@@ -110,7 +109,7 @@ class ProjectMembershipRole(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
     OWNER = "Owner"
     ADAPTER = "Adapter"
 
-class ProjectResourceState(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ProjectResourceState(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     PENDING = "Pending"
     INITIALIZING = "Initializing"
@@ -120,20 +119,20 @@ class ProjectResourceState(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
     DEPROVISIONED = "Deprovisioned"
     FAILED = "Failed"
 
-class RepositoryReferenceProvider(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class RepositoryReferenceProvider(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     UNKNOWN = "Unknown"
     GIT_HUB = "GitHub"
     DEV_OPS = "DevOps"
 
-class RepositoryReferenceType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class RepositoryReferenceType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     UNKNOWN = "Unknown"
     TAG = "Tag"
     BRANCH = "Branch"
     HASH = "Hash"
 
-class ResultErrorCode(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ResultErrorCode(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     UNKNOWN = "Unknown"
     FAILED = "Failed"
@@ -144,7 +143,7 @@ class ResultErrorCode(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
     UNAUTHORIZED = "Unauthorized"
     FORBIDDEN = "Forbidden"
 
-class ScheduleDaysOfWeekItem(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ScheduleDaysOfWeekItem(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     SUNDAY = "Sunday"
     MONDAY = "Monday"
@@ -154,7 +153,7 @@ class ScheduleDaysOfWeekItem(with_metaclass(CaseInsensitiveEnumMeta, str, Enum))
     FRIDAY = "Friday"
     SATURDAY = "Saturday"
 
-class ScheduleDefinitionDaysOfWeekItem(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class ScheduleDefinitionDaysOfWeekItem(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     SUNDAY = "Sunday"
     MONDAY = "Monday"
@@ -164,7 +163,7 @@ class ScheduleDefinitionDaysOfWeekItem(with_metaclass(CaseInsensitiveEnumMeta, s
     FRIDAY = "Friday"
     SATURDAY = "Saturday"
 
-class UserRole(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class UserRole(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     NONE = "None"
     MEMBER = "Member"
@@ -172,7 +171,7 @@ class UserRole(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
     OWNER = "Owner"
     ADAPTER = "Adapter"
 
-class UserType(with_metaclass(CaseInsensitiveEnumMeta, str, Enum)):
+class UserType(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
     USER = "User"
     GROUP = "Group"

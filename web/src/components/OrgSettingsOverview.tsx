@@ -3,9 +3,9 @@
 
 import { DefaultButton, getTheme, Link, Persona, PersonaSize, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
 import React, { useEffect, useState } from 'react';
-import { Member } from '../model';
 import { ContentSeparator, UserPersona } from '.';
-import { useOrg, useUser, useMembers } from '../hooks';
+import { useMembers, useOrg, useUser } from '../hooks';
+import { Member } from '../model';
 
 export const OrgSettingsOverview: React.FC = () => {
 
@@ -26,7 +26,11 @@ export const OrgSettingsOverview: React.FC = () => {
         } else if (owner) {
             setOwner(undefined);
         }
-    }, [org, members, owner])
+    }, [org, members, owner]);
+
+    const _changeOwner = () => {
+        alert('NOT IMPLEMENTED YET !!!');
+    };
 
     return org ? (
         <Stack styles={{ root: { maxWidth: '600px' } }} tokens={{ childrenGap: '20px' }}>
@@ -34,6 +38,13 @@ export const OrgSettingsOverview: React.FC = () => {
                 <Stack horizontal horizontalAlign='space-between'>
                     <Stack.Item grow>
                         <Stack tokens={{ childrenGap: '14px' }}>
+                            <Stack.Item>
+                                <TextField
+                                    readOnly
+                                    label='Id'
+                                    description='Organization identifier'
+                                    defaultValue={org.id} />
+                            </Stack.Item>
                             <Stack.Item>
                                 <TextField
                                     readOnly
@@ -82,7 +93,7 @@ export const OrgSettingsOverview: React.FC = () => {
                         <DefaultButton
                             disabled={!(owner && user && owner.user.id === user.id)}
                             text='Change owner'
-                            onClick={() => console.log(owner)} />
+                            onClick={_changeOwner} />
                     </Stack.Item>
                 </Stack>
             </Stack.Item>
@@ -155,4 +166,4 @@ export const OrgSettingsOverview: React.FC = () => {
             </Stack.Item>
         </Stack>
     ) : <></>;
-}
+};

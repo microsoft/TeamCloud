@@ -1,8 +1,8 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.19.4",
-    "schemaVersion": 1004,
+    "toolVersion": "7.23.0",
+    "schemaVersion": 1005,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
       "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
@@ -156,7 +156,8 @@
         "@betaDocumentation": true,
         "@internalRemarks": true,
         "@preapproved": true
-      }
+      },
+      "reportUnsupportedHtmlElements": false
     }
   },
   "kind": "Package",
@@ -511,7 +512,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -635,11 +636,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!CommandAuditEntity#componentTask:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly componentTask?: "
+                  "text": "componentTask?: "
                 },
                 {
                   "kind": "Content",
@@ -739,6 +740,37 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!CommandAuditEntity#eTag:member",
+              "docComment": "/**\n * Any object\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "eTag?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Record",
+                  "canonicalReference": "!Record:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<string, unknown>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "eTag",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!CommandAuditEntity#organizationId:member",
               "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
               "excerptTokens": [
@@ -766,11 +798,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!CommandAuditEntity#parentId:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly parentId?: "
+                  "text": "parentId?: "
                 },
                 {
                   "kind": "Content",
@@ -791,12 +823,38 @@
             },
             {
               "kind": "PropertySignature",
-              "canonicalReference": "teamcloud!CommandAuditEntity#projectId:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "canonicalReference": "teamcloud!CommandAuditEntity#partitionKey:member",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly projectId?: "
+                  "text": "partitionKey?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "partitionKey",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!CommandAuditEntity#projectId:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "projectId?: "
                 },
                 {
                   "kind": "Content",
@@ -843,6 +901,32 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!CommandAuditEntity#rowKey:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "rowKey?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "rowKey",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!CommandAuditEntity#runtimeStatus:member",
               "docComment": "",
               "excerptTokens": [
@@ -863,6 +947,33 @@
               "isOptional": true,
               "releaseTag": "Public",
               "name": "runtimeStatus",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!CommandAuditEntity#timestamp:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "timestamp?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Date",
+                  "canonicalReference": "!Date:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "timestamp",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
@@ -898,11 +1009,11 @@
             {
               "kind": "PropertySignature",
               "canonicalReference": "teamcloud!CommandAuditEntity#userId:member",
-              "docComment": "/**\n * NOTE: This property will not be serialized. It can only be populated by the server.\n */\n",
+              "docComment": "",
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly userId?: "
+                  "text": "userId?: "
                 },
                 {
                   "kind": "Content",
@@ -3167,6 +3278,32 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "teamcloud!ComponentTaskRunner#webServer:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "webServer?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "webServer",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "teamcloud!ComponentTaskRunner#with:member",
               "docComment": "/**\n * Dictionary of <string>\n */\n",
               "excerptTokens": [
@@ -4330,7 +4467,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -4417,7 +4554,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -4504,7 +4641,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -4591,7 +4728,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -4678,7 +4815,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -4765,7 +4902,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -4852,7 +4989,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -4938,7 +5075,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5025,7 +5162,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5112,7 +5249,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5199,7 +5336,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5258,7 +5395,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5317,7 +5454,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5376,7 +5513,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5435,7 +5572,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5494,7 +5631,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5553,7 +5690,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5612,7 +5749,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5671,7 +5808,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -5730,7 +5867,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -6768,7 +6905,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -6827,7 +6964,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -6939,7 +7076,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7025,7 +7162,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7084,7 +7221,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7170,7 +7307,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7229,7 +7366,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7288,7 +7425,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7347,7 +7484,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7406,7 +7543,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7465,7 +7602,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7524,7 +7661,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7583,7 +7720,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7642,7 +7779,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7701,7 +7838,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7760,7 +7897,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7819,7 +7956,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7878,7 +8015,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7937,7 +8074,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -7996,7 +8133,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8055,7 +8192,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8114,7 +8251,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8173,7 +8310,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8232,7 +8369,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8291,7 +8428,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8350,7 +8487,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8409,7 +8546,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8468,7 +8605,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8527,7 +8664,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8586,7 +8723,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8645,7 +8782,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8704,7 +8841,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8763,7 +8900,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8822,7 +8959,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8881,7 +9018,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -8940,7 +9077,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -11519,7 +11656,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -15039,7 +15176,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -15223,7 +15360,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -16629,9 +16766,13 @@
               "text": "export declare class TeamCloud extends "
             },
             {
+              "kind": "Content",
+              "text": "coreClient."
+            },
+            {
               "kind": "Reference",
-              "text": "TeamCloudContext",
-              "canonicalReference": "teamcloud!TeamCloudContext:class"
+              "text": "ServiceClient",
+              "canonicalReference": "@azure/core-client!ServiceClient:class"
             },
             {
               "kind": "Content",
@@ -16689,23 +16830,53 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 3
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "$host",
                   "parameterTypeTokenRange": {
                     "startIndex": 4,
                     "endIndex": 5
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 6,
                     "endIndex": 7
-                  }
+                  },
+                  "isOptional": true
                 }
               ]
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "teamcloud!TeamCloud#$host:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "$host: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "$host",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false
             },
             {
               "kind": "Method",
@@ -16794,35 +16965,40 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "componentId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "taskId",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 9,
                     "endIndex": 10
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "cancelComponentTask"
@@ -16898,21 +17074,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createComponent"
@@ -16996,28 +17175,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "componentId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createComponentTask"
@@ -17085,14 +17268,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createDeploymentScope"
@@ -17152,7 +17337,8 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createOrganization"
@@ -17220,14 +17406,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createOrganizationUser"
@@ -17295,14 +17483,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createProject"
@@ -17378,21 +17568,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createProjectIdentity"
@@ -17468,21 +17661,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createProjectTag"
@@ -17550,14 +17746,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createProjectTemplate"
@@ -17633,21 +17831,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createProjectUser"
@@ -17723,21 +17924,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "createSchedule"
@@ -17821,28 +18025,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteComponent"
@@ -17918,21 +18126,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteDeploymentScope"
@@ -18000,14 +18211,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteOrganization"
@@ -18083,21 +18296,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteOrganizationUser"
@@ -18173,21 +18389,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteProject"
@@ -18271,28 +18490,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteProjectIdentity"
@@ -18376,28 +18599,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteProjectTag"
@@ -18473,21 +18700,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteProjectTemplate"
@@ -18571,28 +18801,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "deleteProjectUser"
@@ -18652,7 +18886,8 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getAdapters"
@@ -18720,14 +18955,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getAuditCommands"
@@ -18795,14 +19032,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getAuditEntries"
@@ -18878,21 +19117,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getAuditEntry"
@@ -18976,28 +19218,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getComponent"
@@ -19073,21 +19319,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getComponents"
@@ -19179,35 +19428,40 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "componentId",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 9,
                     "endIndex": 10
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getComponentTask"
@@ -19291,28 +19545,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "componentId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getComponentTasks"
@@ -19396,28 +19654,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getComponentTemplate"
@@ -19493,21 +19755,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getComponentTemplates"
@@ -19583,21 +19848,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getDeploymentScope"
@@ -19665,14 +19933,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getDeploymentScopes"
@@ -19732,7 +20002,8 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getInfo"
@@ -19800,14 +20071,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getOrganization"
@@ -19867,7 +20140,8 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getOrganizations"
@@ -19943,21 +20217,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getOrganizationUser"
@@ -20025,14 +20302,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getOrganizationUserMe"
@@ -20100,14 +20379,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getOrganizationUsers"
@@ -20183,21 +20464,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProject"
@@ -20273,21 +20557,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectIdentities"
@@ -20371,28 +20658,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectIdentity"
@@ -20460,14 +20751,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjects"
@@ -20551,28 +20844,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "trackingId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectStatus"
@@ -20656,28 +20953,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectTagByKey"
@@ -20753,21 +21054,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectTags"
@@ -20843,21 +21147,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectTemplate"
@@ -20925,14 +21232,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectTemplates"
@@ -21016,28 +21325,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectUser"
@@ -21113,21 +21426,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectUserMe"
@@ -21203,21 +21519,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getProjectUsers"
@@ -21301,28 +21620,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getSchedule"
@@ -21398,21 +21721,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getSchedules"
@@ -21488,21 +21814,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getStatus"
@@ -21578,21 +21907,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "userId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getUserProjects"
@@ -21660,14 +21992,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "getUserProjectsMe"
@@ -21743,21 +22077,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "initializeAuthorization"
@@ -21824,21 +22161,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "negotiateSignalR"
@@ -21930,35 +22270,40 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "componentId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "taskId",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 9,
                     "endIndex": 10
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "reRunComponentTask"
@@ -22042,28 +22387,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "runSchedule"
@@ -22139,21 +22488,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "deploymentScopeId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateDeploymentScope"
@@ -22229,21 +22581,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateOrganizationUser"
@@ -22311,14 +22666,16 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateOrganizationUserMe"
@@ -22402,28 +22759,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateProjectIdentity"
@@ -22499,21 +22860,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateProjectTag"
@@ -22589,21 +22953,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateProjectTemplate"
@@ -22687,28 +23054,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateProjectUser"
@@ -22784,21 +23155,24 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateProjectUserMe"
@@ -22882,28 +23256,32 @@
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
                     "endIndex": 2
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "organizationId",
                   "parameterTypeTokenRange": {
                     "startIndex": 3,
                     "endIndex": 4
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "projectId",
                   "parameterTypeTokenRange": {
                     "startIndex": 5,
                     "endIndex": 6
-                  }
+                  },
+                  "isOptional": false
                 },
                 {
                   "parameterName": "options",
                   "parameterTypeTokenRange": {
                     "startIndex": 7,
                     "endIndex": 8
-                  }
+                  },
+                  "isOptional": true
                 }
               ],
               "name": "updateSchedule"
@@ -22912,132 +23290,6 @@
           "extendsTokenRange": {
             "startIndex": 1,
             "endIndex": 3
-          },
-          "implementsTokenRanges": []
-        },
-        {
-          "kind": "Class",
-          "canonicalReference": "teamcloud!TeamCloudContext:class",
-          "docComment": "",
-          "excerptTokens": [
-            {
-              "kind": "Content",
-              "text": "export declare class TeamCloudContext extends "
-            },
-            {
-              "kind": "Content",
-              "text": "coreClient."
-            },
-            {
-              "kind": "Reference",
-              "text": "ServiceClient",
-              "canonicalReference": "@azure/core-client!ServiceClient:class"
-            },
-            {
-              "kind": "Content",
-              "text": " "
-            }
-          ],
-          "releaseTag": "Public",
-          "name": "TeamCloudContext",
-          "members": [
-            {
-              "kind": "Constructor",
-              "canonicalReference": "teamcloud!TeamCloudContext:constructor(1)",
-              "docComment": "/**\n * Initializes a new instance of the TeamCloudContext class.\n *\n * @param credentials - Subscription credentials which uniquely identify client subscription.\n *\n * @param $host - server parameter\n *\n * @param options - The parameter options\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "constructor(credentials: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "coreAuth."
-                },
-                {
-                  "kind": "Reference",
-                  "text": "TokenCredential",
-                  "canonicalReference": "@azure/core-auth!TokenCredential:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", $host: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", options?: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "TeamCloudOptionalParams",
-                  "canonicalReference": "teamcloud!TeamCloudOptionalParams:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ");"
-                }
-              ],
-              "releaseTag": "Public",
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "credentials",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 3
-                  }
-                },
-                {
-                  "parameterName": "$host",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 4,
-                    "endIndex": 5
-                  }
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 6,
-                    "endIndex": 7
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "Property",
-              "canonicalReference": "teamcloud!TeamCloudContext#$host:member",
-              "docComment": "",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "$host: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "string"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isOptional": false,
-              "releaseTag": "Public",
-              "name": "$host",
-              "propertyTypeTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "isStatic": false
-            }
-          ],
-          "extendsTokenRange": {
-            "startIndex": 1,
-            "endIndex": 4
           },
           "implementsTokenRanges": []
         },
@@ -23286,7 +23538,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23347,7 +23599,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23434,7 +23686,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23521,7 +23773,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23608,7 +23860,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23694,7 +23946,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23781,7 +24033,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23868,7 +24120,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -23955,7 +24207,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },
@@ -24042,7 +24294,7 @@
           "extendsTokenRanges": [
             {
               "startIndex": 1,
-              "endIndex": 4
+              "endIndex": 3
             }
           ]
         },

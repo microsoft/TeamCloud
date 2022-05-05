@@ -53,23 +53,34 @@ export interface CommandAuditEntity {
     readonly commandId?: string;
     // (undocumented)
     commandJson?: string;
-    readonly componentTask?: string;
+    // (undocumented)
+    componentTask?: string;
     // (undocumented)
     created?: Date;
     // (undocumented)
     customStatus?: string;
     // (undocumented)
     errors?: string;
+    eTag?: Record<string, unknown>;
     readonly organizationId?: string;
-    readonly parentId?: string;
-    readonly projectId?: string;
+    // (undocumented)
+    parentId?: string;
+    // (undocumented)
+    partitionKey?: string;
+    // (undocumented)
+    projectId?: string;
     // (undocumented)
     resultJson?: string;
     // (undocumented)
+    rowKey?: string;
+    // (undocumented)
     runtimeStatus?: CommandAuditEntityRuntimeStatus;
     // (undocumented)
+    timestamp?: Date;
+    // (undocumented)
     updated?: Date;
-    readonly userId?: string;
+    // (undocumented)
+    userId?: string;
 }
 
 // @public (undocumented)
@@ -273,6 +284,8 @@ export interface ComponentTaskReference {
 export interface ComponentTaskRunner {
     // (undocumented)
     id?: string;
+    // (undocumented)
+    webServer?: boolean;
     with?: {
         [propertyName: string]: string;
     };
@@ -1655,7 +1668,9 @@ export interface StringListDataResult {
 }
 
 // @public (undocumented)
-export class TeamCloud extends TeamCloudContext {
+export class TeamCloud extends coreClient.ServiceClient {
+    // (undocumented)
+    $host: string;
     constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
     cancelComponentTask(organizationId: string, projectId: string, componentId: string, taskId: string, options?: CancelComponentTaskOptionalParams): Promise<CancelComponentTaskResponse>;
     createComponent(organizationId: string, projectId: string, options?: CreateComponentOptionalParams): Promise<CreateComponentResponse>;
@@ -1726,13 +1741,6 @@ export class TeamCloud extends TeamCloudContext {
     updateProjectUser(userId: string, organizationId: string, projectId: string, options?: UpdateProjectUserOptionalParams): Promise<UpdateProjectUserResponse>;
     updateProjectUserMe(organizationId: string, projectId: string, options?: UpdateProjectUserMeOptionalParams): Promise<UpdateProjectUserMeResponse>;
     updateSchedule(scheduleId: string, organizationId: string, projectId: string, options?: UpdateScheduleOptionalParams): Promise<UpdateScheduleResponse>;
-}
-
-// @public (undocumented)
-export class TeamCloudContext extends coreClient.ServiceClient {
-    // (undocumented)
-    $host: string;
-    constructor(credentials: coreAuth.TokenCredential, $host: string, options?: TeamCloudOptionalParams);
 }
 
 // @public (undocumented)

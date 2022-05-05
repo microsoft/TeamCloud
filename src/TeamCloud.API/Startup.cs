@@ -40,7 +40,6 @@ using TeamCloud.Audit;
 using TeamCloud.Azure;
 using TeamCloud.Azure.Deployment;
 using TeamCloud.Azure.Deployment.Providers;
-using TeamCloud.Microsoft.Graph;
 using TeamCloud.Azure.Resources;
 using TeamCloud.Configuration;
 using TeamCloud.Configuration.Options;
@@ -51,8 +50,8 @@ using TeamCloud.Data.Providers;
 using TeamCloud.Git.Caching;
 using TeamCloud.Git.Services;
 using TeamCloud.Http;
+using TeamCloud.Microsoft.Graph;
 using TeamCloud.Model.Validation;
-using TeamCloud.Secrets;
 using TeamCloud.Serialization.Encryption;
 using TeamCloud.Validation.Providers;
 
@@ -98,7 +97,7 @@ public class Startup
             .UseSwagger()
             .UseSwaggerUI(setup =>
             {
-                setup.SwaggerEndpoint("/swagger/v1/swagger.json", "TeamCloud API v1");
+                setup.SwaggerEndpoint("/openapi/v1/openapi.json", "TeamCloud API v1");
                 setup.OAuthClientId(resourceManagerOptions.ClientId);
                 setup.OAuthClientSecret("");
                 setup.OAuthUsePkce();
@@ -142,8 +141,7 @@ public class Startup
                     .Register<KubernetesAdapter>();
             })
             .AddTeamCloudAudit()
-            .AddTeamCloudHttp()
-            .AddTeamCloudSecrets();
+            .AddTeamCloudHttp();
 
         if (Configuration.TryBind<AzureCosmosDbOptions>("Azure:CosmosDb", out var azureCosmosDbOptions))
         {
@@ -163,8 +161,7 @@ public class Startup
             const string EncryptionContainerName = "encryption";
 
             new BlobContainerClient(encryptionOptions.KeyStorage, EncryptionContainerName)
-                .CreateIfNotExistsAsync()
-                .Wait();
+                .CreateIfNotExists();
 
             var dataProtectionBuilder = services
                 .AddDataProtection()
@@ -244,7 +241,11 @@ public class Startup
         {
             ConfigureAuthentication(services, azureResourceManagerOptions);
             ConfigureAuthorization(services);
-            ConfigureSwagger(services, azureResourceManagerOptions);
+
+            if (Configuration.TryBind<EndpointApiOptions>("Endpoint:Api", out var endpointApiOptions))
+            {
+                ConfigureSwagger(services, azureResourceManagerOptions, endpointApiOptions);
+            }
         }
         else
         {
@@ -254,12 +255,19 @@ public class Startup
 
 #pragma warning restore CA1822 // Mark members as static
 
-    private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions)
+    private static void ConfigureSwagger(IServiceCollection services, AzureResourceManagerOptions azureResourceManagerOptions, EndpointApiOptions endpointApiOptions)
     {
         services
             .AddSwaggerGen(options =>
             {
                 options.DocumentFilter<SwaggerDocumentFilter>();
+
+                // #if !DEBUG
+                // options.AddServer(new OpenApiServer
+                // {
+                //     Url = endpointApiOptions.Url
+                // });
+                // #endif
 
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
@@ -269,7 +277,7 @@ public class Startup
                     Contact = new OpenApiContact
                     {
                         Url = new Uri("https://github.com/microsoft/TeamCloud/issues/new"),
-                        Email = @"Markus.Heiliger@microsoft.com",
+                        Email = @"colbyw@microsoft.com",
                         Name = "TeamCloud Dev Team"
                     },
                     License = new OpenApiLicense

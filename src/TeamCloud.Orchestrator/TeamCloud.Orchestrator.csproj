@@ -70,7 +70,6 @@
     <ProjectReference Include="..\TeamCloud.Notification.Smtp\TeamCloud.Notification.Smtp.csproj" />
     <ProjectReference Include="..\TeamCloud.Orchestration.Deployment\TeamCloud.Orchestration.Deployment.csproj" />
     <ProjectReference Include="..\TeamCloud.Orchestration\TeamCloud.Orchestration.csproj" />
-    <ProjectReference Include="..\TeamCloud.Secrets\TeamCloud.Secrets.csproj" />
     <ProjectReference Include="..\TeamCloud.Serialization\TeamCloud.Serialization.csproj" />
   </ItemGroup>
 
@@ -83,6 +82,11 @@
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="TranspileBicepToARM" BeforeTargets="Build">
+    <Message Text="Transpiling .\Templates\SharedResourcesTemplate.bicep into .\Templates\SharedResourcesTemplate.json" />
+    <Exec Command="az bicep build --file SharedResourcesTemplate.bicep" WorkingDirectory="Templates" />
+  </Target>
 
   <Target Name="UserSecretIdInfo" BeforeTargets="PreBuildEvent" Condition="'$(UserSecretsId)' != ''">
     <Warning Text="==============================================================================" />

@@ -30,17 +30,17 @@ public sealed class AzureIdentityResource : AzureTypedResource, IAzureIdentity
             .ConfigureAwait(false);
     }
 
-    public string ClientId
-        => identityInstance.Value.Result.ClientId;
+    // public string ClientId
+    //     => identityInstance.Value.Result.ClientId;
 
-    public string TenantId
-        => identityInstance.Value.Result.TenantId;
+    // public string TenantId
+    //     => identityInstance.Value.Result.TenantId;
 
     public string PrincipalId
         => identityInstance.Value.Result.PrincipalId;
 
-    public string ClientSecretUrl
-        => identityInstance.Value.Result.ClientSecretUrl;
+    // public string ClientSecretUrl
+    //     => identityInstance.Value.Result.ClientSecretUrl;
 
     public override async IAsyncEnumerable<IAzureIdentity> GetIdentitiesAsync()
     {

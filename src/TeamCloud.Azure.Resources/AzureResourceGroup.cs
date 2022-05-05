@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Flurl.Http;
-using Microsoft.Azure.Management.ResourceManager.Fluent;
-using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
-using Microsoft.Rest.Azure.OData;
+// using Microsoft.Azure.Management.ResourceManager.Fluent;
+// using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
+// using Microsoft.Rest.Azure.OData;
 
 namespace TeamCloud.Azure.Resources;
 
@@ -23,9 +23,9 @@ public sealed class AzureResourceGroup : AzureResource
         : base(GetResourceId(subscriptionId, resourceGroupName))
     { }
 
-    public AzureResourceGroup(Guid subscriptionId, string resourceGroupName, IAzureResourceService azureResourceService)
-        : base(GetResourceId(subscriptionId, resourceGroupName), azureResourceService)
-    { }
+    // public AzureResourceGroup(Guid subscriptionId, string resourceGroupName, IAzureResourceService azureResourceService)
+    //     : base(GetResourceId(subscriptionId, resourceGroupName), azureResourceService)
+    // { }
 
     public override async Task<bool> ExistsAsync()
     {
@@ -105,52 +105,52 @@ public sealed class AzureResourceGroup : AzureResource
         }
     }
 
-    public IAsyncEnumerable<AzureResource> GetResourcesAsync()
-        => GetResourcesAsync(default);
+    // public IAsyncEnumerable<AzureResource> GetResourcesAsync()
+    //     => GetResourcesAsync(default);
 
-    public IAsyncEnumerable<AzureResource> GetResourcesByTypeAsync(string resourceType)
-    {
-        if (string.IsNullOrWhiteSpace(resourceType))
-            throw new ArgumentException($"Resource type must not NULL or WHITESPACE", nameof(resourceType));
+    // public IAsyncEnumerable<AzureResource> GetResourcesByTypeAsync(string resourceType)
+    // {
+    //     if (string.IsNullOrWhiteSpace(resourceType))
+    //         throw new ArgumentException($"Resource type must not NULL or WHITESPACE", nameof(resourceType));
 
-        return GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.ResourceType == resourceType));
-    }
+    //     return GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.ResourceType == resourceType));
+    // }
 
-    public IAsyncEnumerable<AzureResource> GetResourcesByTagAsync(string tagName, string tagValue = default)
-    {
-        if (string.IsNullOrWhiteSpace(tagName))
-            throw new ArgumentException("Tag name must not NULL or WHITESPACE", nameof(tagName));
+    // public IAsyncEnumerable<AzureResource> GetResourcesByTagAsync(string tagName, string tagValue = default)
+    // {
+    //     if (string.IsNullOrWhiteSpace(tagName))
+    //         throw new ArgumentException("Tag name must not NULL or WHITESPACE", nameof(tagName));
 
-        return string.IsNullOrWhiteSpace(tagValue)
-            ? GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.Tagname == tagName))
-            : GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.Tagname == tagName && resourceFilter.Tagvalue == tagValue));
-    }
+    //     return string.IsNullOrWhiteSpace(tagValue)
+    //         ? GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.Tagname == tagName))
+    //         : GetResourcesAsync(new ODataQuery<GenericResourceFilter>(resourceFilter => resourceFilter.Tagname == tagName && resourceFilter.Tagvalue == tagValue));
+    // }
 
 
-    private async IAsyncEnumerable<AzureResource> GetResourcesAsync(ODataQuery<GenericResourceFilter> resourceQuery = null)
-    {
-        using var resourceManagementClient = await AzureResourceService.AzureSessionService
-            .CreateClientAsync<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId)
-            .ConfigureAwait(false);
+    // private async IAsyncEnumerable<AzureResource> GetResourcesAsync(ODataQuery<GenericResourceFilter> resourceQuery = null)
+    // {
+    //     using var resourceManagementClient = await AzureResourceService.AzureSessionService
+    //         .CreateClientAsync<ResourceManagementClient>(subscriptionId: this.ResourceId.SubscriptionId)
+    //         .ConfigureAwait(false);
 
-        var page = await resourceManagementClient.Resources
-            .ListByResourceGroupAsync(this.ResourceId.ResourceGroup, resourceQuery)
-            .ConfigureAwait(false);
+    //     var page = await resourceManagementClient.Resources
+    //         .ListByResourceGroupAsync(this.ResourceId.ResourceGroup, resourceQuery)
+    //         .ConfigureAwait(false);
 
-        var resources = page
-            .AsContinuousCollectionAsync((nextPageLink) => resourceManagementClient.Resources.ListByResourceGroupNextAsync(nextPageLink))
-            .ConfigureAwait(false);
+    //     var resources = page
+    //         .AsContinuousCollectionAsync((nextPageLink) => resourceManagementClient.Resources.ListByResourceGroupNextAsync(nextPageLink))
+    //         .ConfigureAwait(false);
 
-        await foreach (var resource in resources)
-        {
-            var resourceGeneric = await AzureResourceService
-                .GetResourceAsync(resource.Id)
-                .ConfigureAwait(false);
+    //     await foreach (var resource in resources)
+    //     {
+    //         var resourceGeneric = await AzureResourceService
+    //             .GetResourceAsync(resource.Id)
+    //             .ConfigureAwait(false);
 
-            if (resourceGeneric is not null)
-                yield return resourceGeneric;
-        }
-    }
+    //         if (resourceGeneric is not null)
+    //             yield return resourceGeneric;
+    //     }
+    // }
 
     private async Task<IEnumerable<string>> GetLocksInternalAsync()
     {

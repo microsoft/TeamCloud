@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { Pivot, PivotItem, PrimaryButton, Stack } from '@fluentui/react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stack, PrimaryButton, Pivot, PivotItem } from '@fluentui/react';
 import { ContentContainer, ContentHeader, ContentProgress, ProjectList } from '../components';
 import { useOrg, useProjects } from '../hooks';
 
@@ -36,4 +36,4 @@ export const ProjectsView: React.FC = () => {
             </ContentContainer>
         </Stack>
     );
-}
+};

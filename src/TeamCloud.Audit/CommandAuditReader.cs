@@ -12,30 +12,25 @@ using Azure.Data.Tables;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using TeamCloud.Audit.Model;
+using TeamCloud.Azure.Storage;
 
 namespace TeamCloud.Audit;
 
 public class CommandAuditReader : ICommandAuditReader
 {
+    private readonly IStorageService storage;
     private readonly ICommandAuditOptions options;
-    private readonly Lazy<TableClient> tableClientInstance;
-    private readonly Lazy<BlobContainerClient> blobContainerClientInstance;
 
-    public CommandAuditReader(ICommandAuditOptions options = null)
+    public CommandAuditReader(IStorageService storageService, ICommandAuditOptions options = null)
     {
+        this.storage = storageService ?? throw new ArgumentNullException(nameof(storageService));
         this.options = options ?? CommandAuditOptions.Default;
-
-        tableClientInstance = new Lazy<TableClient>(() =>
-            new TableClient(this.options.ConnectionString, CommandAuditEntity.AUDIT_TABLE_NAME));
-
-        blobContainerClientInstance = new Lazy<BlobContainerClient>(() =>
-            new BlobContainerClient(this.options.ConnectionString, CommandAuditEntity.AUDIT_CONTAINER_NAME));
     }
 
     public async Task<CommandAuditEntity> GetAsync(Guid organizationId, Guid commandId, bool includeJsonDumps = false)
     {
-        var tableClient = await tableClientInstance
-            .EnsureTableAsync()
+        var tableClient = await storage.Tables
+            .GetTableClientAsync(options.ConnectionString, CommandAuditEntity.AUDIT_TABLE_NAME)
             .ConfigureAwait(false);
 
         CommandAuditEntity entity = null;
@@ -56,8 +51,8 @@ public class CommandAuditReader : ICommandAuditReader
 
         if (entity is not null && includeJsonDumps)
         {
-            var blobContainerClient = await blobContainerClientInstance
-                .EnsureContainerAsync()
+            var blobContainerClient = await storage.Blobs
+                .GetBlobContainerClientAsync(options.ConnectionString, CommandAuditEntity.AUDIT_CONTAINER_NAME)
                 .ConfigureAwait(false);
 
             await Task.WhenAll(
@@ -95,8 +90,8 @@ public class CommandAuditReader : ICommandAuditReader
 
     public async IAsyncEnumerable<CommandAuditEntity> ListAsync(Guid organizationId, Guid? projectId = null, TimeSpan? timeRange = null, string[] commands = default)
     {
-        var tableClient = await tableClientInstance
-            .EnsureTableAsync()
+        var tableClient = await storage.Tables
+            .GetTableClientAsync(options.ConnectionString, CommandAuditEntity.AUDIT_TABLE_NAME)
             .ConfigureAwait(false);
 
         string filter;

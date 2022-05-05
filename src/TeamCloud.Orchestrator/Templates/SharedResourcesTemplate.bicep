@@ -5,25 +5,27 @@ targetScope = 'subscription'
 param projectId string = '00000000-0000-0000-0000-000000000000'
 param projectName string = ''
 param projectTags object = {}
-param deploymentScopes array = []
 
 @minLength(36)
 @maxLength(36)
 param organizationId string
-param organizationName string
+param organizationSlug string
 param organizationTags object = {}
+
+param deploymentScopes array = []
+param location string = deployment().location
 
 var deployProject = !empty(projectName) && projectId != '00000000-0000-0000-0000-000000000000'
 var projectResourceGroupName = 'TCP-${projectName}-${uniqueString(projectId)}'
-var projectDeploymentName = take('${deployment().name}-${uniqueString(projectId, 'resources')}', 64)
+var projectDeploymentName = take('${deployment().name}-project', 64)
 
 var deployOrganization = !deployProject
-var organizationResourceGroupName = 'TCO-${organizationName}-${uniqueString(organizationId)}'
-var organizationDeploymentName = take('${deployment().name}-${uniqueString(organizationId, 'resources')}', 64)
+var organizationResourceGroupName = 'TCO-${organizationSlug}-${uniqueString(organizationId)}'
+var organizationDeploymentName = take('${deployment().name}-organization', 64)
 
 resource organizationResourceGroup 'Microsoft.Resources/resourceGroups@2019-10-01' = if (deployOrganization) {
   name: organizationResourceGroupName
-  location: deployment().location
+  location: location
   tags: organizationTags
 }
 
@@ -31,13 +33,14 @@ module organizationResources './organizationResources.bicep' = if (deployOrganiz
   name: organizationDeploymentName
   scope: organizationResourceGroup
   params: {
-    tags: organizationTags
+    organizationTags: organizationTags
+    location: location
   }
 }
 
 resource projectResourceGroup 'Microsoft.Resources/resourceGroups@2019-10-01' = if (deployProject) {
   name: projectResourceGroupName
-  location: deployment().location
+  location: location
   tags: projectTags
 }
 
@@ -47,6 +50,7 @@ module projectResources './projectResources.bicep' = if (deployProject) {
   params: {
     tags: projectTags
     deploymentScopes: deploymentScopes
+    location: location
   }
 }
 

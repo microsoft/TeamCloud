@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="Flurl.Http" Version="3.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -39,6 +40,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TeamCloud.Git\TeamCloud.Git.csproj" />
     <ProjectReference Include="..\TeamCloud.Model\TeamCloud.Model.csproj" />
+    <ProjectReference Include="..\TeamCloud.Notification.Smtp\TeamCloud.Notification.Smtp.csproj" />
   </ItemGroup>
 
 </Project>

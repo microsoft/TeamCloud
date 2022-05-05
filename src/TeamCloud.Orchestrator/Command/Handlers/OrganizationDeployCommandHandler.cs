@@ -65,7 +65,7 @@ public sealed class OrganizationDeployCommandHandler : CommandHandler<Organizati
                     .ConfigureAwait(true);
 
                 var deploymentOutput = await orchestrationContext
-                    .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(5))
+                    .WaitForDeploymentOutput(deploymentOutputEventName, TimeSpan.FromMinutes(15))
                     .ConfigureAwait(true);
 
                 if (deploymentOutput.TryGetValue("organizationData", out var organizationData) && organizationData is JObject organizationDataJson)
@@ -82,13 +82,13 @@ public sealed class OrganizationDeployCommandHandler : CommandHandler<Organizati
                 }
 
             }
-            catch
+            catch (Exception exc)
             {
                 commandResult.Result = await orchestrationContext
                     .CallActivityWithRetryAsync<Organization>(nameof(OrganizationSetActivity), new OrganizationSetActivity.Input() { Organization = commandResult.Result, ResourceState = ResourceState.Failed })
                     .ConfigureAwait(true);
 
-                throw;
+                throw exc.AsSerializable();
             }
         }
 

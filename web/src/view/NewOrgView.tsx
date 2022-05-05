@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React, { useState, useEffect, useCallback } from 'react';
+import { ChoiceGroup, ComboBox, DefaultButton, IComboBoxOption, IconButton, Label, Pivot, PivotItem, PrimaryButton, Stack, Text, TextField } from '@fluentui/react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Stack, TextField, Text, PrimaryButton, DefaultButton, IconButton, Pivot, PivotItem, ComboBox, ChoiceGroup, Label, IComboBoxOption } from '@fluentui/react';
-import { OrganizationDefinition, DeploymentScopeDefinition, ProjectTemplateDefinition } from 'teamcloud'
-import { AzureRegions, Tags } from '../model';
+import { DeploymentScopeDefinition, OrganizationDefinition, ProjectTemplateDefinition } from 'teamcloud';
 import { CalloutLabel, ContentContainer, ContentHeader, ContentProgress, DeploymentScopeForm, ProjectTemplateForm } from '../components';
-import { useCreateOrg, useAzureSubscriptions, useAdapters } from '../hooks';
+import { useAdapters, useAzureSubscriptions, useCreateOrg } from '../hooks';
+import { AzureRegions, Tags } from '../model';
 
 export const NewOrgView: React.FC = () => {
 
@@ -25,7 +25,6 @@ export const NewOrgView: React.FC = () => {
     const [orgSubscription, setOrgSubscription] = useState<string>();
     const [orgSubscriptionOptions, setOrgSubscriptionOptions] = useState<IComboBoxOption[]>();
     const [orgRegion, setOrgRegion] = useState<string>();
-
     const [webPortalEnabled, setWebPortalEnabled] = useState(true);
     const [scope, setScope] = useState<DeploymentScopeDefinition>();
     const [template, setTemplate] = useState<ProjectTemplateDefinition>();
@@ -48,9 +47,9 @@ export const NewOrgView: React.FC = () => {
 
 
     useEffect(() => {
-        const newTags: Tags = {}
-        newTags[''] = ''
-        setTags(newTags)
+        const newTags: Tags = {};
+        newTags[''] = '';
+        setTags(newTags);
     }, []);
 
 
@@ -79,14 +78,14 @@ export const NewOrgView: React.FC = () => {
             const orgDef = {
                 displayName: orgName,
                 subscriptionId: orgSubscription,
-                location: orgRegion
+                location: orgRegion,
             } as OrganizationDefinition;
 
             const def = {
                 orgDef: orgDef,
                 scopeDef: scope && _scopeComplete() ? scope : undefined,
                 templateDef: template && _templateComplete() ? template : undefined
-            }
+            };
 
             await createOrg(def);
         }
@@ -99,36 +98,35 @@ export const NewOrgView: React.FC = () => {
 
 
     const _onTagKeyChange = (key: string, value: string, newKey?: string) => {
-        const newTags: Tags = {}
-        for (const k in tags) newTags[(k === key) ? newKey ?? '' : k] = value
-        if (!newTags['']) newTags[''] = ''
-        setTags(newTags)
+        const newTags: Tags = {};
+        for (const k in tags) newTags[(k === key) ? newKey ?? '' : k] = value;
+        if (!newTags['']) newTags[''] = '';
+        setTags(newTags);
     };
 
     const _onTagValueChange = (key: string, newValue?: string) => {
-        const newTags: Tags = {}
-        for (const k in tags) newTags[k] = (k === key) ? newValue ?? '' : tags[k]
-        setTags(newTags)
+        const newTags: Tags = {};
+        for (const k in tags) newTags[k] = (k === key) ? newValue ?? '' : tags[k];
+        setTags(newTags);
     };
 
     const _getTagsTextFields = () => {
         let tagStack = [];
         if (tags) {
-            let counter = 0
+            let counter = 0;
             for (const key in tags) {
                 tagStack.push(
                     <Stack key={counter} horizontal tokens={{ childrenGap: '8px' }}>
                         <TextField disabled={!formEnabled} description='Name' value={key} onChange={(_ev, val) => _onTagKeyChange(key, tags[key], val)} />
                         <TextField disabled={!formEnabled} description='Value' value={tags[key]} onChange={(_ev, val) => _onTagValueChange(key, val)} />
-                    </Stack>)
-                counter++
+                    </Stack>);
+                counter++;
             }
         }
-        return (<Stack.Item>{tagStack}</Stack.Item>)
+        return (<Stack.Item>{tagStack}</Stack.Item>);
     };
 
     const _onReview = (): boolean => pivotKeys.indexOf(pivotKey) === pivotKeys.length - 1;
-
 
     const _getPrimaryButtonText = (): string => {
         const currentIndex = pivotKeys.indexOf(pivotKey);
@@ -254,11 +252,11 @@ export const NewOrgView: React.FC = () => {
             </Stack.Item>
         </Stack>
     );
-}
+};
 
 export interface INewOrgReviewSection {
     title: string;
-    details: { label: string, value?: string, required?: boolean }[]
+    details: { label: string, value?: string, required?: boolean; }[];
 }
 
 export const NewOrgReviewSection: React.FC<INewOrgReviewSection> = (props) => {
@@ -280,4 +278,4 @@ export const NewOrgReviewSection: React.FC<INewOrgReviewSection> = (props) => {
             {_getDetailStacks()}
         </Stack>
     );
-}
+};

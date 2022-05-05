@@ -11,11 +11,11 @@ namespace TeamCloud.Azure.Resources;
 [Serializable]
 public class AzureResourceException : Exception
 {
-    public AzureResourceException() { }
+    // public AzureResourceException() { }
 
     public AzureResourceException(string message) : base(message) { }
 
-    public AzureResourceException(string message, Exception inner) : base(message, inner) { }
+    // public AzureResourceException(string message, Exception inner) : base(message, inner) { }
 
-    protected AzureResourceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    // protected AzureResourceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using TeamCloud.Microsoft.Graph;
 
 namespace TeamCloud.Notification.Smtp;
 
@@ -19,6 +20,9 @@ public static class NotificationSmtpExtensions
         {
             throw new ArgumentNullException(nameof(services));
         }
+
+        services
+            .TryAddSingleton<IGraphService, GraphService>();
 
         services
             .TryAddSingleton<INotificationSmtpSender, NotificationSmtpSender>();

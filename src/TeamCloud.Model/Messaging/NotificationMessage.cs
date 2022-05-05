@@ -35,7 +35,7 @@ public abstract class NotificationMessage : INotificationMessage
         }
     }
 
-    public static TMessage Create<TMessage>(INotificationRecipient recipient, params INotificationRecipient[] recipients)
+    public static TMessage Create<TMessage>(INotificationAddress recipient, params INotificationAddress[] recipients)
         where TMessage : NotificationMessage, new()
     {
         var message = Activator.CreateInstance<TMessage>();
@@ -56,7 +56,7 @@ public abstract class NotificationMessage : INotificationMessage
         return message;
     }
 
-    public IEnumerable<INotificationRecipient> Recipients { get; set; } = Enumerable.Empty<INotificationRecipient>();
+    public IEnumerable<INotificationAddress> Recipients { get; set; } = Enumerable.Empty<INotificationAddress>();
 
     public string Subject { get; set; }
 

@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Runtime.Serialization;
 using Azure;
 using Azure.Data.Tables;
 using Newtonsoft.Json;
