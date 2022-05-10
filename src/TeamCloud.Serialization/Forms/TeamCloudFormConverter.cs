@@ -40,7 +40,7 @@ internal sealed class TeamCloudFormConverter<TData> : JsonConverter<TData>
                     .OfType<TeamCloudFormAttribute>()
                     .ToList();
 
-                if (attributes.Any())
+                if (attributes.Any() && attributes.All(a => !(a is TeamCloudFormAttribute)))
                 {
                     var optionAttributes = attributes
                         .OfType<TeamCloudFormOptionAttribute>()

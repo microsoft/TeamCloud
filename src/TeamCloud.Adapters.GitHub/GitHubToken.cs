@@ -65,4 +65,6 @@ public sealed class GitHubToken : AuthorizationToken
     public string Pem { get; set; }
 
     public string OwnerLogin { get; set; }
+
+    public string OwnerId { get; set; }
 }
