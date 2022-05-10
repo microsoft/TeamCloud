@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.6.1.6515",
-      "templateHash": "1437278143323890797"
+      "templateHash": "1106573156801624642"
     }
   },
   "parameters": {
@@ -28,7 +28,7 @@
       "maxLength": 36,
       "minLength": 36
     },
-    "organizationSlug": {
+    "organizationName": {
       "type": "string"
     },
     "organizationTags": {
@@ -49,7 +49,7 @@
     "projectResourceGroupName": "[format('TCP-{0}-{1}', parameters('projectName'), uniqueString(parameters('projectId')))]",
     "projectDeploymentName": "[take(format('{0}-project', deployment().name), 64)]",
     "deployOrganization": "[not(variables('deployProject'))]",
-    "organizationResourceGroupName": "[format('TCO-{0}-{1}', parameters('organizationSlug'), uniqueString(parameters('organizationId')))]",
+    "organizationResourceGroupName": "[format('TCO-{0}-{1}', parameters('organizationName'), uniqueString(parameters('organizationId')))]",
     "organizationDeploymentName": "[take(format('{0}-organization', deployment().name), 64)]"
   },
   "resources": [

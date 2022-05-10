@@ -9,7 +9,7 @@ param projectTags object = {}
 @minLength(36)
 @maxLength(36)
 param organizationId string
-param organizationSlug string
+param organizationName string
 param organizationTags object = {}
 
 param deploymentScopes array = []
@@ -20,7 +20,7 @@ var projectResourceGroupName = 'TCP-${projectName}-${uniqueString(projectId)}'
 var projectDeploymentName = take('${deployment().name}-project', 64)
 
 var deployOrganization = !deployProject
-var organizationResourceGroupName = 'TCO-${organizationSlug}-${uniqueString(organizationId)}'
+var organizationResourceGroupName = 'TCO-${organizationName}-${uniqueString(organizationId)}'
 var organizationDeploymentName = take('${deployment().name}-organization', 64)
 
 resource organizationResourceGroup 'Microsoft.Resources/resourceGroups@2019-10-01' = if (deployOrganization) {

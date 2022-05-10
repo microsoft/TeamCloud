@@ -46,7 +46,7 @@ public sealed class OrganizationDeployActivity
             var template = new SharedResourcesTemplate();
 
             template.Parameters["organizationId"] = organization.Id;
-            template.Parameters["organizationSlug"] = organization.Slug;
+            template.Parameters["organizationName"] = organization.Slug;
             template.Parameters["organizationTags"] = organization.GetWellKnownTags();
 
 
