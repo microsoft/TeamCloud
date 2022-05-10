@@ -58,8 +58,8 @@ public class DeploymentScopesAuthorizationController : TeamCloudController
 
     [HttpGet("callback")]
     [HttpPost("callback")]
-    [Authorize(Policy = AuthPolicies.AdapterAuthorizationFlow)]
-    //[AllowAnonymous]
+    //[Authorize(Policy = AuthPolicies.AdapterAuthorizationFlow)]
+    [AllowAnonymous]
     [Produces("text/html")]
     [SwaggerIgnore]
     public Task<IActionResult> Callback() => WithContextAsync<DeploymentScope>(async (contextUser, deploymentScope) =>

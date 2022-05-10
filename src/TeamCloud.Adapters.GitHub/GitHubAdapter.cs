@@ -246,6 +246,13 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     .ToString();
             }
 
+            if (string.IsNullOrEmpty(token.OwnerId))
+            {
+                token.OwnerLogin = JToken.Parse(json)
+                    .SelectToken("owner.id")
+                    .ToString();
+            }
+
             token = await TokenClient
                 .SetAsync(token, true)
                 .ConfigureAwait(false);
@@ -742,8 +749,8 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 // template repository git url is given.
 
                 var data = string.IsNullOrWhiteSpace(componentDeploymentScope.InputData)
-                ? default
-                : TeamCloudSerialize.DeserializeObject<GitHubData>(componentDeploymentScope.InputData);
+                    ? default
+                    : TeamCloudSerialize.DeserializeObject<GitHubData>(componentDeploymentScope.InputData);
 
                 var repoSettings = new NewRepository(repositoryName)
                 {
@@ -999,5 +1006,15 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             return default;
 
         return new NetworkCredential("bearer", gitHubClient.Credentials.Password, gitHubClient.BaseAddress.ToString());
+    }
+
+    private async Task<GitHubData> SanitizeGitHubData(GitHubData gitHubData)
+    {
+        if (gitHubData?.OrganizationId == 0)
+        {
+            
+        }
+
+        return gitHubData;
     }
 }

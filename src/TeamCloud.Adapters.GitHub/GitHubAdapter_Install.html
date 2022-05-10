@@ -119,7 +119,7 @@
         <h1>GitHub Provider Setup</h1>
     </div>
     <div class="content">
-        <form action="https://github.com/apps/{{ token.slug }}/installations/new/permissions">
+        <form action="https://github.com/apps/{{ token.slug }}/installations/new?target_id={{ token.ownerId }}">
             <ul id="manifest_form">
                 <li>
                     <label for="org">GitHub Organization</label>
