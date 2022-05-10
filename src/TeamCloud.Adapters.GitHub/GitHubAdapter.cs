@@ -1007,14 +1007,4 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
         return new NetworkCredential("bearer", gitHubClient.Credentials.Password, gitHubClient.BaseAddress.ToString());
     }
-
-    private async Task<GitHubData> SanitizeGitHubData(GitHubData gitHubData)
-    {
-        if (gitHubData?.OrganizationId == 0)
-        {
-            
-        }
-
-        return gitHubData;
-    }
 }
