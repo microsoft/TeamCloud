@@ -234,24 +234,44 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             }
 
             var json = await response
-                .GetStringAsync()
+                .GetJsonAsync<JObject>()
                 .ConfigureAwait(false);
 
-            TeamCloudSerialize.PopulateObject(json, token);
+            token.Name = json
+                .SelectToken("name")
+                .ToString();
 
-            if (string.IsNullOrEmpty(token.OwnerLogin))
-            {
-                token.OwnerLogin = JToken.Parse(json)
-                    .SelectToken("owner.login")
-                    .ToString();
-            }
+            token.Slug = json
+                .SelectToken("slug")
+                .ToString();
 
-            if (string.IsNullOrEmpty(token.OwnerId))
-            {
-                token.OwnerLogin = JToken.Parse(json)
-                    .SelectToken("owner.id")
-                    .ToString();
-            }
+            token.ApplicationId = json
+                .SelectToken("id")
+                .ToString();
+
+            token.OwnerLogin = json
+                .SelectToken("owner.login")
+                .ToString();
+
+            token.OwnerId = json
+                .SelectToken("owner.id")
+                .ToString();
+
+            token.ClientId = json
+                .SelectToken("client_id")
+                .ToString();
+
+            token.ClientSecret = json
+                .SelectToken("client_secret")
+                .ToString();
+
+            token.Pem = json
+                .SelectToken("pem")
+                .ToString();
+
+            token.WebhookSecret = json
+                .SelectToken("webhook_secret")
+                .ToString();
 
             token = await TokenClient
                 .SetAsync(token, true)
@@ -302,6 +322,10 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             .ConfigureAwait(false);
 
         var appId = json
+            .SelectToken("hook.app_id")?
+            .ToString();
+
+        appId ??= json
             .SelectToken("installation.app_id")?
             .ToString();
 
@@ -351,13 +375,12 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 _ = await TokenClient
                     .SetAsync(token)
                     .ConfigureAwait(false);
-
-                return new OkResult();
             }
+
+            return new OkResult();
         }
 
         return new NotFoundResult();
-
     }
 
     private async Task<GitHubClient> CreateClientAsync(Component component, string acceptHeader = null)
@@ -457,173 +480,181 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
         return base.WithContextAsync(component, async (componentOrganization, componentDeploymentScope, componentProject) =>
         {
-            var token = await TokenClient
-                .GetAsync<GitHubToken>(componentDeploymentScope)
-                .ConfigureAwait(false);
-
-            var client = await CreateClientAsync(token)
-                .ConfigureAwait(false);
-
-            var teams = await client.Organization.Team
-                .GetAll(token.OwnerLogin)
-                .ConfigureAwait(false);
-
-            var tasks = new List<Task>();
-
-            var teamsByName = teams
-                .ToDictionary(k => k.Name, v => v);
-
-            var organizationTeamName = $"TeamCloud-{componentOrganization.Slug}";
-            var organizationTeam = await EnsureTeamAsync(organizationTeamName, null, new NewTeam(organizationTeamName)
+            try
             {
-                Description = $"TeamCloud {componentOrganization.DisplayName} organization.",
-                Privacy = TeamPrivacy.Closed // Parent and nested child teams must use Closed
+                var token = await TokenClient
+                    .GetAsync<GitHubToken>(componentDeploymentScope)
+                    .ConfigureAwait(false);
 
-            }).ConfigureAwait(false);
+                var client = await CreateClientAsync(token)
+                    .ConfigureAwait(false);
 
-            var organizationAdminTeamName = $"{organizationTeamName}-Admins";
-            var organizationAdminTeam = await EnsureTeamAsync(organizationAdminTeamName, organizationTeam, new NewTeam(organizationAdminTeamName)
-            {
-                Description = $"TeamCloud {componentOrganization.DisplayName} organization admins.",
-                Privacy = TeamPrivacy.Closed, // Parent and nested child teams must use Closed
-                Permission = Permission.Admin
+                var teams = await client.Organization.Team
+                    .GetAll(token.OwnerLogin)
+                    .ConfigureAwait(false);
 
-            }).ConfigureAwait(false);
+                var tasks = new List<Task>();
 
-            var projectTeamName = $"{organizationTeamName}-{componentProject.Slug}";
-            var projectTeam = await EnsureTeamAsync(projectTeamName, organizationTeam, new NewTeam(projectTeamName)
-            {
-                Description = $"TeamCloud project {componentProject.DisplayName} in the {componentOrganization.DisplayName} organization.",
-                Privacy = TeamPrivacy.Closed // Parent and nested child teams must use Closed
+                var teamsByName = teams
+                    .ToDictionary(k => k.Name, v => v);
 
-            }).ConfigureAwait(false);
-
-            var projectAdminsTeamName = $"{projectTeamName}-Admins";
-            var projectAdminsTeam = await EnsureTeamAsync(projectAdminsTeamName, projectTeam, new NewTeam(projectAdminsTeamName)
-            {
-                Description = $"TeamCloud project {componentProject.DisplayName} admins in the {componentOrganization.DisplayName} organization.",
-                Privacy = TeamPrivacy.Closed, // Parent and nested child teams must use Closed
-                Permission = Permission.Admin
-
-            }).ConfigureAwait(false);
-
-            var projectName = $"TeamCloud-{componentOrganization.Slug}-{componentProject.Slug}";
-            var project = await EnsureProjectAsync(projectName, new NewProject(projectName)
-            {
-                Body = $"Project for TeamCloud project {componentProject.DisplayName} in organization {componentOrganization.DisplayName}"
-
-            }).ConfigureAwait(false);
-
-            var organizationOwners = await userRepository
-                .ListOwnersAsync(component.Organization)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
-
-            var organizationAdmins = await userRepository
-                .ListAdminsAsync(component.Organization)
-                .ToArrayAsync()
-                .ConfigureAwait(false);
-
-            await Task.WhenAll(
-
-                EnsurePermissionAsync(projectTeam, project, "write"),
-                EnsurePermissionAsync(projectAdminsTeam, project, "admin"),
-
-                SynchronizeTeamMembersAsync(client, organizationAdminTeam, Enumerable.Concat(organizationOwners, organizationAdmins).Distinct(), component, contextUser, commandQueue)
-
-                ).ConfigureAwait(false);
-
-            return await callback(client, token.OwnerLogin, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
-
-            async Task<Team> EnsureTeamAsync(string teamName, Team parentTeam, NewTeam teamDefinition)
-            {
-                if (!teamsByName.TryGetValue(teamName, out var team))
+                var organizationTeamName = $"TeamCloud-{componentOrganization.Slug}";
+                var organizationTeam = await EnsureTeamAsync(organizationTeamName, null, new NewTeam(organizationTeamName)
                 {
-                    await using var adapterLock = await AcquireLockAsync(nameof(GitHubAdapter), component.DeploymentScopeId).ConfigureAwait(false);
+                    Description = $"TeamCloud {componentOrganization.DisplayName} organization.",
+                    Privacy = TeamPrivacy.Closed // Parent and nested child teams must use Closed
 
-                    teamDefinition.ParentTeamId = parentTeam?.Id;
+                }).ConfigureAwait(false);
+
+                var organizationAdminTeamName = $"{organizationTeamName}-Admins";
+                var organizationAdminTeam = await EnsureTeamAsync(organizationAdminTeamName, organizationTeam, new NewTeam(organizationAdminTeamName)
+                {
+                    Description = $"TeamCloud {componentOrganization.DisplayName} organization admins.",
+                    Privacy = TeamPrivacy.Closed, // Parent and nested child teams must use Closed
+                    //Permission = Permission.Admin
+
+                }).ConfigureAwait(false);
+
+                var projectTeamName = $"{organizationTeamName}-{componentProject.Slug}";
+                var projectTeam = await EnsureTeamAsync(projectTeamName, organizationTeam, new NewTeam(projectTeamName)
+                {
+                    Description = $"TeamCloud project {componentProject.DisplayName} in the {componentOrganization.DisplayName} organization.",
+                    Privacy = TeamPrivacy.Closed // Parent and nested child teams must use Closed
+
+                }).ConfigureAwait(false);
+
+                var projectAdminsTeamName = $"{projectTeamName}-Admins";
+                var projectAdminsTeam = await EnsureTeamAsync(projectAdminsTeamName, projectTeam, new NewTeam(projectAdminsTeamName)
+                {
+                    Description = $"TeamCloud project {componentProject.DisplayName} admins in the {componentOrganization.DisplayName} organization.",
+                    Privacy = TeamPrivacy.Closed, // Parent and nested child teams must use Closed
+                    //Permission = Permission.Admin
+
+                }).ConfigureAwait(false);
+
+                var projectName = $"TeamCloud-{componentOrganization.Slug}-{componentProject.Slug}";
+                var project = await EnsureProjectAsync(projectName, new NewProject(projectName)
+                {
+                    Body = $"Project for TeamCloud project {componentProject.DisplayName} in organization {componentOrganization.DisplayName}"
+
+                }).ConfigureAwait(false);
+
+                var organizationOwners = await userRepository
+                    .ListOwnersAsync(component.Organization)
+                    .ToArrayAsync()
+                    .ConfigureAwait(false);
+
+                var organizationAdmins = await userRepository
+                    .ListAdminsAsync(component.Organization)
+                    .ToArrayAsync()
+                    .ConfigureAwait(false);
+
+                await Task.WhenAll(
+
+                    EnsurePermissionAsync(projectTeam, project, "write"),
+                    EnsurePermissionAsync(projectAdminsTeam, project, "admin"),
+
+                    SynchronizeTeamMembersAsync(client, organizationAdminTeam, Enumerable.Concat(organizationOwners, organizationAdmins).Distinct(), component, contextUser, commandQueue)
+
+                    ).ConfigureAwait(false);
+
+                return await callback(client, token.OwnerLogin, project, projectTeam, projectAdminsTeam).ConfigureAwait(false);
+
+                async Task<Team> EnsureTeamAsync(string teamName, Team parentTeam, NewTeam teamDefinition)
+                {
+                    if (!teamsByName.TryGetValue(teamName, out var team))
+                    {
+                        await using var adapterLock = await AcquireLockAsync(nameof(GitHubAdapter), component.DeploymentScopeId).ConfigureAwait(false);
+
+                        teamDefinition.ParentTeamId = parentTeam?.Id;
+
+                        try
+                        {
+                            team = await client.Organization.Team
+                                .Create(token.OwnerLogin, teamDefinition)
+                                .ConfigureAwait(false);
+                        }
+                        catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity) // yes, thats the status code if the team already exists
+                        {
+                            var teams = await client.Organization.Team
+                                .GetAll(token.OwnerLogin)
+                                .ConfigureAwait(false);
+
+                            team = teams
+                                .FirstOrDefault(t => t.Name.Equals(teamName, StringComparison.Ordinal));
+
+                            if (team is null)
+                                throw;
+                        }
+                    }
+
+                    if (team.Parent?.Id != parentTeam?.Id)
+                    {
+                        await using var adapterLock = await AcquireLockAsync(nameof(GitHubAdapter), component.DeploymentScopeId).ConfigureAwait(false);
+
+                        team = await client.Organization.Team.Update(team.Id, new UpdateTeam(team.Name)
+                        {
+                            ParentTeamId = parentTeam?.Id ?? 0
+
+                        }).ConfigureAwait(false);
+                    }
+
+
+                    return team;
+                }
+
+                async Task<Octokit.Project> EnsureProjectAsync(string projectName, NewProject projectDefinition)
+                {
+                    var projects = await client.Repository.Project
+                        .GetAllForOrganization(token.OwnerLogin)
+                        .ConfigureAwait(false);
+
+                    var project = projects
+                        .FirstOrDefault(t => t.Name.Equals(projectName, StringComparison.Ordinal));
 
                     try
                     {
-                        team = await client.Organization.Team
-                            .Create(token.OwnerLogin, teamDefinition)
+                        project ??= await client.Repository.Project
+                            .CreateForOrganization(token.OwnerLogin, projectDefinition)
                             .ConfigureAwait(false);
                     }
-                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity) // yes, thats the status code if the team already exists
+                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity)
                     {
-                        var teams = await client.Organization.Team
-                            .GetAll(token.OwnerLogin)
-                            .ConfigureAwait(false);
+                        // the project already exists - try to re-fetch project information
 
-                        team = teams
-                            .FirstOrDefault(t => t.Name.Equals(teamName, StringComparison.Ordinal));
+                        projects = await client.Repository.Project
+                        .GetAllForOrganization(token.OwnerLogin)
+                        .ConfigureAwait(false);
 
-                        if (team is null)
-                            throw;
+                        project = projects
+                            .FirstOrDefault(t => t.Name.Equals(projectName, StringComparison.Ordinal));
+
+                        if (project is null)
+                            throw new ApplicationException($"Duplicate project ({projectName}) under unknown ownership detected", exc);
                     }
-                }
-
-                if (team.Parent?.Id != parentTeam?.Id)
-                {
-                    await using var adapterLock = await AcquireLockAsync(nameof(GitHubAdapter), component.DeploymentScopeId).ConfigureAwait(false);
-
-                    team = await client.Organization.Team.Update(team.Id, new UpdateTeam(team.Name)
+                    catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
                     {
-                        ParentTeamId = parentTeam?.Id ?? 0
+                        throw new ApplicationException($"Organization level projects disabled in {client.Connection.BaseAddress}");
+                    }
 
-                    }).ConfigureAwait(false);
+                    return project;
                 }
 
-
-                return team;
-            }
-
-            async Task<Octokit.Project> EnsureProjectAsync(string projectName, NewProject projectDefinition)
-            {
-                var projects = await client.Repository.Project
-                    .GetAllForOrganization(token.OwnerLogin)
-                    .ConfigureAwait(false);
-
-                var project = projects
-                    .FirstOrDefault(t => t.Name.Equals(projectName, StringComparison.Ordinal));
-
-                try
+                async Task EnsurePermissionAsync(Octokit.Team team, Octokit.Project project, string permission)
                 {
-                    project ??= await client.Repository.Project
-                        .CreateForOrganization(token.OwnerLogin, projectDefinition)
+                    var inertiaClient = await CreateClientAsync(component, "inertia-preview").ConfigureAwait(false);
+
+                    var url = new Uri($"/orgs/{token.OwnerLogin}/teams/{team.Slug}/projects/{project.Id}", UriKind.Relative);
+
+                    _ = await inertiaClient.Connection
+                        .Put<string>(url, new { Permission = permission })
                         .ConfigureAwait(false);
                 }
-                catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.UnprocessableEntity)
-                {
-                    // the project already exists - try to re-fetch project information
 
-                    projects = await client.Repository.Project
-                    .GetAllForOrganization(token.OwnerLogin)
-                    .ConfigureAwait(false);
-
-                    project = projects
-                        .FirstOrDefault(t => t.Name.Equals(projectName, StringComparison.Ordinal));
-
-                    if (project is null)
-                        throw new ApplicationException($"Duplicate project ({projectName}) under unknown ownership detected", exc);
-                }
-                catch (ApiException exc) when (exc.StatusCode == HttpStatusCode.NotFound)
-                {
-                    throw new ApplicationException($"Organization level projects disabled in {client.Connection.BaseAddress}");
-                }
-
-                return project;
             }
-
-            async Task EnsurePermissionAsync(Octokit.Team team, Octokit.Project project, string permission)
+            catch 
             {
-                var inertiaClient = await CreateClientAsync(component, "inertia-preview").ConfigureAwait(false);
-
-                var url = new Uri($"/orgs/{token.OwnerLogin}/teams/{team.Slug}/projects/{project.Id}", UriKind.Relative);
-
-                _ = await inertiaClient.Connection
-                    .Put<string>(url, new { Permission = permission })
-                    .ConfigureAwait(false);
+                throw;
             }
         });
     }

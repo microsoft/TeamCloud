@@ -15,7 +15,7 @@ public sealed class GitHubData
     [TeamCloudFormDescription("GitHub organization's name or base URL.")]
     public string Organization
     {
-        get => string.IsNullOrWhiteSpace(organization) ? null : GitHubToken.FormatOrganizationUrl(organization);
+        get => string.IsNullOrWhiteSpace(organization) ? null : GitHubToken.SanitizeOrganizationUrl(organization);
         set => organization = value;
     }
 

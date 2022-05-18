@@ -65,7 +65,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .CreateServicePrincipalAsync(servicePrincipalName)
                     .ConfigureAwait(false);
             }
-            else if (servicePrincipal.ExpiresOn.GetValueOrDefault(DateTime.MinValue) < DateTime.UtcNow)
+            else if (servicePrincipal.ExpiresOn.GetValueOrDefault(DateTime.MinValue.ToUniversalTime()) < DateTime.UtcNow)
             {
                 // a service principal exists, but its secret is expired. lets refresh
                 // the service principal (create a new secret) so we can move on
