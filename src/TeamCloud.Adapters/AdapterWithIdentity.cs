@@ -17,24 +17,35 @@ namespace TeamCloud.Adapters;
 
 public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 {
-    private readonly IAzureService azure;
+    private readonly IAzureService azureService;
     private readonly IGraphService graphService;
     private readonly IOrganizationRepository organizationRepository;
     private readonly IProjectRepository projectRepository;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
-    protected AdapterWithIdentity(IAuthorizationSessionClient sessionClient,
-                                  IAuthorizationTokenClient tokenClient,
-                                  IDistributedLockManager distributedLockManager,
-                                  IAzureService azure,
-                                  IGraphService graphService,
-                                  IOrganizationRepository organizationRepository,
-                                  IDeploymentScopeRepository deploymentScopeRepository,
-                                  IProjectRepository projectRepository,
-                                  IUserRepository userRepository) : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+    protected AdapterWithIdentity(
+        IAuthorizationSessionClient sessionClient,
+        IAuthorizationTokenClient tokenClient,
+        IDistributedLockManager distributedLockManager,
+        IAzureService azureService,
+        IGraphService graphService,
+        IOrganizationRepository organizationRepository,
+        IDeploymentScopeRepository deploymentScopeRepository,
+        IProjectRepository projectRepository,
+        IUserRepository userRepository) 
+        : base(
+            sessionClient, 
+            tokenClient, 
+            distributedLockManager, 
+            azureService, 
+            graphService, 
+            organizationRepository, 
+            deploymentScopeRepository, 
+            projectRepository, 
+            userRepository)
     {
-        this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
+        this.azureService = azureService ?? throw new ArgumentNullException(nameof(azureService));
         this.graphService = graphService ?? throw new ArgumentNullException(nameof(graphService));
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
@@ -82,7 +93,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .GetAsync(component.Organization, component.ProjectId)
                     .ConfigureAwait(false);
 
-                var secretClient = await azure.KeyVaults
+                var secretClient = await azureService.KeyVaults
                     .GetSecretClientAsync(project.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 
@@ -96,7 +107,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .GetAsync(component.Organization, component.ProjectId)
                     .ConfigureAwait(false);
 
-                var secretClient = await azure.KeyVaults
+                var secretClient = await azureService.KeyVaults
                     .GetSecretClientAsync(project.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 
@@ -134,7 +145,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .CreateServicePrincipalAsync(servicePrincipalName)
                     .ConfigureAwait(false);
             }
-            else if (servicePrincipal.ExpiresOn.GetValueOrDefault(DateTime.MinValue) < DateTime.UtcNow)
+            else if (servicePrincipal.ExpiresOn.GetValueOrDefault(DateTime.MinValue.ToUniversalTime()) < DateTime.UtcNow)
             {
                 // a service principal exists, but its secret is expired. lets refresh
                 // the service principal (create a new secret) so we can move on
@@ -147,7 +158,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 
             if (!string.IsNullOrEmpty(servicePrincipal.Password))
             {
-                var tenantId = await azure
+                var tenantId = await azureService
                     .GetTenantIdAsync()
                     .ConfigureAwait(false);
 
@@ -155,7 +166,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .GetAsync(tenantId, deploymentScope.Organization)
                     .ConfigureAwait(false);
 
-                var secretClient = await azure.KeyVaults
+                var secretClient = await azureService.KeyVaults
                     .GetSecretClientAsync(organization.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 
@@ -165,7 +176,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
             }
             else if (withPassword)
             {
-                var tenantId = await azure
+                var tenantId = await azureService
                     .GetTenantIdAsync()
                     .ConfigureAwait(false);
 
@@ -173,7 +184,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
                     .GetAsync(tenantId, deploymentScope.Organization)
                     .ConfigureAwait(false);
 
-                var secretClient = await azure.KeyVaults
+                var secretClient = await azureService.KeyVaults
                     .GetSecretClientAsync(organization.SecretsVaultId, ensureIdentityAccess: true)
                     .ConfigureAwait(false);
 

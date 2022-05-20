@@ -23,7 +23,6 @@ public sealed class CommandOrchestration
         this.commandHandlers = commandHandlers;
     }
 
-    // [Deterministic]
     [FunctionName(nameof(CommandOrchestration))]
     public async Task Execute(
         [OrchestrationTrigger] IDurableOrchestrationContext orchestratorContext,
