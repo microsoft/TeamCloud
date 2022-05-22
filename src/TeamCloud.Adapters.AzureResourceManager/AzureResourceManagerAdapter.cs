@@ -24,7 +24,7 @@ using TeamCloud.Serialization.Forms;
 
 namespace TeamCloud.Adapters.AzureResourceManager;
 
-public sealed class AzureResourceManagerAdapter : Adapter
+public sealed class AzureResourceManagerAdapter : AdapterWithIdentity
 {
     private readonly IAzureService azure;
     private readonly IAzureResourceService azureResourceService;
@@ -40,7 +40,9 @@ public sealed class AzureResourceManagerAdapter : Adapter
     // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
     // however; it is used to managed singleton function execution within the functions fx !!!
 
-    public AzureResourceManagerAdapter(IAuthorizationSessionClient sessionClient,
+    public AzureResourceManagerAdapter(
+        IAdapterProvider adapterProvider, 
+        IAuthorizationSessionClient sessionClient,
         IAuthorizationTokenClient tokenClient,
         IDistributedLockManager distributedLockManager,
         IAzureService azure,
@@ -52,7 +54,7 @@ public sealed class AzureResourceManagerAdapter : Adapter
         IProjectRepository projectRepository,
         IComponentRepository componentRepository,
         IComponentTemplateRepository componentTemplateRepository)
-        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(adapterProvider, sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.azure = azure ?? throw new ArgumentNullException(nameof(azure));
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
@@ -195,6 +197,16 @@ public sealed class AzureResourceManagerAdapter : Adapter
 
                 roleAssignmentMap
                     .Add(identity.PrincipalId, Enumerable.Repeat(AzureRoleDefinition.Contributor, 1));
+            }
+
+            if (this is IAdapterIdentity adapterIdentity)
+            {
+                var componentDeploymentScopeServiceIdentity = await adapterIdentity
+                    .GetServiceIdentityAsync(componentDeploymentScope)
+                    .ConfigureAwait(false);
+
+                roleAssignmentMap
+                    .Add(componentDeploymentScopeServiceIdentity.Id.ToString(), Enumerable.Repeat(AzureRoleDefinition.Contributor, 1));
             }
 
             if (string.IsNullOrEmpty(componentResourceId.ResourceGroup))

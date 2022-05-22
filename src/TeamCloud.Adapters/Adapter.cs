@@ -27,6 +27,7 @@ public abstract class Adapter : IAdapter
 {
     private static readonly JSchema dataSchemaEmpty = new() { Type = JSchemaType.Object };
     private static readonly JObject formSchemaEmpty = new();
+    private readonly IAdapterProvider adapterProvider;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -43,7 +44,8 @@ public abstract class Adapter : IAdapter
     private readonly IProjectRepository projectRepository;
     private readonly IUserRepository userRepository;
 
-    protected Adapter(IAuthorizationSessionClient sessionClient,
+    protected Adapter(IAdapterProvider adapterProvider,
+                      IAuthorizationSessionClient sessionClient,
                       IAuthorizationTokenClient tokenClient,
                       IDistributedLockManager distributedLockManager,
                       IAzureService azure,
@@ -53,6 +55,7 @@ public abstract class Adapter : IAdapter
                       IProjectRepository projectRepository,
                       IUserRepository userRepository)
     {
+        this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         this.sessionClient = sessionClient ?? throw new ArgumentNullException(nameof(sessionClient));
         this.tokenClient = tokenClient ?? throw new ArgumentNullException(nameof(tokenClient));
         this.distributedLockManager = distributedLockManager ?? throw new ArgumentNullException(nameof(distributedLockManager));

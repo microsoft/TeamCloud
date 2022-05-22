@@ -25,6 +25,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
 #pragma warning disable CS0618 // Type or member is obsolete
 
     protected AdapterWithIdentity(
+        IAdapterProvider adapterProvider,
         IAuthorizationSessionClient sessionClient,
         IAuthorizationTokenClient tokenClient,
         IDistributedLockManager distributedLockManager,
@@ -35,6 +36,7 @@ public abstract class AdapterWithIdentity : Adapter, IAdapterIdentity
         IProjectRepository projectRepository,
         IUserRepository userRepository) 
         : base(
+            adapterProvider,
             sessionClient, 
             tokenClient, 
             distributedLockManager, 

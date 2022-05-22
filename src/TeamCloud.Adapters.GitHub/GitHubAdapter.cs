@@ -16,10 +16,13 @@ using Azure.Core;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Graph;
 using Newtonsoft.Json.Linq;
 using Octokit;
 using Octokit.Internal;
@@ -36,10 +39,12 @@ using TeamCloud.Orchestration;
 using TeamCloud.Serialization;
 using TeamCloud.Serialization.Forms;
 using TeamCloud.Templates;
+using Component = TeamCloud.Model.Data.Component;
 using HttpStatusCode = System.Net.HttpStatusCode;
 using IHttpClientFactory = Flurl.Http.Configuration.IHttpClientFactory;
 using Organization = TeamCloud.Model.Data.Organization;
 using Project = TeamCloud.Model.Data.Project;
+using Team = Octokit.Team;
 using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Adapters.GitHub;
@@ -47,7 +52,7 @@ namespace TeamCloud.Adapters.GitHub;
 public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthorize
 {
     private static readonly IJsonSerializer GitHubSerializer = new SimpleJsonSerializer();
-
+    private readonly IAdapterProvider adapterProvider;
     private readonly IHttpClientFactory httpClientFactory;
     private readonly IOrganizationRepository organizationRepository;
     private readonly IUserRepository userRepository;
@@ -65,6 +70,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
     // however; it is used to managed singleton function execution within the functions fx !!!
 
     public GitHubAdapter(
+        IAdapterProvider adapterProvider,
         IAuthorizationSessionClient sessionClient,
         IAuthorizationTokenClient tokenClient,
         IDistributedLockManager distributedLockManager,
@@ -78,8 +84,9 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         IComponentTemplateRepository componentTemplateRepository,
         IGraphService graphService,
         IFunctionsHost functionsHost = null)
-        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(adapterProvider, sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
+        this.adapterProvider = adapterProvider ?? throw new ArgumentNullException(nameof(adapterProvider));
         this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
         this.organizationRepository = organizationRepository ?? throw new ArgumentNullException(nameof(organizationRepository));
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
@@ -932,7 +939,8 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
         await Task.WhenAll(
 
-            SyncTeamCloudIdentityAsync(),
+            SynchronizeTeamCloudIdentityAsync(),
+            SynchronizeAzureResourceManagerEnvironmentsAsync(),
 
             SynchronizeTeamMembersAsync(client, memberTeam, users.Where(user => user.IsMember()), component, contextUser, commandQueue),
             SynchronizeTeamMembersAsync(client, adminTeam, users.Where(user => user.IsAdmin()), component, contextUser, commandQueue)
@@ -941,7 +949,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
 
         return component;
 
-        async Task SyncTeamCloudIdentityAsync()
+        async Task SynchronizeTeamCloudIdentityAsync()
         {
             if (!string.IsNullOrEmpty(componentProject.ResourceId) && GitHubIdentifier.TryParse(component.ResourceId, out var componentResourceId))
             {
@@ -955,8 +963,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                 if (repository is not null)
                 {
                     var projectResourceId = new ResourceIdentifier(componentProject.ResourceId);
-
-                    var servicePrincipalJson = GitHubExtensions.ToJson(servicePrincipal, Guid.Parse(projectResourceId.SubscriptionId));
+                    var servicePrincipalJson = servicePrincipal.ToJson(Guid.Parse(projectResourceId.SubscriptionId));
 
                     var keyJson = await repository.Url
                         .AppendPathSegment("actions/secrets/public-key")
@@ -974,7 +981,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                     {
                         owner = repository.Owner.Name,
                         repo = repository.Name,
-                        secret_name = "TEAMCLOUD_CREDENTIAL",
+                        secret_name = "TEAMCLOUD_CREDENTIALS",
                         encrypted_value = Convert.ToBase64String(encryptBuffer),
                         key_id = keyJson.SelectToken("key_id")?.ToString()
                     };
@@ -985,6 +992,98 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                         .WithGitHubCredentials(client.Connection.Credentials)
                         .PutJsonAsync(payload)
                         .ConfigureAwait(false);
+                }
+            }
+        }
+
+        async Task SynchronizeAzureResourceManagerEnvironmentsAsync()
+        {
+            if (!string.IsNullOrEmpty(componentProject.ResourceId) && GitHubIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+            {
+                var repository = await client.Repository
+                    .Get(componentResourceId.Organization, componentResourceId.Repository)
+                    .ConfigureAwait(false);
+
+                if (repository is not null)
+                {
+                    var armAdapter = adapterProvider.GetAdapter(DeploymentScopeType.AzureResourceManager);
+
+                    if (armAdapter is IAdapterIdentity armAdapterIdentity)
+                    {
+                        var armDeploymentScopes = deploymentScopeRepository
+                            .ListAsync(componentOrganization.Id)
+                            .Where(ds => ds.Type == DeploymentScopeType.AzureResourceManager);
+
+                        await foreach (var armDeploymentScope in armDeploymentScopes)
+                        {
+                            try
+                            {
+                                var environmentResponse = await repository.Url
+                                    .AppendPathSegment($"environments/{armDeploymentScope.Slug}")
+                                    .WithGitHubHeaders()
+                                    .WithGitHubCredentials(client.Connection.Credentials)
+                                    .AllowHttpStatus(HttpStatusCode.NotFound)
+                                    .GetAsync()
+                                    .ConfigureAwait(false);
+
+                                if (environmentResponse.StatusCode == (int) HttpStatusCode.NotFound)
+                                {
+                                    var environmentPayload = new
+                                    {
+                                        wait_timer = 0,
+                                        reviewers = default(object),
+                                        deployment_branch_policy = default(object),
+                                    };
+
+                                    await repository.Url
+                                        .AppendPathSegment($"environments/{armDeploymentScope.Slug}")
+                                        .WithGitHubHeaders()
+                                        .WithGitHubCredentials(client.Connection.Credentials)
+                                        .PutJsonAsync(environmentPayload)
+                                        .ConfigureAwait(false);
+                                }
+
+                                var servicePrincipal = await armAdapterIdentity
+                                    .GetServiceIdentityAsync(armDeploymentScope)
+                                    .ConfigureAwait(false);
+
+                                var projectResourceId = new ResourceIdentifier(componentProject.ResourceId);
+                                var servicePrincipalJson = servicePrincipal.ToJson(Guid.Parse(projectResourceId.SubscriptionId));
+
+                                var keyJson = await repository.Url
+                                    .AppendPathSegment($"environments/{armDeploymentScope.Slug}/secrets/public-key")
+                                    .WithGitHubHeaders()
+                                    .WithGitHubCredentials(client.Connection.Credentials)
+                                    .GetJObjectAsync()
+                                    .ConfigureAwait(false);
+
+                                var key = Convert.FromBase64String(keyJson.SelectToken("key")?.ToString() ?? string.Empty);
+
+                                var secretBuffer = Encoding.UTF8.GetBytes(servicePrincipalJson);
+                                var encryptBuffer = Sodium.SealedPublicKeyBox.Create(secretBuffer, key);
+
+                                var azureCredentialsPayload = new
+                                {
+                                    repository_id = repository.Id,
+                                    environment_name = armDeploymentScope.Slug,
+                                    secret_name = "AZURE_CREDENTIALS",
+                                    encrypted_value = Convert.ToBase64String(encryptBuffer),
+                                    key_id = keyJson.SelectToken("key_id")?.ToString()
+                                };
+
+                                await repository.Url
+                                    .AppendPathSegment($"environments/{armDeploymentScope.Slug}/secrets/{azureCredentialsPayload.secret_name}")
+                                    .WithGitHubHeaders()
+                                    .WithGitHubCredentials(client.Connection.Credentials)
+                                    .PutJsonAsync(azureCredentialsPayload)
+                                    .ConfigureAwait(false);
+                            }
+                            catch (Exception exc)
+                            {
+                                throw new Exception($"Failed to synchronize environment '{armDeploymentScope.DisplayName}'", exc);
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -79,6 +79,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
     // however; it is used to managed singleton function execution within the functions fx !!!
 
     public AzureDevOpsAdapter(
+        IAdapterProvider adapterProvider,
         IAuthorizationSessionClient sessionClient,
         IAuthorizationTokenClient tokenClient,
         IDistributedLockManager distributedLockManager,
@@ -94,7 +95,7 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
         IGraphService graphService,
         IFunctionsHost functionsHost = null,
         ILoggerFactory loggerFactory = null)
-        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(adapterProvider, sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.httpClientFactory = httpClientFactory ?? new DefaultHttpClientFactory();
         this.userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
