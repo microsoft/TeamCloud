@@ -38,7 +38,8 @@ public sealed class KubernetesAdapter : Adapter
     // IDistributedLockManager is marked as obsolete, because it's not ready for "prime time"
     // however; it is used to managed singleton function execution within the functions fx !!!
 
-    public KubernetesAdapter(IAuthorizationSessionClient sessionClient,
+    public KubernetesAdapter(IAdapterProvider adapterProvider,
+                             IAuthorizationSessionClient sessionClient,
                              IAuthorizationTokenClient tokenClient,
                              IDistributedLockManager distributedLockManager,
                              IAzureService azure,
@@ -48,7 +49,7 @@ public sealed class KubernetesAdapter : Adapter
                              IDeploymentScopeRepository deploymentScopeRepository,
                              IProjectRepository projectRepository,
                              IUserRepository userRepository)
-        : base(sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
+        : base(adapterProvider, sessionClient, tokenClient, distributedLockManager, azure, graphService, organizationRepository, deploymentScopeRepository, projectRepository, userRepository)
     {
         this.azureResourceService = azureResourceService ?? throw new ArgumentNullException(nameof(azureResourceService));
     }
