@@ -1168,26 +1168,4 @@ public sealed class AzureDevOpsAdapter : AdapterWithIdentity, IAdapterAuthorize
         return component;
     });
 
-    public override Task<NetworkCredential> GetServiceCredentialAsync(Component component)
-        => WithContextAsync(component, async (componentOrganization, componentDeploymentScope, comonentProject) =>
-        {
-            var token = await TokenClient
-                .GetAsync<AzureDevOpsToken>(componentDeploymentScope)
-                .ConfigureAwait(false);
-
-            if (token is null)
-            {
-                return null; // no token - no client
-            }
-            else if (token.AccessTokenExpired)
-            {
-                if (token.RefreshTokenExpired)
-                    throw new Exception("Refresh");
-
-                token = await RefreshTokenAsync(token)
-                    .ConfigureAwait(false);
-            }
-
-            return token is null ? null : new NetworkCredential("bearer", token.AccessToken, token.Organization);
-        });
 }

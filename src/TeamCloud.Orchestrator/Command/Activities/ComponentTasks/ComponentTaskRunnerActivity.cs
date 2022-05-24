@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Flurl;
 using Flurl.Http;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
@@ -116,6 +117,12 @@ public sealed class ComponentTaskRunnerActivity
                     .GetAsync(componentTask.Organization, componentTask.ProjectId)
                     .ConfigureAwait(false);
 
+                var deploymentScope = await deploymentScopeRepository
+                    .GetAsync(component.Organization, component.DeploymentScopeId)
+                    .ConfigureAwait(false);
+
+                var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
+
                 var projectResourceId = new ResourceIdentifier(project.ResourceId);
 
                 // we must not use the component task's id as runner label as this
@@ -142,11 +149,11 @@ public sealed class ComponentTaskRunnerActivity
                     properties = new
                     {
                         imageRegistryCredentials = await GetRegistryCredentialsAsync(organization).ConfigureAwait(false),
-                        containers = await GetContainersAsync(organization, component, componentTemplate, componentTask, componentRunnerHost, componentRunnerCpu, componentRunnerMemory).ConfigureAwait(false),
+                        containers = await GetContainersAsync(organization, project, deploymentScope, adapter, component, componentTemplate, componentTask, componentRunnerHost, componentRunnerCpu, componentRunnerMemory).ConfigureAwait(false),
                         osType = "Linux",
                         restartPolicy = "Never",
                         ipAddress = GetIpAddress(componentTemplate, componentRunnerLabel),
-                        volumes = await GetVolumesAsync(project, component, componentTemplate).ConfigureAwait(false)
+                        volumes = await GetVolumesAsync(organization, project, deploymentScope, adapter, component, componentTemplate).ConfigureAwait(false)
                     }
                 };
 
@@ -441,7 +448,7 @@ public sealed class ComponentTaskRunnerActivity
         return credentials.ToArray();
     }
 
-    private async Task<object[]> GetContainersAsync(Organization organization, Component component, ComponentTemplate componentTemplate, ComponentTask componentTask, string runnerHost, int runnerCpu, int runnerMemory)
+    private async Task<object[]> GetContainersAsync(Organization organization, Project project, DeploymentScope deploymentScope, IAdapter adapter, Component component, ComponentTemplate componentTemplate, ComponentTask componentTask, string runnerHost, int runnerCpu, int runnerMemory)
     {
         var taskToken = CreateUniqueString(30);
 
@@ -461,7 +468,7 @@ public sealed class ComponentTaskRunnerActivity
                             memoryInGB = runnerMemory
                         }
                     },
-                    environmentVariables = GetRunnerEnvironmentVariables(),
+                    environmentVariables = await GetEnvironmentAsync().ConfigureAwait(false),
                     volumeMounts = new []
                     {
                         new
@@ -526,19 +533,6 @@ public sealed class ComponentTaskRunnerActivity
                             memoryInGB = 1
                         }
                     },
-                    //readinessProbe = new
-                    //{
-                    //    httpGet = new
-                    //    {
-                    //        scheme = "http",
-                    //        port = 80,
-                    //        path = "/"
-
-                    //    },
-                    //    initialDelaySeconds = 2,
-                    //    periodSeconds = 2,
-                    //    timeoutSeconds = 300
-                    //},
                     environmentVariables = new object[]
                     {
                         new
@@ -567,35 +561,41 @@ public sealed class ComponentTaskRunnerActivity
 
         return containers.ToArray();
 
-        object[] GetRunnerEnvironmentVariables()
+        async Task<object[]> GetEnvironmentAsync()
         {
-            var envVariables = componentTemplate.TaskRunner?.With ?? new Dictionary<string, string>();
+            IDictionary<string, string> environment = componentTemplate.TaskRunner?.With ?? new Dictionary<string, string>();
 
-            envVariables["TaskId"] = componentTask.Id;
-            envVariables["TaskHost"] = runnerHost;
-            envVariables["TaskToken"] = taskToken;
-            envVariables["TaskType"] = componentTask.TypeName ?? componentTask.Type.ToString();
-            envVariables["WebServerEnabled"] = ((componentTemplate.TaskRunner?.WebServer ?? false) ? 1 : 0).ToString();
-            envVariables["ComponentLocation"] = organization.Location;
-            envVariables["ComponentTemplateBaseUrl"] = $"http://{runnerHost}/{componentTemplate.Folder.Trim().TrimStart('/')}";
-            envVariables["ComponentTemplateFolder"] = $"file:///mnt/templates/{componentTemplate.Folder.Trim().TrimStart('/')}";
-            envVariables["ComponentTemplateParameters"] = string.IsNullOrWhiteSpace(component.InputJson) ? "{}" : component.InputJson;
-            envVariables["ComponentResourceId"] = component.ResourceId;
-
-            if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+            if (adapter is IAdapterRunner adapterRunner)
             {
-                envVariables["ComponentResourceGroup"] = componentResourceId.ResourceGroup;
-                envVariables["ComponentSubscription"] = componentResourceId.SubscriptionId.ToString();
+                var adapterEnvironment = await adapterRunner
+                    .GetEnvironmentAsync(deploymentScope, component)
+                    .ConfigureAwait(false);
+
+                if (adapterEnvironment is not null)
+                    environment = environment.Override(adapterEnvironment);
             }
 
-            return envVariables
+            environment["TaskId"] = componentTask.Id;
+            environment["TaskHost"] = runnerHost;
+            environment["TaskToken"] = taskToken;
+            environment["TaskType"] = componentTask.TypeName ?? componentTask.Type.ToString();
+            environment["WebServerEnabled"] = ((componentTemplate.TaskRunner?.WebServer ?? false) ? 1 : 0).ToString();
+
+            environment["ComponentLocation"] = organization.Location;
+            environment["ComponentResourceId"] = component.ResourceId;
+
+            environment["ComponentTemplateBaseUrl"] = $"http://{runnerHost}/{componentTemplate.Folder.Trim().TrimStart('/')}";
+            environment["ComponentTemplateFolder"] = $"file:///mnt/templates/{componentTemplate.Folder.Trim().TrimStart('/')}";
+            environment["ComponentTemplateParameters"] = string.IsNullOrWhiteSpace(component.InputJson) ? "{}" : component.InputJson;
+
+            return environment
                 .Where(kvp => kvp.Value is not null)
                 .Select(kvp => new { name = kvp.Key, value = kvp.Value })
                 .ToArray();
         }
     }
 
-    private async Task<object[]> GetVolumesAsync(Project project, Component component, ComponentTemplate componentTemplate)
+    private async Task<object[]> GetVolumesAsync(Organization  organization, Project project, DeploymentScope deploymentScope, IAdapter adapter, Component component, ComponentTemplate componentTemplate)
     {
         return new object[]
         {
@@ -664,14 +664,21 @@ public sealed class ComponentTaskRunnerActivity
             dynamic secretsObject = new ExpandoObject(); // the secrets container
             var secretsProperties = secretsObject as IDictionary<string, object>;
 
-            await foreach (var secret in azure.KeyVaults.GetSecretsAsync(project.SharedVaultId, ensureIdentityAccess: true))
+            if (adapter is IAdapterRunner adapterRunner)
             {
-                if (secret.Value is null) continue;
+                var secrets = await adapterRunner
+                    .GetSecretsAsync(deploymentScope, component)
+                    .ConfigureAwait(false);
 
-                var secretNameSafe = Regex.Replace(secret.Key, "[^A-Za-z0-9_]", string.Empty);
-                var secretValueSafe = Convert.ToBase64String(Encoding.UTF8.GetBytes(secret.Value));
+                foreach (var secret in (secrets ?? new Dictionary<string, string>()).Where(kvp => !string.IsNullOrEmpty(kvp.Value)))
+                {
+                    secretsProperties[Regex.Replace(secret.Key, "[^A-Za-z0-9_]", string.Empty)] = EncodeValue(secret.Value);
+                }
+            }
 
-                secretsProperties.Add(new KeyValuePair<string, object>(secretNameSafe, secretValueSafe));
+            await foreach (var secret in azure.KeyVaults.GetSecretsAsync(project.SharedVaultId, ensureIdentityAccess: true).Where(kvp => !string.IsNullOrEmpty(kvp.Value)))
+            {
+                secretsProperties[Regex.Replace(secret.Key, "[^A-Za-z0-9_]", string.Empty)] = EncodeValue(secret.Value);
             }
 
             var count = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{secretsProperties.Count}"));
@@ -685,25 +692,15 @@ public sealed class ComponentTaskRunnerActivity
             dynamic credentialObject = new ExpandoObject(); // the credentials container
             var credentialProperties = credentialObject as IDictionary<string, object>;
 
-            var deploymentScope = await deploymentScopeRepository
-                .GetAsync(component.Organization, component.DeploymentScopeId)
-                .ConfigureAwait(false);
-
-            var adapter = adapterProvider.GetAdapter(deploymentScope.Type);
-
-            if (adapter is not null)
+            if (adapter is IAdapterRunner adapterRunner)
             {
-                var credential = await adapter
-                    .GetServiceCredentialAsync(component)
+                var credentials = await adapterRunner
+                    .GetCredentialsAsync(deploymentScope, component)
                     .ConfigureAwait(false);
 
-                if (credential is not null)
+                foreach (var credential in (credentials ?? new Dictionary<string, string>()).Where(kvp => !string.IsNullOrEmpty(kvp.Value)))
                 {
-                    credentialProperties.Add(new KeyValuePair<string, object>("domain", EncodeValue(credential.Domain)));
-                    credentialProperties.Add(new KeyValuePair<string, object>("username", EncodeValue(credential.UserName)));
-                    credentialProperties.Add(new KeyValuePair<string, object>("password", EncodeValue(credential.Password)));
-
-                    string EncodeValue(string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
+                    credentialProperties[Regex.Replace(credential.Key, "[^A-Za-z0-9_]", string.Empty)] = EncodeValue(credential.Value);
                 }
             }
 
@@ -712,6 +709,8 @@ public sealed class ComponentTaskRunnerActivity
 
             return credentialObject;
         }
+
+        string EncodeValue(string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
     }
 
     private async Task<string> GetLocationAsync(Component component, string subscriptionId, int runnerCPU, int runnerMemory, bool usePairedRegion = false)

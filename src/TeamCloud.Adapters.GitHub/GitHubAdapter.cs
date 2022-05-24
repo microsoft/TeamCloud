@@ -16,6 +16,7 @@ using Azure.Core;
 using Flurl;
 using Flurl.Http;
 using Flurl.Http.Configuration;
+using Jose;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,7 @@ using User = TeamCloud.Model.Data.User;
 
 namespace TeamCloud.Adapters.GitHub;
 
-public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthorize
+public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthorize, IAdapterRunner
 {
     private static readonly IJsonSerializer GitHubSerializer = new SimpleJsonSerializer();
     private readonly IAdapterProvider adapterProvider;
@@ -127,7 +128,7 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
             .GetAsync<GitHubToken>(deploymentScope)
             .ConfigureAwait(false);
 
-        return !(token is null);
+        return (token is not null);
     }
 
     async Task<AzureServicePrincipal> IAdapterAuthorize.ResolvePrincipalAsync(DeploymentScope deploymentScope, HttpRequest request)
@@ -630,8 +631,8 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
                         // the project already exists - try to re-fetch project information
 
                         projects = await client.Repository.Project
-                        .GetAllForOrganization(token.OwnerLogin)
-                        .ConfigureAwait(false);
+                            .GetAllForOrganization(token.OwnerLogin)
+                            .ConfigureAwait(false);
 
                         project = projects
                             .FirstOrDefault(t => t.Name.Equals(projectName, StringComparison.Ordinal));
@@ -1124,17 +1125,48 @@ public sealed partial class GitHubAdapter : AdapterWithIdentity, IAdapterAuthori
         return component;
     });
 
-    public override async Task<NetworkCredential> GetServiceCredentialAsync(Component component)
-    {
-        if (component is null)
-            throw new ArgumentNullException(nameof(component));
+    Task<Dictionary<string, string>> IAdapterRunner.GetSecretsAsync(DeploymentScope deploymentScope, Component component)
+        => Task.FromResult(new Dictionary<string, string>());
 
-        var gitHubClient = await CreateClientAsync(component)
+    Task<Dictionary<string, string>> IAdapterRunner.GetCredentialsAsync(DeploymentScope deploymentScope, Component component)
+        => Task.FromResult(new Dictionary<string, string>());
+
+    async Task<Dictionary<string, string>> IAdapterRunner.GetEnvironmentAsync(DeploymentScope deploymentScope, Component component)
+    {
+        var environment = new Dictionary<string, string>();
+
+        var token = await TokenClient
+            .GetAsync<GitHubToken>(deploymentScope)
             .ConfigureAwait(false);
 
-        if (gitHubClient is null)
-            return default;
+        if (token is not null && GitHubIdentifier.TryParse(component.ResourceId, out var gitHubIdentifier))
+        {
+            try
+            {
+                var client = await CreateClientAsync(token)
+                    .ConfigureAwait(false);
 
-        return new NetworkCredential("bearer", gitHubClient.Credentials.Password, gitHubClient.BaseAddress.ToString());
+                var payload = new
+                {
+                    repositoriesarray = new string[] { gitHubIdentifier.Repository },
+                    permissions = new
+                    {
+                        contents = "write"
+                    }
+                };
+
+                var response = await $"https://api.github.com/app/installations/{token.InstallationId}/access_tokens"
+                    .WithGitHubHeaders()
+                    .WithGitHubCredentials(client.Connection.Credentials)
+                    .PostJsonAsync(payload)
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                // swallow - TODO: generate PAT token for runner and set environment variables
+            }
+        }
+
+        return environment;
     }
 }
