@@ -261,19 +261,4 @@ public sealed class KubernetesAdapter : Adapter
 
             return Task.FromResult(component);
         });
-
-    protected override Task<NetworkCredential> GetServiceCredentialAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project)
-        => WithKubernetesContext(component, deploymentScope, async (client, data, roleDefinition, serviceAccount) =>
-        {
-            var configuration = await client
-                .CreateClusterConfigAsync(serviceAccount)
-                .ConfigureAwait(false);
-
-            return new NetworkCredential()
-            {
-                Domain = client.BaseUri.ToString(),
-                Password = new SerializerBuilder().Build().Serialize(configuration),
-                UserName = serviceAccount.Name()
-            };
-        });
 }

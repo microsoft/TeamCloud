@@ -24,7 +24,7 @@ using TeamCloud.Serialization.Forms;
 
 namespace TeamCloud.Adapters.AzureResourceManager;
 
-public sealed class AzureResourceManagerAdapter : AdapterWithIdentity
+public sealed class AzureResourceManagerAdapter : AdapterWithIdentity, IAdapterRunner
 {
     private readonly IAzureService azure;
     private readonly IAzureResourceService azureResourceService;
@@ -565,5 +565,24 @@ public sealed class AzureResourceManagerAdapter : AdapterWithIdentity
                 return Guid.Empty;
             }
         }
+    }
+
+    Task<Dictionary<string, string>> IAdapterRunner.GetSecretsAsync(DeploymentScope deploymentScope, Component component)
+        => Task.FromResult(new Dictionary<string, string>());
+
+    Task<Dictionary<string, string>> IAdapterRunner.GetCredentialsAsync(DeploymentScope deploymentScope, Component component)
+        => Task.FromResult(new Dictionary<string, string>());
+
+    Task<Dictionary<string, string>> IAdapterRunner.GetEnvironmentAsync(DeploymentScope deploymentScope, Component component)
+    {
+        var environment = new Dictionary<string, string>();
+
+        if (AzureResourceIdentifier.TryParse(component.ResourceId, out var componentResourceId))
+        {
+            environment["ComponentResourceGroup"] = componentResourceId.ResourceGroup;
+            environment["ComponentSubscription"] = componentResourceId.SubscriptionId.ToString();
+        }
+
+        return Task.FromResult(environment);
     }
 }

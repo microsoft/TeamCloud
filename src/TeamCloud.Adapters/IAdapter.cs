@@ -31,6 +31,4 @@ public interface IAdapter
     Task<Component> UpdateComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
 
     Task<Component> DeleteComponentAsync(Component component, User contextUser, IAsyncCollector<ICommand> commandQueue);
-
-    Task<NetworkCredential> GetServiceCredentialAsync(Component component);
 }

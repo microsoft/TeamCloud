@@ -127,13 +127,6 @@ public abstract class Adapter : IAdapter
     public virtual Task<string> GetInputFormSchemaAsync()
         => Task.FromResult(formSchemaEmpty.ToString(Formatting.None));
 
-    public virtual Task<NetworkCredential> GetServiceCredentialAsync(Component component)
-        => WithContextAsync(component, (componentOrganization, componentDeploymentScope, componentProject)
-            => GetServiceCredentialAsync(component, componentOrganization, componentDeploymentScope, componentProject));
-
-    protected virtual Task<NetworkCredential> GetServiceCredentialAsync(Component component, Organization organization, DeploymentScope deploymentScope, Project project)
-        => Task.FromResult(default(NetworkCredential));
-
     public virtual Task<bool> IsAuthorizedAsync(DeploymentScope deploymentScope)
         => this is IAdapterAuthorize ? throw new NotImplementedException() : Task.FromResult(true);
 
