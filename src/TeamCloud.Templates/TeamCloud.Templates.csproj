@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DotLiquid" Version="2.2.595" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
 </Project>
