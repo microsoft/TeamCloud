@@ -21,7 +21,7 @@
 	  <PackageReference Include="FluentValidation" Version="9.2.2" />
 	  <PackageReference Include="Microsoft.Azure.EventGrid" Version="3.2.1" />
 	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
 	  <PackageReference Include="Slugify.Core" Version="3.0.0" />
 	</ItemGroup>
 
